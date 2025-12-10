@@ -14,7 +14,7 @@
 #'
 #' @param graph a GeoPressureR graph object.
 #' @param thr_as threshold of airspeed (km/h).
-#' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -return_averaged_variable
+#' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -return_averaged_variable -variable
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
