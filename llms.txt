@@ -13,6 +13,9 @@ The best way to install the GeoPressureR package is through Github
 ``` r
 # install.packages("pak")
 pak::pkg_install("Rafnuss/GeoPressureR")
+
+# Development version:
+pak::pkg_install("Rafnuss/GeoPressureR@dev")
 ```
 
 ## Learn how to use GeoPressureR
@@ -212,7 +215,7 @@ Geopositioning based on light data.
 - [`geolight_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
   : Compute likelihood map from twilight
 - [`ts2mat()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ts2mat.md)
-  : Format timeserie data.frame into a matrix
+  : Format time series data frame into a matrix
 
 ## Graph
 

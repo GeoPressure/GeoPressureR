@@ -16,7 +16,7 @@ for an illustration on how to use it.
 ## Usage
 
 ``` r
-graph_add_wind(graph, thr_as = Inf, ...)
+graph_add_wind(graph, thr_as = Inf, variable = c("u", "v"), ...)
 ```
 
 ## Arguments
@@ -28,6 +28,13 @@ graph_add_wind(graph, thr_as = Inf, ...)
 - thr_as:
 
   threshold of airspeed (km/h).
+
+- variable:
+
+  list of the variables to extract from [the ERA5 pressure
+  level](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`,
+  `"v"`, `"t"`, `"cc"`, `"r"`, `"w"`, `"ciwc"`, `"clwc"`, `"q"`,
+  `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
 
 - ...:
 
@@ -74,8 +81,16 @@ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and
 Daniel Sheldon. 2023. Reconstructing bird trajectories from pressure and
 wind data using a highly optimized hidden Markov model. *Methods in
 Ecology and Evolution*, 14, 1118–1129
-<https://doi.org/10.1111/2041-210X.14082>.
+[doi:10.1111/2041-210X.14082](https://doi.org/10.1111/2041-210X.14082) .
 
 ## See also
 
 [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+
+Other graph:
+[`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md),
+[`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md),
+[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md),
+[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
+[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
+[`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
