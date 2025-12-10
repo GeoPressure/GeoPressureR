@@ -21,7 +21,7 @@
 #'
 #' # Plotting pressure displays the raw data (in grey) with the processed data from
 #' # `geopressure_map_preprocess` (as coloured line)
-#' plot_tag_pressure(tag, quiet = TRUE)
+#' plot_tag_pressure(tag)
 #'
 #' @export
 geopressure_map_preprocess <- function(tag, compute_known = FALSE) {

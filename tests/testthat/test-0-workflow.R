@@ -119,13 +119,15 @@ test_that("workflow | modelled fewer", {
 
   path <- expect_no_error(tag2path(tag))
 
+  graph <- expect_no_error(graph_create(tag, quiet = TRUE))
+
   graph <- expect_no_error(graph_set_movement(graph))
 
   marginal <- expect_no_error(graph_marginal(graph, quiet = TRUE))
   path <- expect_no_error(graph_most_likely(graph, quiet = TRUE))
   sim <- expect_no_error(graph_simulation(graph, quiet = TRUE))
   edge <- expect_no_error(path2edge(path, graph))
-  dge_sim <- expect_no_error(epath2edge(sim, graph))
+  edge_sim <- expect_no_error(path2edge(sim, graph))
 
   # Verify outputs are valid
   expect_s3_class(path, "data.frame")
