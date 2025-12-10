@@ -11,6 +11,9 @@ graph_add_wind(graph, thr_as = Inf, variable = c("u", "v"), ...)
 
 \item{thr_as}{threshold of airspeed (km/h).}
 
+\item{variable}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
+\code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
+
 \item{...}{
   Arguments passed on to \code{\link[=edge_add_wind]{edge_add_wind}}
   \describe{
@@ -18,8 +21,6 @@ graph_add_wind(graph, thr_as = Inf, variable = c("u", "v"), ...)
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
 POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, assuming that argument \code{graph}
 is a GeoPressureR \code{tag} object.}
-    \item{\code{variable}}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
-\code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
     \item{\code{rounding_interval}}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
     \item{\code{interp_spatial_linear}}{logical to interpolate the variable linearly over space, if \code{FALSE}
