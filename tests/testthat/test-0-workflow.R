@@ -118,15 +118,16 @@ test_that("workflow | modelled fewer", {
   )
   tag <- geopressure_map(tag, quiet = TRUE)
 
-  path <- expect_no_error(tag2path(tag))
+  expect_no_error(path <- tag2path(tag))
 
-  graph <- expect_no_error(graph_set_movement(graph))
+  expect_no_error(graph <- graph_create(tag, quiet = TRUE))
+  expect_no_error(graph <- graph_set_movement(graph))
 
-  marginal <- expect_no_error(graph_marginal(graph, quiet = TRUE))
-  path <- expect_no_error(graph_most_likely(graph, quiet = TRUE))
-  sim <- expect_no_error(graph_simulation(graph, quiet = TRUE))
-  edge <- expect_no_error(path2edge(path, graph))
-  dge_sim <- expect_no_error(epath2edge(sim, graph))
+  expect_no_error(marginal <- graph_marginal(graph, quiet = TRUE))
+  expect_no_error(path <- graph_most_likely(graph, quiet = TRUE))
+  expect_no_error(sim <- graph_simulation(graph, quiet = TRUE))
+  expect_no_error(edge <- path2edge(path, graph))
+  expect_no_error(edge_sim <- path2edge(sim, graph))
 
   # Verify outputs are valid
   expect_s3_class(path, "data.frame")
