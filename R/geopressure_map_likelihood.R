@@ -4,7 +4,7 @@
 geopressure_map_likelihood <- function(
   tag,
   sd = formals(geopressure_map)$sd,
-  log_linear_pooling_weight = \(n) log(n) / n,
+  log_linear_pooling_weight = formals(geopressure_map)$log_linear_pooling_weight,
   keep_mse = TRUE
 ) {
   # Check tag status

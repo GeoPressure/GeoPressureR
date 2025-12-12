@@ -5,11 +5,11 @@ geopressure_map_mismatch <- function(
   tag,
   max_sample = formals(geopressure_map)$max_sample,
   margin = formals(geopressure_map)$margin,
+  thr_mask = formals(geopressure_map)$thr_mask,
+  timeout = formals(geopressure_map)$timeout,
+  workers = formals(geopressure_map)$workers,
+  compute_known = formals(geopressure_map)$compute_known,
   keep_mask = TRUE,
-  thr_mask = 0.9,
-  timeout = 60 * 5,
-  workers = "auto",
-  compute_known = FALSE,
   debug = FALSE,
   quiet = FALSE
 ) {

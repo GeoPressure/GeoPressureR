@@ -24,7 +24,10 @@
 #' plot_tag_pressure(tag)
 #'
 #' @export
-geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
+geopressure_map_preprocess <- function(
+  tag,
+  compute_known = formals(geopressure_map)$compute_known
+) {
   tag_assert(tag, "label")
   stap <- tag$stap
   pressure <- tag$pressure
