@@ -46,7 +46,7 @@ pressurepath_update <- function(
   ))
 
   # Check tag and pressure
-  tag_assert(tag, "setmap")
+  tag_assert(tag, "tag_set_map")
   if (assertthat::has_attr(pressurepath, "preprocess")) {
     preprocess <- attr(pressurepath, "preprocess")
   } else {

@@ -93,7 +93,7 @@ geolight_map <- function(
   quiet = FALSE
 ) {
   # Check tag
-  tag_assert(tag, "setmap")
+  tag_assert(tag, "tag_set_map")
   tag_assert(tag, "twilight")
 
   twl <- tag$twilight

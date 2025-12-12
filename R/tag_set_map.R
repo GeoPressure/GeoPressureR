@@ -154,7 +154,7 @@ tag_set_map <- function(
   stap_include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
 
   # Check if value are already defined and if they are changing
-  # Check if setmap has already been run before (all these condition should always be the same)
+  # Check if tag_set_map has already been run before (all these condition should always be the same)
   if (
     "extent" %in%
       names(tag$param$tag_set_map) ||

@@ -101,7 +101,7 @@ print.tag <- function(x, ...) {
 
       # Map
       cli::cli_h3("Map")
-      if (!("setmap" %in% status)) {
+      if (!("tag_set_map" %in% status)) {
         cli::cli_bullets(c(
           "x" = "No geographical parameters defined yet. Use {.fun tag_set_map}"
         ))

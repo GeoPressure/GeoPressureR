@@ -14,7 +14,7 @@ geopressure_map_mismatch <- function(
   quiet = FALSE
 ) {
   # Check tag
-  tag_assert(tag, "setmap")
+  tag_assert(tag, "tag_set_map")
 
   # Assert input
   assertthat::assert_that(is.numeric(max_sample))

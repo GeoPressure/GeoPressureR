@@ -100,7 +100,7 @@ geopressureviz <- function(
     tag <- x
   }
 
-  tag_assert(tag, "setmap")
+  tag_assert(tag, "tag_set_map")
 
   if (all(c("map_pressure", "map_light") %in% names(tag))) {
     tag$map_preslight <- tag$map_pressure * tag$map_light

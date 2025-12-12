@@ -10,7 +10,7 @@ tag_assert(tag, condition = "tag", type = "abort")
 \item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{condition}{condition to assert \code{tag} for. One of \code{"tag"} (default), \code{"pressure"},
-\code{"light"}, \code{"acceleration"}, \code{"label"}, \code{"stap"}, \code{"setmap"}, \code{"map_pressure"}, \code{"map_light"}
+\code{"light"}, \code{"acceleration"}, \code{"label"}, \code{"stap"}, \code{"tag_set_map"}, \code{"map_pressure"}, \code{"map_light"}
 \code{"map_pressure_mse"} and \code{"twilight"}}
 
 \item{type}{Message type to display. One of \code{"abort"} (default), \code{"warn"} or \code{"inform"}}
@@ -30,7 +30,7 @@ tag_assert(tag)
 
 tag_assert(tag, "stap")
 
-tag_assert(tag, "setmap", type = "warn")
+tag_assert(tag, "tag_set_map", type = "warn")
 
 tag_assert(tag, "map_pressure", type = "inform")
 
