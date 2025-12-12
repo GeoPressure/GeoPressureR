@@ -30,8 +30,7 @@ tag_create_dataframe <- function(
         1100 < max(pressure_file$value, na.rm = TRUE)
     ) {
       cli::cli_warn(
-        "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa \\
-    (sea level at 1013hPa). Check unit of pressure data.frame provided."
+        "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013hPa). Check unit of pressure data.frame provided."
       )
     }
     tag$pressure <- pressure_file

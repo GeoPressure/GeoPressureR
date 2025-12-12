@@ -61,8 +61,7 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
     if (!is.numeric(interp)) {
       cli::cli_abort(c(
         x = "{.var interp} needs to be a numeric or {.val {FALSE}}.",
-        ">" = "Indicate the maximum duration of stationary periods for which the position is \\
-        interpolated"
+        ">" = "Indicate the maximum duration of stationary periods for which the position is interpolated"
       ))
     }
 
@@ -90,8 +89,7 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
         ))
       } else {
         cli::cli_warn(c(
-          "!" = "First and/or last modelled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
-         are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
+          "!" = "First and/or last modelled stationary periods ({.val {tag$stap$stap_id[fal]}}) are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
           ">" = "They will not be interpolated."
         ))
       }

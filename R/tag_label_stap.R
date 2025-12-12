@@ -123,8 +123,7 @@ tag_label_stap <- function(
         date <- tag[[sensor_df]]$twilight
       } else {
         cli::cli_abort(c(
-          "{.field {sensor_df}} needs to have a column {.field date} or \\
-                         {.field twilight}."
+          "{.field {sensor_df}} needs to have a column {.field date} or {.field twilight}."
         ))
       }
       tag[[sensor_df]]$stap_id <- find_stap(tag$stap, date)
@@ -137,8 +136,7 @@ tag_label_stap <- function(
     if (nrow(stap) == 1) {
       cli::cli_warn(c(
         "!" = "There is only a single stationary period.",
-        i = "Check that you are using {.val flight} in the label file and labelling the correct \\
-        series ({.field pressure} or {.field acceleration})."
+        i = "Check that you are using {.val flight} in the label file and labelling the correct series ({.field pressure} or {.field acceleration})."
       ))
     }
 
@@ -154,15 +152,13 @@ tag_label_stap <- function(
         # nolint start
         s <- stap_warning[i, ]
         cli::cli_bullets(c(
-          "!" = "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - \\
-          {format(s$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(s$duration_time)}"
+          "!" = "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - {format(s$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(s$duration_time)}"
         ))
         # nolint end
       }
     } else {
       cli::cli_bullets(c(
-        "v" = "All {nrow(stap)} stationary period{?s} duration are above \\
-                             {warning_stap_duration} hour{?s}."
+        "v" = "All {nrow(stap)} stationary period{?s} duration are above {warning_stap_duration} hour{?s}."
       ))
     }
 
@@ -177,16 +173,13 @@ tag_label_stap <- function(
         # nolint start
         f <- flight_warning[i, ]
         cli::cli_bullets(c(
-          "!" = "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - \\
-            {format(f$end, format='%Y-%m-%d %H:%M')}) : \\
-          {pretty_dt(as.difftime(f$duration, units = 'hours'))}"
+          "!" = "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - {format(f$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(as.difftime(f$duration, units = 'hours'))}"
         ))
         # nolint end
       }
     } else {
       cli::cli_bullets(c(
-        "v" = "All {nrow(flight)} flight{?s} duration are above \\
-                              {warning_flight_duration} hour{?s}."
+        "v" = "All {nrow(flight)} flight{?s} duration are above {warning_flight_duration} hour{?s}."
       ))
     }
   }

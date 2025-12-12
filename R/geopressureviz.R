@@ -73,10 +73,8 @@ geopressureviz <- function(
       if (!is.null(pressurepath)) {
         if ("pressure_era5" %in% names(pressurepath)) {
           cli::cli_warn(c(
-            "!" = "{.var pressurepath} has been create with an old version of \\
-      {.pkg GeoPressureR} (<v3.2.0)",
-            ">" = "For optimal performance, we suggest to re-run \\
-      {.fun pressurepath_create}"
+            "!" = "{.var pressurepath} has been create with an old version of {.pkg GeoPressureR} (<v3.2.0)",
+            ">" = "For optimal performance, we suggest to re-run {.fun pressurepath_create}"
           ))
           pressurepath$surface_pressure <- pressurepath$pressure_era5
           pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm
@@ -92,8 +90,7 @@ geopressureviz <- function(
       }
     } else {
       cli::cli_abort(
-        "The first argument {.var x} needs to be a {.cls tag}, a {.field file} or \\
-                     an {.field id}"
+        "The first argument {.var x} needs to be a {.cls tag}, a {.field file} or an {.field id}"
       )
     }
   } else {

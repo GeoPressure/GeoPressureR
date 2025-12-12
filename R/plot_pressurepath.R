@@ -43,10 +43,8 @@ plot_pressurepath <- function(
 
   if ("pressure_era5" %in% names(pressurepath)) {
     cli::cli_warn(c(
-      "!" = "{.var pressurepath} has been create with an old version of \\
-      {.pkg GeoPressureR} (<v3.2.0)",
-      ">" = "For optimal performance, we suggest to re-run \\
-      {.fun pressurepath_create}"
+      "!" = "{.var pressurepath} has been create with an old version of {.pkg GeoPressureR} (<v3.2.0)",
+      ">" = "For optimal performance, we suggest to re-run {.fun pressurepath_create}"
     ))
     pressurepath$surface_pressure <- pressurepath$pressure_era5
     pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm

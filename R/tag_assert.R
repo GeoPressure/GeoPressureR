@@ -60,8 +60,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
       )
     } else if (condition == "tag_set_map") {
       msg <- c(
-        "x" = "The parameters for the geographical and stationary period have not been yet been \\
-      defined in {.var tag}.",
+        "x" = "The parameters for the geographical and stationary period have not been yet been defined in {.var tag}.",
         ">" = "Use {.fun tag_set_map} to define them."
       )
     } else if (condition == "map_pressure") {

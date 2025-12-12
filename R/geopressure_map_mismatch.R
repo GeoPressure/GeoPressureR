@@ -58,10 +58,8 @@ geopressure_map_mismatch <- function(
 
   if (!quiet) {
     cli::cli_progress_step(
-      msg = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
-    on {.url glp.mgravey.com/GeoPressure/v2/map/}: {.field {unique(pres$stapelev)}}",
-      msg_done = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
-    on {.url glp.mgravey.com/GeoPressure/v2/map/}"
+      msg = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev on {.url glp.mgravey.com/GeoPressure/v2/map/}: {.field {unique(pres$stapelev)}}",
+      msg_done = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev on {.url glp.mgravey.com/GeoPressure/v2/map/}"
     )
   }
 
@@ -107,14 +105,12 @@ geopressure_map_mismatch <- function(
   if (all(is.na(urls))) {
     cli::cli_abort(c(
       x = "There was no urls returned for all stationary periods.",
-      i = "It is probably due to request(s)  made for periods where no data are available. \\
-            Note that ERA5 data is usually only available on GEE ~3-5 months after."
+      i = "It is probably due to request(s) made for periods where no data are available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
     ))
   } else if (anyNA(urls)) {
     cli::cli_warn(c(
       "!" = "There was no urls returned for stationary periods {.val {labels[is.na(urls)]}}.",
-      i = "It is probably due to request(s) made for periods where no data are available. Note \\
-      that ERA5 data is usually only available on GEE ~3-5 months after."
+      i = "It is probably due to request(s) made for periods where no data are available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
     ))
     labels <- labels[!is.na(urls)]
     urls <- urls[!is.na(urls)]
@@ -135,8 +131,7 @@ geopressure_map_mismatch <- function(
     # nolint start
     i_u <- 1
     cli::cli_progress_step(
-      msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev \\
-      (on {.val {future::nbrOfWorkers()}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev (on {.val {future::nbrOfWorkers()}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
     # nolint end

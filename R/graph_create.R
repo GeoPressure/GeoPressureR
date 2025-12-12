@@ -131,17 +131,14 @@ graph_create <- function(
   lk_null <- sapply(lk, is.null)
   if (any(lk_null)) {
     cli::cli_abort(c(
-      x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods \\
-       {.var {stap_include[lk_null]}} while those stationary period are required in \\
-      {.var stap$include}",
+      x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods {.var {stap_include[lk_null]}} while those stationary period are required in {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
   }
 
   if (length(stap_include) < 2) {
     cli::cli_abort(c(
-      x = "There are only {.var {length(stap_include)}} stationary period{?s} to be modelled \\
-      according to {.var stap$include}.",
+      x = "There are only {.var {length(stap_include)}} stationary period{?s} to be modelled according to {.var stap$include}.",
       i = "You need at least 3 stationary periods."
     ))
   }
@@ -187,14 +184,12 @@ graph_create <- function(
   stap_id_0 <- sapply(lk_norm, sum) == 0
   if (anyNA(stap_id_0)) {
     cli::cli_abort(c(
-      x = "{.var likelihood} is invalid for the stationary period: \\
-      {stap_include[which(is.na(stap_id_0))]}"
+      x = "{.var likelihood} is invalid for the stationary period: {stap_include[which(is.na(stap_id_0))]}"
     ))
   }
   if (any(stap_id_0)) {
     cli::cli_abort(c(
-      x = "Using the {.var likelihood}  provided has an invalid probability map for the \\
-      stationary period: {stap_include[which(stap_id_0)]}"
+      x = "Using the {.var likelihood} provided has an invalid probability map for the stationary period: {stap_include[which(stap_id_0)]}"
     ))
   }
 
@@ -213,8 +208,7 @@ graph_create <- function(
   nds_0 <- unlist(lapply(nds, sum)) == 0
   if (any(nds_0)) {
     cli::cli_abort(c(
-      x = "Using the {.var thr_likelihood} of {.val {thr_likelihood}}, there are not any nodes \\
-      left at stationary period: {.val {stap_include[which(nds_0)]}}"
+      x = "Using the {.var thr_likelihood} of {.val {thr_likelihood}}, there are not any nodes left at stationary period: {.val {stap_include[which(nds_0)]}}"
     ))
   }
 
@@ -244,9 +238,7 @@ graph_create <- function(
     nds[[i_s + 1]] <- dist_km < flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
     if (sum(nds[[i_s + 1]]) == 0) {
       cli::cli_abort(c(
-        x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance \\
-          edges, there are not any nodes left at stationary period {.val {stap_include[i_s + 1]}} \\
-        from stationary period {.val {stap_include[i_s]}}"
+        x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance edges, there are not any nodes left at stationary period {.val {stap_include[i_s + 1]}} from stationary period {.val {stap_include[i_s]}}"
       ))
     }
   }
@@ -259,9 +251,7 @@ graph_create <- function(
       nds[[i_s - 1]]
     if (sum(nds[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
-        x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
-          edges, there are not any nodes left at stationary period {.val {stap_include[i_s - 1]}} \\
-        from stationary period {.val {stap_include[i_s]}}"
+        x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left at stationary period {.val {stap_include[i_s - 1]}} from stationary period {.val {stap_include[i_s]}}"
       ))
     }
   }
@@ -270,8 +260,7 @@ graph_create <- function(
   nds_sum <- unlist(lapply(nds, sum))
   if (any(nds_sum == 0)) {
     cli::cli_abort(c(
-      x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance \\
-          edges, there are not any nodes left."
+      x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left."
     ))
   }
   # Create the graph from nds with the exact groundspeed
@@ -285,8 +274,7 @@ graph_create <- function(
     i_s <- 0
     nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1) # nolint
     cli::cli_progress_step(
-      "Compute the groundspeed for stationary period {i_s}/{n_transitions}: \\
-      { round(sum(nds_expend_sum[seq_len(i_s)])/sum(nds_expend_sum)*100)}% of transitions done",
+      "Compute the groundspeed for stationary period {i_s}/{n_transitions}: { round(sum(nds_expend_sum[seq_len(i_s)])/sum(nds_expend_sum)*100)}% of transitions done",
       msg_done = "Compute the groundspeed"
     )
   }

@@ -24,8 +24,7 @@ print.tag <- function(x, ...) {
 
   cli::cli_h1("GeoPressureR `tag` object for {tag$param$id}")
   cli::cli_text(
-    "{.hint {.strong Note}: All {.field green} texts are fields of `tag` (i.e., \\
-                `tag${.field field}`).}"
+    "{.hint {.strong Note}: All {.field green} texts are fields of `tag` (i.e., `tag${.field field}`).}"
   )
 
   # Param
@@ -112,11 +111,8 @@ print.tag <- function(x, ...) {
           tag$param$tag_set_map$scale
         )
         cli::cli_bullets(c(
-          "*" = "Extent (W, E, S, N): {.val {tag$param$tag_set_map$extent[1]}}\u00b0, \\
-        {.val {tag$param$tag_set_map$extent[2]}}\u00b0, {.val {tag$param$tag_set_map$extent[3]}}\u00b0, \\
-        {.val {tag$param$tag_set_map$extent[4]}}\u00b0",
-          "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res. \\
-          {.val {1/tag$param$tag_set_map$scale}}\u00b0)"
+          "*" = "Extent (W, E, S, N): {.val {tag$param$tag_set_map$extent[1]}}\u00b0, {.val {tag$param$tag_set_map$extent[2]}}\u00b0, {.val {tag$param$tag_set_map$extent[3]}}\u00b0, {.val {tag$param$tag_set_map$extent[4]}}\u00b0",
+          "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res. {.val {1/tag$param$tag_set_map$scale}}\u00b0)"
         ))
 
         map_pressure_mismatch <- c("map_pressure_mse", "map_pressure_mask")

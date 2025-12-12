@@ -108,8 +108,7 @@ tag_set_map <- function(
   )
   if (length(unexpected_cols)) {
     cli::cli_warn(
-      "Unexpected columns found in {.var known}: \\
-                  {paste(unexpected_cols, collapse = ', ')}"
+      "Unexpected columns found in {.var known}: {paste(unexpected_cols, collapse = ', ')}"
     )
     known <- known[, c("stap_id", "known_lat", "known_lon")]
   }
@@ -180,8 +179,7 @@ tag_set_map <- function(
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
         cli::cli_bullets(
           c(
-            "!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) \\
-          have already been computed on this {.var tag} object with different setmap parameters."
+            "!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different tag_set_map parameters."
           )
         )
         res <- utils::askYesNo(
@@ -193,10 +191,8 @@ tag_set_map <- function(
           tag$map_light <- NULL
           tag$param <- NULL
           cli::cli_warn(c(
-            "!" = "The old parameters have been overwitten with the new ones and the likelihood \\
-            map have been deleted.",
-            ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new \\
-            likelihood maps"
+            "!" = "The old parameters have been overwitten with the new ones and the likelihood map have been deleted.",
+            ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new likelihood maps"
           ))
         } else {
           cli::cli_warn(c(
@@ -208,10 +204,8 @@ tag_set_map <- function(
         }
       } else {
         cli::cli_warn(c(
-          "!" = "{.fun setmap} has already been run on this {.var tag} object and the input \\
-          parameters are different.",
-          ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or \\
-          {.var tag$include}) will be overwitten with the new ones."
+          "!" = "{.fun tag_set_map} has already been run on this {.var tag} object and the input parameters are different.",
+          ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}) will be overwitten with the new ones."
         ))
       }
     }

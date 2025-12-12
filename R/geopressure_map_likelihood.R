@@ -18,16 +18,14 @@ geopressure_map_likelihood <- function(
   } else if (length(sd) != nrow(tag$stap)) {
     cli::cli_abort(c(
       "x" = "{.var sd} is of length {.val {length(sd)}}.",
-      ">" = "{.var sd} needs to be of length {.val {1}} or {.val {nrow(tag$stap)}} \\
-      ({.code nrow(tag$stap)})."
+      ">" = "{.var sd} needs to be of length {.val {1}} or {.val {nrow(tag$stap)}} ({.code nrow(tag$stap)})."
     ))
   }
   assertthat::assert_that(all(sd >= 0))
   if (any(sd < 0.3) || any(sd > 5)) {
     cli::cli_warn(c(
       "!" = "{.var sd} has values {.val {unique(sd)}}.",
-      "i" = "It is generally not recommended to have a standard deviation between {.val {0.3}} \\
-      and {.val {5}}."
+      "i" = "It is generally not recommended to have a standard deviation between {.val {0.3}} and {.val {5}}."
     ))
   }
   assertthat::assert_that(is.function(log_linear_pooling_weight))

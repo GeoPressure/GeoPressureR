@@ -95,8 +95,7 @@ plot.map <- function(
 
   if (plot_leaflet) {
     grp <- glue::glue(
-      "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
-                      {format(map$stap$end , format = '%d %b %H:%M')}"
+      "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}"
     )
 
     lmap <- leaflet::leaflet(height = 600) |>

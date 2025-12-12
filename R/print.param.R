@@ -105,8 +105,7 @@ bullets <- function(param, x) {
   val <- param[[x]]
   if (x == "extent") {
     cli::cli_bullets(c(
-      "*" = "{.field {x}}: [W:{.val {val[1]}}, E:{.val {val[2]}}, \\
-                       S:{.val {val[3]}}, N:{.val {val[4]}}]"
+      "*" = "{.field {x}}: [W:{.val {val[1]}}, E:{.val {val[2]}}, S:{.val {val[3]}}, N:{.val {val[4]}}]"
     ))
   } else if (is.call(val) || is.function(val)) {
     cli::cli_bullets(c(

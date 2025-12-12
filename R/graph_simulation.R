@@ -125,10 +125,8 @@ graph_simulation <- function(graph, nj = 10, quiet = FALSE) {
     i_s <- 1
     cli::cli_progress_bar(
       "Simulate positions for stationary period:",
-      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{graph$sz[3]} \\
-      {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "{cli::col_green(cli::symbol$tick)} Simulate positions for stationary periods \\
-      {cli::col_white('[', cli::pb_elapsed, ']')}",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{graph$sz[3]} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Simulate positions for stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = graph$sz[3]
     )

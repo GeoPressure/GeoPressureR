@@ -390,8 +390,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   missing_cols <- setdiff(col_name, names(df))
   if (length(missing_cols) > 0) {
     cli::cli_abort(
-      "The following columns are missing in {.file {sensor_path}}: \\
-                              {glue::glue_collapse(missing_cols, ', ')}"
+      "The following columns are missing in {.file {sensor_path}}: {glue::glue_collapse(missing_cols, ', ')}"
     )
   }
 
@@ -450,8 +449,7 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
           # nolint start
           dtime <- as.numeric(diff(tag[[sensor]]$date))
           cli::cli_warn(
-            "Irregular time spacing for {.field {sensor}}: \\
-                  {tag[[sensor]]$date[which(dtime != dtime[1])]}."
+            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(dtime != dtime[1])]}."
           )
           # nolint end
         }

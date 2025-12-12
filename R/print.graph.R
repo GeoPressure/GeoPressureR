@@ -34,8 +34,7 @@ print.graph <- function(x, ...) {
   cli::cli_h1("GeoPressureR `graph` object for {graph$param$id}")
 
   cli::cli_text(
-    "{.hint {.strong Note}: All {.field green} texts are fields of `graph` (i.e., \\
-                `graph${.field field}`).}"
+    "{.hint {.strong Note}: All {.field green} texts are fields of `graph` (i.e., `graph${.field field}`).}"
   )
 
   # Param

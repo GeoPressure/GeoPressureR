@@ -20,7 +20,7 @@
 #' POSIXt and `value` in hPa. If not provided, uses `graph$pressure`, assuming that argument `graph`
 #'  is a GeoPressureR `tag` object.
 #' @param variable list of the variables to extract from [the ERA5 pressure level
-#' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
+#' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`, `"t"`, `"cc"`, `"r"`,
 #' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' match ERA5 native resolution (1hr).
@@ -167,10 +167,8 @@ edge_add_wind <- function(
     i_stap <- 0
     cli::cli_progress_bar(
       "Compute wind speed for edges of stationary period:",
-      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(flight)} \\
-      {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of \\
-      stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(flight)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = sum(table_edge_s)
     )

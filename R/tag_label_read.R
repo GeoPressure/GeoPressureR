@@ -43,8 +43,7 @@ tag_label_read <- function(
   if (length(unique_label) > 0) {
     cli::cli_abort(c(
       x = "The pressure label file contains unknown label: {.val {unique_label}}",
-      i = "Correct the label file {.file {file}} to contains only \\
-      {.val {c('flight', 'discard', 'elev_*')}}"
+      i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
     ))
   }
 
@@ -73,8 +72,7 @@ tag_label_read <- function(
       if (length(unique_label) > 0) {
         cli::cli_abort(c(
           x = "The acceleration label file contains unknown label: {.val {unique_label}}",
-          i = "Correct the label file {.file {file}} to contains only \\
-          {.val {c('flight', 'discard', 'elev_*')}}"
+          i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
         ))
       }
     }
