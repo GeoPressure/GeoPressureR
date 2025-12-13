@@ -1,14 +1,12 @@
 library(testthat)
 library(GeoPressureR)
 
-# Set working directory
-setwd(system.file("extdata", package = "GeoPressureR"))
-
 test_that("workflow | full", {
+  test_with_extdata()
+
   geopressuretemplate("18LX", quiet = TRUE)
 
-  file <- glue::glue("./data/interim/18LX.RData")
-  save_list <- load(file)
+  save_list <- load_interim("18LX")
   tag <- get("tag")
   path_most_likely <- get("path_most_likely")
   pressurepath <- get("pressurepath_most_likely")
@@ -16,7 +14,7 @@ test_that("workflow | full", {
   path <- tag2path(tag)
   expect_no_error(tag2path(tag, interp = 0.7))
 
-  expect_no_error(print(tag))
+  expect_no_error(invisible(capture.output(print(tag), type = "message")))
 
   expect_no_error(plot(tag, type = "pressure"))
   expect_no_error(plot(tag, type = "pressure", plot_plotly = FALSE))
@@ -58,6 +56,7 @@ test_that("workflow | full", {
 })
 
 test_that("workflow | Missing pressure value", {
+  test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
 
@@ -94,6 +93,7 @@ test_that("workflow | Missing pressure value", {
 
 
 test_that("workflow | with elev_", {
+  test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE)
   tag <- tag_label(
     tag,
@@ -107,6 +107,7 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modelled fewer", {
+  test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag <- tag_set_map(
     tag,
@@ -116,16 +117,21 @@ test_that("workflow | modelled fewer", {
   )
   tag <- geopressure_map(tag, quiet = TRUE)
 
-  path <- tag2path(tag)
+  path <- expect_no_error(tag2path(tag))
 
-  graph <- graph_create(tag, quiet = TRUE)
-  graph <- graph_set_movement(graph)
+  graph <- expect_no_error(graph_create(tag, quiet = TRUE))
 
-  marginal <- graph_marginal(graph, quiet = TRUE)
-  path <- graph_most_likely(graph, quiet = TRUE)
-  sim <- graph_simulation(graph, quiet = TRUE)
-  edge <- path2edge(path, graph)
-  edge_sim <- path2edge(sim, graph)
+  graph <- expect_no_error(graph_set_movement(graph))
 
-  # gts <- pressurepath_create(tag)
+  marginal <- expect_no_error(graph_marginal(graph, quiet = TRUE))
+  path <- expect_no_error(graph_most_likely(graph, quiet = TRUE))
+  sim <- expect_no_error(graph_simulation(graph, quiet = TRUE))
+  edge <- expect_no_error(path2edge(path, graph))
+  edge_sim <- expect_no_error(path2edge(sim, graph))
+
+  # Verify outputs are valid
+  expect_s3_class(path, "data.frame")
+  expect_s3_class(edge, "data.frame")
+  expect_type(sim, "list")
+  expect_type(marginal, "list")
 })

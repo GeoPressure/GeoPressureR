@@ -7,7 +7,6 @@
 plot_tag_pressure(
   tag,
   plot_plotly = TRUE,
-  quiet = FALSE,
   warning_pressure_diff = 3,
   warning_stap_length = 12
 )
@@ -17,11 +16,9 @@ plot_tag_pressure(
 
 \item{plot_plotly}{logical to use \code{plotly}.}
 
-\item{quiet}{logical to hide warning message about label.}
+\item{warning_pressure_diff}{Threshold of pressure hourly difference marking as warning (hPa).}
 
-\item{warning_pressure_diff}{Threshold of pressure hourly difference marking as ️warning (hPa).}
-
-\item{warning_stap_length}{Threshold number of pressure datapoints flagged as ️warning (hourly.}
+\item{warning_stap_length}{Threshold number of pressure datapoints flagged as warning (hourly).}
 }
 \value{
 a plot or ggplotly object.

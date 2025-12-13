@@ -14,21 +14,23 @@
 #'
 #' @param graph a GeoPressureR graph object.
 #' @param thr_as threshold of airspeed (km/h).
-#' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -variable -return_averaged_variable
+#' @inheritParams edge_add_wind
+#' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -return_averaged_variable
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
-#' @family graph, movement
+#' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
-#' <https://doi.org/10.1111/2041-210X.14082>.}
+#' \doi{10.1111/2041-210X.14082}.}
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 graph_add_wind <- function(
   graph,
   thr_as = Inf,
+  variable = c("u", "v"),
   ...
 ) {
   graph_assert(graph, "full")
@@ -41,7 +43,7 @@ graph_add_wind <- function(
     graph,
     edge_s = graph$s,
     edge_t = graph$t,
-    variable = c("u", "v"),
+    variable = variable,
     return_averaged_variable = TRUE,
     ...
   )

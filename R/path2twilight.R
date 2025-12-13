@@ -55,7 +55,7 @@
 #'
 #' twl <- path2twilight(path)
 #'
-#' @family path, pressurepath
+#' @family path
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [suntools
 #' ](https://github.com/adokter/suntools)
@@ -115,7 +115,13 @@ path2twilight <- function(
     )
   }
 
-  if (is.null(attr(twl$date, "tzone")) || attr(twl$date, "tzone") != "UTC") {
+  tz <- attr(twl$date, "tzone")
+  if (is.null(tz) || length(tz) == 0 || tz[1] == "") {
+    cli::cli_warn(
+      "Timezone not set on {.val date}; assuming UTC."
+    )
+    twl$date <- as.POSIXct(twl$date, tz = "UTC")
+  } else if (tz[1] != "UTC") {
     cli::cli_warn(
       "The {.val date} is not in UTC which might lead to undesired effect"
     )

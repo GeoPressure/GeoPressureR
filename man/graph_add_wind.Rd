@@ -4,12 +4,15 @@
 \alias{graph_add_wind}
 \title{Compute windspeed and airspeed on a \code{graph}}
 \usage{
-graph_add_wind(graph, thr_as = Inf, ...)
+graph_add_wind(graph, thr_as = Inf, variable = c("u", "v"), ...)
 }
 \arguments{
 \item{graph}{a GeoPressureR graph object.}
 
 \item{thr_as}{threshold of airspeed (km/h).}
+
+\item{variable}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
+\code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
 
 \item{...}{
   Arguments passed on to \code{\link[=edge_add_wind]{edge_add_wind}}
@@ -44,9 +47,17 @@ illustration on how to use it.
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118–1129
-\url{https://doi.org/10.1111/2041-210X.14082}.}
+\doi{10.1111/2041-210X.14082}.}
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
+
+Other graph: 
+\code{\link{graph_create}()},
+\code{\link{graph_marginal}()},
+\code{\link{graph_most_likely}()},
+\code{\link{graph_set_movement}()},
+\code{\link{graph_simulation}()},
+\code{\link{print.graph}()}
 }
-\concept{graph, movement}
+\concept{graph}
