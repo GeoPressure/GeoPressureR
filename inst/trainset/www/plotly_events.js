@@ -6,14 +6,8 @@
 function setupPlotlyEventHandlers(el) {
   // Send ctrl state when selection occurs - capture at moment of event
   el.on("plotly_selected", function (eventData) {
-    var ctrlPressed = false;
-    // Check for Ctrl/Cmd at the exact moment of the event
-    if (typeof event !== "undefined" && event) {
-      ctrlPressed = event.ctrlKey || event.metaKey;
-    } else {
-      // Fallback: check current key states
-      ctrlPressed = window.event ? window.event.ctrlKey || window.event.metaKey : false;
-    }
+    var ctrlPressed =
+      window.trainsetKeyState && window.trainsetKeyState.ctrlOrMeta ? true : false;
 
     // Extract only needed data to avoid circular references
     var cleanEventData = null;
@@ -42,14 +36,8 @@ function setupPlotlyEventHandlers(el) {
 
   // Also handle click events
   el.on("plotly_click", function (eventData) {
-    var ctrlPressed = false;
-    // Check for Ctrl/Cmd at the exact moment of the event
-    if (typeof event !== "undefined" && event) {
-      ctrlPressed = event.ctrlKey || event.metaKey;
-    } else {
-      // Fallback: check current key states
-      ctrlPressed = window.event ? window.event.ctrlKey || window.event.metaKey : false;
-    }
+    var ctrlPressed =
+      window.trainsetKeyState && window.trainsetKeyState.ctrlOrMeta ? true : false;
 
     // Extract only needed data to avoid circular references
     var cleanEventData = null;

@@ -1,29 +1,3 @@
-# Handle compute_stap_btn click: update pressure labels and recompute stap
-observeEvent(input$compute_stap_btn, {
-  tag$pressure$label <- reactive_label_pres()
-  tag$acceleration$label <- reactive_label_acc()
-  tag <<- tag_label_stap(tag, quiet = TRUE)
-
-  # Update reactive labels with new stap labels
-  reactive_label_pres(tag$pressure$label)
-  reactive_label_acc(tag$acceleration$label)
-  stap_data <<- if (!is.null(tag$stap)) {
-    tag$stap
-  } else {
-    data.frame(
-      start = as.POSIXct(character(0)),
-      end = as.POSIXct(character(0)),
-      stap_id = character(0)
-    )
-  }
-  showNotification("STAP recomputed.", type = "message", duration = 2)
-})
-library(shiny)
-library(plotly)
-library(shinyjs)
-library(GeoPressureR)
-
-
 # Source utility functions
 source("utils.R")
 
@@ -55,8 +29,7 @@ if (!"label" %in% names(acceleration_data)) {
   acceleration_data$label <- ""
 }
 
-has_stap <- !is.null(tag$stap) && nrow(tag$stap) > 0
-stap_data <- if (has_stap) {
+stap_data <- if (!is.null(tag$stap) && nrow(tag$stap) > 0) {
   tag$stap
 } else {
   data.frame(
@@ -66,9 +39,42 @@ stap_data <- if (has_stap) {
   )
 }
 
-stap_data$duration <- stap2duration(stap_data)
-
 server <- function(input, output, session) {
+  # Reactive container for mutable state derived from the tag
+  state <- reactiveValues(
+    tag = tag,
+    stap_data = {
+      d <- stap_data
+      d$duration <- stap2duration(d)
+      d
+    }
+  )
+
+  # Handle compute_stap_btn click: update labels and recompute stap
+  observeEvent(input$compute_stap_btn, {
+    state$tag$pressure$label <- reactive_label_pres()
+    if (has_acceleration) {
+      state$tag$acceleration$label <- reactive_label_acc()
+    }
+
+    state$tag <- tag_label_stap(state$tag, quiet = TRUE)
+
+    state$stap_data <- if (!is.null(state$tag$stap) && nrow(state$tag$stap) > 0) {
+      d <- state$tag$stap
+      d$duration <- stap2duration(d)
+      d
+    } else {
+      data.frame(
+        start = as.POSIXct(character(0)),
+        end = as.POSIXct(character(0)),
+        stap_id = character(0),
+        duration = numeric(0)
+      )
+    }
+
+    showNotification("STAP recomputed.", type = "message", duration = 2)
+  })
+
   # Disable add_label_btn when acceleration is active
   observe({
     if (!is.null(input$active_series) && input$active_series == "acceleration") {
@@ -80,6 +86,10 @@ server <- function(input, output, session) {
   # Update browser tab title with tag ID
   updateTabsetPanel(session, inputId = NULL)
   session$sendCustomMessage("updateTitle", glue::glue("Trainset - {tag$param$id}"))
+
+  output$header_title <- renderText({
+    glue::glue("GeoPressure Trainset - {tag$param$id}")
+  })
 
   # Handle session end - stop app when browser is closed
   session$onSessionEnded(function() {
@@ -93,7 +103,7 @@ server <- function(input, output, session) {
   outputOptions(output, "acceleration_data_available", suspendWhenHidden = FALSE)
 
   output$stap_data_available <- reactive({
-    has_stap
+    nrow(state$stap_data) > 0
   })
   outputOptions(output, "stap_data_available", suspendWhenHidden = FALSE)
 
@@ -143,73 +153,91 @@ server <- function(input, output, session) {
   })
 
   #----- STAP -----
-  # Update stap_id choices only if stap_data exists
-  if (has_stap) {
-    # Stap data available - show selector and populate choices
+  # Update stap_id choices when stap data is available/updated
+  observe({
+    d <- state$stap_data
+    if (nrow(d) == 0) {
+      return()
+    }
+
     stap_choices <- c(
       "None" = "",
       setNames(
-        stap_data$stap_id,
-        glue::glue("#{stap_data$stap_id} ({round(stap_data$duration, 1)}d)")
+        d$stap_id,
+        glue::glue("#{d$stap_id} ({round(d$duration, 1)}d)")
       )
     )
 
-    session$onFlushed(
-      function() {
-        updateSelectInput(
-          session,
-          "stap_id",
-          choices = stap_choices,
-          selected = ""
-        )
-      },
-      once = TRUE
+    current <- isolate(input$stap_id)
+    if (is.null(current) || !(current %in% d$stap_id)) {
+      current <- ""
+    }
+
+    updateSelectInput(
+      session,
+      "stap_id",
+      choices = stap_choices,
+      selected = current
     )
+  })
 
-    observeEvent(input$stap_id_prev, {
-      current_stap <- input$stap_id
+  observeEvent(input$stap_id_prev, {
+    d <- state$stap_data
+    if (nrow(d) == 0) {
+      return()
+    }
 
-      if (current_stap == "" || is.null(current_stap)) {
-        # If no stap selected, select the last one
-        new_stap <- stap_data$stap_id[1]
+    current_stap <- input$stap_id
+
+    if (current_stap == "" || is.null(current_stap)) {
+      # If no stap selected, select the first one
+      new_stap <- d$stap_id[1]
+    } else {
+      # Find current index and move to previous
+      current_index <- which(d$stap_id == current_stap)
+      if (length(current_index) > 0 && current_index > 1) {
+        new_stap <- d$stap_id[current_index - 1]
       } else {
-        # Find current index and move to previous
-        current_index <- which(stap_data$stap_id == current_stap)
-        if (length(current_index) > 0 && current_index > 1) {
-          new_stap <- stap_data$stap_id[current_index - 1]
-        } else {
-          # If at first stap, go to "None"
-          new_stap <- ""
-        }
+        # If at first stap, go to "None"
+        new_stap <- ""
       }
-      updateSelectInput(session, "stap_id", selected = new_stap)
-    })
+    }
+    updateSelectInput(session, "stap_id", selected = new_stap)
+  })
 
-    observeEvent(input$stap_id_next, {
-      current_stap <- input$stap_id
+  observeEvent(input$stap_id_next, {
+    d <- state$stap_data
+    if (nrow(d) == 0) {
+      return()
+    }
 
-      if (current_stap == "" || is.null(current_stap)) {
-        # If no stap selected, select the first one
-        new_stap <- stap_data$stap_id[1]
+    current_stap <- input$stap_id
+
+    if (current_stap == "" || is.null(current_stap)) {
+      # If no stap selected, select the first one
+      new_stap <- d$stap_id[1]
+    } else {
+      # Find current index and move to next
+      current_index <- which(d$stap_id == current_stap)
+      if (length(current_index) > 0 && current_index < nrow(d)) {
+        new_stap <- d$stap_id[current_index + 1]
       } else {
-        # Find current index and move to next
-        current_index <- which(stap_data$stap_id == current_stap)
-        if (length(current_index) > 0 && current_index < length(stap_data$stap_id)) {
-          new_stap <- stap_data$stap_id[current_index + 1]
-        } else {
-          # If at last stap, stay there (or could cycle back to first)
-          new_stap <- current_stap
-        }
+        # If at last stap, stay there
+        new_stap <- current_stap
       }
-      updateSelectInput(session, "stap_id", selected = new_stap)
-    })
-  }
+    }
+    updateSelectInput(session, "stap_id", selected = new_stap)
+  })
 
   # Handle stap_id selection to set x-axis limits only if stap data exists
   observeEvent(input$stap_id, {
     if (!is.null(input$stap_id) && input$stap_id != "") {
+      d <- state$stap_data
+      if (nrow(d) == 0) {
+        return()
+      }
       # Find the selected stap
-      selected_stap <- stap_data[stap_data$stap_id == input$stap_id, ]
+      selected_stap <- d[d$stap_id == input$stap_id, ]
 
       if (nrow(selected_stap) > 0) {
         lag_x <- 60 * 60 * 24 / 2 # 1 day in seconds
@@ -234,7 +262,7 @@ server <- function(input, output, session) {
   })
 
   # Update active_series choices based on available data
-  init_active_series <- if (has_stap) "pressure" else "pressure" # Default to pressure if no acceleration
+  init_active_series <- "pressure"
   if (has_acceleration) {
     # Both pressure and acceleration available - selector will be shown by conditionalPanel
     updateSelectInput(
@@ -246,12 +274,10 @@ server <- function(input, output, session) {
   }
 
   # Get initial styling
-  initial_styles <- apply_plot_styling(
-    NULL, # No proxy for initial creation
+  initial_styles <- get_plot_styles(
     init_active_series,
-    pressure_data$label, # Use initial labels, not reactive values
-    acceleration_data$label, # Use initial labels, not reactive values
-    NULL # No session for initial creation
+    pressure_data$label,
+    acceleration_data$label
   )
 
   # Pre-compute static values that don't change
@@ -432,12 +458,8 @@ server <- function(input, output, session) {
     },
     {
       # Apply styling using the external function
-      apply_plot_styling(
-        plotlyProxy("ts_plot", session),
-        input$active_series,
-        reactive_label_pres(),
-        reactive_label_acc(),
-        session
+      apply_plot_styling(plotlyProxy("ts_plot", session), input$active_series,
+        reactive_label_pres(), reactive_label_acc()
       )
     }
   )
@@ -528,12 +550,8 @@ server <- function(input, output, session) {
       )
       apply_labels_to_points(point_data, event_info$ctrlPressed)
     }
-    apply_plot_styling(
-      plotlyProxy("ts_plot", session),
-      input$active_series,
-      reactive_label_pres(),
-      reactive_label_acc(),
-      session
+    apply_plot_styling(plotlyProxy("ts_plot", session), input$active_series,
+      reactive_label_pres(), reactive_label_acc()
     )
   }
 
@@ -551,20 +569,20 @@ server <- function(input, output, session) {
   output$export_btn <- downloadHandler(
     filename = function() {
       # Remove any existing file extension from tag ID before adding our suffix
-      base_name <- tools::file_path_sans_ext(tag$param$id)
+      base_name <- tools::file_path_sans_ext(state$tag$param$id)
       glue::glue("{base_name}-labeled.csv")
     },
     content = function(file) {
       tryCatch(
         {
           # Update tag with current reactive labels
-          tag$pressure$label <- reactive_label_pres()
+          state$tag$pressure$label <- reactive_label_pres()
           if (has_acceleration) {
-            tag$acceleration$label <- reactive_label_acc()
+            state$tag$acceleration$label <- reactive_label_acc()
           }
 
           # Call tag_label_write to export the labels to the selected file
-          tag_label_write(tag, file = file, quiet = TRUE)
+          tag_label_write(state$tag, file = file, quiet = TRUE)
         },
         error = function(e) {
           # Show error notification

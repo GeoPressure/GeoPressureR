@@ -5,10 +5,6 @@
 #' visualize time series data, select data points or regions, and assign behavioral labels
 #' (e.g., "flight", "discard", or custom elevation labels) to create training datasets.
 #'
-#' The Trainset app can be started based on a `tag` object or a `.Rdata` file containing
-#' at least `tag` with pressure data. If acceleration data is available in the tag,
-#' it will also be displayed and can be labeled.
-#'
 #' The app features:
 #' - Interactive plotly visualization of pressure and acceleration time series
 #' - Point and region selection for efficient labeling
@@ -20,14 +16,20 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/) or explore the
 #' [GeoPressureR documentation](https://raphaelnussbaumer.com/GeoPressureR/).
 #'
-#'
-#' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
-#' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
+#' @param x One of:
+#' * a GeoPressureR `tag` object,
+#' * a path to an interim `.RData` file containing an object called `tag`,
+#' * a path to a TRAINSET-compatible `.csv` label file,
+#' * a single-character `id`. In that case the function will first look for
+#'   `"./data/interim/{id}.RData"`, and if not found will look for
+#'   `"./data/tag-label/{id}-labeled.csv"` and then `"./data/tag-label/{id}.csv"`.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
-#' @return Invisible process object if `run_bg = TRUE`, otherwise invisible NULL.
+#' @return A GeoPressureR `tag` object (with pressure and optionally acceleration data
+#' and an `id` in `tag$param$id`). If `run_bg = TRUE`, a background process object
+#' is returned invisibly, with the `tag` attached as an attribute `attr(p, "tag")`.
 #' The labeled data can be exported directly from the app interface.
 #'
 #' @seealso [tag_label_read()], [tag_label_write()], [GeoPressureManual
@@ -35,31 +37,37 @@
 #' @export
 trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
   if (inherits(x, "tag")) {
-    cli::cli_abort("{.arg x} is {.cls tag} object. {.fn trainset} requires a file or id.")
-  }
-
-  # Handle file path logic
-  if (is.character(x) && length(x) == 1) {
-    print(x)
+    tag <- x
+  } else if (is.character(x) && length(x) == 1) {
     if (file.exists(x)) {
-      # x is a path to a file that exists
-      file <- x
-      # Extract id: remove extension and keep only part before first '-'
-      id <- sub("-.*$", "", sub("\\..*$", "", basename(file)))
+      # x is a path to a file that exists: decide based on extension
+      ext <- tolower(tools::file_ext(x))
+
+      if (ext %in% c("rdata", "rda")) {
+        # Interim file: load and extract tag without polluting caller environment
+        tag <- load_interim(x, var = "tag", envir = new.env())
+      } else if (ext %in% c("csv")) {
+        # TRAINSET-compatible CSV label file
+        tag <- csv2tag(x)
+      }
     } else {
-      # x is a character (id), try finding label files
+      # x is a character (id), try finding interim or label files
       id <- x
+      interim_file <- glue::glue("./data/interim/{id}.RData")
       labeled_file <- glue::glue("./data/tag-label/{id}-labeled.csv")
       unlabeled_file <- glue::glue("./data/tag-label/{id}.csv")
 
-      if (file.exists(labeled_file)) {
-        file <- labeled_file
+      if (file.exists(interim_file)) {
+        tag <- load_interim(interim_file, var = "tag", envir = new.env())
+      } else if (file.exists(labeled_file)) {
+        tag <- csv2tag(labeled_file, id = id)
       } else if (file.exists(unlabeled_file)) {
-        file <- unlabeled_file
+        tag <- csv2tag(unlabeled_file, id = id)
       } else {
         cli::cli_abort(c(
           "Cannot find data files for id {.val {id}}",
           "i" = "Looked for:",
+          "*" = "{.file {file.path(getwd(), interim_file)}}",
           "*" = "{.file {file.path(getwd(), labeled_file)}}",
           "*" = "{.file {file.path(getwd(), unlabeled_file)}}",
           "i" = "Please ensure the files exist or provide a valid file path"
@@ -67,20 +75,10 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
       }
     }
   } else {
-    cli::cli_abort("{.arg x} must be a single character string (file path or id)")
+    cli::cli_abort("{.arg x} must be a {.cls tag} or a single character string (file path or id)")
   }
 
-  # Read trainset file
-  csv <- GeoPressureR:::trainset_read_raw(file)
-
-  tag <- GeoPressureR:::tag_create_dataframe(
-    id,
-    pressure_file = csv[csv$series == "pressure", ],
-    acceleration_file = csv[csv$series == "acceleration", ],
-    quiet = TRUE
-  )
-
-  tag <- tag_label_stap(tag, quiet = TRUE)
+  #
 
   if (run_bg) {
     p <- callr::r_bg(
@@ -123,5 +121,61 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
       system.file("trainset", package = "GeoPressureR"),
       launch.browser = launch_browser
     )
+
+    return(invisible(tag))
   }
+}
+
+# Load one or more objects from an RData file
+# and optionally extract a specific variable.
+# This is a generic helper that can be reused wherever
+# interim objects need to be loaded.
+load_interim <- function(file, var = "tag", envir = parent.frame(), verbose = FALSE) {
+  assertthat::assert_that(is.character(file), length(file) == 1)
+  assertthat::assert_that(file.exists(file))
+
+  if (isTRUE(verbose)) {
+    cli::cli_inform(c("v" = "Loading {.var {var}} from {.file {file}}"))
+  }
+
+  tmp <- new.env(parent = emptyenv())
+  base::load(file, envir = tmp)
+
+  if (!is.null(var)) {
+    if (!var %in% ls(tmp)) {
+      cli::cli_abort(
+        "File {.file {file}} does not contain an object called {.var {var}}."
+      )
+    }
+    obj <- get(var, envir = tmp)
+    assign(var, obj, envir = envir)
+    invisible(obj)
+  } else {
+    # Load all objects into the target environment
+    for (nm in ls(tmp)) {
+      assign(nm, get(nm, envir = tmp), envir = envir)
+    }
+    invisible(ls(tmp))
+  }
+}
+
+# Convert a TRAINSET CSV file to a GeoPressureR tag
+csv2tag <- function(file, id = NULL) {
+  assertthat::assert_that(is.character(file), length(file) == 1)
+  assertthat::assert_that(file.exists(file))
+
+  csv <- trainset_read_raw(file)
+
+  if (is.null(id)) {
+    id <- sub("-labeled$", "", sub("\\..*$", "", basename(file)))
+  }
+
+  GeoPressureR:::tag_create_dataframe(
+    id,
+    pressure_file = csv[csv$series == "pressure", ],
+    acceleration_file = csv[csv$series == "acceleration", ],
+    quiet = TRUE
+  )
+
+  tag <- tag_label_stap(tag, quiet = TRUE)
 }

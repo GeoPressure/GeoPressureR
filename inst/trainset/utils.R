@@ -1,21 +1,8 @@
-library(shiny)
-library(plotly)
-
 # Utility functions for GeoPressure trainset Shiny app
 
-# Function to apply plot styling based on active series and labels
-apply_plot_styling <- function(
-  plot_or_proxy,
-  active_series,
-  label_pres,
-  label_acc = NULL,
-  session = NULL
-) {
-  print(paste("Applying plot styling for active series:", active_series))
-  # Calculate colors once for both series
+get_plot_styles <- function(active_series, label_pres, label_acc = NULL) {
   pressure_colors <- get_marker_colors(label_pres)
 
-  # Define styling for pressure LINE trace (trace 0 - for range slider)
   pressure_line_style <- if (active_series == "pressure") {
     list(
       "line.color" = "black",
@@ -28,68 +15,51 @@ apply_plot_styling <- function(
     )
   }
 
-  # Define styling for pressure MARKERS trace (trace 1 - for interaction)
   pressure_markers_style <- list(
     "marker.size" = if (active_series == "pressure") 10 else 4,
     "marker.opacity" = if (active_series == "pressure") 0.8 else 0.4,
-    "marker.color" = list(pressure_colors) # Wrap in list for plotly array
+    "marker.color" = list(pressure_colors)
   )
 
-  # Check if this is initial plot creation or proxy update
-  if (!is.null(session)) {
-    plot_or_proxy |>
-      plotlyProxyInvoke("restyle", list(selectedpoints = NULL))
+  result <- list(
+    pressure_line_style = pressure_line_style,
+    pressure_markers_style = pressure_markers_style
+  )
 
-    # This is a proxy update (reactive styling change)
-    # Apply styling to pressure LINE trace (trace 0)
-    plot_or_proxy |>
-      plotlyProxyInvoke("restyle", pressure_line_style, list(0))
-
-    # Apply styling to pressure MARKERS trace (trace 1)
-    plot_or_proxy |>
-      plotlyProxyInvoke("restyle", pressure_markers_style, list(1))
-
-    # Apply styling to acceleration series (trace 2) if it exists
-    if (!is.null(label_acc)) {
-      acceleration_colors <- get_marker_colors(label_acc)
-      acceleration_style <- list(
-        "marker.size" = if (active_series == "acceleration") 10 else 5,
-        "marker.opacity" = if (active_series == "acceleration") 0.8 else 0.3,
-        "marker.color" = list(acceleration_colors),
-        "line.color" = if (active_series == "acceleration") {
-          "black"
-        } else {
-          "rgba(0,0,0,0.2)"
-        },
-        "line.width" = if (active_series == "acceleration") 2 else 1
-      )
-      plot_or_proxy |>
-        plotlyProxyInvoke("restyle", acceleration_style, list(2))
-    }
-  } else {
-    # This is initial plot creation - return styles for use in plot creation
-    result <- list(
-      pressure_line_style = pressure_line_style,
-      pressure_markers_style = pressure_markers_style
+  if (!is.null(label_acc)) {
+    acceleration_colors <- get_marker_colors(label_acc)
+    acceleration_style <- list(
+      "marker.size" = if (active_series == "acceleration") 10 else 5,
+      "marker.opacity" = if (active_series == "acceleration") 0.8 else 0.3,
+      "marker.color" = list(acceleration_colors),
+      "line.color" = if (active_series == "acceleration") {
+        "black"
+      } else {
+        "rgba(0,0,0,0.2)"
+      },
+      "line.width" = if (active_series == "acceleration") 2 else 1
     )
+    result$acceleration_style <- acceleration_style
+  }
 
-    if (!is.null(label_acc)) {
-      acceleration_colors <- get_marker_colors(label_acc)
-      acceleration_style <- list(
-        "marker.size" = if (active_series == "acceleration") 10 else 5,
-        "marker.opacity" = if (active_series == "acceleration") 0.8 else 0.3,
-        "marker.color" = list(acceleration_colors),
-        "line.color" = if (active_series == "acceleration") {
-          "black"
-        } else {
-          "rgba(0,0,0,0.2)"
-        },
-        "line.width" = if (active_series == "acceleration") 2 else 1
-      )
-      result$acceleration_style <- acceleration_style
-    }
+  result
+}
 
-    return(result)
+apply_plot_styling <- function(plot_proxy, active_series, label_pres, label_acc = NULL) {
+  styles <- get_plot_styles(active_series, label_pres, label_acc)
+
+  plot_proxy |>
+    plotlyProxyInvoke("restyle", list(selectedpoints = NULL))
+
+  plot_proxy |>
+    plotlyProxyInvoke("restyle", styles$pressure_line_style, list(0))
+
+  plot_proxy |>
+    plotlyProxyInvoke("restyle", styles$pressure_markers_style, list(1))
+
+  if (!is.null(label_acc) && !is.null(styles$acceleration_style)) {
+    plot_proxy |>
+      plotlyProxyInvoke("restyle", styles$acceleration_style, list(2))
   }
 }
 

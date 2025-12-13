@@ -1,8 +1,4 @@
-library(shiny)
-library(plotly)
-library(bslib)
-
-ui <- fluidPage(
+ui <- shiny::fluidPage(
   shinyjs::useShinyjs(), # Enable shinyjs for UI control
   title = "Trainset", # This will be updated dynamically by server
   class = "px-0", # Bootstrap class to remove left and right padding
@@ -29,7 +25,7 @@ ui <- fluidPage(
   # Custom header with Bootstrap styling
   div(
     class = "d-flex justify-content-between align-items-center p-3 bg-primary text-white mb-0",
-    div(class = "h3 mb-0", "GeoPressure Trainset"),
+    div(class = "h3 mb-0", textOutput("header_title")),
     div(
       class = "d-flex gap-3 align-items-center",
       # Stap ID selector - only show if stap data exists

@@ -1,69 +1,21 @@
 $(document).ready(function () {
+  // Global key state used by plotly_events.js
+  window.trainsetKeyState = {
+    ctrlOrMeta: false,
+  };
+
   // Custom message handler to clear plotly selection
   Shiny.addCustomMessageHandler("clearPlotlySelection", function (plotId) {
     Plotly.restyle(plotId, { selectedpoints: [null] });
   });
 
-  // Key detection for label clearing
-  function setupKeyDetection(plotId) {
-    var plotElement = document.getElementById(plotId);
-    if (!plotElement) return;
-
-    plotElement.on('plotly_selected', function(eventData) {
-      var ctrlPressed = (event && (event.ctrlKey || event.metaKey)) || false;
-      var cleanEventData = null;
-      
-      if (eventData && eventData.points && Array.isArray(eventData.points)) {
-        cleanEventData = eventData.points.map(function(point) {
-          return {
-            pointNumber: point.pointNumber != null ? point.pointNumber : 0,
-            curveNumber: point.curveNumber != null ? point.curveNumber : 0,
-            x: point.x != null ? point.x : null,
-            y: point.y != null ? point.y : null
-          };
-        });
-      }
-      
-      Shiny.setInputValue('plotly_selected_with_keys', {
-        points: cleanEventData,
-        ctrlPressed: ctrlPressed,
-        timestamp: Date.now()
-      }, {priority: 'event'});
-    });
-
-    plotElement.on('plotly_click', function(eventData) {
-      var ctrlPressed = (event && (event.ctrlKey || event.metaKey)) || false;
-      var cleanEventData = null;
-      
-      if (eventData && eventData.points && Array.isArray(eventData.points) && eventData.points.length > 0) {
-        var point = eventData.points[0];
-        cleanEventData = [{
-          pointNumber: point.pointNumber != null ? point.pointNumber : 0,
-          curveNumber: point.curveNumber != null ? point.curveNumber : 0,
-          x: point.x != null ? point.x : null,
-          y: point.y != null ? point.y : null
-        }];
-      }
-      
-      Shiny.setInputValue('plotly_click_with_keys', {
-        points: cleanEventData,
-        ctrlPressed: ctrlPressed,
-        timestamp: Date.now()
-      }, {priority: 'event'});
-    });
-  }
-
-  // Setup key detection when plot is ready
-  $(document).on('shiny:value', function(event) {
-    if (event.target.id === 'ts_plot') {
-      setTimeout(function() {
-        setupKeyDetection('ts_plot');
-      }, 100);
-    }
-  });
-
   // Keyboard shortcuts
   $(document).keydown(function (e) {
+    // Track Ctrl/Cmd key state globally
+    if (e.ctrlKey || e.metaKey) {
+      window.trainsetKeyState.ctrlOrMeta = true;
+    }
+
     var plot = document.getElementById("ts_plot");
     if (plot && plot.data) {
       var currentRange = plot.layout.xaxis.range;
@@ -118,6 +70,13 @@ $(document).ready(function () {
           });
         }
       }
+    }
+  });
+
+  // Reset Ctrl/Cmd key state on keyup
+  $(document).keyup(function (e) {
+    if (!e.ctrlKey && !e.metaKey) {
+      window.trainsetKeyState.ctrlOrMeta = false;
     }
   });
 
