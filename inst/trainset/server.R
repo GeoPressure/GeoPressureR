@@ -40,6 +40,19 @@ stap_data <- if (!is.null(tag$stap) && nrow(tag$stap) > 0) {
 }
 
 server <- function(input, output, session) {
+  label_dir <- shiny::getShinyOption("label_dir")
+
+  # Fallback: if label_dir option is not set, use ./data/tag-label when it exists
+  print(label_dir)
+  if (is.null(label_dir)) {
+    default_label_dir <- file.path("data", "tag-label")
+    if (dir.exists(default_label_dir)) {
+      label_dir <- default_label_dir
+    }
+  }
+
+  auto_save_enabled <- !is.null(label_dir) && dir.exists(label_dir)
+
   # Reactive container for mutable state derived from the tag
   state <- reactiveValues(
     tag = tag,
@@ -47,8 +60,22 @@ server <- function(input, output, session) {
       d <- stap_data
       d$duration <- stap2duration(d)
       d
-    }
+    },
+    labels_dirty = FALSE
   )
+
+  update_state_tag_labels <- function() {
+    state$tag$pressure$label <- reactive_label_pres()
+    if (has_acceleration) {
+      state$tag$acceleration$label <- reactive_label_acc()
+    }
+  }
+
+  write_labels_csv <- function(path) {
+    update_state_tag_labels()
+    tag_label_write(state$tag, file = path, quiet = TRUE)
+    state$labels_dirty <- FALSE
+  }
 
   # Handle compute_stap_btn click: update labels and recompute stap
   observeEvent(input$compute_stap_btn, {
@@ -75,6 +102,28 @@ server <- function(input, output, session) {
     showNotification("STAP recomputed.", type = "message", duration = 2)
   })
 
+  # Configure save/download UI based on availability of auto-save folder
+  session$onFlushed(
+    function() {
+      if (isTRUE(auto_save_enabled)) {
+        shinyjs::show("save_btn")
+        shinyjs::hide("export_btn")
+      } else {
+        shinyjs::hide("save_btn")
+        shinyjs::show("export_btn")
+        folder_msg <- if (!is.null(label_dir)) label_dir else "data/tag-label"
+        showNotification(
+          glue::glue(
+            "Automatic save is disabled: folder {folder_msg} does not exist. Use the download dialog to save labels."
+          ),
+          duration = 10,
+          type = "error"
+        )
+      }
+    },
+    once = TRUE
+  )
+
   # Disable add_label_btn when acceleration is active
   observe({
     if (!is.null(input$active_series) && input$active_series == "acceleration") {
@@ -84,11 +133,16 @@ server <- function(input, output, session) {
     }
   })
   # Update browser tab title with tag ID
-  updateTabsetPanel(session, inputId = NULL)
   session$sendCustomMessage("updateTitle", glue::glue("Trainset - {tag$param$id}"))
 
-  output$header_title <- renderText({
-    glue::glue("GeoPressure Trainset - {tag$param$id}")
+  output$header_title <- renderUI({
+    tagList(
+      span("GeoPressure Trainset"),
+      span(
+        glue::glue("  {tag$param$id}"),
+        style = "font-size: 0.8em; font-weight: 600; color: #e0e0e0; margin-left: 8px;"
+      )
+    )
   })
 
   # Handle session end - stop app when browser is closed
@@ -388,7 +442,8 @@ server <- function(input, output, session) {
       ),
       yaxis = list(
         title = "Pressure",
-        side = "left"
+        side = "left",
+        fixedrange = FALSE
       ),
       dragmode = "select",
       selectdirection = "d", # Prevent horizontal/vertical only selection
@@ -446,6 +501,34 @@ server <- function(input, output, session) {
       )
   })
 
+  # Periodic backup of labels to CSV when they change and label_dir exists
+  backup_timer <- reactiveTimer(60000, session) # every 60 seconds
+
+  observe({
+    backup_timer()
+
+    if (!isTRUE(auto_save_enabled)) {
+      return()
+    }
+
+    if (!isTRUE(state$labels_dirty)) {
+      return()
+    }
+
+    base_name <- tools::file_path_sans_ext(state$tag$param$id)
+    backup_file <- file.path(
+      label_dir,
+      glue::glue("{base_name}-labeled-backup-{format(Sys.time(), '%Y%m%d-%H%M%S')}.csv")
+    )
+
+    try(
+      {
+        write_labels_csv(backup_file)
+      },
+      silent = TRUE
+    )
+  })
+
   # Handle active series changes and label updates without resetting view
   # Use debounced reactive to prevent excessive updates
   observeEvent(
@@ -458,8 +541,11 @@ server <- function(input, output, session) {
     },
     {
       # Apply styling using the external function
-      apply_plot_styling(plotlyProxy("ts_plot", session), input$active_series,
-        reactive_label_pres(), reactive_label_acc()
+      apply_plot_styling(
+        plotlyProxy("ts_plot", session),
+        input$active_series,
+        reactive_label_pres(),
+        reactive_label_acc()
       )
     }
   )
@@ -520,6 +606,8 @@ server <- function(input, output, session) {
       reactive_label_acc(current_labels)
     }
 
+    state$labels_dirty <- TRUE
+
     # Show success notification with appropriate message
     label_action <- if (isTRUE(ctrl_pressed)) {
       "Cleared labels from"
@@ -550,8 +638,11 @@ server <- function(input, output, session) {
       )
       apply_labels_to_points(point_data, event_info$ctrlPressed)
     }
-    apply_plot_styling(plotlyProxy("ts_plot", session), input$active_series,
-      reactive_label_pres(), reactive_label_acc()
+    apply_plot_styling(
+      plotlyProxy("ts_plot", session),
+      input$active_series,
+      reactive_label_pres(),
+      reactive_label_acc()
     )
   }
 
@@ -565,29 +656,56 @@ server <- function(input, output, session) {
     process_plotly_event(input$plotly_click_with_keys)
   })
 
-  # Handle export button - use downloadHandler for file save dialog
+  # Handle save button - auto-save to project data/tag-label if available
+  observeEvent(input$save_btn, {
+    if (!isTRUE(auto_save_enabled)) {
+      showNotification(
+        "Automatic save is disabled for this session. Use the download dialog instead.",
+        duration = 10,
+        type = "error"
+      )
+      return()
+    }
+
+    base_name <- tools::file_path_sans_ext(state$tag$param$id)
+    target_dir <- label_dir
+
+    target_file <- file.path(target_dir, glue::glue("{base_name}-labeled.csv"))
+
+    tryCatch(
+      {
+        write_labels_csv(target_file)
+        showNotification(
+          glue::glue("Labels saved to {target_file}"),
+          duration = 5,
+          type = "message"
+        )
+      },
+      error = function(e) {
+        showNotification(
+          glue::glue("Save failed: {e$message}. Using manual download instead."),
+          duration = 10,
+          type = "warning"
+        )
+        shinyjs::click("export_btn")
+      }
+    )
+  })
+
+  # Download handler for manual export (fallback when label_dir is missing)
   output$export_btn <- downloadHandler(
     filename = function() {
-      # Remove any existing file extension from tag ID before adding our suffix
       base_name <- tools::file_path_sans_ext(state$tag$param$id)
       glue::glue("{base_name}-labeled.csv")
     },
     content = function(file) {
       tryCatch(
         {
-          # Update tag with current reactive labels
-          state$tag$pressure$label <- reactive_label_pres()
-          if (has_acceleration) {
-            state$tag$acceleration$label <- reactive_label_acc()
-          }
-
-          # Call tag_label_write to export the labels to the selected file
-          tag_label_write(state$tag, file = file, quiet = TRUE)
+          write_labels_csv(file)
         },
         error = function(e) {
-          # Show error notification
           showNotification(
-            glue::glue("Export failed: {e$message}"),
+            glue::glue("Download failed: {e$message}"),
             duration = 10,
             type = "error"
           )
@@ -596,4 +714,108 @@ server <- function(input, output, session) {
     },
     contentType = "text/csv"
   )
+
+  #----- SHORTCUTS HELP MODAL -----
+  observeEvent(input$shortcuts_help, {
+    showModal(
+      modalDialog(
+        title = "Keyboard and mouse shortcuts",
+        easyClose = TRUE,
+        size = "l",
+        footer = modalButton("Close"),
+        tagList(
+          h4("Labeling"),
+          tags$ul(
+            tags$li("Click or drag on the plot to apply the selected label."),
+            tags$li(
+              tagList(
+                tags$kbd("Ctrl"),
+                " (Windows / Linux) or ",
+                tags$kbd("Cmd"),
+                " (macOS) + mouse click/selection: clear labels instead of applying a new one."
+              )
+            )
+          ),
+          h4("Time navigation (x-axis)"),
+          tags$ul(
+            tags$li(
+              tagList(
+                tags$kbd("Mouse wheel"),
+                " over plot area: zoom in/out in time."
+              )
+            ),
+            tags$li(
+              tagList(
+                tags$kbd("\u2191"),
+                " / ",
+                tags$kbd("\u2193"),
+                ": zoom in / out around the current view."
+              )
+            ),
+            tags$li(
+              tagList(
+                tags$kbd("\u2190"),
+                " / ",
+                tags$kbd("\u2192"),
+                ": pan left / right in time."
+              )
+            ),
+            tags$li(
+              tagList(
+                tags$kbd("Shift"),
+                " + ",
+                tags$kbd("\u2190"),
+                " / ",
+                tags$kbd("\u2192"),
+                ": pan by a full window width."
+              )
+            )
+          ),
+          h4("Y-axis zoom"),
+          tags$ul(
+            tags$li(
+              tagList(
+                tags$kbd("Mouse wheel"),
+                " over left y-axis: zoom pressure axis."
+              )
+            ),
+            tags$li(
+              tagList(
+                tags$kbd("Mouse wheel"),
+                " over right y-axis: zoom acceleration axis (when available)."
+              )
+            )
+          ),
+          h4("STAP navigation"),
+          tags$ul(
+            tags$li(
+              tagList(
+                "Use the ",
+                tags$kbd("<"),
+                " and ",
+                tags$kbd(">"),
+                " buttons next to \"Stap ID\" to move between stationary periods."
+              )
+            )
+          ),
+          h4("Auto-save and files"),
+          tags$ul(
+            tags$li("If an automatic label folder is configured (e.g. data/tag-label), clicking \"Save\" writes the main label CSV for this tag (e.g. {tag-id}-labeled.csv)."),
+            tags$li("While you are editing labels and auto-save is enabled, a time-stamped backup CSV is also written automatically about once per minute in the same folder (files named like {tag-id}-labeled-backup-YYYYMMDD-HHMMSS.csv)."),
+            tags$li("If no auto-save folder is available, use the \"Download\" button to manually save a CSV of the current labels.")
+          ),
+          h4("More information"),
+          tags$p(
+            "For detailed labelling instructions, see the ",
+            tags$a(
+              href = "https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html",
+              target = "_blank",
+              "GeoPressure Manual: labelling tracks"
+            ),
+            "."
+          )
+        )
+      )
+    )
+  })
 }

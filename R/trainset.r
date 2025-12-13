@@ -36,6 +36,8 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/)
 #' @export
 trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
+  label_dir <- getwd()
+
   if (inherits(x, "tag")) {
     tag <- x
   } else if (is.character(x) && length(x) == 1) {
@@ -46,9 +48,19 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
       if (ext %in% c("rdata", "rda")) {
         # Interim file: load and extract tag without polluting caller environment
         tag <- load_interim(x, var = "tag", envir = new.env())
+        # Infer label_dir from interim file structure: .../data/interim/{id}.RData
+        interim_dir <- dirname(x)
+        if (basename(interim_dir) == "interim") {
+          data_dir <- dirname(interim_dir)
+          candidate <- file.path(data_dir, "tag-label")
+          if (dir.exists(candidate)) {
+            label_dir <- candidate
+          }
+        }
       } else if (ext %in% c("csv")) {
         # TRAINSET-compatible CSV label file
         tag <- csv2tag(x)
+        label_dir <- dirname(x)
       }
     } else {
       # x is a character (id), try finding interim or label files
@@ -59,10 +71,20 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
 
       if (file.exists(interim_file)) {
         tag <- load_interim(interim_file, var = "tag", envir = new.env())
+        interim_dir <- dirname(interim_file)
+        if (basename(interim_dir) == "interim") {
+          data_dir <- dirname(interim_dir)
+          candidate <- file.path(data_dir, "tag-label")
+          if (dir.exists(candidate)) {
+            label_dir <- candidate
+          }
+        }
       } else if (file.exists(labeled_file)) {
         tag <- csv2tag(labeled_file, id = id)
+        label_dir <- dirname(labeled_file)
       } else if (file.exists(unlabeled_file)) {
         tag <- csv2tag(unlabeled_file, id = id)
+        label_dir <- dirname(unlabeled_file)
       } else {
         cli::cli_abort(c(
           "Cannot find data files for id {.val {id}}",
@@ -77,18 +99,16 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
   } else {
     cli::cli_abort("{.arg x} must be a {.cls tag} or a single character string (file path or id)")
   }
-
-  #
-
   if (run_bg) {
     p <- callr::r_bg(
-      func = function(tag) {
+      func = function(tag, label_dir) {
         library(GeoPressureR)
-        shiny::shinyOptions(tag = tag)
+        shiny::shinyOptions(tag = tag, label_dir = label_dir)
         shiny::runApp(system.file("trainset", package = "GeoPressureR"))
       },
       args = list(
-        tag = tag
+        tag = tag,
+        label_dir = label_dir
       )
     )
 
@@ -114,7 +134,7 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
     } else {
       launch_browser <- getOption("shiny.launch.browser", interactive())
     }
-    shiny::shinyOptions(tag = tag)
+    shiny::shinyOptions(tag = tag, label_dir = label_dir)
 
     # Start the app
     shiny::runApp(
@@ -170,7 +190,7 @@ csv2tag <- function(file, id = NULL) {
     id <- sub("-labeled$", "", sub("\\..*$", "", basename(file)))
   }
 
-  GeoPressureR:::tag_create_dataframe(
+  tag <- GeoPressureR:::tag_create_dataframe(
     id,
     pressure_file = csv[csv$series == "pressure", ],
     acceleration_file = csv[csv$series == "acceleration", ],
@@ -178,4 +198,5 @@ csv2tag <- function(file, id = NULL) {
   )
 
   tag <- tag_label_stap(tag, quiet = TRUE)
+  tag
 }

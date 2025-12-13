@@ -8,6 +8,11 @@ ui <- shiny::fluidPage(
   ),
   shiny::tags$head(
     shiny::tags$link(
+      rel = "stylesheet",
+      type = "text/css",
+      href = "styles.css"
+    ),
+    shiny::tags$link(
       rel = "shortcut icon",
       href = "https://raphaelnussbaumer.com/GeoPressureR/favicon-16x16.png"
     ),
@@ -25,7 +30,17 @@ ui <- shiny::fluidPage(
   # Custom header with Bootstrap styling
   div(
     class = "d-flex justify-content-between align-items-center p-3 bg-primary text-white mb-0",
-    div(class = "h3 mb-0", textOutput("header_title")),
+    div(
+      class = "d-flex align-items-center",
+      div(class = "h3 mb-0 me-3", uiOutput("header_title")),
+      actionButton(
+        "shortcuts_help",
+        label = NULL,
+        icon = icon("info-circle"),
+        class = "btn btn-outline-light btn-sm",
+        title = "Keyboard & mouse shortcuts"
+      )
+    ),
     div(
       class = "d-flex gap-3 align-items-center",
       # Stap ID selector - only show if stap data exists
@@ -79,6 +94,7 @@ ui <- shiny::fluidPage(
         shiny::tags$label(class = "form-label text-white small mb-1", "Label:"),
         div(
           class = "input-group",
+          id = "div-group-label",
           selectInput(
             "label_select",
             NULL,
@@ -90,10 +106,20 @@ ui <- shiny::fluidPage(
         )
       ),
 
-      # Export button
+      # Save button (with hidden download fallback)
       div(
-        class = "d-flex flex-column justify-content-end",
-        downloadButton("export_btn", "Export", class = "btn btn-success", icon = icon("download"))
+        class = "d-flex flex-column justify-content-end mt-2",
+        tagList(
+          actionButton("save_btn", "Save", class = "btn btn-success", icon = icon("save")),
+          shinyjs::hidden(
+            downloadButton(
+              "export_btn",
+              "Download",
+              class = "btn btn-outline-light",
+              icon = icon("download")
+            )
+          )
+        )
       )
     )
   ),
