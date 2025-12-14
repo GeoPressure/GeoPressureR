@@ -78,7 +78,7 @@ tag_download_wind <- function(
     ecmwfr::wf_set_key(key = cds_token)
   }
 
-  tag_assert(tag, "tag_set_map")
+  tag_assert(tag, "setmap")
 
   tag_id <- tag$param$id
 

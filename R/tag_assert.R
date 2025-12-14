@@ -4,7 +4,7 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param condition condition to assert `tag` for. One of `"tag"` (default), `"pressure"`,
-#' `"light"`, `"acceleration"`, `"label"`, `"stap"`, `"tag_set_map"`, `"map_pressure"`, `"map_light"`
+#' `"light"`, `"acceleration"`, `"label"`, `"stap"`, `"setmap"`, `"map_pressure"`, `"map_light"`
 #' `"map_pressure_mse"` and `"twilight"`
 #' @param type Message type to display. One of `"abort"` (default), `"warn"` or `"inform"`
 #'
@@ -19,7 +19,7 @@
 #'
 #' tag_assert(tag, "stap")
 #'
-#' tag_assert(tag, "tag_set_map", type = "warn")
+#' tag_assert(tag, "setmap", type = "warn")
 #'
 #' tag_assert(tag, "map_pressure", type = "inform")
 #'
@@ -58,7 +58,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
         "x" = "The stationary period have not yet been computed for {.var tag}.",
         ">" = "Use {.fun tag_label} to define the stationary periods."
       )
-    } else if (condition == "tag_set_map") {
+    } else if (condition == "setmap") {
       msg <- c(
         "x" = "The parameters for the geographical and stationary period have not been yet been defined in {.var tag}.",
         ">" = "Use {.fun tag_set_map} to define them."
@@ -141,7 +141,7 @@ tag_status <- function(tag) {
     assertthat::has_name(tag$param$tag_set_map, c("extent", "scale")) &&
       assertthat::has_name(tag$stap, c("known_lat", "known_lon", "include"))
   ) {
-    status <- append(status, "tag_set_map")
+    status <- append(status, "setmap")
   }
   if (assertthat::has_name(tag, "map_pressure")) {
     status <- append(status, "map_pressure")
