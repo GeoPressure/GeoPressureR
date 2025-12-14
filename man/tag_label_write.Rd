@@ -46,7 +46,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 }
 \seealso{
-\href{https://bit.ly/3QC7IBt}{GeoPressureManual}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file}{GeoPressureManual}
 
 Other tag_label: 
 \code{\link{tag_label}()},

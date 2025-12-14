@@ -41,7 +41,7 @@ Retrieve the edges in a \code{graph} corresponding to the flight transition defi
 edges can be useful to extract flight information specific to a path.
 }
 \seealso{
-\href{https://bit.ly/47MhQxN}{GeoPressureManual}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information}{GeoPressureManual}
 
 Other path: 
 \code{\link{ind2path}()},

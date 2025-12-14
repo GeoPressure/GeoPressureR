@@ -66,7 +66,7 @@ at least one edge of the previous and next stationary periods requiring an avera
 lower than \code{thr_gs} (in km/h).
 
 For more details and illustration, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0004-title}{section 2.2 of Nussbaumer et al. (2023b)}
-and the \href{https://bit.ly/3saLVqi}{GeoPressureManual}
+and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph}{GeoPressureManual}
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -95,7 +95,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \doi{10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://bit.ly/3saLVqi}{GeoPressureManual}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},
