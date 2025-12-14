@@ -15,7 +15,6 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#'
 #' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
 #' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame.
@@ -28,7 +27,8 @@
 #' @return When `run_bg = FALSE`: The updated path visualized in the app. Can also be retrieved with
 #' `shiny::getShinyOption("path_geopressureviz")` after the app completes.
 #' When `run_bg = TRUE`: Returns the background process object.
-#'
+#' @examplesIf FALSE
+#'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export

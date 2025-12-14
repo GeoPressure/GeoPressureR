@@ -4,6 +4,8 @@
 #' @param value column name to extract
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
+#' @examplesIf FALSE
+#'   mat <- ts2mat(tag$pressure)
 #' @export
 ts2mat <- function(
   ts,

@@ -16,7 +16,7 @@
 #' @return Vector of transition probability for each edge.
 #'
 #' @family movement
-#' @export
+#' @noRd
 graph_transition <- function(graph) {
   graph_assert(graph)
 

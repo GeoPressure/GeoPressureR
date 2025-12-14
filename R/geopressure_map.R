@@ -161,7 +161,7 @@ geopressure_map <- function(
   sd = 1,
   thr_mask = 0.9,
   log_linear_pooling_weight = \(n) log(n) / n,
-  timeout = 60 * 5,
+  timeout = 300,
   workers = "auto",
   keep_mask = FALSE,
   keep_mse = FALSE,

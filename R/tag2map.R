@@ -7,7 +7,7 @@
 #' `map_light`, or if not available, taking the first of the possible values.
 #'
 #' @return Likelihood map
-#' @export
+#' @noRd
 tag2map <- function(tag, likelihood = NULL) {
   likelihood <- tag2likelihood(tag, likelihood)
 

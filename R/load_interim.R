@@ -19,7 +19,8 @@
 #'   the character vector of object names loaded (as in [base::load()]). Otherwise, if a single
 #'   object name is requested, invisibly returns that object; if multiple names are requested,
 #'   invisibly returns a named list of those objects.
-#'
+#' @examplesIf FALSE
+#'   load_interim("18LX", var = c("tag", "graph"))
 #' @export
 load_interim <- function(
   x,

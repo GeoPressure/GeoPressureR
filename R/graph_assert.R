@@ -7,6 +7,8 @@
 #' or `"full"`.
 #'
 #' @return logical indicating whether the `graph` object fulfil the condition.
+#' @examplesIf FALSE
+#'   graph_assert(graph, "movement")
 #' @export
 graph_assert <- function(graph, condition = "graph") {
   status <- graph_status(graph)

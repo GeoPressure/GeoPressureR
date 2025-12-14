@@ -24,7 +24,7 @@
 #' Bearing calculations now use a custom memory-efficient implementation.
 #' @param workers `r lifecycle::badge("deprecated")` This argument is no longer used.
 #' Parallel processing has been removed to avoid memory issues.
-#' @inheritParams tag2map
+#' @inheritParams tag2path
 #'
 #' @return Graph as a list
 #' - `s`: source node (index in the 3d grid lat-lon-stap)

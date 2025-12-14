@@ -48,7 +48,8 @@
 #'
 #' @return The path of the downloaded (requested file) or the an R6 object with download/transfer
 #' information
-#'
+#' @examplesIf FALSE
+#'   tag_download_wind(tag)
 #' @family movement
 #' @seealso [`wf_request_batch()`
 #' ](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),

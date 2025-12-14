@@ -30,6 +30,8 @@
 #' `as = gs - ws` in complex number to keep the vectorial additive properties. If graph provided.
 #' @family path
 #' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
+#' @examplesIf FALSE
+#'   edge <- path2edge(path, tag)
 #' @export
 path2edge <- function(path, tag_graph) {
   assertthat::assert_that(is.data.frame(path))

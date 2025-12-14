@@ -7,7 +7,8 @@
 #' @param plot_plotly logical to use `plotly`
 #'
 #' @return a plot or ggplotly object.
-#'
+#' @examplesIf FALSE
+#'   plot_graph_movement(graph)
 #' @family movement
 #' @export
 plot_graph_movement <- function(

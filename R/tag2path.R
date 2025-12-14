@@ -14,8 +14,11 @@
 #' that it is not possible to interpolate the first and last stationary period.
 #'
 #' @param tag a GeoPressureR `tag` object
-#' @inheritParams tag2map
-#' @inheritParams ind2path
+#' @param likelihood Field of the `tag` list containing the likelihood map (character). By default,
+#'   uses the product of `map_pressure` and `map_light` if available, otherwise the first available
+#'   likelihood map in the tag.
+#' @param use_known If `TRUE`, enforce known positions from `tag$stap` when building the path. Known
+#'   positions are approximated to the map resolution so they correspond to integer indices.
 #' @param interp the position of the stationary period shorter than `interp` will be replace by a
 #' linear average from other position accounting for flight duration (in days).
 #'
