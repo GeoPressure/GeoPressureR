@@ -7,8 +7,15 @@
 trainset(x, launch_browser = TRUE, run_bg = TRUE)
 }
 \arguments{
-\item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
-unique identifier \code{id} with a \code{.Rdata} file located in \code{"./data/interim/{id}.RData"}.}
+\item{x}{One of:
+\itemize{
+\item a GeoPressureR \code{tag} object,
+\item a path to an interim \code{.RData} file containing an object called \code{tag},
+\item a path to a TRAINSET-compatible \code{.csv} label file,
+\item a single-character \code{id}. In that case the function will first look for
+\code{"./data/interim/{id}.RData"}, and if not found will look for
+\code{"./data/tag-label/{id}-labeled.csv"} and then \code{"./data/tag-label/{id}.csv"}.
+}}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
 Rstudio.}
@@ -17,7 +24,9 @@ Rstudio.}
 allows you to continue using your R session while the app is running.}
 }
 \value{
-Invisible process object if \code{run_bg = TRUE}, otherwise invisible NULL.
+A GeoPressureR \code{tag} object (with pressure and optionally acceleration data
+and an \code{id} in \code{tag$param$id}). If \code{run_bg = TRUE}, a background process object
+is returned invisibly, with the \code{tag} attached as an attribute \code{attr(p, "tag")}.
 The labeled data can be exported directly from the app interface.
 }
 \description{
@@ -27,10 +36,6 @@ visualize time series data, select data points or regions, and assign behavioral
 (e.g., "flight", "discard", or custom elevation labels) to create training datasets.
 }
 \details{
-The Trainset app can be started based on a \code{tag} object or a \code{.Rdata} file containing
-at least \code{tag} with pressure data. If acceleration data is available in the tag,
-it will also be displayed and can be labeled.
-
 The app features:
 \itemize{
 \item Interactive plotly visualization of pressure and acceleration time series

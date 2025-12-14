@@ -157,7 +157,7 @@ csv2tag <- function(file, id = NULL) {
     id <- sub("-labeled$", "", sub("\\..*$", "", basename(file)))
   }
 
-  tag <- GeoPressureR:::tag_create_dataframe(
+  tag <- tag_create_dataframe(
     id,
     pressure_file = csv[csv$series == "pressure", ],
     acceleration_file = csv[csv$series == "acceleration", ],
