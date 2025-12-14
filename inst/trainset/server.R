@@ -800,9 +800,15 @@ server <- function(input, output, session) {
           ),
           h4("Auto-save and files"),
           tags$ul(
-            tags$li("If an automatic label folder is configured (e.g. data/tag-label), clicking \"Save\" writes the main label CSV for this tag (e.g. {tag-id}-labeled.csv)."),
-            tags$li("While you are editing labels and auto-save is enabled, a time-stamped backup CSV is also written automatically about once per minute in the same folder (files named like {tag-id}-labeled-backup-YYYYMMDD-HHMMSS.csv)."),
-            tags$li("If no auto-save folder is available, use the \"Download\" button to manually save a CSV of the current labels.")
+            tags$li(
+              "If an automatic label folder is configured (e.g. data/tag-label), clicking \"Save\" writes the main label CSV for this tag (e.g. {tag-id}-labeled.csv)."
+            ),
+            tags$li(
+              "While you are editing labels and auto-save is enabled, a time-stamped backup CSV is also written automatically about once per minute in the same folder (files named like {tag-id}-labeled-backup-YYYYMMDD-HHMMSS.csv)."
+            ),
+            tags$li(
+              "If no auto-save folder is available, use the \"Download\" button to manually save a CSV of the current labels."
+            )
           ),
           h4("More information"),
           tags$p(
