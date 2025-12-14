@@ -109,7 +109,6 @@ Other graph:
 
 Other movement: 
 \code{\link{bird_create}()},
-\code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},
 \code{\link{speed2prob}()},
 \code{\link{tag_download_wind}()}

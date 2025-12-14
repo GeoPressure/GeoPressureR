@@ -84,7 +84,9 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
         ">" = "Use {.fun geolight_map} to compute the maps."
       )
     } else {
-      stop(glue::glue("condition {.var condition} is unknown"))
+      cli::cli_abort(c(
+        "x" = "Condition {.var {condition}} is unknown."
+      ))
     }
   }
 

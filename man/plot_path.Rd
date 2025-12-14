@@ -51,7 +51,6 @@ plot_path(path)
 \code{\link[=plot.map]{plot.map()}}
 
 Other path: 
-\code{\link{ind2path}()},
 \code{\link{path2edge}()},
 \code{\link{path2elevation}()},
 \code{\link{path2twilight}()},

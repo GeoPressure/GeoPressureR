@@ -9,16 +9,15 @@ tag2path(tag, likelihood = NULL, interp = FALSE, use_known = TRUE)
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
 
-\item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). Possible
-value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{map_pressure_mse},
-\code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
-\code{map_light}, or if not available, taking the first of the possible values.}
+\item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). By default,
+uses the product of \code{map_pressure} and \code{map_light} if available, otherwise the first available
+likelihood map in the tag.}
 
 \item{interp}{the position of the stationary period shorter than \code{interp} will be replace by a
 linear average from other position accounting for flight duration (in days).}
 
-\item{use_known}{If true, enforce the known position in the path created. The known positions are
-approximated to the map resolution in order to corresponds to integer index.}
+\item{use_known}{If \code{TRUE}, enforce known positions from \code{tag$stap} when building the path. Known
+positions are approximated to the map resolution so they correspond to integer indices.}
 }
 \value{
 A path data.frame
@@ -65,7 +64,6 @@ plot_path(path)
 }
 \seealso{
 Other path: 
-\code{\link{ind2path}()},
 \code{\link{path2edge}()},
 \code{\link{path2elevation}()},
 \code{\link{path2twilight}()},

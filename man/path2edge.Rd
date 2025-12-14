@@ -40,11 +40,15 @@ the angle/direction with \code{Arg(gs)}. If graph provided.
 Retrieve the edges in a \code{graph} corresponding to the flight transition defined by a \code{path}. These
 edges can be useful to extract flight information specific to a path.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  edge <- path2edge(path, tag)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information}{GeoPressureManual}
 
 Other path: 
-\code{\link{ind2path}()},
 \code{\link{path2elevation}()},
 \code{\link{path2twilight}()},
 \code{\link{plot_path}()},

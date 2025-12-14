@@ -25,3 +25,8 @@ bearing angle in degree
 This function convert a speed vector represented in complex number into a bearing angle (0°=N ;
 90°=E...). This conversion is needed because trigonometric angle are different than bearing.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  speed2bearing(complex(real = 10, imaginary = 5))
+\dontshow{\}) # examplesIf}
+}

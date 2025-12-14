@@ -54,7 +54,6 @@ abline(v = low_speed_fix)
 Other movement: 
 \code{\link{bird_create}()},
 \code{\link{graph_set_movement}()},
-\code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},
 \code{\link{tag_download_wind}()}
 }

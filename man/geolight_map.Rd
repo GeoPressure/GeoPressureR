@@ -104,6 +104,7 @@ ggplot() +
 }
 \seealso{
 Other geolight: 
+\code{\link{geolight_solar}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}

@@ -39,6 +39,7 @@ plot(tag_labelled, type = "twilight") |> plotly::layout(title = list(text = "Aft
 \seealso{
 Other geolight: 
 \code{\link{geolight_map}()},
+\code{\link{geolight_solar}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_write}()}
 }

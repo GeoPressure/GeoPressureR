@@ -58,7 +58,6 @@ Other bird:
 
 Other movement: 
 \code{\link{graph_set_movement}()},
-\code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},
 \code{\link{speed2prob}()},
 \code{\link{tag_download_wind}()}

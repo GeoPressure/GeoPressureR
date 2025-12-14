@@ -4,7 +4,10 @@
 \alias{geopressure_map_preprocess}
 \title{Prepare pressure data for \code{geopressure_map()}}
 \usage{
-geopressure_map_preprocess(tag, compute_known = FALSE)
+geopressure_map_preprocess(
+  tag,
+  compute_known = formals(geopressure_map)$compute_known
+)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}

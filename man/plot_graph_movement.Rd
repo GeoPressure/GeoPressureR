@@ -19,11 +19,15 @@ a plot or ggplotly object.
 \description{
 This function display a plot of pressure time series recorded by a tag
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  plot_graph_movement(graph)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 Other movement: 
 \code{\link{bird_create}()},
 \code{\link{graph_set_movement}()},
-\code{\link{graph_transition}()},
 \code{\link{speed2prob}()},
 \code{\link{tag_download_wind}()}
 }

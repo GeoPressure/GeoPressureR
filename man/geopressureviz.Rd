@@ -48,6 +48,11 @@ or with \code{shiny::getShinyOption("path_geopressureviz")} after the app comple
 Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
 this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  geopressureviz("18LX")
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual }
 }

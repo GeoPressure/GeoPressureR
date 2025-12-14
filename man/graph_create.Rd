@@ -22,10 +22,9 @@ graph_create(
 
 \item{thr_gs}{threshold of groundspeed (km/h)  (see details).}
 
-\item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). Possible
-value are \code{map_pressure}, \code{map_light}, \code{map_pressure_mse}, \code{map_pressure_mse},
-\code{map_pressure_mse}, \code{mask_water}. Default \code{NA} is to take the product of \code{map_pressure} and
-\code{map_light}, or if not available, taking the first of the possible values.}
+\item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). By default,
+uses the product of \code{map_pressure} and \code{map_light} if available, otherwise the first available
+likelihood map in the tag.}
 
 \item{quiet}{logical to hide messages about the progress.}
 

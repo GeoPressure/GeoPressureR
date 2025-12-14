@@ -18,3 +18,8 @@ logical indicating whether the \code{graph} object fulfil the condition.
 \description{
 This function check the condition of a \code{graph} object.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  graph_assert(graph, "movement")
+\dontshow{\}) # examplesIf}
+}
