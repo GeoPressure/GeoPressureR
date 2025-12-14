@@ -1,14 +1,14 @@
 # Download flight data
 
 This function downloads data associated to each flight from the [ERA5
-hourly pressure
-levels](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels?tab=overview)
-with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/)
-and through the [`ecmwfr` R
+hourly pressure levels](https://doi.org/10.24381/cds.bd0915c6) with the
+[Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and
+through the [`ecmwfr` R
 package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 
 [Any variable available from the ERA5 pressure
-level](https://bit.ly/3BrwLBM) can be downloaded.
+level](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
+can be downloaded.
 
 The flights are determined from the stationary periods classified
 `tag$stap`. It requests a single file for each flight using the exact
@@ -67,10 +67,10 @@ tag_download_wind(
 - variable:
 
   list of variables to download from [the ERA5 pressure
-  level](https://bit.ly/3BrwLBM) : `"u_component_of_wind"`,
-  `"v_component_of_wind"`, `"temperature"`, `"fraction_of_cloud_cover"`,
-  `"relative_humidity"`, `"vertical_velocity"`,
-  `"specific_cloud_ice_water_content"`,
+  level](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
+  : `"u_component_of_wind"`, `"v_component_of_wind"`, `"temperature"`,
+  `"fraction_of_cloud_cover"`, `"relative_humidity"`,
+  `"vertical_velocity"`, `"specific_cloud_ice_water_content"`,
   `"specific_cloud_liquid_water_content"`, `"specific_humidity"`,
   `"specific_rain_water_content"`, `"specific_snow_water_content"`,
   `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`,

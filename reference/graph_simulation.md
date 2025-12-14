@@ -4,7 +4,8 @@ This function randomly simulates multiple trajectories from a graph
 using the forward filtering backward sampling algorithm. For more
 details, see [section 2.3.3 of Nussbaumer et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0013-title)
-and the [GeoPressureManual](https://bit.ly/3YE83Wn).
+and the
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-3-simulated-paths).
 
 ## Usage
 

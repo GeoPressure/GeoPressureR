@@ -38,7 +38,7 @@ The file pathname is return invisibly
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/3QC7IBt)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file)
 
 Other tag_label:
 [`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md),

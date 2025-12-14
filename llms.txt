@@ -156,6 +156,9 @@ Core functions related to labelling a `tag` object.
 - [`tag_label_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_stap.md)
   : Create stationary periods from a tag label
 
+- [`trainset()`](https://raphaelnussbaumer.com/GeoPressureR/reference/trainset.md)
+  **\[experimental\]** : Start the GeoPressure Trainset shiny app
+
 ### Tag utilities
 
 Various utility functions related to a `tag` object.
@@ -370,7 +373,7 @@ Wrapper functions for the full GeoPressureR worflow
   [`geopressuretemplate_tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressuretemplate.md)
   : Workflow for GeoPressureR
 - [`load_interim()`](https://raphaelnussbaumer.com/GeoPressureR/reference/load_interim.md)
-  : Load an interim RData object
+  : Load interim objects from an RData file
 
 ## Param
 

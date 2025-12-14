@@ -189,7 +189,7 @@ The following two maps are returned for each stationary period:
     from SRTM-90. This map is only returned if `keep_mask` is `TRUE`.
 
 For more details, read the [GeoPressure API
-documentation](https://raphaelnussbaumer.com/GeoPressureAPI/) .
+documentation](https://github.com/Rafnuss/GeoPressureAPI) .
 
 ## Elevation levels
 
@@ -242,7 +242,7 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/3sg7yFJ)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps)
 
 ## Examples
 

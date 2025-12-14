@@ -12,7 +12,8 @@ ground speed lower than `thr_gs` (in km/h).
 
 For more details and illustration, see [section 2.2 of Nussbaumer et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0004-title)
-and the [GeoPressureManual](https://bit.ly/3saLVqi)
+and the
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph)
 
 ## Usage
 
@@ -110,7 +111,7 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/3saLVqi)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph)
 
 Other graph:
 [`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),

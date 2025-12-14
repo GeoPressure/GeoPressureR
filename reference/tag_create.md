@@ -143,7 +143,8 @@ sources:
 
   - `magnetic_file = "magnetic.csv"` (optional)
 
-- [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
+- [Swiss Ornithological Institute
+  (`soi`)](https://www.vogelwarte.ch/en/research/bird-migration/geolocators/)
 
   - `pressure_file = "*.pressure"`
 
@@ -171,7 +172,7 @@ sources:
 
   - `light_file = "*.lig"`
 
-- [Lund CAnMove (`lund`)](https://bit.ly/3P6quyi)
+- Lund CAnMove (`lund`)
 
   - `pressure_file = "*_press.xlsx"`
 
@@ -223,7 +224,7 @@ instance to remove pre-equipment or post-retrieval data.
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/4462jpr)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag)
 
 Other tag:
 [`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
@@ -332,7 +333,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>  $ param   :List of 3
 #>   ..$ id                  : chr "xxx"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 4 5
+#>   .. ..$ : int [1:3] 3 4 6
 #>   ..$ tag_create          :List of 3
 #>   .. ..$ pressure_file: chr "df"
 #>   .. ..$ manufacturer : chr "df"

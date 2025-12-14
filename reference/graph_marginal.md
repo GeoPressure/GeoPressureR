@@ -5,7 +5,8 @@ the [forward backward
 algorithm](https://en.wikipedia.org/wiki/Forward%E2%80%93backward_algorithm).
 For more details, see [section 2.3.2 of Nussbaumer et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0012-title)
-and the [GeoPressureManual](https://bit.ly/3sd20vC).
+and the
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-2-marginal-probability-map).
 
 ## Usage
 
@@ -39,7 +40,7 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/3sd20vC)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-2-marginal-probability-map)
 
 Other graph:
 [`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
@@ -74,10 +75,10 @@ graph <- graph_set_movement(graph)
 # Compute marginal
 marginal <- graph_marginal(graph)
 #> ℹ Compute movement model
-#> ✔ Compute movement model [879ms]
+#> ✔ Compute movement model [832ms]
 #> 
 #> ℹ Compute marginal
-#> ✔ Compute marginal [160ms]
+#> ✔ Compute marginal [200ms]
 #> 
 #> ✔ All done
 

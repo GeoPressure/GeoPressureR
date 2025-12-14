@@ -5,7 +5,8 @@ Compute the trajectory which maximizes the joint probability using the
 the graph structure. For more details, see [section 2.3.1 of Nussbaumer
 et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0011-title)
-and the [GeoPressureManual](https://bit.ly/4578D12).
+and the
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path).
 
 ## Usage
 
@@ -54,7 +55,7 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/4578D12)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path)
 
 Other graph:
 [`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),

@@ -61,9 +61,10 @@ edge_add_wind(
 - variable:
 
   list of the variables to extract from [the ERA5 pressure
-  level](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`,
-  `"v"`, `"t"`, `"cc"`, `"r"`, `"w"`, `"ciwc"`, `"clwc"`, `"q"`,
-  `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
+  level](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
+  using the `shortName` notation: `"u"`, `"v"`, `"t"`, `"cc"`, `"r"`,
+  `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`,
+  `"pv"`, `"vo"`.
 
 - rounding_interval:
 

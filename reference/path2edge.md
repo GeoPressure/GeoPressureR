@@ -67,7 +67,7 @@ Data.frame of the edge containing:
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/47MhQxN)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
 
 Other path:
 [`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),

@@ -67,7 +67,7 @@ high-activity period is detected.
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/45bthNt)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#with-or-without-acceleration-data)
 
 Other tag_label:
 [`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md),

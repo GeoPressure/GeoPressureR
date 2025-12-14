@@ -53,7 +53,7 @@ tag_label_stap(
 
 ## See also
 
-[GeoPressureManual](https://bit.ly/45gwcVu)
+[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#compute-stationary-periods)
 
 Other tag_label:
 [`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md),
@@ -82,7 +82,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>  $ param               :List of 4
 #>   ..$ id                  : chr "18LX"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 4 5
+#>   .. ..$ : int [1:3] 3 4 6
 #>   ..$ tag_create          :List of 6
 #>   .. ..$ pressure_file            : chr "./data/raw-tag/18LX/18LX_20180725.pressure"
 #>   .. ..$ light_file               : chr "./data/raw-tag/18LX/18LX_20180725.glf"
