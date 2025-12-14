@@ -20,7 +20,7 @@
 #' POSIXt and `value` in hPa. If not provided, uses `graph$pressure`, assuming that argument `graph`
 #'  is a GeoPressureR `tag` object.
 #' @param variable list of the variables to extract from [the ERA5 pressure level
-#' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
+#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9) using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
 #' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' match ERA5 native resolution (1hr).

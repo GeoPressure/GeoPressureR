@@ -30,7 +30,7 @@ Path data.frame containing the columns
 This function randomly simulates multiple trajectories from a graph using the forward filtering
 backward sampling algorithm. For more
 details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0013-title}{section 2.3.3 of Nussbaumer et al. (2023b)}
-and the \href{https://bit.ly/3YE83Wn}{GeoPressureManual}.
+and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-3-simulated-paths}{GeoPressureManual}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

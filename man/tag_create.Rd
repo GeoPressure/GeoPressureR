@@ -94,7 +94,7 @@ The current implementation can read files from the following three sources:
 \item \code{temperature_external_file = "temperature_external.csv"} (optional)
 \item \code{magnetic_file = "magnetic.csv"} (optional)
 }
-\item \href{https://bit.ly/3QI6tkk}{Swiss Ornithological Institute (\code{soi})}
+\item \href{https://www.vogelwarte.ch/en/research/bird-migration/geolocators/}{Swiss Ornithological Institute (\code{soi})}
 \itemize{
 \item \code{pressure_file = "*.pressure"}
 \item \code{light_file = "*.glf"} (optional)
@@ -113,7 +113,7 @@ The current implementation can read files from the following three sources:
 \itemize{
 \item \code{light_file = "*.lig"}
 }
-\item \href{https://bit.ly/3P6quyi}{Lund CAnMove (\code{lund})}
+\item Lund CAnMove (\code{lund})
 \itemize{
 \item \code{pressure_file = "*_press.xlsx"}
 \item \code{light_file = "*_acc.xlsx"} (optional)
@@ -190,7 +190,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 }
 \seealso{
-\href{https://bit.ly/4462jpr}{GeoPressureManual}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag}{GeoPressureManual}
 
 Other tag: 
 \code{\link{print.tag}()},
