@@ -39,38 +39,43 @@ geopressureviz <- function(
   launch_browser = TRUE,
   run_bg = TRUE
 ) {
-  if (!inherits(x, "tag")) {
-    if (is.character(x) && file.exists(x)) {
-      file <- x
-    } else if (is.character(x)) {
-      file <- glue::glue("./data/interim/{x}.RData")
-    } else {
-      file <- NULL
+  if (inherits(x, "tag")) {
+    tag <- x
+  } else if (is.character(x) && length(x) == 1) {
+    # Decide which extra objects to load from the file
+    var_optional <- character()
+    if (is.null(path)) {
+      var_optional <- c(
+        var_optional,
+        "path_most_likely",
+        "pressurepath",
+        "pressurepath_most_likely"
+      )
+    }
+    if (is.null(marginal)) {
+      var_optional <- c(var_optional, "marginal")
+      marginal <- NULL
     }
 
-    if (is.character(file) && file.exists(file)) {
-      # Make of copy of the argument so that they don't get overwritten
-      if (!is.null(path)) {
-        path0 <- path
-      }
-      if (!is.null(marginal)) {
-        marginal0 <- marginal
-      }
-      # Avoid CMD error
-      path_most_likely <- NULL
-      pressurepath <- NULL
-      pressurepath_most_likely <- NULL
-      # Load interim data
-      load(file)
-      # Accept path_most_likely instead of path
-      if (!is.null(path_most_likely)) {
-        path <- path_most_likely
+    load_interim(
+      x,
+      var = "tag",
+      var_optional = if (length(var_optional)) var_optional else NULL,
+      envir = environment()
+    )
+
+    # Only derive path from loaded objects if user did not supply a path
+    if (is.null(path)) {
+      # Accept path_most_likely instead of path, if available
+      if (exists("path_most_likely", inherits = FALSE)) {
+        path <- get("path_most_likely", inherits = FALSE)
       }
       # Use pressurepath if available over path_most_likely
-      if (!is.null(pressurepath_most_likely)) {
-        pressurepath <- pressurepath_most_likely
+      if (exists("pressurepath_most_likely", inherits = FALSE)) {
+        pressurepath <- get("pressurepath_most_likely", inherits = FALSE)
       }
-      if (!is.null(pressurepath)) {
+      if (exists("pressurepath", inherits = FALSE)) {
+        pressurepath <- get("pressurepath", inherits = FALSE)
         if ("pressure_era5" %in% names(pressurepath)) {
           cli::cli_warn(c(
             "!" = "{.var pressurepath} has been create with an old version of \\
@@ -83,21 +88,11 @@ geopressureviz <- function(
         }
         path <- pressurepath
       }
-      # Overwrite loaded variable with arguments if provided
-      if (exists("path0")) {
-        path <- path0
-      }
-      if (exists("marginal0")) {
-        marginal <- marginal0
-      }
-    } else {
-      cli::cli_abort(
-        "The first argument {.var x} needs to be a {.cls tag}, a {.field file} or \\
-                     an {.field id}"
-      )
     }
   } else {
-    tag <- x
+    cli::cli_abort(
+      "The first argument {.var x} needs to be a {.cls tag} or a single character string (file path or id)."
+    )
   }
 
   tag_assert(tag, "setmap")

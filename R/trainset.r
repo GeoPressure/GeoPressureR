@@ -146,39 +146,6 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
   }
 }
 
-# Load one or more objects from an RData file
-# and optionally extract a specific variable.
-# This is a generic helper that can be reused wherever
-# interim objects need to be loaded.
-load_interim <- function(file, var = "tag", envir = parent.frame(), verbose = FALSE) {
-  assertthat::assert_that(is.character(file), length(file) == 1)
-  assertthat::assert_that(file.exists(file))
-
-  if (isTRUE(verbose)) {
-    cli::cli_inform(c("v" = "Loading {.var {var}} from {.file {file}}"))
-  }
-
-  tmp <- new.env(parent = emptyenv())
-  base::load(file, envir = tmp)
-
-  if (!is.null(var)) {
-    if (!var %in% ls(tmp)) {
-      cli::cli_abort(
-        "File {.file {file}} does not contain an object called {.var {var}}."
-      )
-    }
-    obj <- get(var, envir = tmp)
-    assign(var, obj, envir = envir)
-    invisible(obj)
-  } else {
-    # Load all objects into the target environment
-    for (nm in ls(tmp)) {
-      assign(nm, get(nm, envir = tmp), envir = envir)
-    }
-    invisible(ls(tmp))
-  }
-}
-
 # Convert a TRAINSET CSV file to a GeoPressureR tag
 csv2tag <- function(file, id = NULL) {
   assertthat::assert_that(is.character(file), length(file) == 1)
