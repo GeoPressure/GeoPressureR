@@ -12,7 +12,7 @@
 #'
 #' For more details and illustration, see [section 2.2 of Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0004-title)
-#' and the [GeoPressureManual](https://bit.ly/3saLVqi)
+#' and the [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph)
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param thr_likelihood threshold of percentile (see details).
@@ -59,7 +59,7 @@
 #'
 #' print(graph)
 #'
-#' @seealso [GeoPressureManual](https://bit.ly/3saLVqi)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph)
 #' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly

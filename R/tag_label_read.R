@@ -16,7 +16,7 @@
 #'   str(tag)
 #' })
 #' @family tag_label
-#' @seealso [GeoPressureManual](https://bit.ly/45v79gV)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#read-labelled-file)
 #' @export
 tag_label_read <- function(
   tag,

@@ -20,7 +20,8 @@
 #' POSIXt and `value` in hPa. If not provided, uses `graph$pressure`, assuming that argument `graph`
 #'  is a GeoPressureR `tag` object.
 #' @param variable list of the variables to extract from [the ERA5 pressure level
-#' ](https://bit.ly/3BrwLBM) using the `shortName` notation: `"u"`, `"v"`, `"t"`, `"cc"`, `"r"`,
+#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
+#' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
 #' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' match ERA5 native resolution (1hr).
@@ -442,12 +443,12 @@ edge_add_wind <- function(
               units = "hours"
             ))
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1] +
-              w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1])
+            var_nc[[var_i]] <- var_nc[[var_i]][, , , 1] +
+              w_time * (var_nc[[var_i]][, , , 2] - var_nc[[var_i]][, , , 1])
           }
         } else {
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1]
+            var_nc[[var_i]] <- var_nc[[var_i]][, , , 1]
           }
         }
 
@@ -456,8 +457,8 @@ edge_add_wind <- function(
           w_pres <- (p_q[i_time] - pres[id_pres]) /
             (pres[id_pres + 1] - pres[id_pres])
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][,, 1] +
-              w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1])
+            var_nc[[var_i]] <- var_nc[[var_i]][, , 1] +
+              w_pres * (var_nc[[var_i]][, , 2] - var_nc[[var_i]][, , 1])
           }
         }
 

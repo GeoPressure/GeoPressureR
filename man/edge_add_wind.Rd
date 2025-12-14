@@ -34,7 +34,7 @@ level (i.e., altitude) of the bird during the flights. This data.frame needs to 
 POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, assuming that argument \code{graph}
 is a GeoPressureR \code{tag} object.}
 
-\item{variable}{list of the variables to extract from \href{https://bit.ly/3BrwLBM}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
+\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
 \code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
 
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to

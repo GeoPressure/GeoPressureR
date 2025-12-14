@@ -38,7 +38,7 @@
 #' })
 #'
 #' @family tag_label
-#' @seealso [GeoPressureManual](https://bit.ly/45bthNt)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#with-or-without-acceleration-data)
 #' @export
 tag_label_auto <- function(
   tag,

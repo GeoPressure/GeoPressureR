@@ -27,7 +27,7 @@ Path data.frame containing the columns
 \description{
 Compute the trajectory which maximizes the joint probability using the \href{https://en.wikipedia.org/wiki/Viterbi_algorithm}{Viterbi algorithm} on the graph structure. For more
 details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0011-title}{section 2.3.1 of Nussbaumer et al. (2023b)}
-and the \href{https://bit.ly/4578D12}{GeoPressureManual}.
+and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path}{GeoPressureManual}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -62,7 +62,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \doi{10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://bit.ly/4578D12}{GeoPressureManual}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},

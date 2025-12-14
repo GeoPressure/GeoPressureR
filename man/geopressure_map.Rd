@@ -139,7 +139,7 @@ accounting for the temporal variation of pressure (surface-pressure) and tempera
 from SRTM-90. This map is only returned if \code{keep_mask} is \code{TRUE}.
 }
 
-For more details, read the \href{https://raphaelnussbaumer.com/GeoPressureAPI/}{GeoPressure API documentation }.
+For more details, read the \href{https://github.com/Rafnuss/GeoPressureAPI}{GeoPressure API documentation }.
 }
 
 \section{Elevation levels}{
@@ -213,6 +213,6 @@ Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecolog
 1118–1129 \doi{10.1111/2041-210X.14043}.}
 }
 \seealso{
-\href{https://bit.ly/3sg7yFJ}{GeoPressureManual}
+\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps}{GeoPressureManual}
 }
 \concept{geopressure_map}

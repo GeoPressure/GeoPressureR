@@ -29,7 +29,7 @@
 #' - `ws`: if computed with `graph_add_wind()`, same value as `gs`. Airspeed is computed with
 #' `as = gs - ws` in complex number to keep the vectorial additive properties. If graph provided.
 #' @family path
-#' @seealso [GeoPressureManual](https://bit.ly/47MhQxN)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
 #' @export
 path2edge <- function(path, tag_graph) {
   assertthat::assert_that(is.data.frame(path))

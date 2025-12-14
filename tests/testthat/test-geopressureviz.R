@@ -63,7 +63,7 @@ test_that("geopressureviz() | input validation", {
   expect_error(geopressureviz(list()), "needs to be a")
 
   # Invalid file path
-  expect_error(geopressureviz("non_existent_file.RData"), "needs to be a")
+  expect_error(geopressureviz("non_existent_file.RData"), "does not exist")
 })
 
 test_that("geopressureviz() | foreground execution", {

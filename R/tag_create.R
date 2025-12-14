@@ -16,7 +16,7 @@
 #'    - `temperature_external_file = "temperature_external.csv"` (optional)
 #'    - `temperature_external_file = "temperature_external.csv"` (optional)
 #'    - `magnetic_file = "magnetic.csv"` (optional)
-#' - [Swiss Ornithological Institute (`soi`)](https://bit.ly/3QI6tkk)
+#' - [Swiss Ornithological Institute (`soi`)](https://www.vogelwarte.ch/en/research/bird-migration/geolocators/)
 #'    - `pressure_file = "*.pressure"`
 #'    - `light_file = "*.glf"` (optional)
 #'    - `acceleration_file = "*.acceleration"` (optional)
@@ -30,7 +30,7 @@
 #' - British Antarctic Survey (`bas`), acquired by Biotrack Ltd in 2011, [renamed Lotek in 2019
 #' ](https://www.lotek.com/about-us/history/). Only works for light data (`assert_pressure = FALSE`)
 #'    - `light_file = "*.lig"`
-#' - [Lund CAnMove (`lund`)](https://bit.ly/3P6quyi)
+#' - Lund CAnMove (`lund`)
 #'    - `pressure_file = "*_press.xlsx"`
 #'    - `light_file = "*_acc.xlsx"` (optional)
 #'    - `acceleration_file = "*_acc.xlsx"` (optional)
@@ -136,7 +136,7 @@
 #' })
 #'
 #' @family tag
-#' @seealso [GeoPressureManual](https://bit.ly/4462jpr)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag)
 #' @export
 tag_create <- function(
   id,

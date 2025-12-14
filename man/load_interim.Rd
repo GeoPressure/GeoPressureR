@@ -2,24 +2,40 @@
 % Please edit documentation in R/load_interim.R
 \name{load_interim}
 \alias{load_interim}
-\title{Load an interim RData object}
+\title{Load interim objects from an RData file}
 \usage{
-load_interim(id, envir = parent.frame(), verbose = FALSE)
+load_interim(
+  x,
+  var = NULL,
+  var_optional = NULL,
+  envir = parent.frame(),
+  verbose = FALSE
+)
 }
 \arguments{
-\item{id}{A character string of length 1 corresponding to the tag identifier used in the
-GeoPressureTemplate (e.g., \code{"18LX"}). The function will look for a file named
-\verb{./data/interim/\{id\}.RData}.}
+\item{x}{A character string of length 1. If \code{x} is the path to an existing \code{.RData}/\code{.rda}
+file, that file is used. Otherwise, \code{x} is interpreted as a tag identifier and the function
+looks for \verb{./data/interim/\{x\}.RData}.}
+
+\item{var}{Optional name (or names) of objects that must exist in the file. If \code{NULL} and
+\code{var_optional} is also \code{NULL}, all objects from the file are loaded into \code{envir} (the
+behaviour of \code{\link[base:load]{base::load()}}).}
+
+\item{var_optional}{Character vector of object names that may or may not exist in the file. Any
+of these that are present will be loaded; missing ones are silently ignored.}
 
 \item{envir}{the environment where the data should be loaded.}
 
 \item{verbose}{should item names be printed during loading?}
 }
 \value{
-Invisibly returns the names of the objects loaded (as in \code{\link[base:load]{base::load()}}).
+If no selection is requested (\code{var} and \code{var_optional} both \code{NULL}), invisibly returns
+the character vector of object names loaded (as in \code{\link[base:load]{base::load()}}). Otherwise, if a single
+object name is requested, invisibly returns that object; if multiple names are requested,
+invisibly returns a named list of those objects.
 }
 \description{
-Loads an object from the \verb{./data/interim/} directory created during the GeoPressure analysis.
+Loads one or more objects from an interim \code{.RData} file created during the GeoPressure analysis.
 This is a convenience function to quickly restore saved objects (e.g., \code{tag}, \code{graph},
-\code{path_most_likely}) for a given tag \code{id}.
+\code{path_most_likely}) for a given tag \code{id} or directly from a file path.
 }

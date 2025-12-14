@@ -50,7 +50,7 @@
 #' from SRTM-90. This map is only returned if `keep_mask` is `TRUE`.
 #'
 #' For more details, read the [GeoPressure API documentation
-#' ](https://raphaelnussbaumer.com/GeoPressureAPI/).
+#' ](https://github.com/Rafnuss/GeoPressureAPI).
 #'
 #' @section Elevation levels:
 #'
@@ -152,7 +152,7 @@
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
 #' 1118–1129 \doi{10.1111/2041-210X.14043}.}
 #' @family geopressure_map
-#' @seealso [GeoPressureManual](https://bit.ly/3sg7yFJ)
+#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps)
 #' @export
 geopressure_map <- function(
   tag,
