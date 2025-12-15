@@ -117,38 +117,17 @@ geolight_map <- function(
 #' twilight associated to unknown stationary periods are included.
 #' @return a twilight data.frame with an additional `include` logical column
 #' @noRd
-get_twl_include <- function(x, only_known = NULL) {
-  if (inherits(x, "tag")) {
-    twl <- tag$twilight
-  } else {
-    twl <- x
-  }
-
-  assertthat::assert_that(only_known %in% c(TRUE, FALSE, NULL))
-
-  # Find index of twilight to compute
-  twl$include <- which(stats::complete.cases(twl))
+twilight_include <- function(twl) {
+  # Base inclusion: complete cases
+  twl$include <- stats::complete.cases(twl)
 
   # Remove discarded twilight
   if ("label" %in% names(twl)) {
     twl$include <- twl$include & twl$label != "discard"
   }
 
-  # Only select twilight that we are interested of: not known and/or not in flight
-  if (inherits(x, "tag") && !is.null(only_known)) {
-    known_stap <- tag$stap$stap_id[is.na(tag$stap$known_lat)]
-    if (only_known) {
-      twl$include <- twl$include & (twl$stap_id %in% known_stap)
-    } else {
-      twl$include <- twl$include & !(twl$stap_id %in% known_stap)
-    }
+  if (!any(twl$include)) {
+    cli::cli_abort(c("x" = "There are no twilights left after labeling."))
   }
-
-  if (nrow(twl) == 0) {
-    cli::cli_abort(c(
-      x = "There are no twilights left after labeling."
-    ))
-  }
-
   twl
 }

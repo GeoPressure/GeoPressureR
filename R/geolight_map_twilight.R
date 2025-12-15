@@ -4,15 +4,24 @@
 geolight_map_twilight <- function(tag, compute_known = formals(geolight_map)$compute_known) {
   tag_assert(tag, "twl_calib")
   tag_assert(tag, "setmap")
-
   assertthat::assert_that(is.logical(compute_known), length(compute_known) == 1)
 
-  twl <- get_twl_include(tag, compute_known = compute_known)
+  # Get map parameters
+  g <- map_expand(extent, scale)
 
-  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
+  # Get twilight to include
+  twl <- twilight_include(tag$twilight)
 
+  # Filter out known stationary periods to reduce computation time
+  if (!compute_known) {
+    known_stap <- tag$stap$stap_id[!is.na(tag$stap$known_lat && tag$stap$known_lon)]
+    twl$include <- twl$include & !(twl$stap_id %in% known_stap)
+  }
+
+  # Compute solar zenith angle for included twilight
   z <- geolight_solar(twl$twilight[twl$include], lat = g$lat, lon = g$lon)
 
+  # Compute light likelihood for each included twilight
   lk <- array(
     stats::approx(
       tag$param$geolight_map$twl_calib$x,
@@ -30,6 +39,7 @@ geolight_map_twilight <- function(tag, compute_known = formals(geolight_map)$com
     function(k) lk[,, k]
   )
 
+  # Transform twl to stap format for map_create
   twl$stap_id_grp <- twl$stap_id
   twl$stap_id <- seq_len(nrow(twl))
   twl$start <- twl$twilight

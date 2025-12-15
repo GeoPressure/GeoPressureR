@@ -62,7 +62,7 @@ geolight_calibration <- function(
   }
 
   # Get twilight to include
-  twl <- get_twl_include(twl)
+  twl <- twilight_include(twl)
   twl_include <- twl[twl$include, ]
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
