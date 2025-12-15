@@ -80,7 +80,8 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
         "pressure_mask",
         "magnetic_intensity",
         "magnetic_inclination",
-        "marginal"
+        "marginal",
+        "twilight"
       )
   )
 
