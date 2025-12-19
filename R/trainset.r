@@ -89,6 +89,9 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
   } else {
     cli::cli_abort("{.arg x} must be a {.cls tag} or a single character string (file path or id)")
   }
+
+  label_dir <- normalizePath(label_dir, mustWork = FALSE)
+
   if (run_bg) {
     p <- callr::r_bg(
       func = function(tag, label_dir) {
