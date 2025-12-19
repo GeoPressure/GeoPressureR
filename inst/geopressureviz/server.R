@@ -55,21 +55,6 @@ server <- function(input, output, session) {
     return(ind)
   }
 
-  # Initialize future plan for async tasks (once per session)
-  if (isTRUE(future::nbrOfWorkers() <= 1)) {
-    try(
-      {
-        if (future::supportsMultisession()) future::plan(future::multisession)
-      },
-      silent = TRUE
-    )
-  }
-
-  observe({
-    # Store current path as path_geopressureviz in shiny options
-    shiny::shinyOptions(path_geopressureviz = reactVal$path)
-  })
-
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
@@ -544,19 +529,49 @@ server <- function(input, output, session) {
   }) # |> bindEvent(input$stap_id)
 
   # Helper to post-process and merge pressure time series results
-  process_pressuretimeseries <- function(pressuretimeseries, stap_id) {
-    # Compute new linetype index
-    pressuretimeseries$linetype <- as.factor(ifelse(
-      any(reactVal$pressurepath$stap_id == stap_id),
-      max(as.numeric(reactVal$pressurepath$linetype[
-        reactVal$pressurepath$stap_id == stap_id
-      ])) +
-        1,
-      1
-    ))
-
+  process_pressuretimeseries <- function(pressuretimeseries, stap_idx, stap_id) {
+    # Keep `stap_id` as the identifier used in `pressure$stap_id` so grouping/normalization
+    # stays consistent with `geopressure_timeseries()` and existing `pressurepath` objects.
     pressuretimeseries$stap_ref <- stap_id
-    pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
+    pressuretimeseries$col <- stap$col[stap_idx]
+
+    # Ensure existing pressurepath has columns we rely on (older saved objects may not).
+    if (nrow(reactVal$pressurepath) > 0) {
+      if (!"stap_id" %in% names(reactVal$pressurepath)) {
+        reactVal$pressurepath$stap_id <- NA
+      }
+      if (!"stap_ref" %in% names(reactVal$pressurepath)) {
+        reactVal$pressurepath$stap_ref <- NA
+      }
+      if (!"linetype" %in% names(reactVal$pressurepath)) {
+        reactVal$pressurepath$linetype <- NA
+      }
+      if (!"col" %in% names(reactVal$pressurepath)) reactVal$pressurepath$col <- NA
+    }
+
+    stap_col <- if ("stap_id" %in% names(reactVal$pressurepath)) {
+      "stap_id"
+    } else if ("stap_ref" %in% names(reactVal$pressurepath)) {
+      "stap_ref"
+    } else {
+      NULL
+    }
+
+    has_prev <- !is.null(stap_col) &&
+      any(reactVal$pressurepath[[stap_col]] == stap_id, na.rm = TRUE)
+
+    prev_linetype_max <- 0
+    if (isTRUE(has_prev) && "linetype" %in% names(reactVal$pressurepath)) {
+      prev_vals <- suppressWarnings(as.numeric(reactVal$pressurepath$linetype[
+        reactVal$pressurepath[[stap_col]] == stap_id
+      ]))
+      prev_vals <- prev_vals[is.finite(prev_vals)]
+      if (length(prev_vals) > 0) {
+        prev_linetype_max <- max(prev_vals)
+      }
+    }
+
+    pressuretimeseries$linetype <- as.factor(if (isTRUE(has_prev)) prev_linetype_max + 1 else 1)
 
     if ("j" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$j <- reactVal$pressurepath$j[1]
@@ -564,21 +579,21 @@ server <- function(input, output, session) {
     if ("ind" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$ind <- NA
     }
-    if ("include" %in% names(reactVal$pressurepath)) {
+    if (!is.null(stap_col) && "include" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$include <- reactVal$pressurepath$include[
-        reactVal$pressurepath$stap_id == stap_id
+        reactVal$pressurepath[[stap_col]] == stap_id
       ][1]
     }
-    if ("known" %in% names(reactVal$pressurepath)) {
+    if (!is.null(stap_col) && "known" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$known <- reactVal$pressurepath$known[
-        reactVal$pressurepath$stap_id == stap_id
+        reactVal$pressurepath[[stap_col]] == stap_id
       ][1]
     }
 
     # Update path with potentially corrected lat/lon
-    reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
-    reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
-    reactVal$path$ind[stap_id] <- latlon2ind(
+    reactVal$path$lon[stap_idx] <- pressuretimeseries$lon[1]
+    reactVal$path$lat[stap_idx] <- pressuretimeseries$lat[1]
+    reactVal$path$ind[stap_idx] <- latlon2ind(
       pressuretimeseries$lat[1],
       pressuretimeseries$lon[1]
     )
@@ -607,57 +622,15 @@ server <- function(input, output, session) {
     invisible(NULL)
   }
 
-  observeEvent(input$query_position, {
-    # Prepare inputs outside of the async call to avoid capturing large/reactive objects
-    stap_idx <- as.numeric(input$stap_id)
-    stap_id <- stap$stap_id[stap_idx]
-    lat0 <- reactVal$path$lat[stap_id]
-    lon0 <- reactVal$path$lon[stap_id]
-    pres_df <- pressure[pressure$stap_id == stap_id, ]
-    # Prevent repeat clicks while running
-    try(shinyjs::disable("query_position"), silent = TRUE)
-
-    if (!requireNamespace("promises", quietly = TRUE)) {
-      # Fallback: synchronous execution if promises is unavailable
-      tryCatch(
-        {
-          pressuretimeseries <- geopressure_timeseries(
-            lat0,
-            lon0,
-            pressure = pres_df
-          )
-          process_pressuretimeseries(pressuretimeseries, stap_id)
-        },
-        error = function(e) {
-          cli::cli_alert_warning(c(
-            "!" = "Function {.fun geopressure_timeseries} did not work.",
-            "i" = conditionMessage(e)
-          ))
-        }
-      )
-      try(shinyjs::enable("query_position"), silent = TRUE)
-      return(invisible())
-    }
-
-    # Async path: run geopressure_timeseries in a background R session and return a promise
-    promises::future_promise({
-      geopressure_timeseries(lat0, lon0, pressure = pres_df)
-    }) |>
-      promises::then(function(pressuretimeseries) {
-        process_pressuretimeseries(pressuretimeseries, stap_id)
-        try(shinyjs::enable("query_position"), silent = TRUE)
-        invisible(NULL)
-      }) |>
-      promises::catch(function(e) {
-        cli::cli_alert_warning(c(
-          "!" = "Function {.fun geopressure_timeseries} did not work.",
-          "i" = conditionMessage(e)
-        ))
-        try(shinyjs::enable("query_position"), silent = TRUE)
-        invisible(NULL)
-      }) |>
-      invisible()
-  })
+  # Async query for "Query pressure" button
+  source("server_query_position.R", local = TRUE)
+  setup_query_position(
+    reactVal = reactVal,
+    stap = stap,
+    pressure = pressure,
+    process_pressuretimeseries = process_pressuretimeseries,
+    session = session
+  )
 
   # Export path functionality
   observeEvent(input$export_path, {
