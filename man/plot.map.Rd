@@ -11,7 +11,7 @@
   plot_leaflet = TRUE,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
-  palette = "auto",
+  palette = NULL,
   opacity = 0.8,
   legend = FALSE,
   fac_res_proj = 4,

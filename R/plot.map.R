@@ -65,7 +65,7 @@ plot.map <- function(
   plot_leaflet = TRUE,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
-  palette = "auto",
+  palette = NULL,
   opacity = 0.8,
   legend = FALSE,
   fac_res_proj = 4,
@@ -93,6 +93,22 @@ plot.map <- function(
   # Convert GeoPressureR map to terra rast object
   r <- rast.map(map)
 
+  if (palette == "auto") {
+    palette <- NULL
+  }
+
+  # Get palette (leaflet only)
+  if (is.null(palette)) {
+    spec <- .MAP_TYPE[[map$type]]
+    if (is.null(spec)) {
+      spec <- .MAP_TYPE[["unknown"]]
+    }
+    palette <- spec[["light"]]$palette
+    reverse <- isTRUE(spec[["light"]]$reverse)
+  } else {
+    reverse <- FALSE
+  }
+
   if (plot_leaflet) {
     grp <- glue::glue(
       "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}"
@@ -100,30 +116,6 @@ plot.map <- function(
 
     lmap <- leaflet::leaflet(height = 600) |>
       leaflet::addProviderTiles(provider = provider, options = provider_options)
-
-    if (palette == "auto") {
-      if ("pressure" == map$type) {
-        palette <- "GnBu"
-      } else if ("light" == map$type) {
-        palette <- "OrRd"
-      } else if ("magnetic" == map$type) {
-        palette <- "RdPu"
-      } else if ("pressure_mse" == map$type) {
-        palette <- "BuPu"
-      } else if ("pressure_mask" == map$type) {
-        palette <- "YlOrBr"
-      } else if ("magnetic_inclination" == map$type) {
-        palette <- "YlGnBu"
-      } else if ("magnetic_intensity" == map$type) {
-        palette <- "YlGn"
-      } else if ("mask_water" == map$type) {
-        palette <- "Greys"
-      } else if ("marginal" == map$type) {
-        palette <- "plasma"
-      } else {
-        palette <- "viridis"
-      }
-    }
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
@@ -158,6 +150,7 @@ plot.map <- function(
         colors = leaflet::colorNumeric(
           palette = palette,
           domain = NULL,
+          reverse = reverse,
           na.color = "#00000000",
           alpha = TRUE
         )
@@ -214,6 +207,45 @@ plot.map <- function(
 
     return(lmap)
   } else {
-    terra::plot(r[[map$stap$include]], legend = legend, ...)
+    cols <- palette_to_colors(palette, n = 256L, reverse = reverse)
+    terra::plot(r[[map$stap$include]], legend = legend, col = cols, ...)
   }
+}
+
+
+#' @noRd
+palette_to_colors <- function(palette, n = 256L, reverse = FALSE) {
+  n <- as.integer(n)
+  if (!is.finite(n) || n < 2) {
+    cols <- NULL
+  }
+  if (is.character(palette) && length(palette) == 1) {
+    pal_name <- palette
+    if (
+      requireNamespace("viridisLite", quietly = TRUE) &&
+        pal_name %in% c("viridis", "magma", "inferno", "plasma", "cividis")
+    ) {
+      cols <- get(pal_name, envir = asNamespace("viridisLite"))(n)
+    } else if (
+      requireNamespace("RColorBrewer", quietly = TRUE) &&
+        pal_name %in% rownames(RColorBrewer::brewer.pal.info)
+    ) {
+      max_n <- RColorBrewer::brewer.pal.info[pal_name, "maxcolors"]
+      base_cols <- RColorBrewer::brewer.pal(min(n, max_n), pal_name)
+      cols <- grDevices::colorRampPalette(base_cols)(n)
+    } else {
+      cols <- tryCatch(grDevices::hcl.colors(n, pal_name), error = function(e) NULL)
+    }
+  } else if (is.character(palette) && length(palette) >= 2) {
+    cols <- if (length(palette) == n) palette else grDevices::colorRampPalette(palette)(n)
+  }
+
+  if (is.null(cols) || !is.character(cols) || length(cols) < 2) {
+    cols <- grDevices::colorRampPalette(c("#132B43", "#56B1F7"))(n)
+  }
+
+  if (isTRUE(reverse)) {
+    cols <- rev(cols)
+  }
+  cols
 }

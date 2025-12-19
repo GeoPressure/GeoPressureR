@@ -31,49 +31,48 @@ tag2map <- function(tag, likelihood = NULL) {
 tag2likelihood <- function(tag, likelihood = NULL) {
   tag_assert(tag)
 
-  authorized_lk <- c(
-    "map_pressure",
-    "map_light",
-    "map_pressure_mse",
-    "map_pressure_mask",
-    "mask_water",
-    "map_marginal",
-    "map_magnetic",
-    "map_magnetic_intensity",
-    "map_magnetic_inclination"
-  )
+  # Allowed inputs are either `.MAP_TYPE[[*]]$name` (tag field name(s)) or `names(.MAP_TYPE)`.
+  type_name <- lapply(.MAP_TYPE, `[[`, "name")
+  allowed_fields <- unique(unlist(type_name, use.names = FALSE))
+  allowed_user <- unique(c(names(.MAP_TYPE), allowed_fields))
 
   # Automatic determination
   if (is.null(likelihood)) {
-    pst <- authorized_lk %in% names(tag)
-
-    # Priority 1: pressure x light
-    if (pst[1] && pst[2]) {
-      likelihood <- authorized_lk[c(1, 2)]
-    } else {
-      # Priority 2: in the order of authorized_lk
-      i <- which(pst)[1]
-      if (is.na(i)) {
-        cli::cli_abort(c(
-          x = "No map are are present in {.var tag}",
-          i = "Make sure you've run {.fun geopressure_map} and/or {.fun geolight_map}"
-        ))
-      }
-      likelihood <- authorized_lk[i]
+    # Priority 1: pressure x light (if both exist)
+    if (all(c("map_pressure", "map_light") %in% names(tag))) {
+      return(c("map_pressure", "map_light"))
     }
-  } else {
-    # Accept wrong name for pressure and light
-    likelihood[likelihood == "pressure"] <- "map_pressure"
-    likelihood[likelihood == "light"] <- "map_light"
-    likelihood[likelihood == "magnetic"] <- "map_magnetic"
 
-    unknown <- setdiff(likelihood, names(tag))
-    if (length(unknown) > 0) {
-      cli::cli_abort(c(
-        "x" = "The likelihood map{?s} {.val {unknown}} {?is/are} not recognized.",
-        ">" = "{.var likelihood} must be one of {.val {authorized_lk}}."
-      ))
+    # Priority 2: first `.MAP_TYPE` entry (in `.MAP_TYPE` order) that is available on the tag
+    available <- vapply(type_name, function(cand) all(cand %in% names(tag)), logical(1))
+    if (any(available)) {
+      return(type_name[[which(available)[1]]])
     }
+
+    cli::cli_abort(c(
+      x = "No likelihood map is present in {.var tag}.",
+      i = "Make sure you've run {.fun geopressure_map} and/or {.fun geolight_map}.",
+      ">" = "{.var likelihood} must be one of {.val {allowed_user}}."
+    ))
+  }
+
+  likelihood <- unlist(
+    lapply(likelihood, function(lk) if (lk %in% names(.MAP_TYPE)) .MAP_TYPE[[lk]]$name else lk),
+    use.names = FALSE
+  )
+  bad <- setdiff(likelihood, allowed_fields)
+  if (length(bad) > 0) {
+    cli::cli_abort(c(
+      "x" = "The likelihood map{?s} {.val {bad}} {?is/are} not recognized.",
+      ">" = "{.var likelihood} must be one of {.val {allowed_user}}."
+    ))
+  }
+  missing <- setdiff(likelihood, names(tag))
+  if (length(missing) > 0) {
+    cli::cli_abort(c(
+      "x" = "The likelihood map{?s} {.val {missing}} {?is/are} not present in {.var tag}.",
+      "i" = "Available likelihood maps are: {.val {intersect(allowed_fields, names(tag))}}."
+    ))
   }
 
   return(likelihood)

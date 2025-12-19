@@ -10,8 +10,9 @@
 #' @inheritParams tag_set_map
 #' @param stap a data.frame of stationary periods.
 #' @inheritParams tag_create
-#' @param type type of data one of `"unknown"`,`"pressure"`, `"light"`, `"pressure_mse"`,
-#' `"water_mask"`, `"pressure_mask"`, `"marginal"`. Allows for custom colour palette on plot.
+#' @param type map type used for default palettes in plots. One of:
+#' `"unknown"`, `"pressure"`, `"light"`, `"magnetic"`, `"pressure_mse"`, `"pressure_mask"`,
+#' `"mask_water"`, `"magnetic_intensity"`, `"magnetic_inclination"`, `"marginal"`, `"twilight"`.
 #'
 #' @return A GeoPressure `map` object
 #'
@@ -68,22 +69,7 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   assertthat::assert_that(assertthat::are_equal(nrow(stap), length(data)))
 
   assertthat::assert_that(is.character(type))
-  assertthat::assert_that(
-    type %in%
-      c(
-        "unknown",
-        "pressure",
-        "light",
-        "magnetic",
-        "pressure_mse",
-        "water_mask",
-        "pressure_mask",
-        "magnetic_intensity",
-        "magnetic_inclination",
-        "marginal",
-        "twilight"
-      )
-  )
+  assertthat::assert_that(type %in% names(.MAP_TYPE))
 
   # Define the mask of water
   tmp <- data[[which(!sapply(data, is.null))[1]]]
