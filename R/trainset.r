@@ -67,21 +67,10 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
     } else {
       # x is a character (id), try finding interim or label files
       id <- x
-      interim_file <- glue::glue("./data/interim/{id}.RData")
       labeled_file <- glue::glue("./data/tag-label/{id}-labeled.csv")
       unlabeled_file <- glue::glue("./data/tag-label/{id}.csv")
 
-      if (file.exists(interim_file)) {
-        tag <- load_interim(interim_file, var = "tag", envir = new.env())
-        interim_dir <- dirname(interim_file)
-        if (basename(interim_dir) == "interim") {
-          data_dir <- dirname(interim_dir)
-          candidate <- file.path(data_dir, "tag-label")
-          if (dir.exists(candidate)) {
-            label_dir <- candidate
-          }
-        }
-      } else if (file.exists(labeled_file)) {
+      if (file.exists(labeled_file)) {
         tag <- csv2tag(labeled_file, id = id)
         label_dir <- dirname(labeled_file)
       } else if (file.exists(unlabeled_file)) {
@@ -91,7 +80,6 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
         cli::cli_abort(c(
           "Cannot find data files for id {.val {id}}",
           "i" = "Looked for:",
-          "*" = "{.file {file.path(getwd(), interim_file)}}",
           "*" = "{.file {file.path(getwd(), labeled_file)}}",
           "*" = "{.file {file.path(getwd(), unlabeled_file)}}",
           "i" = "Please ensure the files exist or provide a valid file path"
