@@ -57,7 +57,7 @@ ui <- shiny::fluidPage(
               NULL,
               choices = c("None" = ""), # Will be updated by server
               selected = "",
-              width = "120px"
+              width = "150px"
             ),
             actionButton("stap_id_next", ">", class = "form-group btn btn-outline-light"),
             shinyjs::hidden(
@@ -95,12 +95,54 @@ ui <- shiny::fluidPage(
         div(
           class = "input-group",
           id = "div-group-label",
-          selectInput(
+          shiny::selectizeInput(
             "label_select",
             NULL,
-            choices = c("flight", "discard"), # Initial choices, will be updated by server
-            selected = "flight",
-            width = "120px"
+            choices = c("discard", "flight", "elev_1"),
+            selected = "elev_1",
+            width = "120px",
+            options = list(
+              render = I(
+                "{
+                  option: function(item, escape) {
+                    function labelColor(lbl) {
+                      if (!lbl) return 'black';
+                      if (lbl === 'flight') return 'red';
+                      if (lbl === 'discard') return 'grey';
+                      var m = lbl.match(/^elev_(\\d+)$/);
+                      if (m) {
+                        var n = parseInt(m[1], 10);
+                        var pal = ['#1f77b4','#ff7f0e','#2ca02c','#9467bd','#8c564b','#e377c2','#bcbd22','#17becf'];
+                        return pal[(n - 1) % pal.length];
+                      }
+                      return 'black';
+                    }
+                    var txt = item.text || item.label || item.value || '';
+                    var lbl = item.value || txt;
+                    var dot = '<span class=\"label-dot\" style=\"background-color:' + labelColor(lbl) + '\"></span>';
+                    return '<div>' + dot + escape(txt) + '</div>';
+                  },
+                  item: function(item, escape) {
+                    function labelColor(lbl) {
+                      if (!lbl) return 'black';
+                      if (lbl === 'flight') return 'red';
+                      if (lbl === 'discard') return 'grey';
+                      var m = lbl.match(/^elev_(\\d+)$/);
+                      if (m) {
+                        var n = parseInt(m[1], 10);
+                        var pal = ['#1f77b4','#ff7f0e','#2ca02c','#9467bd','#8c564b','#e377c2','#bcbd22','#17becf'];
+                        return pal[(n - 1) % pal.length];
+                      }
+                      return 'black';
+                    }
+                    var txt = item.text || item.label || item.value || '';
+                    var lbl = item.value || txt;
+                    var dot = '<span class=\"label-dot\" style=\"background-color:' + labelColor(lbl) + '\"></span>';
+                    return '<div>' + dot + escape(txt) + '</div>';
+                  }
+                }"
+              )
+            )
           ),
           actionButton("add_label_btn", "+", class = "form-group btn btn-outline-light")
         )
@@ -128,6 +170,6 @@ ui <- shiny::fluidPage(
   div(
     class = "position-relative",
     style = "height: calc(100vh - 111px);",
-    plotlyOutput("ts_plot", width = "100%", height = "100%")
+    plotly::plotlyOutput("ts_plot", width = "100%", height = "100%")
   )
 )

@@ -3,6 +3,8 @@ $(document).ready(function () {
   window.trainsetKeyState = {
     ctrlOrMeta: false,
   };
+  // Last navigation source (used for debugging relayout storms)
+  window.trainsetLastNav = null;
 
   // Custom message handler to clear plotly selection
   Shiny.addCustomMessageHandler("clearPlotlySelection", function (plotId) {
@@ -29,6 +31,7 @@ $(document).ready(function () {
         if (e.which === 38) {
           // Up arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var newDuration = duration * 0.5; // Zoom in by 50%
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
@@ -40,6 +43,7 @@ $(document).ready(function () {
         else if (e.which === 40) {
           // Down arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var newDuration = duration * 2; // Zoom out by 100%
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
@@ -51,6 +55,7 @@ $(document).ready(function () {
         else if (e.which === 37) {
           // Left arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var panAmount = e.shiftKey ? duration : duration * 0.1;
           var newStart = new Date(start.getTime() - panAmount);
           var newEnd = new Date(end.getTime() - panAmount);
@@ -62,6 +67,7 @@ $(document).ready(function () {
         else if (e.which === 39) {
           // Right arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var panAmount = e.shiftKey ? duration : duration * 0.1;
           var newStart = new Date(start.getTime() + panAmount);
           var newEnd = new Date(end.getTime() + panAmount);
@@ -83,6 +89,8 @@ $(document).ready(function () {
   // Custom mouse wheel handler for x-axis only zoom (unless over y-axis)
   $("#ts_plot").on("wheel", function (e) {
     e.preventDefault();
+    // Mark the source so the server can debug relayout storms.
+    window.trainsetLastNav = "wheel";
     var plot = document.getElementById("ts_plot");
     if (plot && plot.data) {
       var rect = plot.getBoundingClientRect();
