@@ -408,13 +408,19 @@ server <- function(input, output, session) {
       # Track from
       map_stap_id <- map_display()[[as.numeric(input$stap_id)]]
       if (!is.null(map_stap_id)) {
+        key <- map_type_key[[input$map_source]]
+        spec <- GeoPressureR:::.MAP_TYPE[[key]]
+        if (is.null(spec)) spec <- GeoPressureR:::.MAP_TYPE[["unknown"]]
+        spec_dark <- spec[["dark"]]
+
         proxy <- proxy |>
           leaflet::addRasterImage(
             map_stap_id,
             opacity = 0.8,
             colors = leaflet::colorNumeric(
-              palette = "magma",
+              palette = spec_dark$palette,
               domain = NULL,
+              reverse = isTRUE(spec_dark$reverse),
               na.color = "#00000000",
               alpha = TRUE
             ),

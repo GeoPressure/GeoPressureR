@@ -106,24 +106,18 @@ geopressureviz <- function(
   }
 
   # Add possible map to display
-  maps_choices <- list(
-    "Pres. MSE" = "map_pressure_mse",
-    "Pres. mask" = "map_pressure_mask",
-    "Pressure" = "map_pressure",
-    "Light" = "map_light",
-    "Mag. incl." = "map_magnetic_inclination",
-    "Mag. int." = "map_magnetic_intensity",
-    "Magnetic" = "map_magnetic",
-    "Pres.&Light" = c("map_pressure", "map_light"),
-    "Marginal" = "map_marginal"
+  map_entries <- .MAP_TYPE[setdiff(names(.MAP_TYPE), c("unknown", "mask_water"))]
+  map_display <- vapply(map_entries, function(x) x$display, character(1))
+  map_needed <- lapply(map_entries, function(x) x$name)
+  available <- vapply(map_needed, function(x) all(x %in% names(tag)), logical(1))
+
+  map_display <- map_display[available]
+  map_needed <- map_needed[available]
+  map_type_key <- stats::setNames(names(map_entries)[available], map_display)
+  maps <- stats::setNames(
+    lapply(map_needed, function(likelihood) tag2map(tag, likelihood = likelihood)),
+    map_display
   )
-  maps_is_available <- sapply(maps_choices, \(x) all(x %in% names(tag)))
-
-  maps <- lapply(maps_choices[maps_is_available], \(likelihood) {
-    tag2map(tag, likelihood = likelihood)
-  })
-
-  names(maps) <- names(maps_choices[maps_is_available])
 
   # Set colour of each stationary period
   col <- rep(
@@ -175,13 +169,14 @@ geopressureviz <- function(
 
   if (run_bg) {
     p <- callr::r_bg(
-      func = function(tag, maps, pressurepath, path, file_wind) {
+      func = function(tag, maps, map_type_key, pressurepath, path, file_wind) {
         library(GeoPressureR)
 
         # Set shiny options instead of global variables
         shiny::shinyOptions(
           tag = tag,
           maps = maps,
+          map_type_key = map_type_key,
           pressurepath = pressurepath,
           path = path,
           file_wind = file_wind
@@ -192,6 +187,7 @@ geopressureviz <- function(
       args = list(
         tag = tag,
         maps = maps,
+        map_type_key = map_type_key,
         pressurepath = pressurepath,
         path = path,
         file_wind = file_wind
@@ -219,6 +215,7 @@ geopressureviz <- function(
     shiny::shinyOptions(
       tag = tag,
       maps = maps,
+      map_type_key = map_type_key,
       pressurepath = pressurepath,
       path = path,
       file_wind = file_wind
