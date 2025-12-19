@@ -16,6 +16,13 @@ ui <- bootstrapPage(
                sans-serif;}.primary{background-color:#007bff; color: #fff;}.js-plotly-plot
                .plotly .modebar{left: 0}"
     ),
+    shiny::tags$script(HTML(
+      "
+      Shiny.addCustomMessageHandler('updateTitle', function(title) {
+        document.title = title;
+      });
+    "
+    ))
   ),
   leaflet::leafletOutput("map", width = "100%", height = "100%"),
   absolutePanel(

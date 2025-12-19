@@ -1,7 +1,5 @@
-# nolint start
 server <- function(input, output, session) {
   # Update browser tab title with tag ID
-  updateTabsetPanel(session, inputId = NULL)
   session$sendCustomMessage(
     "updateTitle",
     glue::glue("GeoPressureViz - {tag$param$id}")
@@ -200,11 +198,20 @@ server <- function(input, output, session) {
         ggplot2::scale_color_identity()
     }
 
+    tooltip_vars <- if (
+      isTRUE(nrow(reactVal$pressurepath) > 0) && "linetype" %in% names(reactVal$pressurepath)
+    ) {
+      c("x", "y", "linetype")
+    } else {
+      c("x", "y")
+    }
+
     plotly::ggplotly(
       p,
       dynamicTicks = TRUE,
       height = 300,
-      tooltip = c("x", "y", "linetype")
+      tooltip = tooltip_vars,
+      source = "pressure_plot"
     ) |>
       plotly::layout(
         showlegend = FALSE,
@@ -718,4 +725,3 @@ server <- function(input, output, session) {
     }
   })
 }
-# nolint end
