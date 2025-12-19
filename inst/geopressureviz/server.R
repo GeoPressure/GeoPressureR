@@ -5,9 +5,11 @@ server <- function(input, output, session) {
     glue::glue("GeoPressureViz - {tag$param$id}")
   )
 
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  if (isTRUE(shiny::getShinyOption("stop_on_session_end", TRUE))) {
+    session$onSessionEnded(function() {
+      stopApp()
+    })
+  }
 
   # Extract shorter name for variable
   stap <- tag$stap

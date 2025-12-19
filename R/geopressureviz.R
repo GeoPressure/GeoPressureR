@@ -179,7 +179,8 @@ geopressureviz <- function(
           map_type_key = map_type_key,
           pressurepath = pressurepath,
           path = path,
-          file_wind = file_wind
+          file_wind = file_wind,
+          stop_on_session_end = FALSE
         )
 
         shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"))
@@ -204,6 +205,14 @@ geopressureviz <- function(
       if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
         port <- sub(".*127\\.0\\.0\\.1:([0-9]+).*", "\\1", txt)
         url <- glue::glue("http://127.0.0.1:{port}")
+
+        # Keep a reference to the background process so it is not garbage-collected
+        # (which can terminate the child process unexpectedly).
+        procs <- getOption("GeoPressureR.geopressureviz_processes", default = list())
+        procs <- Filter(function(x) inherits(x, "process") && isTRUE(x$is_alive()), procs)
+        procs[[tag$param$id]] <- p
+        options(GeoPressureR.geopressureviz_processes = procs)
+
         cli::cli_alert_success("Opening GeoPressureViz app at {.url {url}}")
         utils::browseURL(url)
         break
@@ -218,7 +227,8 @@ geopressureviz <- function(
       map_type_key = map_type_key,
       pressurepath = pressurepath,
       path = path,
-      file_wind = file_wind
+      file_wind = file_wind,
+      stop_on_session_end = TRUE
     )
 
     if (launch_browser) {

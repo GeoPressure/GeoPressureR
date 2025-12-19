@@ -29,6 +29,8 @@
 #' Rstudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
+#' @param debug If `TRUE`, prints debug messages about plot refreshes (x-range changes and point
+#' counts) to the R console. Defaults to `FALSE`.
 #' @return A GeoPressureR `tag` object (with pressure and optionally acceleration data
 #' and an `id` in `tag$param$id`). If `run_bg = TRUE`, a background process object
 #' is returned invisibly, with the `tag` attached as an attribute `attr(p, "tag")`.
@@ -37,7 +39,12 @@
 #' @seealso [tag_label_read()], [tag_label_write()], [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/)
 #' @export
-trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
+trainset <- function(
+  x,
+  launch_browser = TRUE,
+  run_bg = TRUE,
+  debug = FALSE
+) {
   label_dir <- getwd()
 
   if (inherits(x, "tag")) {
@@ -94,14 +101,19 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
 
   if (run_bg) {
     p <- callr::r_bg(
-      func = function(tag, label_dir) {
-        library(GeoPressureR)
-        shiny::shinyOptions(tag = tag, label_dir = label_dir)
+      func = function(tag, label_dir, debug) {
+        shiny::shinyOptions(
+          tag = tag,
+          label_dir = label_dir,
+          trainset_debug = debug,
+          stop_on_session_end = FALSE
+        )
         shiny::runApp(system.file("trainset", package = "GeoPressureR"))
       },
       args = list(
         tag = tag,
-        label_dir = label_dir
+        label_dir = label_dir,
+        debug = debug
       )
     )
 
@@ -115,8 +127,19 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
       if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
         port <- sub(".*127\\.0\\.0\\.1:([0-9]+).*", "\\1", txt)
         url <- glue::glue("http://127.0.0.1:{port}")
-        cli::cli_alert_success("Opening Trainset app at {.url {url}}")
-        utils::browseURL(url)
+
+        # Keep a reference to the background process so it is not garbage-collected
+        # (which can terminate the child process unexpectedly).
+        procs <- getOption("GeoPressureR.trainset_processes", default = list())
+        procs[[tag$param$id]] <- p
+        options(GeoPressureR.trainset_processes = procs)
+
+        if (isTRUE(launch_browser)) {
+          cli::cli_alert_success("Opening Trainset app at {.url {url}}")
+          utils::browseURL(url)
+        } else {
+          cli::cli_alert_success("Trainset app running at {.url {url}}")
+        }
         break
       }
     }
@@ -127,7 +150,12 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
     } else {
       launch_browser <- getOption("shiny.launch.browser", interactive())
     }
-    shiny::shinyOptions(tag = tag, label_dir = label_dir)
+    shiny::shinyOptions(
+      tag = tag,
+      label_dir = label_dir,
+      trainset_debug = debug,
+      stop_on_session_end = TRUE
+    )
 
     # Start the app
     shiny::runApp(

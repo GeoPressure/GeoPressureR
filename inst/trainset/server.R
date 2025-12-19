@@ -145,10 +145,9 @@ server <- function(input, output, session) {
     )
   })
 
-  # Handle session end - stop app when browser is closed
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  if (isTRUE(shiny::getShinyOption("stop_on_session_end"))) {
+    session$onSessionEnded(stopApp)
+  }
 
   # Provide availability flags for conditional UI
   output$acceleration_data_available <- reactive({
