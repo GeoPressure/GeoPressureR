@@ -14,16 +14,17 @@
 #' projection with a finer resolution. The argument `fac_res_proj` controls the relative change of
 #' resolution between the original map to the projected map.
 #'
-#' @param map a GeoPressureR `map` object
+#' @param x a GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
+#' @param thr_likelihood Threshold to display likelihood values.
+#' @param provider tile provider name (see `leaflet::providers`).
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
 #' leaflet::providerTileOptions()
-#' @inheritParams leaflet::addProviderTiles
-#' @inheritParams leaflet::colorNumeric
-#' @inheritParams leaflet::addRasterImage
-#' @inheritParams terra::plot
-#' @inheritParams graph_create
+#' @param palette color palette name or vector of colors.
+#' @param opacity opacity of the raster layer in leaflet.
+#' @param legend logical to display the legend.
+#' @param ... additional parameters passed to `leaflet::addRasterImage()` or `terra::plot()`.
 #' @param fac_res_proj Factor of the resolution of the reprojection (see details above). A value of
 #' `1` will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
 #' the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
@@ -55,7 +56,7 @@
 #' )
 #'
 #' @family map plot_tag
-#' @seealso [plot_path()]
+#' @seealso [plot_path()] [plot.tag()]
 #' @method plot map
 #' @export
 plot.map <- function(
@@ -93,7 +94,7 @@ plot.map <- function(
   # Convert GeoPressureR map to terra rast object
   r <- rast.map(map)
 
-  if (palette == "auto") {
+  if (is.character(palette) && length(palette) == 1 && palette == "auto") {
     palette <- NULL
   }
 
@@ -173,11 +174,11 @@ plot.map <- function(
 
     # path
     if (!is.null(path)) {
-      lmap <- plot_path_leaflet(lmap, path)
+      lmap <- plot_path(path, plot_leaflet = TRUE, map = lmap)
 
       for (i in seq_len(max(path$stap_id))) {
         path_stap_id <- path[path$stap_id == i, ]
-        if (!all(is.na(path_stap_id$lon))) {
+        if (!all(is.na(path_stap_id$lon)) && !all(is.na(path_stap_id$lat))) {
           lmap <- leaflet::addCircleMarkers(
             lmap,
             lng = path_stap_id$lon,
@@ -222,11 +223,6 @@ palette_to_colors <- function(palette, n = 256L, reverse = FALSE) {
   if (is.character(palette) && length(palette) == 1) {
     pal_name <- palette
     if (
-      requireNamespace("viridisLite", quietly = TRUE) &&
-        pal_name %in% c("viridis", "magma", "inferno", "plasma", "cividis")
-    ) {
-      cols <- get(pal_name, envir = asNamespace("viridisLite"))(n)
-    } else if (
       requireNamespace("RColorBrewer", quietly = TRUE) &&
         pal_name %in% rownames(RColorBrewer::brewer.pal.info)
     ) {
