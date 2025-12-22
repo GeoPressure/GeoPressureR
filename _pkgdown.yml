@@ -80,6 +80,11 @@ reference:
       - twilight_label_write
       - twilight_label_read
       - geolight_map
+      - geolight_map_calibrate
+      - geolight_map_likelihood
+      - geolight_map_aggregate
+      - plot_twl_calib
+      - plot_twl_calib_path
       - ts2mat
   - title: Graph
     desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.

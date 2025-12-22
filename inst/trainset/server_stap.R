@@ -33,7 +33,7 @@ observe({
 
   stap_choices <- c(
     "None" = "",
-    setNames(
+    stats::setNames(
       d$stap_id,
       glue::glue("#{d$stap_id} ({round(d$duration, 1)}d)")
     )

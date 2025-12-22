@@ -179,12 +179,12 @@ plot_pressurepath <- function(
       ggplot2::geom_vline(
         ggplot2::aes(xintercept = .data$warning_m),
         linetype = "dashed",
-        colour = "red"
+        colour = "#E6550D"
       ) +
       ggplot2::geom_vline(
         ggplot2::aes(xintercept = .data$warning_p),
         linetype = "dashed",
-        colour = "red"
+        colour = "#E6550D"
       ) +
       ggplot2::facet_wrap(~stapelev, scale = "free_y", labeller = lab) +
       ggplot2::scale_x_continuous(
@@ -192,7 +192,7 @@ plot_pressurepath <- function(
       ) +
       ggplot2::scale_y_continuous(name = "Normalized histogram") +
       ggplot2::scale_fill_manual(
-        values = c("TRUE" = "red", "FALSE" = "black")
+        values = c("TRUE" = "#E6550D", "FALSE" = "black")
       ) +
       ggplot2::theme_bw() +
       ggplot2::theme(

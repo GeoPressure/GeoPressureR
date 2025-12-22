@@ -9,7 +9,7 @@
 #' @param data list of matrices of the same size, one for each stationary period.
 #' @inheritParams tag_set_map
 #' @param stap a data.frame of stationary periods.
-#' @inheritParams tag_create
+#' @param id tag identifier.
 #' @param type map type used for default palettes in plots. One of:
 #' `"unknown"`, `"pressure"`, `"light"`, `"magnetic"`, `"pressure_mse"`, `"pressure_mask"`,
 #' `"mask_water"`, `"magnetic_intensity"`, `"magnetic_inclination"`, `"marginal"`, `"twilight"`.

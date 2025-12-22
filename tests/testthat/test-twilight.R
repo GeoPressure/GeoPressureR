@@ -18,7 +18,8 @@ test_that("twilight_create() runs and outputs expected structure", {
   expect_equal(tag_off$param$twilight_create$twl_offset, 2)
   expect_no_error(plot_tag_twilight(tag_off))
 
-  tag_off <- expect_warning(twilight_create(tag, twl_offset = 3.5))
+  tag_off <- NULL
+  expect_warning(tag_off <- twilight_create(tag, twl_offset = 3.5))
   expect_no_error(plot_tag_twilight(tag_off))
 })
 

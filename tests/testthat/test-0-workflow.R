@@ -45,7 +45,7 @@ test_that("workflow | full", {
   expect_no_error(plot(tag, type = "map_pressure"))
   expect_no_error(plot(tag, type = "map_light"))
   expect_no_error(plot(tag, type = "map"))
-  plot(tag, type = "map", plot_leaflet = FALSE)
+  expect_no_error(plot(tag, type = "map", plot_leaflet = FALSE))
 
   expect_no_error(plot_pressurepath(pressurepath, type = "timeseries"))
   expect_no_error(plot_pressurepath(pressurepath, type = "altitude"))
