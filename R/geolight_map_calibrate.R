@@ -3,17 +3,28 @@
 #' @export
 geolight_map_calibrate <- function(
   tag,
-  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust
+  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
+  fitted_location_duration = formals(geolight_map)$fitted_location_duration
 ) {
   tag_assert(tag, "twilight")
   tag_assert(tag, "stap")
-  assertthat::assert_that(is.numeric(twl_calib_adjust))
+  tag_assert(tag, "setmap")
 
-  # Compute a kernel density object containing the fit of the distribution of the twilights at the
-  # known location
-  twl_calib <- geolight_calibration(
+  # Fit locations for stationary periods without known locations
+  stap <- geolight_fit_location(
+    tag = tag,
+    fitted_location_duration = fitted_location_duration,
+    extent = tag$param$tag_set_map$extent,
+    compute_known = FALSE,
+    quiet = TRUE
+  )
+
+  stap$known_lat[!is.na(stap$lat)] <- stap$lat[!is.na(stap$lat)]
+  stap$known_lon[!is.na(stap$lon)] <- stap$lon[!is.na(stap$lon)]
+
+  twl_calib <- geolight_calibrate(
     twl = tag$twilight,
-    known_stap = tag$stap, # you can send all stap and the function will filter for those needed
+    calib_stap = stap,
     twl_calib_adjust = twl_calib_adjust
   )
 
@@ -22,42 +33,45 @@ geolight_map_calibrate <- function(
     tag$param$geolight_map <- list()
   }
   tag$param$geolight_map$twl_calib_adjust <- twl_calib_adjust
-  tag$param$geolight_map$wl_calib <- twl_calib
+  tag$param$geolight_map$fitted_location_duration <- fitted_location_duration
+  tag$param$geolight_map$twl_calib <- twl_calib
 
   tag
 }
 
-#' Calibrate twilight to zenith angle using known locations
+#' Calibrate twilight to zenith angle using calibration locations
 #' @param twl a twilight data.frame
-#' @param known_stap a stationary period data.frame with known locations. Must contain
-#' the columns `known_lat`, `known_lon`, `start`, and `end`.
+#' @param calib_stap a stationary period data.frame with calibration locations. Must contain
+#' the columns `known_lat`, `known_lon`, `start`, and `end`. This can include both true known
+#' locations and estimated (fitted) locations.
 #' @inheritParams geolight_map
-#' @return a list with components:
+#' @return a `twl_calib` object with components:
 #' * `x`: the zenith angle sequence
 #' * `y`: the estimated density values
-#' * `hist_mids`: the mid points of the histogram bins
-#' * `hist_count`: the counts of the histogram bins
+#' * `hist_breaks`: common histogram breaks used for all calibration staps
+#' * `hist_counts`: list of histogram counts per calibration stationary period
+#' * `calib_stap`: calibration stationary periods used for calibration
 #'
 #' @noRd
-geolight_calibration <- function(
+geolight_calibrate <- function(
   twl,
-  known_stap,
+  calib_stap,
   twl_calib_adjust = formals(geolight_map)$twl_calib_adjust
 ) {
   assertthat::assert_that(all(
-    c("known_lat", "known_lon", "start", "end") %in% names(known_stap)
+    c("known_lat", "known_lon", "start", "end") %in% names(calib_stap)
   ))
   assertthat::assert_that(all(c("twilight", "stap_id") %in% names(twl)))
 
-  # remove any staps without known
-  known_stap <- known_stap[
-    !is.na(known_stap$known_lat) & !is.na(known_stap$known_lon),
+  # keep only staps with calibration coordinates
+  calib_stap <- calib_stap[
+    !is.na(calib_stap$known_lat) & !is.na(calib_stap$known_lon),
   ]
 
-  if (nrow(known_stap) == 0) {
+  if (nrow(calib_stap) == 0) {
     cli::cli_abort(c(
-      "x" = "There are no known location on which to calibrate in {.var known_stap}.",
-      ">" = "Add a the calibration stationary period {.var known} with {.fun tag_set_map}."
+      "x" = "There are no calibration locations on which to calibrate.",
+      ">" = "Provide a known calibration site via {.fun tag_set_map} ({.var known}), or enable automatic calibration via {.var fitted_location_duration}."
     ))
   }
 
@@ -66,33 +80,64 @@ geolight_calibration <- function(
   twl_include <- twl[twl$include, ]
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
-  z_calib <- c()
-  for (i in seq_len(nrow(known_stap))) {
-    id <- twl_include$twilight >= known_stap$start[i] &
-      twl_include$twilight <= known_stap$end[i]
+  z_calib <- vector("list", nrow(calib_stap))
+  for (i in seq_len(nrow(calib_stap))) {
+    id <- twl_include$twilight >= calib_stap$start[i] &
+      twl_include$twilight <= calib_stap$end[i]
     sun_calib <- geolight_solar(
       date = twl_include$twilight[id],
-      lat = known_stap$known_lat[i],
-      lon = known_stap$known_lon[i]
+      lat = calib_stap$known_lat[i],
+      lon = calib_stap$known_lon[i]
     )
-    z_calib <- c(z_calib, as.numeric(sun_calib))
+    z_calib[[i]] <- as.numeric(sun_calib)
+  }
+  names(z_calib) <- as.character(calib_stap$stap_id)
+
+  z_calib_all <- unlist(z_calib, use.names = FALSE)
+  if (length(z_calib_all) == 0) {
+    cli::cli_abort(c(
+      "x" = "There are no usable twilight calibration angles.",
+      ">" = "Check that the calibration stationary periods overlap with labeled twilight."
+    ))
   }
 
+  z_range <- range(z_calib_all, finite = TRUE)
+  pad <- min(max(2, diff(z_range) * 0.1), 5)
+  zenith_bounds <- c(z_range[1] - pad, z_range[2] + pad)
+  zenith_bounds <- pmax(pmin(zenith_bounds, 120), 60)
+
   # Compute the kernel density
-  twl_calib <- stats::density(
-    z_calib,
+  dens <- stats::density(
+    z_calib_all,
     adjust = twl_calib_adjust,
-    from = 60,
-    to = 120
+    from = zenith_bounds[1],
+    to = zenith_bounds[2]
   )
 
-  # Compute the histogram
-  hist_vals <- graphics::hist(z_calib, plot = FALSE)
-  twl_calib$hist_count <- hist_vals$density * length(z_calib)
-  twl_calib$hist_mids <- hist_vals$mids
+  hist_breaks <- seq(
+    floor(zenith_bounds[1] * 2) / 2,
+    ceiling(zenith_bounds[2] * 2) / 2,
+    by = 0.5
+  )
+  hist_all <- graphics::hist(z_calib_all, breaks = hist_breaks, plot = FALSE)
+  hist_counts <- lapply(
+    z_calib,
+    function(z) graphics::hist(z, breaks = hist_all$breaks, plot = FALSE)$counts
+  )
+  names(hist_counts) <- names(z_calib)
 
-  # Add the adjust parameter
-  twl_calib$adjust <- twl_calib_adjust
+  # Add parameters
+  twl_calib <- list(
+    x = dens$x,
+    y = dens$y,
+    adjust = twl_calib_adjust,
+    hist_breaks = hist_all$breaks,
+    hist_mids = hist_all$mids,
+    binwidth = diff(hist_all$breaks)[1],
+    hist_counts = hist_counts,
+    calib_stap = calib_stap
+  )
+  class(twl_calib) <- "twl_calib"
 
   # return the twlight calibration object
   twl_calib

@@ -67,7 +67,7 @@ NULL
     twilight = list(
       light = list(palette = "OrRd"),
       dark = list(palette = "inferno"),
-      name = "map_twilight",
+      name = "map_light_twl",
       display = "Twilight"
     ),
     unknown = list(

@@ -76,12 +76,12 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     } else if (condition == "twl_calib") {
       msg <- c(
         "x" = "The twilight calibration has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geolight_map_calibration} to compute the twilight calibration stored in {.var tag$param$geolight_map$twl_calib}."
+        ">" = "Use {.fun geolight_map_calibrate} to compute the twilight calibration stored in {.var tag$param$geolight_map$twl_calib}."
       )
-    } else if (condition == "map_twilight") {
+    } else if (condition == "map_light_twl") {
       msg <- c(
         "x" = "The twilight likelihood map has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geolight_map_twilight} to compute the maps."
+        ">" = "Use {.fun geolight_map_likelihood} to compute the maps."
       )
     } else if (condition == "twilight") {
       msg <- c(
@@ -170,8 +170,8 @@ tag_status <- function(tag) {
   ) {
     status <- append(status, "twl_calib")
   }
-  if (assertthat::has_name(tag, "map_twilight")) {
-    status <- append(status, "map_twilight")
+  if (assertthat::has_name(tag, "map_light_twl")) {
+    status <- append(status, "map_light_twl")
   }
   if (assertthat::has_name(tag, "twilight")) {
     status <- append(status, "twilight")

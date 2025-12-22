@@ -13,8 +13,12 @@
 #'
 #' # Calibration
 #'
-#' Calibration requires to have a known position for a least one stationary periods. Use
-#' `tag_set_map()` to define the known position.
+#' Calibration can be based on:
+#' - a known location for at least one stationary period (set via `tag_set_map(known = ...)`), and/or
+#' - an automatically fitted calibration location (enabled via `fitted_location_duration`).
+#'
+#' When `fitted_location_duration` is finite, the longest eligible stationary period is selected and
+#' its location is estimated from twilight times, then used like a known location for calibration.
 #'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 #' angle error. We use a kernel distribution to fit the zenith angle during the known stationary
@@ -25,16 +29,22 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param twl_calib_adjust smoothing parameter for the kernel density (see [`stats::density()`]).
+#' @param fitted_location_duration Minimum duration (in days) of stationary period(s) eligible to be
+#' used as an automatic (fitted) calibration site estimated from twilight times.
+#' If enabled (finite duration), the longest eligible stationary period is selected and its
+#' location is estimated from twilight times, then used like a known location for calibration.
+#' Default is `Inf` (disabled).
 #' @param twl_llp log-linear pooling aggregation weight.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
+#' @param keep_twl logical defining if the likelihood map of each twilight is retained.
 #' @param quiet logical to hide messages about the progress
 #'
 #' @return a `tag` with the likelihood of light as `tag$map_light`
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   # Read geolocator data and build twilight
+#'   # Read geolocator data and set map parameters
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>
 #'     tag_set_map(
@@ -45,65 +55,50 @@
 #'         known_lon = 17.05,
 #'         known_lat = 48.9
 #'       )
-#'     )
-#'
-#'   # Compute the twilight
-#'   tag <- twilight_create(tag) |> twilight_label_read()
-#'
-#'   # Compute likelihood map
-#'   tag <- geolight_map(tag, quiet = TRUE)
+#'     ) |>
+#'     twilight_create() |>
+#'     twilight_label_read()
 #' })
 #'
+#' # Visualize twilights
+#' plot(tag, type = "twilight")
+#'
+#' # Calibrate twilight to zenith angle and visualize
+#' tag <- geolight_map_calibrate(tag)
+#' plot_twl_calib(tag)
+#'
+#' # Compute likelihood for each twilight and visualize
+#' tag <- geolight_map_likelihood(tag)
+#' plot(tag, type = "map_light_twl")
+#'
+#' # Aggregate twilights to stationary periods and visualize
+#' tag <- geolight_map_aggregate(tag, quiet = TRUE)
 #' plot(tag, type = "map_light")
-#'
-#'
-#' # Calibration kernel fit can be retrieved from
-#'
-#' twl_calib <- tag$param$geolight_map$twl_calib
-#'
-#' library(ggplot2)
-#'
-#' x_lim <- range(twl_calib$x[twl_calib$y > .001 * max(twl_calib$y)])
-#'
-#' line_data <- data.frame(
-#'   x = twl_calib$x,
-#'   y = twl_calib$y / max(twl_calib$y) * max(twl_calib$hist_count)
-#' )
-#'
-#' line_data <- line_data[line_data$x >= x_lim[1] & line_data$x <= x_lim[2], ]
-#'
-#' ggplot() +
-#'   geom_bar(aes(x = twl_calib$hist_mids, y = twl_calib$hist_count),
-#'     stat = "identity", fill = "lightblue", color = "blue",
-#'     width = diff(twl_calib$hist_mids)[1]
-#'   ) +
-#'   geom_line(data = line_data, aes(x = x, y = y), color = "red", linewidth = 1) +
-#'   labs(x = "Solor zenith angle", y = "Count of twilights") +
-#'   theme_minimal() +
-#'   xlim(x_lim) +
-#'   theme(legend.position = "none")
 #'
 #' @family geolight
 #' @export
 geolight_map <- function(
   tag,
   twl_calib_adjust = 1.4,
+  fitted_location_duration = Inf,
   twl_llp = \(n) log(n) / n,
   compute_known = FALSE,
+  keep_twl = FALSE,
   quiet = FALSE
 ) {
-  # Check tag
-  tag_assert(tag, "setmap")
-  tag_assert(tag, "twilight")
+  tag <- geolight_map_calibrate(
+    tag,
+    twl_calib_adjust = twl_calib_adjust,
+    fitted_location_duration = fitted_location_duration
+  )
 
-  tag <- geolight_map_calibrate(tag, twl_calib_adjust = twl_calib_adjust)
+  tag <- geolight_map_likelihood(tag, compute_known = compute_known)
 
-  tag <- geolight_map_twilight(tag, compute_known = compute_known)
-
-  tag <- geolight_map_likelihood(
+  tag <- geolight_map_aggregate(
     tag,
     twl_llp = twl_llp,
     compute_known = compute_known,
+    keep_twl = keep_twl,
     quiet = quiet
   )
 
