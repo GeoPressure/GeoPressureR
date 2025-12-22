@@ -19,7 +19,7 @@ scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Goog
 
 \item{stap}{a data.frame of stationary periods.}
 
-\item{id}{unique identifier of a tag.}
+\item{id}{tag identifier.}
 
 \item{type}{map type used for default palettes in plots. One of:
 \code{"unknown"}, \code{"pressure"}, \code{"light"}, \code{"magnetic"}, \code{"pressure_mse"}, \code{"pressure_mask"},

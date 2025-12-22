@@ -4,7 +4,7 @@
 \alias{trainset}
 \title{Start the GeoPressure Trainset shiny app}
 \usage{
-trainset(x, launch_browser = TRUE, run_bg = TRUE)
+trainset(x, launch_browser = TRUE, run_bg = TRUE, debug = FALSE)
 }
 \arguments{
 \item{x}{One of:
@@ -22,6 +22,9 @@ Rstudio.}
 
 \item{run_bg}{If true, the app runs in a background R session using the \code{callr} package. This
 allows you to continue using your R session while the app is running.}
+
+\item{debug}{If \code{TRUE}, prints debug messages about plot refreshes (x-range changes and point
+counts) to the R console. Defaults to \code{FALSE}.}
 }
 \value{
 A GeoPressureR \code{tag} object (with pressure and optionally acceleration data

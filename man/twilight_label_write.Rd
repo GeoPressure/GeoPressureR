@@ -37,8 +37,10 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 }
 \seealso{
 Other geolight: 
+\code{\link{geolight_fit_location}()},
 \code{\link{geolight_map}()},
 \code{\link{geolight_solar}()},
+\code{\link{plot_twl_calib}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_read}()}
 }

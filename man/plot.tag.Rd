@@ -11,8 +11,8 @@
 
 \item{type}{type of the plot to display. One of \code{"pressure"}, \code{"acceleration"}, \code{"light"},
 \code{"temperature"}, \code{"twilight"}, \code{"actogram"}, \code{"map"}, \code{"map_pressure"}, \code{"map_light"},
-\code{"map_pressure_mse"}, \code{"map_pressure_mask"}, \code{"mask_water"}. Map can be combined by providing a
-vector of type.}
+\code{"map_pressure_mse"}, \code{"map_pressure_mask"}, \code{"mask_water"}, \code{"temperature_external"},
+\code{"temperature_internal"}. Map can be combined by providing a vector of type.}
 
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
 \code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}}

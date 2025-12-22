@@ -71,7 +71,9 @@ Meeus, J. (1998). \emph{Astronomical Algorithms}. Willmann-Bell.
 }
 \seealso{
 Other geolight: 
+\code{\link{geolight_fit_location}()},
 \code{\link{geolight_map}()},
+\code{\link{plot_twl_calib}()},
 \code{\link{twilight_create}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}

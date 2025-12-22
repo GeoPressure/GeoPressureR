@@ -57,8 +57,10 @@ plot(tag, type = "twilight")
 \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}
 
 Other geolight: 
+\code{\link{geolight_fit_location}()},
 \code{\link{geolight_map}()},
 \code{\link{geolight_solar}()},
+\code{\link{plot_twl_calib}()},
 \code{\link{twilight_label_read}()},
 \code{\link{twilight_label_write}()}
 }
