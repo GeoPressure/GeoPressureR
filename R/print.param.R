@@ -63,6 +63,7 @@ print.param <- function(x, ...) {
   bullets(param$twilight_create, "twl_offset")
   bullets(param$twilight_create, "twilight_file")
   bullets(param$geolight_map, "twl_calib_adjust")
+  bullets(param$geolight_map, "fitted_location_duration")
   bullets(param$geolight_map, "twl_llp")
 
   cli::cli_h3("Graph {.fun graph_create}")

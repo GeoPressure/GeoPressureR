@@ -31,6 +31,7 @@ default:
     # twl_offset: NULL # in hours
   geolight_map: # ?geolight_map()
     twl_calib_adjust: 1.4
+    fitted_location_duration: Inf # in days
     twl_llp: !expr \(n) log(n)/n
   graph_create: # ?graph_create()
     thr_likelihood: 0.99

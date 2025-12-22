@@ -74,6 +74,7 @@ param_create <- function(id, default = FALSE, ...) {
       ),
       geolight_map = list(
         twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
+        fitted_location_duration = formals(geolight_map)$fitted_location_duration,
         twl_llp = formals(geolight_map)$twl_llp,
         compute_known = formals(geolight_map)$compute_known
       ),
