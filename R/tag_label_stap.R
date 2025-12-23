@@ -149,12 +149,10 @@ tag_label_stap <- function(
     )
     if (nrow(stap_warning) > 0) {
       for (i in seq_len(nrow(stap_warning))) {
-        # nolint start
         s <- stap_warning[i, ]
         cli::cli_bullets(c(
           "!" = "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - {format(s$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(s$duration_time)}"
         ))
-        # nolint end
       }
     } else {
       cli::cli_bullets(c(
@@ -170,12 +168,10 @@ tag_label_stap <- function(
     cli::cli_rule("Short flights ({.strong <{warning_flight_duration}hr}):")
     if (nrow(flight_warning) > 0) {
       for (i in seq_len(nrow(flight_warning))) {
-        # nolint start
         f <- flight_warning[i, ]
         cli::cli_bullets(c(
           "!" = "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - {format(f$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(as.difftime(f$duration, units = 'hours'))}"
         ))
-        # nolint end
       }
     } else {
       cli::cli_bullets(c(

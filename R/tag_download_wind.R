@@ -121,18 +121,14 @@ tag_download_wind <- function(
   }
 
   if (any(file.exists(file(include_stap_id, tag_id))) && !overwrite) {
-    # nolint start
     tmp <- file.exists(file(include_stap_id, tag_id))
     cli::cli_abort(c(
       "x" = "There are already ERA5 data file for stationary periods {.var {include_stap_id[tmp]}}",
       ">" = "Delete the corresponding file or use the argument {.code overwrite = TRUE}."
     ))
-    # nolint end
   }
 
-  # nolint start
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
-  # nolint end
   possible_pressure <- c(
     1,
     2,

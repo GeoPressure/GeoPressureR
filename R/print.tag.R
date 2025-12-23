@@ -55,7 +55,7 @@ print.tag <- function(x, ...) {
       }
     }
     if (length(all_dates) > 0) {
-      all_dates_vec <- do.call(c, all_dates) # nolint
+      all_dates_vec <- do.call(c, all_dates)
       cli::cli_text(
         "Date range: {min(all_dates_vec)} to {max(all_dates_vec)}"
       )
@@ -64,12 +64,12 @@ print.tag <- function(x, ...) {
     # Display each sensor with datapoint count and resolution
     for (sensor in sensor_names) {
       if (sensor %in% names(tag)) {
-        n_points <- format(nrow(tag[[sensor]]), big.mark = ",") # nolint
+        n_points <- format(nrow(tag[[sensor]]), big.mark = ",")
 
         # Calculate resolution
         if ("date" %in% names(tag[[sensor]]) && nrow(tag[[sensor]]) > 1) {
-          res_vec <- as.numeric(diff(tag[[sensor]]$date), units = "secs") # nolint
-          res <- stats::median(res_vec) # nolint
+          res_vec <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
+          res <- stats::median(res_vec)
           cli::cli_bullets(c(
             "*" = "{.field {sensor}}: {n_points} datapoints ({format_minutes(res / 60)})"
           ))
@@ -105,7 +105,6 @@ print.tag <- function(x, ...) {
           "x" = "No geographical parameters defined yet. Use {.fun tag_set_map}"
         ))
       } else {
-        # nolint start
         geo <- map_expand(
           tag$param$tag_set_map$extent,
           tag$param$tag_set_map$scale
@@ -124,13 +123,11 @@ print.tag <- function(x, ...) {
             "v" = "Pressure mismatch {.field {map_pressure_mismatch}} available."
           ))
         }
-        # nolint end
         if ("map_pressure" %in% status) {
           cli::cli_bullets(c(
             "v" = "Pressure likelihood {.field map_pressure} computed!"
           ))
         } else {
-          # nolint start
           if ("map_pressure_mse" %in% names(tag)) {
             fun_map <- "geopressure_map_likelihood"
           } else {
@@ -139,7 +136,6 @@ print.tag <- function(x, ...) {
           cli::cli_bullets(c(
             "x" = "No pressure likelihood computed yet. Use {.fun {fun_map}}."
           ))
-          # nolint end
         }
         if ("map_light" %in% status) {
           cli::cli_bullets(c(

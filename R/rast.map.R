@@ -28,7 +28,6 @@
 #' @family map
 #' @export
 rast.map <- function(
-  # nolint
   x,
   names = glue::glue("#{map$stap$stap_id}"),
   crs = "epsg:4326",

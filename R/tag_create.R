@@ -446,12 +446,10 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
       if (!quiet) {
         # Check irregular time
         if (length(unique(diff(tag[[sensor]]$date))) > 1) {
-          # nolint start
           dtime <- as.numeric(diff(tag[[sensor]]$date))
           cli::cli_warn(
             "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(dtime != dtime[1])]}."
           )
-          # nolint end
         }
 
         if (nrow(tag[[sensor]]) == 0) {

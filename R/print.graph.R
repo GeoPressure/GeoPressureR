@@ -45,7 +45,6 @@ print.graph <- function(x, ...) {
   cli_print_tbl(graph$stap)
 
   cli::cli_h3("Map")
-  # nolint start
   geo <- map_expand(
     graph$param$tag_set_map$extent,
     graph$param$tag_set_map$scale
@@ -58,7 +57,6 @@ print.graph <- function(x, ...) {
     "*" = "Dimensions (lat x lon): {.val {geo$dim[1]}} x {.val {geo$dim[2]}} (res.
           {.val {1/graph$param$tag_set_map$scale}}\u00b0)"
   ))
-  # nolint end
 
   cli::cli_h3("Graph size")
   cli::cli_bullets(c(

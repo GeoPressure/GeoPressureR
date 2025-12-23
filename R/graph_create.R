@@ -272,7 +272,7 @@ graph_create <- function(
   if (!quiet) {
     cli::cli_progress_done()
     i_s <- 0
-    nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1) # nolint
+    nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
     cli::cli_progress_step(
       "Compute the groundspeed for stationary period {i_s}/{n_transitions}: { round(sum(nds_expend_sum[seq_len(i_s)])/sum(nds_expend_sum)*100)}% of transitions done",
       msg_done = "Compute the groundspeed"
@@ -518,13 +518,11 @@ graph_create_prune <- function(gr, quiet = FALSE) {
   }
 
   if (!quiet) {
-    # nolint start
     i <- 0
     cli::cli_progress_step(
       "Pruning the graph: {i}/{(length(gr) - 1) * 2} transitions (forward and backward).",
       msg_done = "Graph pruned"
     )
-    # nolint end
   }
 
   # First, trim the graph from equipment to retrieval
@@ -544,10 +542,8 @@ graph_create_prune <- function(gr, quiet = FALSE) {
       ))
     }
     if (!quiet) {
-      # nolint start
       i <- i_s
       cli::cli_progress_update()
-      # nolint end
     }
   }
   # Then, trim the graph from retrieval to equipment

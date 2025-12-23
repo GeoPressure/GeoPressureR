@@ -77,7 +77,6 @@ edge_add_wind <- function(
   return_averaged_variable = FALSE,
   file = \(stap_id, tag_id) {
     glue::glue(
-      # nolint
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
     )
   },
@@ -602,7 +601,6 @@ edge_add_wind_check <- function(
   variable = c("u", "v"),
   file = \(stap_id, tag_id) {
     glue::glue(
-      # nolint
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
     )
   }
@@ -710,7 +708,7 @@ edge_add_wind_check <- function(
       # Check if spatial extent match
       lat <- ncdf4::ncvar_get(nc, "latitude")
       lon <- ncdf4::ncvar_get(nc, "longitude")
-      nc_extent <- c(min(lon), max(lon), min(lat), max(lat)) # nolint
+      nc_extent <- c(min(lon), max(lon), min(lat), max(lat))
       if (
         min(g$lat) < min(lat) ||
           max(g$lat) > max(lat) ||

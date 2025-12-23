@@ -128,13 +128,11 @@ geopressure_map_mismatch <- function(
   f <- vector("list", length(urls))
 
   if (!quiet) {
-    # nolint start
     i_u <- 1
     cli::cli_progress_step(
       msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev (on {.val {future::nbrOfWorkers()}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
-    # nolint end
   }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {
@@ -179,13 +177,11 @@ geopressure_map_mismatch <- function(
   # Get maps
   map <- vector("list", length(urls))
   if (!quiet) {
-    # nolint start
     i_u <- 1
     cli::cli_progress_step(
       msg = "Read .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
       msg_done = "Read .geotiff"
     )
-    # nolint end
   }
   for (i_u in seq_len(length(urls))) {
     if (!quiet) {

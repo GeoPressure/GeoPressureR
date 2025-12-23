@@ -59,8 +59,8 @@ graph_add_wind <- function(
   edge_s <- arrayInd(graph$s[id], c(g$dim, nrow(graph$stap)))
   sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[, 3])))
   if (length(sta_pass) > 0) {
-    as <- abs(graph$gs - graph$ws) # nolint
-    edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap))) # nolint
+    as <- abs(graph$gs - graph$ws)
+    edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
     cli::cli_abort(c(
       x = "Using {.arg thr_as} of {thr_as} km/h,  there are not any nodes left for the stationary
       period: {.field {sta_pass}} with a minimum airspeed of
