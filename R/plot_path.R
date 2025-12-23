@@ -171,8 +171,8 @@ plot_path_static <- function(path, pad = 3) {
 plot_path_leaflet <- function(
   path,
   map = NULL,
-  provider = formals(plot_path)$provider,
-  provider_options = formals(plot_path)$provider_options,
+  provider = "Esri.WorldTopoMap",
+  provider_options = leaflet::providerTileOptions(),
   polyline = NULL,
   circle = NULL
 ) {

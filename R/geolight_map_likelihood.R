@@ -1,7 +1,10 @@
 #' @family geolight
 #' @rdname geolight_map
 #' @export
-geolight_map_likelihood <- function(tag, compute_known = formals(geolight_map)$compute_known) {
+geolight_map_likelihood <- function(
+  tag,
+  compute_known = FALSE,
+) {
   tag_assert(tag, "twl_calib")
   tag_assert(tag, "setmap")
   assertthat::assert_that(is.logical(compute_known), length(compute_known) == 1)

@@ -25,19 +25,19 @@ geopressure_map(
 
 geopressure_map_likelihood(
   tag,
-  sd = formals(geopressure_map)$sd,
-  log_linear_pooling_weight = eval(formals(geopressure_map)$log_linear_pooling_weight),
+  sd = 1,
+  log_linear_pooling_weight = function(n) log(n)/n,
   keep_mse = TRUE
 )
 
 geopressure_map_mismatch(
   tag,
-  max_sample = formals(geopressure_map)$max_sample,
-  margin = formals(geopressure_map)$margin,
-  thr_mask = formals(geopressure_map)$thr_mask,
-  timeout = formals(geopressure_map)$timeout,
-  workers = formals(geopressure_map)$workers,
-  compute_known = formals(geopressure_map)$compute_known,
+  max_sample = 250,
+  margin = 30,
+  thr_mask = 0.9,
+  timeout = 300,
+  workers = "auto",
+  compute_known = FALSE,
   keep_mask = TRUE,
   debug = FALSE,
   quiet = FALSE

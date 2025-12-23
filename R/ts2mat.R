@@ -11,7 +11,7 @@ ts2mat <- function(
   ts,
   twl_offset = 0,
   value = "value",
-  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
+  twl_time_tolerance = 180
 ) {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))

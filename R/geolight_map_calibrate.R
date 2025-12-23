@@ -3,8 +3,9 @@
 #' @export
 geolight_map_calibrate <- function(
   tag,
-  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
-  fitted_location_duration = formals(geolight_map)$fitted_location_duration
+  twl_calib_adjust = 1.4,
+  fitted_location_duration = Inf,
+  quiet = FALSE
 ) {
   tag_assert(tag, "twilight")
   tag_assert(tag, "stap")
@@ -56,7 +57,7 @@ geolight_map_calibrate <- function(
 geolight_calibrate <- function(
   twl,
   calib_stap,
-  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust
+  twl_calib_adjust = 1.4
 ) {
   hard_bounds <- c(60, 120)
   assertthat::assert_that(all(

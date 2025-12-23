@@ -26,7 +26,7 @@
 #' @export
 geopressure_map_preprocess <- function(
   tag,
-  compute_known = formals(geopressure_map)$compute_known
+  compute_known = FALSE
 ) {
   tag_assert(tag, "label")
   stap <- tag$stap

@@ -3,9 +3,9 @@
 #' @export
 geolight_map_aggregate <- function(
   tag,
-  compute_known = formals(geolight_map)$compute_known,
-  twl_llp = eval(formals(geolight_map)$twl_llp),
-  keep_twl = formals(geolight_map)$keep_twl,
+  compute_known = FALSE,
+  twl_llp = \(n) log(n) / n,
+  keep_twl = FALSE,
   quiet = FALSE
 ) {
   tag_assert(tag, "map_light_twl")

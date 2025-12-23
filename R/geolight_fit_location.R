@@ -30,7 +30,7 @@
 #' @export
 geolight_fit_location <- function(
   tag,
-  fitted_location_duration = formals(geolight_map)$fitted_location_duration,
+  fitted_location_duration = Inf,
   extent = NULL,
   zenith_init = 96,
   zenith_bounds = c(60, 120),

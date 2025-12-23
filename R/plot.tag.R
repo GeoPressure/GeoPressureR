@@ -286,7 +286,7 @@ plot_tag_acceleration <- function(
   variable = "activity",
   plot_plotly = TRUE,
   label_auto = TRUE,
-  min_duration = formals(tag_label_auto)$min_duration
+  min_duration = 30
 ) {
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
