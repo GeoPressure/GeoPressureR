@@ -178,7 +178,7 @@ plot_twl_calib_path <- function(
   )
   stap_levels <- sort(unique(as.numeric(hist_df$stap_id)))
   hist_df$stap_id <- factor(hist_df$stap_id, levels = as.character(stap_levels))
-  hist_df$count_norm <- hist_df$count / ave(hist_df$count, hist_df$stap_id, FUN = sum)
+  hist_df$count_norm <- hist_df$count / stats::ave(hist_df$count, hist_df$stap_id, FUN = sum)
 
   # Compute symmetric CI bounds from calibrated density
   alpha <- (1 - warning_ci) / 2

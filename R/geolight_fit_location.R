@@ -51,9 +51,19 @@ geolight_fit_location <- function(
     }
   }
 
-  stopifnot(is.numeric(fitted_location_duration), length(fitted_location_duration) == 1L)
-  stopifnot(is.numeric(extent), length(extent) == 4L)
-  stopifnot(is.numeric(zenith_bounds), length(zenith_bounds) == 2L)
+  if (is.null(fitted_location_duration)) {
+    fitted_location_duration <- Inf
+  }
+  if (!is.numeric(fitted_location_duration)) {
+    fitted_location_duration <- suppressWarnings(as.numeric(unlist(fitted_location_duration)))
+  }
+  assertthat::assert_that(
+    is.numeric(fitted_location_duration),
+    length(fitted_location_duration) == 1L,
+    !is.na(fitted_location_duration)
+  )
+  assertthat::assert_that(is.numeric(extent), length(extent) == 4L)
+  assertthat::assert_that(is.numeric(zenith_bounds), length(zenith_bounds) == 2L)
 
   # Twilight table and inclusion mask
   twl <- twilight_include(tag$twilight)

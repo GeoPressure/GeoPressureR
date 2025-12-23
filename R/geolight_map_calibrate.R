@@ -58,6 +58,7 @@ geolight_calibrate <- function(
   calib_stap,
   twl_calib_adjust = formals(geolight_map)$twl_calib_adjust
 ) {
+  hard_bounds <- c(60, 120)
   assertthat::assert_that(all(
     c("known_lat", "known_lon", "start", "end") %in% names(calib_stap)
   ))
@@ -80,19 +81,25 @@ geolight_calibrate <- function(
   twl_include <- twl[twl$include, ]
 
   # Calibrate the twilight in term of zenith angle with a kernel density.
-  z_calib <- vector("list", nrow(calib_stap))
-  for (i in seq_len(nrow(calib_stap))) {
+  z_calib <- lapply(seq_len(nrow(calib_stap)), function(i) {
     id <- twl_include$twilight >= calib_stap$start[i] &
       twl_include$twilight <= calib_stap$end[i]
-    sun_calib <- geolight_solar(
+    z <- as.numeric(geolight_solar(
       date = twl_include$twilight[id],
       lat = calib_stap$known_lat[i],
       lon = calib_stap$known_lon[i]
-    )
-    z_calib[[i]] <- as.numeric(sun_calib)
-  }
-  names(z_calib) <- as.character(calib_stap$stap_id)
+    ))
 
+    valid <- is.finite(z) & z >= hard_bounds[1] & z <= hard_bounds[2]
+    if (!all(valid)) {
+      cli::cli_warn(c(
+        "x" = "Some twilight calibration angles in stap {.val {i}} fall outside the hard bounds ({hard_bounds[1]}, {hard_bounds[2]}).",
+        ">" = "These values will be ignored for calibration."
+      ))
+    }
+    z[valid]
+  })
+  names(z_calib) <- as.character(calib_stap$stap_id)
   z_calib_all <- unlist(z_calib, use.names = FALSE)
   if (length(z_calib_all) == 0) {
     cli::cli_abort(c(
@@ -104,7 +111,7 @@ geolight_calibrate <- function(
   z_range <- range(z_calib_all, finite = TRUE)
   pad <- min(max(2, diff(z_range) * 0.1), 5)
   zenith_bounds <- c(z_range[1] - pad, z_range[2] + pad)
-  zenith_bounds <- pmax(pmin(zenith_bounds, 120), 60)
+  zenith_bounds <- pmax(pmin(zenith_bounds, hard_bounds[2]), hard_bounds[1])
 
   # Compute the kernel density
   dens <- stats::density(
