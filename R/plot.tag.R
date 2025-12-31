@@ -291,7 +291,10 @@ plot_tag_acceleration <- function(
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
 
-  assertthat::assert_that(variable %in% c("activity", "value", "pitch"))
+  variable <- match.arg(
+    variable,
+    choices = c("activity", "value", "pitch")
+  )
 
   if (variable == "activity") {
     variable <- "value"
@@ -411,16 +414,21 @@ plot_tag_temperature <- function(
   plot_plotly = TRUE
 ) {
   tag_assert(tag)
-  if (variable == "external" || variable == "temperature_external") {
+  variable <- match.arg(
+    variable,
+    choices = c("external", "internal", "temperature_external", "temperature_internal")
+  )
+  if (variable == "temperature_external") {
+    variable <- "external"
+  } else if (variable == "temperature_internal") {
+    variable <- "internal"
+  }
+  if (variable == "external") {
     assertthat::assert_that(assertthat::has_name(tag, "temperature_external"))
     temp <- tag$temperature_external
-  } else if (variable == "internal" || variable == "temperature_internal") {
+  } else {
     assertthat::assert_that(assertthat::has_name(tag, "temperature_internal"))
     temp <- tag$temperature_internal
-  } else {
-    cli::cli_abort(
-      "{.field variable} should be either {.val 'external'} or {.val 'internal'}"
-    )
   }
 
   p <- ggplot2::ggplot() +

@@ -57,6 +57,7 @@ stap2flight <- function(
   assertthat::assert_that(assertthat::has_name(stap, "start"))
   assertthat::assert_that(assertthat::has_name(stap, "end"))
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
+  format <- match.arg(format, choices = c("list", "df"))
   if (is.null(include_stap_id)) {
     if ("include" %in% names(stap)) {
       include_stap_id <- stap$stap_id[stap$include]
@@ -65,7 +66,6 @@ stap2flight <- function(
     }
   }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
-  assertthat::assert_that(format %in% c("list", "df"))
   assertthat::assert_that(is.logical(return_numeric))
 
   if (length(include_stap_id) == 1) {

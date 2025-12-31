@@ -191,11 +191,7 @@ tag_create <- function(
     "lund",
     "dataframe"
   )
-  if (!any(manufacturer %in% manufacturer_possible)) {
-    cli::cli_abort(c(
-      "x" = "{.var manufacturer} needs to be one of {.val {manufacturer_possible}}"
-    ))
-  }
+  manufacturer <- match.arg(manufacturer, choices = manufacturer_possible)
 
   if (manufacturer == "datapackage") {
     tag <- tag_create_datapackage(

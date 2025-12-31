@@ -68,8 +68,7 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   ))
   assertthat::assert_that(assertthat::are_equal(nrow(stap), length(data)))
 
-  assertthat::assert_that(is.character(type))
-  assertthat::assert_that(type %in% names(.MAP_TYPE))
+  type <- match.arg(type, choices = names(.MAP_TYPE))
 
   # Define the mask of water
   tmp <- data[[which(!sapply(data, is.null))[1]]]

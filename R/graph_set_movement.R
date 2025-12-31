@@ -85,9 +85,8 @@ graph_set_movement <- function(
 ) {
   graph_assert(graph)
 
-  assertthat::assert_that(type == "as" | type == "gs")
-  assertthat::assert_that(is.character(method))
-  assertthat::assert_that(any(c("gamma", "power", "logis") == method))
+  type <- match.arg(type, choices = c("as", "gs"))
+  method <- match.arg(method, choices = c("gamma", "logis", "power"))
   assertthat::assert_that(is.function(power2prob))
   assertthat::assert_that(is.numeric(shape))
   assertthat::assert_that(is.numeric(scale))

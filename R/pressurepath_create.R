@@ -124,6 +124,11 @@ pressurepath_create <- function(
   # Assert tag
   tag_assert(tag, "stap")
 
+  era5_dataset <- match.arg(
+    era5_dataset,
+    choices = c("single-levels", "land", "both")
+  )
+
   # Validate requested variables against the allowed set
   unknown_vars <- setdiff(variable, pressurepath_variable)
   assertthat::assert_that(
@@ -135,8 +140,6 @@ pressurepath_create <- function(
       paste(pressurepath_variable, collapse = ", ")
     )
   )
-
-  assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
 
   # Assert preprocess
   assertthat::assert_that(is.logical(preprocess))
