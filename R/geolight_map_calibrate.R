@@ -10,8 +10,12 @@ geolight_map_calibrate <- function(
   tag_assert(tag, "twilight")
   tag_assert(tag, "stap")
   tag_assert(tag, "setmap")
+  assertthat::assert_that(is.logical(quiet), length(quiet) == 1)
 
   # Fit locations for stationary periods without known locations
+  if (!quiet) {
+    cli::cli_progress_step("Calibrate zenith angle")
+  }
   stap <- geolight_fit_location(
     tag = tag,
     fitted_location_duration = fitted_location_duration,

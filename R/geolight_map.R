@@ -89,10 +89,15 @@ geolight_map <- function(
   tag <- geolight_map_calibrate(
     tag,
     twl_calib_adjust = twl_calib_adjust,
-    fitted_location_duration = fitted_location_duration
+    fitted_location_duration = fitted_location_duration,
+    quiet = quiet
   )
 
-  tag <- geolight_map_likelihood(tag, compute_known = compute_known)
+  tag <- geolight_map_likelihood(
+    tag,
+    compute_known = compute_known,
+    quiet = quiet
+  )
 
   tag <- geolight_map_aggregate(
     tag,

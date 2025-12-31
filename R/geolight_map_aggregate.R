@@ -11,6 +11,11 @@ geolight_map_aggregate <- function(
   tag_assert(tag, "map_light_twl")
   assertthat::assert_that(is.logical(compute_known), length(compute_known) == 1)
   assertthat::assert_that(is.function(twl_llp))
+  assertthat::assert_that(is.logical(quiet), length(quiet) == 1)
+
+  if (!quiet) {
+    cli::cli_progress_step("Aggregate twilight likelihood maps per stationary periods")
+  }
 
   # Compute grid information
   g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)

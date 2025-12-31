@@ -4,10 +4,16 @@
 geolight_map_likelihood <- function(
   tag,
   compute_known = FALSE,
+  quiet = FALSE
 ) {
   tag_assert(tag, "twl_calib")
   tag_assert(tag, "setmap")
   assertthat::assert_that(is.logical(compute_known), length(compute_known) == 1)
+  assertthat::assert_that(is.logical(quiet), length(quiet) == 1)
+
+  if (!quiet) {
+    cli::cli_progress_step("Compute twilight likelihood maps")
+  }
 
   # Get map parameters
   g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
