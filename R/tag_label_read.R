@@ -24,7 +24,7 @@ tag_label_read <- function(
 ) {
   tag_assert(tag)
 
-  if (tag_assert(tag, "setmap", "")) {
+  if (tag_assert(tag, "setmap", "logical")) {
     cli::cli_abort(c(
       "x" = "{.fun tag_set_map} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}."

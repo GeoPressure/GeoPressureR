@@ -94,7 +94,7 @@ tag_label <- function(
     return(tag)
   } else {
     # Check if label has already been tag_set_map
-    if (tag_assert(tag, "setmap", "")) {
+    if (tag_assert(tag, "setmap", "logical")) {
       cli::cli_bullets(c(
         "!" = "The tag_set_map has already been defined for {.var tag}."
       ))
