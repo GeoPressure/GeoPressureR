@@ -14,6 +14,7 @@
 #' @return A path data.frame
 #' - `stap_id` stationary period identification
 #' - `j` identification for each trajectory (`1` to `nj`).
+#' - `ind` indices of the coordinate in the 2D grid.
 #' - `lat` Latitude,
 #' - `lon` longitude
 #' - `...` other columns from `stap`
