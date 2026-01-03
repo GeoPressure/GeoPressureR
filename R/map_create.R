@@ -154,10 +154,45 @@ dim.map <- function(x) {
   )
 
   # Merge the two stap, should have the same nrow
-  z$stap <- merge(x$stap, y$stap, all = TRUE)
+  stap_x <- x$stap
+  stap_y <- y$stap
+  assertthat::assert_that(assertthat::has_name(stap_x, c("stap_id", "start", "end")))
+  assertthat::assert_that(assertthat::has_name(stap_y, c("stap_id", "start", "end")))
+  if (!setequal(stap_x$stap_id, stap_y$stap_id)) {
+    cli::cli_abort("{.field stap_id} differs between maps.")
+  }
+  if (
+    !isTRUE(all.equal(stap_x$start, stap_y$start)) ||
+      !isTRUE(all.equal(stap_x$end, stap_y$end))
+  ) {
+    cli::cli_abort("{.field stap} has different {.field start}/{.field end} between maps.")
+  }
 
-  # Preserve order of stap
-  z$stap <- z$stap[order(z$stap$stap_id), ]
+  shared <- intersect(names(stap_x), names(stap_y))
+  shared <- setdiff(shared, c("stap_id", "start", "end"))
+  if (length(shared) > 0) {
+    diff_cols <- shared[
+      !vapply(
+        shared,
+        function(col) {
+          isTRUE(all.equal(stap_x[[col]], stap_y[[col]]))
+        },
+        logical(1)
+      )
+    ]
+    if (length(diff_cols) > 0) {
+      cli::cli_warn(
+        "Columns differ between maps; keeping values from {.field x$stap}: {.val {diff_cols}}."
+      )
+    }
+  }
+
+  extra <- setdiff(names(stap_y), names(stap_x))
+  z$stap <- if (length(extra) > 0) {
+    cbind(stap_x, stap_y[extra])
+  } else {
+    stap_x
+  }
 
   z$type <- glue::glue("{x$type} x {y$type}")
 
