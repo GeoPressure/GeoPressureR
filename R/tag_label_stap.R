@@ -225,17 +225,25 @@ pretty_dt <- function(tim) {
 #'
 #' @noRd
 find_stap <- function(stap, date) {
-  # anchors: start and end times for each stap (each stap -> two anchors with same id)
-  anchors_t <- as.numeric(c(rbind(stap$start, stap$end)))
-  anchors_id <- rep(seq_len(nrow(stap)), each = 2)
+  start_num <- as.numeric(stap$start)
+  end_num <- as.numeric(stap$end)
+  date_num <- as.numeric(date)
 
-  # linear interpolation on the temporal axis
-  stap_id <- stats::approx(
-    x = anchors_t,
-    y = anchors_id,
-    xout = as.numeric(date),
-    rule = 2
-  )$y
+  # Assign each date to the last stap start that is <= date.
+  idx <- findInterval(date_num, start_num, rightmost.closed = TRUE)
+  idx[idx < 1] <- 1
+  idx[idx > nrow(stap)] <- nrow(stap)
+
+  # Default: within a stap interval, stap_id is the integer index.
+  stap_id <- idx
+  # For dates in the flight gap (after end[i] and before start[i+1]),
+  # interpolate linearly to get fractional stap_id between i and i+1.
+  in_gap <- date_num > end_num[idx] & idx < nrow(stap)
+  if (any(in_gap)) {
+    gap_len <- start_num[idx[in_gap] + 1] - end_num[idx[in_gap]]
+    stap_id[in_gap] <- idx[in_gap] +
+      (date_num[in_gap] - end_num[idx[in_gap]]) / gap_len
+  }
 
   # Check that all date have a stap_id
   assertthat::assert_that(!anyNA(stap_id))
