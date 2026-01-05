@@ -46,6 +46,10 @@ speed2prob <- function(speed, movement) {
   }
   assertthat::assert_that(is.numeric(speed))
   assertthat::assert_that(all(speed >= 0))
+  assertthat::assert_that(is.list(movement))
+  assertthat::assert_that(movement$method %in% c("gamma", "logis", "power"))
+  assertthat::assert_that(is.numeric(movement$low_speed_fix))
+  assertthat::assert_that(is.numeric(movement$zero_speed_ratio))
 
   # We use a normalization so that methods are comparable to each other.
   # The normalization is computed as the sum of probability with a 1km/h unit grid
@@ -55,6 +59,8 @@ speed2prob <- function(speed, movement) {
   speed <- pmax(speed, movement$low_speed_fix)
 
   if (movement$method == "gamma") {
+    assertthat::assert_that(is.numeric(movement$shape))
+    assertthat::assert_that(is.numeric(movement$scale))
     norm <- sum(stats::dgamma(
       norm_speed,
       shape = movement$shape,
@@ -67,6 +73,8 @@ speed2prob <- function(speed, movement) {
     ) /
       norm
   } else if (movement$method == "logis") {
+    assertthat::assert_that(is.numeric(movement$scale))
+    assertthat::assert_that(is.numeric(movement$location))
     norm <- sum(stats::plogis(
       norm_speed,
       location = movement$location,
@@ -81,6 +89,8 @@ speed2prob <- function(speed, movement) {
     ) /
       norm
   } else if (movement$method == "power") {
+    assertthat::assert_that(inherits(movement$bird, "bird"))
+    assertthat::assert_that(is.function(movement$power2prob))
     # `speed2power` is defined in m/s (SI), but the rest of your code is using km/h. This is where
     # we need to convert.
     as <- speed * 1000 / 60 / 60

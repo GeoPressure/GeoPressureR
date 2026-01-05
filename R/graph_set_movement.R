@@ -87,12 +87,6 @@ graph_set_movement <- function(
 
   type <- match.arg(type, choices = c("as", "gs"))
   method <- match.arg(method, choices = c("gamma", "logis", "power"))
-  assertthat::assert_that(is.function(power2prob))
-  assertthat::assert_that(is.numeric(shape))
-  assertthat::assert_that(is.numeric(scale))
-  assertthat::assert_that(is.numeric(location))
-  assertthat::assert_that(is.numeric(low_speed_fix))
-  assertthat::assert_that(is.numeric(zero_speed_ratio))
 
   mvt <- list(
     type = type,
@@ -108,7 +102,6 @@ graph_set_movement <- function(
     mvt$scale <- scale
     mvt$location <- location
   } else if (method == "power") {
-    assertthat::assert_that(inherits(bird, "bird"))
     mvt$bird <- bird
 
     attr(power2prob, "srcref") <- NULL
