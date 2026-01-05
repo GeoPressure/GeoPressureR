@@ -2,13 +2,42 @@
 #'
 #' This function display a plot of pressure time series recorded by a tag
 #
-#' @param graph a GeoPressureR `graph` object.
+#' @param graph a GeoPressureR `graph` object or a movement list (from `graph_set_movement`).
 #' @param speed Vector of speed value (km/h) used on the x-axis.
 #' @param plot_plotly logical to use `plotly`
 #'
 #' @return a plot or ggplotly object.
-#' @examplesIf FALSE
-#'   plot_graph_movement(graph)
+#' @examples
+#' movement_gamma <- list(
+#'   type = "gs",
+#'   method = "gamma",
+#'   shape = 7,
+#'   scale = 7,
+#'   low_speed_fix = 15,
+#'   zero_speed_ratio = 1
+#' )
+#' plot_graph_movement(movement_gamma)
+#'
+#' movement_logis <- list(
+#'   type = "gs",
+#'   method = "logis",
+#'   scale = 7,
+#'   location = 40,
+#'   low_speed_fix = 15,
+#'   zero_speed_ratio = 1
+#' )
+#' plot_graph_movement(movement_logis)
+#'
+#' bird <- bird_create("Example bird", mass = 0.1, wing_span = 0.4, wing_aspect = 7)
+#' movement_power <- list(
+#'   type = "as",
+#'   method = "power",
+#'   bird = bird,
+#'   power2prob = \(power) (1 / power)^3,
+#'   low_speed_fix = 15,
+#'   zero_speed_ratio = 1
+#' )
+#' plot_graph_movement(movement_power)
 #' @family movement
 #' @export
 plot_graph_movement <- function(
@@ -16,18 +45,28 @@ plot_graph_movement <- function(
   speed = seq(0, 120),
   plot_plotly = FALSE
 ) {
-  # Check that graph is correct
-  graph_assert(graph, "movement")
+  if (inherits(graph, "graph")) {
+    graph_assert(graph, "movement")
+    movement <- graph$param$graph_set_movement
+  } else if (is.list(graph)) {
+    movement <- graph
+  } else {
+    cli::cli_abort("`graph` must be a `graph` object or a movement list.")
+  }
 
   d <- data.frame(
     speed = speed,
-    prob = speed2prob(speed, graph$param$graph_set_movement)
+    prob = speed2prob(speed, movement)
   )
   lsf <- data.frame(
-    low_speed_fix = graph$param$graph_set_movement$low_speed_fix
+    low_speed_fix = movement$low_speed_fix
   )
 
-  if (graph$param$graph_set_movement$type == "as") {
+  type <- movement$type
+  if (is.null(type) && !is.null(movement$method) && movement$method == "power") {
+    type <- "as"
+  }
+  if (!is.null(type) && type == "as") {
     xlab <- "Airspeed [km/h]"
   } else {
     xlab <- "Groundspeed [km/h]"
