@@ -121,24 +121,32 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
       )$y
     )
 
-    # Move to the closest non-water position
-    # Find the index of lat-lon for all non-water position
-    mask_water_ind2 <- which(!tag$map_pressure$mask_water)
-    mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
-    mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
+    mask_water <- NULL
+    if (!is.null(tag$map_pressure$mask_water)) {
+      mask_water <- tag$map_pressure$mask_water
+    } else if (!is.null(tag$map_light$mask_water)) {
+      mask_water <- tag$map_light$mask_water
+    }
+    if (!is.null(mask_water)) {
+      # Move to the closest non-water position
+      # Find the index of lat-lon for all non-water position
+      mask_water_ind2 <- which(!mask_water)
+      mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
+      mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
 
-    for (i in seq_len(length(lat_ind))) {
-      if (
-        !is.na(lat_ind[i]) &&
-          !is.na(lon_ind[i]) &&
-          tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]
-      ) {
-        closest_ind2 <- which.min(
-          (mask_water_ind_lat - lat_ind[i])^2 +
-            (mask_water_ind_lon - lon_ind[i])^2
-        )
-        lat_ind[i] <- mask_water_ind_lat[closest_ind2]
-        lon_ind[i] <- mask_water_ind_lon[closest_ind2]
+      for (i in seq_len(length(lat_ind))) {
+        if (
+          !is.na(lat_ind[i]) &&
+            !is.na(lon_ind[i]) &&
+            mask_water[lat_ind[i], lon_ind[i]]
+        ) {
+          closest_ind2 <- which.min(
+            (mask_water_ind_lat - lat_ind[i])^2 +
+              (mask_water_ind_lon - lon_ind[i])^2
+          )
+          lat_ind[i] <- mask_water_ind_lat[closest_ind2]
+          lon_ind[i] <- mask_water_ind_lon[closest_ind2]
+        }
       }
     }
 
