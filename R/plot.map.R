@@ -74,20 +74,28 @@ plot.map <- function(
 ) {
   map <- x
 
+  # Ensure water mask exists
+  mask_water <- if ("mask_water" %in% names(map)) map$mask_water else FALSE
+
   # Eliminate unlikely pixel, same as in the creation of graph
   map$data <- lapply(map$data, function(m) {
-    if (!is.null(m)) {
-      # Normalize
-      m <- m / sum(m, na.rm = TRUE)
-
-      # Find threshold of percentile
-      ms <- sort(m)
-      id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
-      thr_prob <- ms[id_prob_percentile + 1]
-
-      # Set to NA all value below this threshold
-      m[m < thr_prob] <- NA
+    if (is.null(m)) {
+      return(m)
     }
+
+    # Remove over water
+    m[mask_water] <- NA_real_
+
+    # Normalize
+    m <- m / sum(m, na.rm = TRUE)
+
+    # Find threshold of percentile
+    ms <- sort(m)
+    id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
+    thr_prob <- ms[id_prob_percentile + 1]
+
+    # Set to NA all value below this threshold
+    m[m < thr_prob] <- NA
     m
   })
 
