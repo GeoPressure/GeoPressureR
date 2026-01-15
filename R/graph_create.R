@@ -68,7 +68,7 @@
 #' @export
 graph_create <- function(
   tag,
-  thr_likelihood = .99,
+  thr_likelihood = 0.99,
   thr_gs = 150,
   likelihood = NULL,
   quiet = FALSE,

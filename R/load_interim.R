@@ -83,7 +83,7 @@ load_interim <- function(
     assign(nm, get(nm, envir = tmp), envir = envir)
   }
 
-  if (length(vars_to_assign) == 1L) {
+  if (length(vars_to_assign) == 1) {
     invisible(get(vars_to_assign, envir = envir, inherits = FALSE))
   } else {
     invisible(mget(vars_to_assign, envir = envir, inherits = FALSE))

@@ -74,6 +74,8 @@ plot.map <- function(
 ) {
   map <- x
 
+  assertthat::assert_that(inherits(map, "map"))
+
   # Ensure water mask exists
   mask_water <- if ("mask_water" %in% names(map)) map$mask_water else FALSE
 

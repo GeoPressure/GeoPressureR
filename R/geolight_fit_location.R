@@ -59,7 +59,7 @@ geolight_fit_location <- function(
   }
   assertthat::assert_that(
     is.numeric(fitted_location_duration),
-    length(fitted_location_duration) == 1L,
+    length(fitted_location_duration) == 1,
     !is.na(fitted_location_duration)
   )
   assertthat::assert_that(is.numeric(extent), length(extent) == 4L)
