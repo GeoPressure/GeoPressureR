@@ -17,7 +17,9 @@ test_that("geolight_fit_location() does not estimate known staps by default", {
     twilight_create() |>
     twilight_label_read()
 
-  path <- geolight_fit_location(tag, fitted_location_duration = 0)
+  expect_warning({
+    path <- geolight_fit_location(tag, fitted_location_duration = 0)
+  })
 
   known_row <- path[path$stap_id == 1, ]
   expect_true(is.na(known_row$zenith))

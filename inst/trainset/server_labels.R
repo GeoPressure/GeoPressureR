@@ -106,7 +106,7 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
   }
 
   point_indices <- NULL
-  if (!is.null(point_data$rowIndex) && any(!is.na(point_data$rowIndex))) {
+  if (!is.null(point_data$rowIndex) && !all(is.na(point_data$rowIndex))) {
     point_indices <- as.integer(point_data$rowIndex)
     point_indices <- point_indices[!is.na(point_indices)]
   } else {

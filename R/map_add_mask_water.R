@@ -43,7 +43,7 @@
 #' })
 #' }
 #'
-#' @family geolight
+#' @family map
 #' @export
 map_add_mask_water <- function(map, ne_scale = "medium") {
   if (!requireNamespace("rnaturalearth", quietly = TRUE)) {

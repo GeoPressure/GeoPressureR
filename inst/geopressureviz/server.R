@@ -540,14 +540,14 @@ server <- function(input, output, session) {
         leaflet::addPolylines(
           lng = path_model$lon,
           lat = path_model$lat,
-          opacity = .1,
+          opacity = 0.1,
           color = "#FFF",
           weight = 3
         ) |>
         leaflet::addCircles(
           lng = path_model$lon,
           lat = path_model$lat,
-          fillOpacity = .1,
+          fillOpacity = 0.1,
           fillColor = "#FFF",
           weight = 0,
           radius = stap_model$duration^(0.3) * 10

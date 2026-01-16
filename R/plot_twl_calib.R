@@ -95,8 +95,10 @@ plot_twl_calib <- function(
   )
 
   line_df <- data.frame(
-    x = twl_calib$x,
-    y = twl_calib$y * sum(unlist(twl_calib$hist_counts, use.names = FALSE)) * twl_calib$binwidth
+    zenith_angle = twl_calib$x,
+    density = twl_calib$y *
+      sum(unlist(twl_calib$hist_counts, use.names = FALSE)) *
+      twl_calib$binwidth
   )
 
   p <- ggplot2::ggplot() +
@@ -111,7 +113,7 @@ plot_twl_calib <- function(
     ) +
     ggplot2::geom_line(
       data = line_df,
-      ggplot2::aes(x = .data$x, y = .data$y),
+      ggplot2::aes(x = .data$zenith_angle, y = .data$density),
       color = "black",
       linewidth = 0.8
     ) +
