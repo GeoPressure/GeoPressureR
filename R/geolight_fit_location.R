@@ -68,6 +68,9 @@ geolight_fit_location <- function(
   # Twilight table and inclusion mask
   twl <- twilight_include(tag$twilight)
 
+  # Add stationary period for each twilight in case not yet computed
+  twl$stap_id <- find_stap(tag$stap, twl$twilight)
+
   # Split twilight row indices by stationary period
   twl_id_by_stap <- split(which(twl$include), twl$stap_id[twl$include])
 

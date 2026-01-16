@@ -21,6 +21,9 @@ geolight_map_likelihood <- function(
   # Get twilight to include
   twl <- twilight_include(tag$twilight)
 
+  # Add stationary period for each twilight in case not yet computed
+  twl$stap_id <- find_stap(tag$stap, twl$twilight)
+
   # Filter out known stationary periods to reduce computation time
   if (!compute_known) {
     known_stap_id <- tag$stap$stap_id[

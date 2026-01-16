@@ -67,7 +67,7 @@ geolight_calibrate <- function(
   assertthat::assert_that(all(
     c("known_lat", "known_lon", "start", "end") %in% names(calib_stap)
   ))
-  assertthat::assert_that(all(c("twilight", "stap_id") %in% names(twl)))
+  assertthat::assert_that("twilight" %in% names(twl))
 
   # keep only staps with calibration coordinates
   calib_stap <- calib_stap[
