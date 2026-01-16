@@ -82,6 +82,13 @@ edge_add_wind <- function(
   },
   quiet = FALSE
 ) {
+  if (!requireNamespace("ncdf4", quietly = TRUE)) {
+    cli::cli_abort(c(
+      "x" = "Package {.pkg ncdf4} is required for {.fun edge_add_wind}.",
+      "i" = "Install it with {.run install.packages('ncdf4')}."
+    ))
+  }
+
   if (is.null(pressure) && inherits(graph, "tag")) {
     pressure <- graph$pressure
   }

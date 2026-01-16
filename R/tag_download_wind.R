@@ -69,6 +69,13 @@ tag_download_wind <- function(
   cds_token = lifecycle::deprecated(),
   ...
 ) {
+  if (!requireNamespace("ecmwfr", quietly = TRUE)) {
+    cli::cli_abort(c(
+      "x" = "Package {.pkg ecmwfr} is required for {.fun tag_download_wind}.",
+      "i" = "Install it with {.run install.packages('ecmwfr')}."
+    ))
+  }
+
   if (lifecycle::is_present(cds_token)) {
     lifecycle::deprecate_warn(
       "3.3.4",
