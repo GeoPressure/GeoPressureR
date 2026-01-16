@@ -473,7 +473,7 @@ graph_create <- function(
 
   # Add metadata information
   graph$sz <- sz
-  graph$stap <- tag$stap
+  graph$stap <- map$stap
   graph$equipment <- which(nds[[1]])
   graph$retrieval <- as.integer(which(nds[[sz[3]]]) + (sz[3] - 1) * nll)
   # After pruning some retrieval nodes might not be present anymore.
