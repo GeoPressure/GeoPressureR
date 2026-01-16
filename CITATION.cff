@@ -207,18 +207,6 @@ references:
   year: '2026'
   doi: 10.32614/CRAN.package.future.apply
 - type: software
-  title: geosphere
-  abstract: 'geosphere: Spherical Trigonometry'
-  notes: Imports
-  url: https://github.com/rspatial/geosphere/issues/
-  repository: https://CRAN.R-project.org/package=geosphere
-  authors:
-  - family-names: Hijmans
-    given-names: Robert J.
-    email: r.hijmans@gmail.com
-  year: '2026'
-  doi: 10.32614/CRAN.package.geosphere
-- type: software
   title: ggplot2
   abstract: 'ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics'
   notes: Imports
@@ -633,22 +621,6 @@ references:
     orcid: https://orcid.org/0000-0002-2453-9030
   year: '2026'
   doi: 10.32614/CRAN.package.ncdf4
-- type: software
-  title: rnaturalearth
-  abstract: 'rnaturalearth: World Map Data from Natural Earth'
-  notes: Suggests
-  url: https://docs.ropensci.org/rnaturalearth/
-  repository: https://CRAN.R-project.org/package=rnaturalearth
-  authors:
-  - family-names: Massicotte
-    given-names: Philippe
-    email: pmassicotte@hotmail.com
-    orcid: https://orcid.org/0000-0002-5919-4116
-  - family-names: South
-    given-names: Andy
-    email: southandy@gmail.com
-  year: '2026'
-  doi: 10.32614/CRAN.package.rnaturalearth
 - type: software
   title: readxl
   abstract: 'readxl: Read Excel Files'
