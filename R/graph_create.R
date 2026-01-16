@@ -100,174 +100,36 @@ graph_create <- function(
       details = "Bearing calculations now use a custom memory-efficient implementation."
     )
   }
-
-  if (!quiet) {
-    cli::cli_progress_step(
-      "Check data input",
-      msg_done = "Data input validated"
-    )
-  }
-
-  # Retrieve likelihood map used
-  likelihood <- tag2likelihood(tag, likelihood)
-
-  # Construct the likelihood map
-  lk <- tag2map(tag, likelihood = likelihood)
-
-  assertthat::assert_that(is.numeric(thr_likelihood))
-  assertthat::assert_that(length(thr_likelihood) == 1)
-  assertthat::assert_that(thr_likelihood >= 0 & thr_likelihood <= 1)
   assertthat::assert_that(is.numeric(thr_gs))
   assertthat::assert_that(length(thr_gs) == 1)
   assertthat::assert_that(thr_gs >= 0)
 
-  # Extract info from tag for simplicity
-  stap <- tag$stap
-  stap_include <- which(stap$include)
+  map <- tag_prepare_likelihood(
+    tag,
+    likelihood = likelihood,
+    thr_likelihood = thr_likelihood,
+    thr_gs = thr_gs,
+    quiet = quiet
+  )
 
-  # Select only the map for the stap to model
-  lk <- lk[stap_include]
-
-  lk_null <- sapply(lk, is.null)
-  if (any(lk_null)) {
-    cli::cli_abort(c(
-      x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods {.var {stap_include[lk_null]}} while those stationary period are required in {.var stap$include}",
-      i = "Check your input and re-run {.fun geopressure_map} if necessary."
-    ))
-  }
-
-  if (length(stap_include) < 2) {
-    cli::cli_abort(c(
-      x = "There are only {.var {length(stap_include)}} stationary period{?s} to be modelled according to {.var stap$include}.",
-      i = "You need at least 3 stationary periods."
-    ))
-  }
-
-  g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
-
-  # Construct flight
-  flight <- stap2flight(stap)
-  flight_duration <- as.numeric(flight$duration)
-  assertthat::assert_that(length(flight_duration) == length(stap_include) - 1)
-  assertthat::assert_that(all(flight_duration > 0))
-
-  # Compute size
-  sz <- c(g$dim[1], g$dim[2], length(stap_include))
+  lk_norm <- map$lk_norm
+  nds <- map$dist_mask
+  likelihood <- map$likelihood
+  flight_duration <- map$flight_duration
+  resolution <- map$resolution
+  sz <- map$sz
   nll <- sz[1] * sz[2]
 
-  if (!quiet) {
-    cli::cli_progress_done()
-    cli::cli_progress_step(
-      "Create nodes from likelihood maps",
-      msg_done = "Nodes created from likelihood maps: {.field {likelihood}}"
-    )
-  }
+  stap_include <- which(map$stap$include)
 
-  # Process likelihood map
-  # We use here the normalized likelihood assuming that the bird needs to be somewhere at each
-  # stationary period. The log-linear pooling (`geopressure_map_likelihood`) is supposed to account
-  # for the variation in stationary period duration.
-  lk_norm <- lapply(lk, function(l) {
-    # replace empty map with 1 everywhere
-    if (sum(l, na.rm = TRUE) == 0) {
-      l[l == 0] <- 1
-    }
+  g <- map_expand(map$extent, map$scale)
 
-    # replace NA by 0
-    l[is.na(l)] <- 0
-
-    # Normalize
-    l / sum(l, na.rm = TRUE)
-  })
-
-  # Check for invalid map
-  stap_id_0 <- sapply(lk_norm, sum) == 0
-  if (anyNA(stap_id_0)) {
-    cli::cli_abort(c(
-      x = "{.var likelihood} is invalid for the stationary period: {stap_include[which(is.na(stap_id_0))]}"
-    ))
-  }
-  if (any(stap_id_0)) {
-    cli::cli_abort(c(
-      x = "Using the {.var likelihood} provided has an invalid probability map for the stationary period: {stap_include[which(stap_id_0)]}"
-    ))
-  }
-
-  # find the pixels above to the percentile
-  nds <- lapply(lk_norm, function(l) {
-    # First, compute the threshold of prob corresponding to percentile
-    ls <- sort(l)
-    id_prob_percentile <- sum(cumsum(ls) < (1 - thr_likelihood))
-    thr_prob <- ls[id_prob_percentile + 1]
-
-    # return matrix if the values are above the threshold
-    l >= thr_prob
-  })
-
-  # Check that there are still values
-  nds_0 <- unlist(lapply(nds, sum)) == 0
-  if (any(nds_0)) {
-    cli::cli_abort(c(
-      x = "Using the {.var thr_likelihood} of {.val {thr_likelihood}}, there are not any nodes left at stationary period: {.val {stap_include[which(nds_0)]}}"
-    ))
-  }
-
-  if (!quiet) {
-    cli::cli_progress_done()
-    cli::cli_progress_step(
-      "Filter nodes by binary distance",
-      msg_done = "Nodes filtered by binary distance"
-    )
-  }
-
-  # filter the pixels which are not in reach of any location of the previous and next stationary
-  # period
-  # Create resolution matrix for the grid (length(g$lat) x length(g$lon))
-  lat_res <- abs(stats::median(diff(g$lat))) * 111.320
-  lon_res <- stats::median(diff(g$lon)) * 110.574
-  resolution <- outer(g$lat, g$lon, function(lat, lon) {
-    pmin(lat_res, lon_res * cos(lat * pi / 180))
-  })
-
-  # The "-1" of distmap accounts for the fact that the shortest distance between two grid cell is
-  # not the center of the cell but the side. This should only impact short flight distance/duration.
-  for (i_s in seq_len(sz[3] - 1)) {
-    # Compute distance map and apply resolution matrix
-    dist_map <- EBImage::distmap(!nds[[i_s]]) - 1
-    dist_km <- dist_map * resolution # Element-wise multiplication with resolution matrix
-    nds[[i_s + 1]] <- dist_km < flight_duration[i_s] * thr_gs & nds[[i_s + 1]]
-    if (sum(nds[[i_s + 1]]) == 0) {
-      cli::cli_abort(c(
-        x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance edges, there are not any nodes left at stationary period {.val {stap_include[i_s + 1]}} from stationary period {.val {stap_include[i_s]}}"
-      ))
-    }
-  }
-  for (i_sr in seq_len(sz[3] - 1)) {
-    i_s <- sz[3] - i_sr + 1
-    # Compute distance map and apply resolution matrix
-    dist_map <- EBImage::distmap(!nds[[i_s]]) - 1
-    dist_km <- dist_map * resolution # Element-wise multiplication with resolution matrix
-    nds[[i_s - 1]] <- dist_km < flight_duration[i_s - 1] * thr_gs &
-      nds[[i_s - 1]]
-    if (sum(nds[[i_s - 1]]) == 0) {
-      cli::cli_abort(c(
-        x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left at stationary period {.val {stap_include[i_s - 1]}} from stationary period {.val {stap_include[i_s]}}"
-      ))
-    }
-  }
-
-  # Check that there are still pixel present
-  nds_sum <- unlist(lapply(nds, sum))
-  if (any(nds_sum == 0)) {
-    cli::cli_abort(c(
-      x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left."
-    ))
-  }
   # Create the graph from nds with the exact groundspeed
 
   # Initialize results list
   n_transitions <- length(nds) - 1
   gr <- vector("list", n_transitions)
+  nds_sum <- vapply(nds, sum, numeric(1))
 
   if (!quiet) {
     cli::cli_progress_done()
