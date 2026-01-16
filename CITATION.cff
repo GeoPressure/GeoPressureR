@@ -608,6 +608,22 @@ references:
   year: '2026'
   doi: 10.32614/CRAN.package.maps
 - type: software
+  title: rnaturalearth
+  abstract: 'rnaturalearth: World Map Data from Natural Earth'
+  notes: Suggests
+  url: https://docs.ropensci.org/rnaturalearth/
+  repository: https://CRAN.R-project.org/package=rnaturalearth
+  authors:
+  - family-names: Massicotte
+    given-names: Philippe
+    email: pmassicotte@hotmail.com
+    orcid: https://orcid.org/0000-0002-5919-4116
+  - family-names: South
+    given-names: Andy
+    email: southandy@gmail.com
+  year: '2026'
+  doi: 10.32614/CRAN.package.rnaturalearth
+- type: software
   title: ncdf4
   abstract: 'ncdf4: Interface to Unidata netCDF (Version 4 or Earlier) Format Data
     Files'

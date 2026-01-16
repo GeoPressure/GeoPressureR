@@ -46,6 +46,7 @@ Suggests:
     leaflet.extras,
     leaflet.providers,
     maps,
+    rnaturalearth,
     ncdf4,
     readxl,
     shiny,
