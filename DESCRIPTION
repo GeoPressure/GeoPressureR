@@ -24,7 +24,6 @@ Imports:
     geosphere,
     ggplot2,
     glue,
-    graphics,
     httr2 (>= 1.0.0),
     jsonlite,
     leaflet (>= 2.2.0),

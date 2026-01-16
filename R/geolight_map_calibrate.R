@@ -131,10 +131,16 @@ geolight_calibrate <- function(
     ceiling(zenith_bounds[2] * 2) / 2,
     by = 0.5
   )
-  hist_all <- graphics::hist(z_calib_all, breaks = hist_breaks, plot = FALSE)
+  hist_mids <- (hist_breaks[-1] + hist_breaks[-length(hist_breaks)]) / 2
   hist_counts <- lapply(
     z_calib,
-    function(z) graphics::hist(z, breaks = hist_all$breaks, plot = FALSE)$counts
+    function(z) {
+      z <- z[is.finite(z)]
+      tabulate(
+        cut(z, breaks = hist_breaks, include.lowest = TRUE, right = TRUE),
+        nbins = length(hist_breaks) - 1L
+      )
+    }
   )
   names(hist_counts) <- names(z_calib)
 
@@ -143,9 +149,9 @@ geolight_calibrate <- function(
     x = dens$x,
     y = dens$y,
     adjust = twl_calib_adjust,
-    hist_breaks = hist_all$breaks,
-    hist_mids = hist_all$mids,
-    binwidth = diff(hist_all$breaks)[1],
+    hist_breaks = hist_breaks,
+    hist_mids = hist_mids,
+    binwidth = diff(hist_breaks)[1],
     hist_counts = hist_counts,
     calib_stap = calib_stap
   )
