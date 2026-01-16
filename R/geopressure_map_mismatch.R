@@ -120,79 +120,87 @@ geopressure_map_mismatch <- function(
   # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
   if (workers == "auto") {
     workers <- min(parallel::detectCores(), length(urls))
-  } else {
-    assertthat::assert_that(workers > 0 & workers < 100)
   }
-  future::plan(future::multisession, workers = workers)
+  assertthat::assert_that(workers > 0 & workers < 100)
+  workers <- if (workers > 1 && length(urls) > 1) min(workers, length(urls)) else 1
+  old_plan <- future::plan()
+  on.exit(future::plan(old_plan), add = TRUE)
+  if (workers > 1) {
+    if (.Platform$OS.type == "windows" || !future::supportsMulticore()) {
+      future::plan(future::multisession, workers = workers)
+    } else {
+      future::plan(future::multicore, workers = workers)
+    }
+  } else {
+    future::plan(future::sequential)
+  }
 
-  f <- vector("list", length(urls))
+  download_geotiff <- function(url_i, timeout, debug, progress = NULL) {
+    req_i <- httr2::request(url_i) |>
+      httr2::req_timeout(timeout)
 
-  if (!quiet) {
-    i_u <- 1
+    if (debug) {
+      req_i <- httr2::req_verbose(
+        req_i,
+        body_req = TRUE,
+        body_resp = TRUE,
+        info = TRUE
+      )
+    }
+
+    file <- tempfile(fileext = ".geotiff")
+    httr2::req_perform(req_i, path = file)
+    if (!is.null(progress)) {
+      progress()
+    }
+    file
+  }
+
+  future_args <- list(
+    X = urls,
+    FUN = download_geotiff,
+    timeout = timeout,
+    debug = debug
+  )
+  if (quiet) {
+    files <- do.call(future.apply::future_lapply, future_args)
+  } else {
     cli::cli_progress_step(
-      msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev (on {.val {future::nbrOfWorkers()}} workers): {.val {labels[i_u]}} | {i_u}/{length(urls)}",
+      msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev (on {.val {workers}} workers)",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
-  }
-  for (i_u in seq_len(length(urls))) {
-    if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
-    }
-    url_i <- urls[i_u]
-    f[[i_u]] <- future::future(
-      expr = {
-        # Create request for each url
-        req_i <- httr2::request(url_i) |>
-          httr2::req_timeout(timeout) |>
-          httr2::req_error(is_error = function(resp) FALSE)
-
-        if (debug) {
-          req_i <- httr2::req_verbose(
-            req_i,
-            body_req = TRUE,
-            body_resp = TRUE,
-            info = TRUE
-          )
-        }
-
-        # Perform the request and write the response to file
-        file <- tempfile(fileext = ".geotiff")
-        httr2::req_perform(req_i, path = file)
-
-        # return the path to the file
-        return(file)
-      },
-      # Without specifying the variable, memoery was getting super large for no reason. I couldn't
-      # figure out which variables was included, but it worked like this
-      globals = list(url_i = url_i, timeout = timeout, debug = debug),
-      envir = baseenv(),
-      seed = TRUE
+    old_handlers <- progressr::handlers()
+    on.exit(progressr::handlers(old_handlers), add = TRUE)
+    progressr::handlers(
+      progressr::handler_cli(
+        format = "{cli::pb_name} {cli::pb_bar} {cli::pb_percent} ({cli::pb_current}/{cli::pb_total}) | {cli::pb_eta_str}",
+        format_done = "{cli::col_green(cli::symbol$tick)} {cli::pb_name} [{cli::pb_elapsed}]"
+      )
     )
-    # gc()
-    # print(f)
-    # utils::capture.output(print(f[[i_u]]))
-    # invisible(f[[i_u]])
+
+    files <- progressr::with_progress({
+      future_args$progress <- progressr::progressor(steps = length(urls))
+      do.call(future.apply::future_lapply, future_args)
+    })
   }
 
   # Get maps
-  map <- vector("list", length(urls))
   if (!quiet) {
-    i_u <- 1
-    cli::cli_progress_step(
-      msg = "Read .geotiff: {.val {labels[i_u]}} | {i_u}/{length(urls)}",
-      msg_done = "Read .geotiff"
-    )
+    cli::cli_progress_bar(name = "Read .geotiff", total = length(files))
   }
-  for (i_u in seq_len(length(urls))) {
-    if (!quiet) {
-      cli::cli_progress_update(force = TRUE)
-    }
-    file <- future::value(f[[i_u]])
-    map[[i_u]] <- terra::rast(file)
-    names(map[[i_u]][[1]]) <- "map_pressure_mse"
+  map <- lapply(seq_along(files), function(i_u) {
+    map_i <- terra::rast(files[[i_u]])
+    names(map_i[[1]]) <- "map_pressure_mse"
     if (keep_mask) {
-      names(map[[i_u]][[2]]) <- "map_pressure_mask"
+      names(map_i[[2]]) <- "map_pressure_mask"
     }
+    if (!quiet) {
+      cli::cli_progress_update(inc = 1)
+    }
+    map_i
+  })
+  if (!quiet) {
+    cli::cli_progress_done()
   }
 
   if (!quiet) {
