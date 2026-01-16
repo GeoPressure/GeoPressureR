@@ -1,14 +1,5 @@
-list_of_packages <- c("shiny", "shinyjs", "shinyWidgets", "callr")
-new_packages <- list_of_packages[
-  !(list_of_packages %in% installed.packages()[, "Package"])
-]
-if (length(new_packages) > 0) {
-  install.packages(new_packages)
-}
-
 suppressMessages({
   library(GeoPressureR)
-  library(callr)
   library(shinyjs)
   library(shiny)
   library(shinyWidgets)

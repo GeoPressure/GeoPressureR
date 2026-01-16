@@ -100,71 +100,33 @@ trainset <- function(
   label_dir <- normalizePath(label_dir, mustWork = FALSE)
 
   if (run_bg) {
-    p <- callr::r_bg(
-      func = function(tag, label_dir, debug) {
-        shiny::shinyOptions(
-          tag = tag,
-          label_dir = label_dir,
-          trainset_debug = debug,
-          stop_on_session_end = FALSE
-        )
-        shiny::runApp(system.file("trainset", package = "GeoPressureR"))
-      },
-      args = list(
+    return(shiny_run_app_bg(
+      system.file("trainset", package = "GeoPressureR"),
+      shiny_opts = list(
         tag = tag,
         label_dir = label_dir,
-        debug = debug
-      )
-    )
+        trainset_debug = debug,
+        stop_on_session_end = FALSE
+      ),
+      launch_browser = launch_browser,
+      proc_option = "GeoPressureR.trainset_processes",
+      proc_id = tag$param$id,
+      app_label = "Trainset"
+    ))
+  }
 
-    port <- NA
-    while (p$is_alive()) {
-      p$poll_io(1000) # wait up to 1s for new output
-      err <- p$read_error()
-      out <- p$read_output()
-      txt <- paste(err, out, sep = "\n")
-
-      if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
-        port <- sub(".*127\\.0\\.0\\.1:([0-9]+).*", "\\1", txt)
-        url <- glue::glue("http://127.0.0.1:{port}")
-
-        # Keep a reference to the background process so it is not garbage-collected
-        # (which can terminate the child process unexpectedly).
-        procs <- getOption("GeoPressureR.trainset_processes", default = list())
-        procs[[tag$param$id]] <- p
-        options(GeoPressureR.trainset_processes = procs)
-
-        if (isTRUE(launch_browser)) {
-          cli::cli_alert_success("Opening Trainset app at {.url {url}}")
-          utils::browseURL(url)
-        } else {
-          cli::cli_alert_success("Trainset app running at {.url {url}}")
-        }
-        break
-      }
-    }
-    return(invisible(p))
-  } else {
-    if (launch_browser) {
-      launch_browser <- getOption("browser")
-    } else {
-      launch_browser <- getOption("shiny.launch.browser", interactive())
-    }
-    shiny::shinyOptions(
+  shiny_run_app_fg(
+    system.file("trainset", package = "GeoPressureR"),
+    shiny_opts = list(
       tag = tag,
       label_dir = label_dir,
       trainset_debug = debug,
       stop_on_session_end = TRUE
-    )
+    ),
+    launch_browser = launch_browser
+  )
 
-    # Start the app
-    shiny::runApp(
-      system.file("trainset", package = "GeoPressureR"),
-      launch.browser = launch_browser
-    )
-
-    return(invisible(tag))
-  }
+  return(invisible(tag))
 }
 
 # Convert a TRAINSET CSV file to a GeoPressureR tag
