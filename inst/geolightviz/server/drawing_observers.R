@@ -100,9 +100,10 @@ setup_drawing_observers <- function(
     idx <- as.numeric(input$stap_id)
 
     if (drawing_ == "change_range") {
-      new_row$lat <- new_stapath$lat[idx]
-      new_row$lon <- new_stapath$lon[idx]
-      new_stapath[idx, ] <- new_row
+      new_stapath[idx, c("start", "end", "duration")] <- new_row[
+        1,
+        c("start", "end", "duration")
+      ]
     } else if (drawing_ == "add_stap") {
       # Add new row to stapath and re-order stap_id
       new_stapath <- rbind(new_stapath, new_row)
