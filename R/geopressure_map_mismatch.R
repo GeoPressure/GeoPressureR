@@ -126,11 +126,8 @@ geopressure_map_mismatch <- function(
   old_plan <- future::plan()
   on.exit(future::plan(old_plan), add = TRUE)
   if (workers > 1) {
-    if (.Platform$OS.type == "windows" || !future::supportsMulticore()) {
-      future::plan(future::multisession, workers = workers)
-    } else {
-      future::plan(future::multicore, workers = workers)
-    }
+    # Use multisession to avoid forked HTTP requests being interrupted.
+    future::plan(future::multisession, workers = workers)
   } else {
     future::plan(future::sequential)
   }
@@ -185,23 +182,19 @@ geopressure_map_mismatch <- function(
   }
 
   # Get maps
-  if (!quiet) {
-    cli::cli_progress_bar(name = "Read .geotiff", total = length(files))
+  idx <- if (!quiet) {
+    cli::cli_progress_along(seq_along(files), name = "Read .geotiff")
+  } else {
+    seq_along(files)
   }
-  map <- lapply(seq_along(files), function(i_u) {
+  map <- lapply(idx, function(i_u) {
     map_i <- terra::rast(files[[i_u]])
     names(map_i[[1]]) <- "map_pressure_mse"
     if (keep_mask) {
       names(map_i[[2]]) <- "map_pressure_mask"
     }
-    if (!quiet) {
-      cli::cli_progress_update(inc = 1)
-    }
     map_i
   })
-  if (!quiet) {
-    cli::cli_progress_done()
-  }
 
   if (!quiet) {
     cli::cli_progress_step("Post-process maps")
