@@ -25,6 +25,26 @@ geolightviz <- function(
   is_x_rawtag <- is_x_char &&
     dir.exists(glue::glue("./data/raw-tag/{x}"))
 
+  # Resolve save folders based on launch context.
+  label_dir <- file.path(getwd(), "data", "twilight-label")
+  label_dir_tag <- file.path(getwd(), "data", "tag-label")
+  if (!dir.exists(label_dir) && dir.exists(label_dir_tag)) {
+    label_dir <- label_dir_tag
+  }
+  stap_dir <- file.path(getwd(), "data", "stap-label")
+  if (is_x_file) {
+    interim_dir <- dirname(x)
+    if (basename(interim_dir) == "interim") {
+      data_dir <- dirname(interim_dir)
+      label_dir <- file.path(data_dir, "twilight-label")
+      label_dir_tag <- file.path(data_dir, "tag-label")
+      if (!dir.exists(label_dir) && dir.exists(label_dir_tag)) {
+        label_dir <- label_dir_tag
+      }
+      stap_dir <- file.path(data_dir, "stap-label")
+    }
+  }
+
   if (inherits(x, "tag")) {
     tag <- x
   } else if (is_x_file) {
@@ -40,6 +60,11 @@ geolightviz <- function(
   }
 
   id <- tag$param$id
+  if (!is.null(tag$param$twilight_label_read$file)) {
+    label_dir <- dirname(tag$param$twilight_label_read$file)
+  }
+  label_dir <- normalizePath(label_dir, mustWork = FALSE)
+  stap_dir <- normalizePath(stap_dir, mustWork = FALSE)
 
   # Load config and ensure tag availability.
   if (file.exists(Sys.getenv("R_CONFIG_FILE", "config.yml"))) {
@@ -217,7 +242,9 @@ geolightviz <- function(
         stapath = stapath,
         light_trace = light_trace,
         twl = twl,
-        stop_on_session_end = FALSE
+        stop_on_session_end = FALSE,
+        label_dir = label_dir,
+        stap_dir = stap_dir
       ),
       launch_browser = launch_browser,
       proc_option = "GeoPressureR.geolightviz_processes",
@@ -233,7 +260,9 @@ geolightviz <- function(
       stapath = stapath,
       light_trace = light_trace,
       twl = twl,
-      stop_on_session_end = TRUE
+      stop_on_session_end = TRUE,
+      label_dir = label_dir,
+      stap_dir = stap_dir
     ),
     launch_browser = launch_browser
   )

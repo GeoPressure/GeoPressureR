@@ -76,11 +76,20 @@ ui <- function() {
               icon = icon("pen"),
               width = "70px"
             ),
-            downloadButton(
-              "export_twilight",
-              "Export",
-              class = "btn-primary btn-sm",
+            actionButton(
+              "save_twilight",
+              "Save",
+              class = "btn-success btn-sm",
+              icon = icon("save"),
               width = "70px"
+            ),
+            shinyjs::hidden(
+              downloadButton(
+                "export_twilight",
+                "Export",
+                class = "btn-primary btn-sm",
+                width = "70px"
+              )
             )
           )
         ),
@@ -113,11 +122,20 @@ ui <- function() {
                 class = "btn-sm bg-secondary"
               )
             ),
-            downloadButton(
-              "export_stap",
-              "Export",
-              class = "btn-primary btn-sm",
+            actionButton(
+              "save_stap",
+              "Save",
+              class = "btn-success btn-sm",
+              icon = icon("save"),
               width = "70px"
+            ),
+            shinyjs::hidden(
+              downloadButton(
+                "export_stap",
+                "Export",
+                class = "btn-primary btn-sm",
+                width = "70px"
+              )
             )
           )
         ),

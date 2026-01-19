@@ -79,5 +79,5 @@ server <- function(input, output, session) {
   }
 
   # Setup export handlers
-  setup_export_handlers(output, twl, stapath, .tag)
+  setup_export_handlers(output, input, session, twl, stapath, .tag)
 }
