@@ -165,29 +165,36 @@ geolightviz <- function(
 
   # Prepare stapath for app input.
   if (!is.null(path)) {
-    stap_input <- path
+    stapath <- GeoPressureR::read_stap(path)
   } else if ("stap" %in% names(tag)) {
-    stap_input <- tag$stap
+    stapath <- GeoPressureR::read_stap(tag$stap)
   } else {
-    stap_input <- tag
+    stap_file <- glue::glue("./data/stap-label/{id}.csv")
+    if (file.exists(stap_file)) {
+      stapath <- GeoPressureR::read_stap(stap_file)
+    } else {
+      stapath <- data.frame(
+        stap_id = integer(0),
+        start = as.POSIXct(character(0), tz = "UTC"),
+        end = as.POSIXct(character(0), tz = "UTC")
+      )
+    }
   }
-
-  stapath <- GeoPressureR::read_stap(stap_input)
 
   if (!("stap_id" %in% names(stapath))) {
     stapath$stap_id <- seq_len(nrow(stapath))
   }
   if (!("lat" %in% names(stapath))) {
-    stapath$lat <- NA_real_
+    stapath$lat <- rep(NA_real_, nrow(stapath))
   }
   if (!("lon" %in% names(stapath))) {
-    stapath$lon <- NA_real_
+    stapath$lon <- rep(NA_real_, nrow(stapath))
   }
   if (!("known_lat" %in% names(stapath))) {
-    stapath$known_lat <- NA_real_
+    stapath$known_lat <- rep(NA_real_, nrow(stapath))
   }
   if (!("known_lon" %in% names(stapath))) {
-    stapath$known_lon <- NA_real_
+    stapath$known_lon <- rep(NA_real_, nrow(stapath))
   }
   stapath$lat[!is.na(stapath$known_lat)] <- stapath$known_lat[
     !is.na(stapath$known_lat)
@@ -218,10 +225,14 @@ geolightviz <- function(
     }
   }
 
-  tag$twilight$stap_id <- GeoPressureR:::find_stap(
-    stapath,
-    tag$twilight$twilight
-  )
+  if (nrow(stapath) > 0) {
+    tag$twilight$stap_id <- GeoPressureR:::find_stap(
+      stapath,
+      tag$twilight$twilight
+    )
+  } else {
+    tag$twilight$stap_id <- rep(NA_real_, nrow(tag$twilight))
+  }
 
   compute_known <- tag$param$geolight_map[["compute_known"]]
 
@@ -291,9 +302,14 @@ prepare_twilight <- function(tag, ref, compute_known = NULL) {
   twl <- tag$twilight
 
   # Add inclusion mask consistent with GeoPressureR::geolight_map()
-  twl_include <- GeoPressureR:::twilight_include(tag$twilight)
-  if ("include" %in% names(twl_include)) {
+  twl_include <- tryCatch(
+    GeoPressureR:::twilight_include(tag$twilight),
+    error = function(e) NULL
+  )
+  if (!is.null(twl_include) && "include" %in% names(twl_include)) {
     twl$include <- twl_include$include
+  } else {
+    twl$include <- rep(FALSE, nrow(twl))
   }
 
   if (is.null(compute_known)) {
