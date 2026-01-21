@@ -10,17 +10,21 @@ init <- function(
 ) {
   rv <- list()
   if (is.null(.stapath)) {
-    .stapath <- data.frame(
-      stap_id = integer(),
-      start = as.POSIXct(character(0), tz = "UTC"),
-      end = as.POSIXct(character(0), tz = "UTC"),
-      lat = numeric(),
-      lon = numeric(),
-      known_lat = numeric(),
-      known_lon = numeric(),
-      duration = numeric(),
-      include = logical()
-    )
+    if (!is.null(.tag$stap)) {
+      .stapath <- .tag$stap
+    } else {
+      .stapath <- data.frame(
+        stap_id = integer(),
+        start = as.POSIXct(character(0), tz = "UTC"),
+        end = as.POSIXct(character(0), tz = "UTC"),
+        lat = numeric(),
+        lon = numeric(),
+        known_lat = numeric(),
+        known_lon = numeric(),
+        duration = numeric(),
+        include = logical()
+      )
+    }
   }
   if (!("known_lat" %in% names(.stapath))) {
     .stapath$known_lat <- rep(NA_real_, nrow(.stapath))
