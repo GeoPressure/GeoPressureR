@@ -87,15 +87,48 @@ setup_drawing_observers <- function(
       as.POSIXct(utils::tail(s$x0, 1), tz = "UTC"),
       as.POSIXct(utils::tail(s$x1, 1), tz = "UTC")
     )
+    if (anyNA(r)) {
+      shinyjs::alert("Stap start/end could not be parsed.")
+      draw_range("")
+      return()
+    }
 
     new_row <- data.frame(start = min(r), end = max(r))
     new_row$duration <- GeoPressureR::stap2duration(new_row)
+    if (!is.finite(new_row$duration) || new_row$duration <= 0) {
+      shinyjs::alert("Stap duration must be positive.")
+      draw_range("")
+      return()
+    }
 
     new_stapath <- stapath()
+    trim_ref <- new_stapath
+    if (drawing_ == "change_range") {
+      trim_ref <- trim_ref[-as.numeric(input$stap_id), , drop = FALSE]
+    }
+    if (nrow(trim_ref) > 0) {
+      ord <- order(trim_ref$start)
+      pos <- sum(trim_ref$start < new_row$start) + 1
+      if (pos > 1) {
+        new_row$start <- max(new_row$start, trim_ref$end[ord[pos - 1]])
+      }
+      if (pos <= length(ord)) {
+        new_row$end <- min(new_row$end, trim_ref$start[ord[pos]])
+      }
+      new_row$duration <- GeoPressureR::stap2duration(new_row)
+      if (!is.finite(new_row$duration) || new_row$duration <= 0) {
+        shinyjs::alert("Stap overlaps existing range.")
+        draw_range("")
+        return()
+      }
+    }
 
     # Add missing columns in new_row to match stapath
     new_row[, setdiff(names(new_stapath), names(new_row))] <- NA
     new_row <- new_row[, names(new_stapath)]
+    if ("include" %in% names(new_row)) {
+      new_row$include <- TRUE
+    }
 
     idx <- as.numeric(input$stap_id)
 
@@ -104,10 +137,20 @@ setup_drawing_observers <- function(
         1,
         c("start", "end", "duration")
       ]
+      new_stapath <- new_stapath[order(new_stapath$start), ]
+      new_stapath$stap_id <- seq_len(nrow(new_stapath))
+      idx <- which(
+        new_stapath$start == new_row$start & new_stapath$end == new_row$end
+      )[1]
     } else if (drawing_ == "add_stap") {
       # Add new row to stapath and re-order stap_id
       new_stapath <- rbind(new_stapath, new_row)
       new_stapath <- new_stapath[order(new_stapath$start), ]
+      if (anyNA(new_stapath$start) || anyNA(new_stapath$end)) {
+        shinyjs::alert("Stap start/end must not be NA.")
+        draw_range("")
+        return()
+      }
       new_stapath$stap_id <- seq_len(nrow(new_stapath))
       # Find index of new row
       idx <- which(new_stapath$start == new_row$start)

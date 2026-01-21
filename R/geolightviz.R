@@ -11,238 +11,44 @@
 #' @export
 geolightviz <- function(
   x,
-  path = NULL,
+  stapath = NULL,
   launch_browser = TRUE,
   run_bg = TRUE,
   quiet = FALSE,
   ...
 ) {
-  # Resolve tag input from object, file, or id.
-  is_x_char <- is.character(x) && length(x) == 1
-  is_x_file <- is_x_char && file.exists(x)
-  is_x_interim <- is_x_char &&
-    file.exists(glue::glue("./data/interim/{x}.RData"))
-  is_x_rawtag <- is_x_char &&
-    dir.exists(glue::glue("./data/raw-tag/{x}"))
-
-  # Resolve save folders based on launch context.
-  label_dir <- file.path(getwd(), "data", "twilight-label")
-  label_dir_tag <- file.path(getwd(), "data", "tag-label")
-  if (!dir.exists(label_dir) && dir.exists(label_dir_tag)) {
-    label_dir <- label_dir_tag
-  }
-  stap_dir <- file.path(getwd(), "data", "stap-label")
-  if (is_x_file) {
-    interim_dir <- dirname(x)
-    if (basename(interim_dir) == "interim") {
-      data_dir <- dirname(interim_dir)
-      label_dir <- file.path(data_dir, "twilight-label")
-      label_dir_tag <- file.path(data_dir, "tag-label")
-      if (!dir.exists(label_dir) && dir.exists(label_dir_tag)) {
-        label_dir <- label_dir_tag
-      }
-      stap_dir <- file.path(data_dir, "stap-label")
-    }
-  }
-
   if (inherits(x, "tag")) {
     tag <- x
-  } else if (is_x_file) {
-    tag <- file2obj(x, obj = "tag")
-  } else if (is_x_interim) {
-    tag <- file2obj(glue::glue("./data/interim/{x}.RData"), obj = "tag")
-  } else if (is_x_rawtag) {
-    tag <- list(param = list(id = x))
-  } else {
-    cli::cli_abort(
-      "The first argument {.var x} needs to be a {.cls tag}, a interim {.field file} or an {.field id}"
+  } else if (is.character(x) && length(x) == 1) {
+    load_interim(
+      x,
+      var = "tag",
+      envir = environment()
     )
   }
 
-  id <- tag$param$id
-  if (!is.null(tag$param$twilight_label_read$file)) {
-    label_dir <- dirname(tag$param$twilight_label_read$file)
-  }
-  label_dir <- normalizePath(label_dir, mustWork = FALSE)
-  stap_dir <- normalizePath(stap_dir, mustWork = FALSE)
+  tag_assert(tag, "twilight")
 
-  # Load config and ensure tag availability.
-  if (file.exists(Sys.getenv("R_CONFIG_FILE", "config.yml"))) {
-    # Create the config file
-    config <- GeoPressureR::geopressuretemplate_config(
-      id,
-      config = config::get(config = id),
-      ...
-    )
-  } else {
-    config <- GeoPressureR::param_create(id, default = TRUE)
-  }
-
-  config$tag_create$assert_pressure <- FALSE
-  if (!inherits(tag, "tag")) {
-    tag <- do.call(
-      GeoPressureR::tag_create,
-      c(
-        list(id = id, quiet = quiet),
-        config$tag_create
-      )
-    )
-  }
-
-  GeoPressureR::tag_assert(tag, "light")
-
-  # Ensure geolight parameters and map defaults are present.
-  if (is.null(tag$param)) {
-    tag$param <- list()
-  }
-  if (is.null(tag$param$geolight_map)) {
-    tag$param$geolight_map <- list()
-  }
-  default_twl_calib_adjust <- formals(GeoPressureR::geolight_map)[["twl_calib_adjust"]]
-  if (!is.null(config$geolight_map[["twl_calib_adjust"]])) {
-    default_twl_calib_adjust <- config$geolight_map[["twl_calib_adjust"]]
-  }
-  if (is.null(tag$param$geolight_map[["compute_known"]])) {
-    tag$param$geolight_map[["compute_known"]] <- FALSE
-  }
-  if (is.null(tag$param$geolight_map[["fitted_location_duration"]])) {
-    tag$param$geolight_map[["fitted_location_duration"]] <- Inf
-  }
-  if (is.null(tag$param$geolight_map[["twl_calib_adjust"]])) {
-    tag$param$geolight_map[["twl_calib_adjust"]] <- default_twl_calib_adjust
-  }
-  if (is.null(tag$param$geolight_map[["twl_calib"]])) {
-    tag$param$geolight_map[["twl_calib"]] <- NULL
-  }
-  if (is.null(tag$param$tag_set_map)) {
-    tag$param$tag_set_map <- config$tag_set_map
-  }
-  if (!is.null(tag$param$tag_set_map)) {
-    if (
-      is.null(tag$param$tag_set_map$extent) ||
-        is.null(tag$param$tag_set_map$scale)
-    ) {
-      cli::cli_abort(
-        "tag_set_map must include {.field extent} and {.field scale}."
-      )
-    }
-  }
-
-  # If twilight has not been computed we need to be able to display it
-  if (!("twilight" %in% names(tag))) {
-    tag <- do.call(
-      twilight_create,
-      c(
-        list(tag = tag),
-        config$twilight_create
-      )
-    )
-  }
-
-  if (!("label" %in% names(tag$twilight))) {
-    tryCatch(
-      {
-        tag <- do.call(
-          twilight_label_read,
-          c(
-            list(tag = tag),
-            config$twilight_label_read
-          )
-        )
-      },
-      error = function(e) NA_character_
-    )
-  }
+  # Build light and twilight traces for the app.
+  light_trace <- light_matrix(tag)
 
   # Build map grid for known-position bounds checks.
   g <- NULL
-  if (!is.null(tag$param$tag_set_map)) {
+  if (GeoPressureR::tag_assert(tag, "setmap", "logical")) {
     g <- GeoPressureR::map_expand(
       tag$param$tag_set_map$extent,
       tag$param$tag_set_map$scale
     )
   }
 
-  # Prepare stapath for app input.
-  if (!is.null(path)) {
-    stapath <- GeoPressureR::read_stap(path)
-  } else if ("stap" %in% names(tag)) {
-    stapath <- GeoPressureR::read_stap(tag$stap)
-  } else {
-    stap_file <- glue::glue("./data/stap-label/{id}.csv")
-    if (file.exists(stap_file)) {
-      stapath <- GeoPressureR::read_stap(stap_file)
-    } else {
-      stapath <- data.frame(
-        stap_id = integer(0),
-        start = as.POSIXct(character(0), tz = "UTC"),
-        end = as.POSIXct(character(0), tz = "UTC")
-      )
-    }
-  }
-
-  if (!("stap_id" %in% names(stapath))) {
-    stapath$stap_id <- seq_len(nrow(stapath))
-  }
-  if (!("lat" %in% names(stapath))) {
-    stapath$lat <- rep(NA_real_, nrow(stapath))
-  }
-  if (!("lon" %in% names(stapath))) {
-    stapath$lon <- rep(NA_real_, nrow(stapath))
-  }
-  if (!("known_lat" %in% names(stapath))) {
-    stapath$known_lat <- rep(NA_real_, nrow(stapath))
-  }
-  if (!("known_lon" %in% names(stapath))) {
-    stapath$known_lon <- rep(NA_real_, nrow(stapath))
-  }
-  stapath$lat[!is.na(stapath$known_lat)] <- stapath$known_lat[
-    !is.na(stapath$known_lat)
-  ]
-  stapath$lon[!is.na(stapath$known_lon)] <- stapath$known_lon[
-    !is.na(stapath$known_lon)
-  ]
-  if (!("duration" %in% names(stapath))) {
-    stapath$duration <- GeoPressureR::stap2duration(stapath)
-  }
-
-  tag$stap <- stapath
-
-  # Validate known positions are inside map extent.
-  if (!is.null(g)) {
-    known_idx <- !is.na(stapath$known_lat) & !is.na(stapath$known_lon)
-    if (any(known_idx)) {
-      out_of_bounds <- !(stapath$known_lon[known_idx] >= g$extent[1] &
-        stapath$known_lon[known_idx] <= g$extent[2] &
-        stapath$known_lat[known_idx] >= g$extent[3] &
-        stapath$known_lat[known_idx] <= g$extent[4])
-      if (any(out_of_bounds)) {
-        cli::cli_abort(c(
-          x = "The known latitude and longitude are not inside the map extent",
-          i = "Modify {.var extent} or {.var known} to match this requirement."
-        ))
-      }
-    }
-  }
-
-  if (nrow(stapath) > 0) {
-    tag$twilight$stap_id <- GeoPressureR:::find_stap(
-      stapath,
-      tag$twilight$twilight
-    )
-  } else {
-    tag$twilight$stap_id <- rep(NA_real_, nrow(tag$twilight))
-  }
-
-  compute_known <- tag$param$geolight_map[["compute_known"]]
-
-  # Build light and twilight traces for the app.
-  light_trace <- light_matrix(tag)
   twl <- prepare_twilight(
     tag,
-    ref = light_trace$time[1],
-    compute_known = compute_known
+    ref = light_trace$time[1]
   )
+
+  # Resolve save folders based on launch context.
+  label_dir <- file.path(getwd(), "data", "twilight-label")
+  stap_dir <- file.path(getwd(), "data", "stap-label")
 
   # Run the app in a background process or in the current session.
   if (run_bg) {
@@ -280,25 +86,8 @@ geolightviz <- function(
 }
 
 #' @noRd
-file2obj <- function(file, obj = "tag") {
-  if (!file.exists(file)) {
-    cli::cli_abort(
-      "The file {.field {file}} does not exist."
-    )
-  }
-  objects <- load(file)
-  if (!(obj %in% objects)) {
-    cli::cli_abort(
-      "The object {.var {obj}} is not found in the file {.field {file}}."
-    )
-  }
-  get(obj)
-}
-
-
-#' @noRd
 prepare_twilight <- function(tag, ref, compute_known = NULL) {
-  GeoPressureR::tag_assert(tag, "twilight")
+  tag_assert(tag, "twilight")
   twl <- tag$twilight
 
   # Add inclusion mask consistent with GeoPressureR::geolight_map()

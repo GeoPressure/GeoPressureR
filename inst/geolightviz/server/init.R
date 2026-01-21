@@ -9,6 +9,28 @@ init <- function(
   llp_param = 1 # Parameter for likelihood calculation
 ) {
   rv <- list()
+  if (is.null(.stapath)) {
+    .stapath <- data.frame(
+      stap_id = integer(),
+      start = as.POSIXct(character(0), tz = "UTC"),
+      end = as.POSIXct(character(0), tz = "UTC"),
+      lat = numeric(),
+      lon = numeric(),
+      known_lat = numeric(),
+      known_lon = numeric(),
+      duration = numeric(),
+      include = logical()
+    )
+  }
+  if (!("known_lat" %in% names(.stapath))) {
+    .stapath$known_lat <- rep(NA_real_, nrow(.stapath))
+  }
+  if (!("known_lon" %in% names(.stapath))) {
+    .stapath$known_lon <- rep(NA_real_, nrow(.stapath))
+  }
+  if (!("include" %in% names(.stapath))) {
+    .stapath$include <- rep(TRUE, nrow(.stapath))
+  }
 
   # Color palette for stationary periods
   rv$col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = 20)
@@ -25,18 +47,10 @@ init <- function(
   tag_for_map <- .tag
   tag_for_map$stap <- .stapath
 
-  compute_known <- .tag$param$geolight_map[["compute_known"]]
-  fitted_location_duration <- .tag$param$geolight_map[["fitted_location_duration"]]
-  rv$compute_known <- compute_known
-
   # Get known positions
   rv$known_positions <- .stapath |>
     dplyr::filter(!is.na(known_lat), !is.na(known_lon)) |>
     dplyr::select(stap_id, known_lat, known_lon, duration)
-
-  has_locations <-
-    any(!is.na(.stapath$known_lat) & !is.na(.stapath$known_lon)) ||
-    any(!is.na(.stapath$lat) & !is.na(.stapath$lon))
 
   # Map related stuff
   g <- NULL
@@ -56,19 +70,30 @@ init <- function(
     shinyjs::hide("map_container")
   }
 
+  compute_known <- .tag$param$geolight_map[["compute_known"]]
+  if (is.null(compute_known)) {
+    compute_known <- FALSE
+  }
+  rv$compute_known <- compute_known
+  fitted_location_duration <- .tag$param$geolight_map[["fitted_location_duration"]]
+  if (is.null(fitted_location_duration)) {
+    fitted_location_duration <- 30
+  }
   twl_calib_adjust <- .tag$param$geolight_map[["twl_calib_adjust"]]
+  if (is.null(twl_calib_adjust)) {
+    twl_calib_adjust <- 1
+  }
+
   twl_calib <- .tag$param$geolight_map[["twl_calib"]]
 
   if (rv$has_map) {
-    if (
-      is.null(twl_calib) &&
-        (has_locations || is.finite(fitted_location_duration))
-    ) {
+    if (is.null(twl_calib)) {
+      print(fitted_location_duration)
       tag_calib <- GeoPressureR:::geolight_map_calibrate(
         tag = tag_for_map,
         twl_calib_adjust = twl_calib_adjust,
         fitted_location_duration = fitted_location_duration,
-        quiet = TRUE
+        quiet = FALSE
       )
       twl_calib <- tag_calib$param$geolight_map[["twl_calib"]]
       tag_for_map$param$geolight_map[["twl_calib"]] <- twl_calib
@@ -84,7 +109,7 @@ init <- function(
     tag_likelihood <- GeoPressureR:::geolight_map_likelihood(
       tag = tag_likelihood,
       compute_known = compute_known,
-      quiet = TRUE
+      quiet = FALSE
     )
     rv$map_light_twl <- shiny::reactiveVal(tag_likelihood$map_light_twl)
   } else {
