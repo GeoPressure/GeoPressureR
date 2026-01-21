@@ -2,11 +2,13 @@
 #'
 #' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
 #' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
-#' @param path a GeoPressureR `path` or `pressurepath` data.frame.
+#' @param stapath optional stationary path data.frame (defaults to `tag$stap` when available).
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
+#' @param quiet logical, currently unused.
+#' @param ... currently unused.
 #'
 #' @export
 geolightviz <- function(
@@ -92,7 +94,7 @@ prepare_twilight <- function(tag, ref, compute_known = NULL) {
 
   # Add inclusion mask consistent with GeoPressureR::geolight_map()
   twl_include <- tryCatch(
-    GeoPressureR:::twilight_include(tag$twilight),
+    twilight_include(tag$twilight),
     error = function(e) NULL
   )
   if (!is.null(twl_include) && "include" %in% names(twl_include)) {
@@ -113,7 +115,7 @@ prepare_twilight <- function(tag, ref, compute_known = NULL) {
 
   if (!compute_known && "stap" %in% names(tag) && "known_lat" %in% names(tag$stap)) {
     if (!("stap_id" %in% names(twl))) {
-      twl$stap_id <- GeoPressureR:::find_stap(tag$stap, twl$twilight)
+      twl$stap_id <- find_stap(tag$stap, twl$twilight)
     }
     known_stap_id <- tag$stap$stap_id[
       !is.na(tag$stap$known_lat) & !is.na(tag$stap$known_lon)
@@ -155,13 +157,13 @@ light_matrix <- function(tag) {
   light <- tag$light
 
   # Transform light value for better display
-  light$value <- GeoPressureR:::twilight_create_transform(light$value)
+  light$value <- twilight_create_transform(light$value)
 
   # Use by order of priority: (1) tag$param$twilight_create$twl_offset or (2) guess from light data
   if ("twl_offset" %in% names(tag$param$twilight_create)) {
     twl_offset <- tag$param$twilight_create[["twl_offset"]]
   } else {
-    twl_offset <- GeoPressureR:::twilight_create_guess_offset(light)
+    twl_offset <- twilight_create_guess_offset(light)
   }
 
   # Compute the matrix representation of light

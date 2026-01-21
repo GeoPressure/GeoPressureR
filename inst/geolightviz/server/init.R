@@ -152,7 +152,7 @@ init <- function(
     twl_ <- rv$twl()
     include <- include & twl_$label != "discard"
 
-    stap_id_override <- GeoPressureR:::find_stap(
+    stap_id_override <- find_stap(
       stapath_override,
       map_light_twl$stap$twilight
     )
