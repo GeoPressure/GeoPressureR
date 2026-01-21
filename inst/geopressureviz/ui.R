@@ -1,6 +1,6 @@
-ui <- bootstrapPage(
+ui <- shiny::bootstrapPage(
   title = "GeoPressureViz",
-  useShinyjs(),
+  shinyjs::useShinyjs(),
   shiny::tags$head(
     shiny::tags$link(
       rel = "shortcut icon",
@@ -16,7 +16,7 @@ ui <- bootstrapPage(
                sans-serif;}.primary{background-color:#007bff; color: #fff;}.js-plotly-plot
                .plotly .modebar{left: 0}"
     ),
-    shiny::tags$script(HTML(
+    shiny::tags$script(shiny::HTML(
       "
       Shiny.addCustomMessageHandler('updateTitle', function(title) {
         document.title = title;
@@ -25,7 +25,7 @@ ui <- bootstrapPage(
     ))
   ),
   leaflet::leafletOutput("map", width = "100%", height = "100%"),
-  absolutePanel(
+  shiny::absolutePanel(
     top = 0,
     left = 0,
     draggable = FALSE,
@@ -38,21 +38,21 @@ ui <- bootstrapPage(
       style = "display: block;padding-bottom:20px;"
     ),
   ),
-  absolutePanel(
+  shiny::absolutePanel(
     top = 0,
     right = 0,
     draggable = FALSE,
     width = "200px",
     style = "z-index:500; min-width: 300px;padding: 5px 10px;background-color:white;",
-    fluidPage(
-      fluidRow(
-        column(3, htmlOutput("tag_id")),
-        column(
+    shiny::fluidPage(
+      shiny::fluidRow(
+        shiny::column(3, shiny::htmlOutput("tag_id")),
+        shiny::column(
           9,
-          div(
+          shiny::div(
             style = "text-align: center;",
             "Full Track",
-            switchInput(
+            shinyWidgets::switchInput(
               "full_track",
               value = TRUE,
               inline = TRUE,
@@ -62,20 +62,20 @@ ui <- bootstrapPage(
         )
       )
     ),
-    fluidPage(
+    shiny::fluidPage(
       id = "track_info_view",
-      fluidRow(
-        column(
+      shiny::fluidRow(
+        shiny::column(
           8,
           shiny::tags$p(
             "Minimum duration [days]",
             style = "font-weight:bold; line-height: 34px;text-align: right;"
           )
         ),
-        column(
+        shiny::column(
           4,
           style = "padding:0px;",
-          numericInput(
+          shiny::numericInput(
             "min_dur_stap",
             NULL,
             min = 0,
@@ -85,45 +85,45 @@ ui <- bootstrapPage(
           )
         )
       ),
-      fluidRow(
-        actionButton(
+      shiny::fluidRow(
+        shiny::actionButton(
           "export_path",
           "Export path to interim",
           style = "background-color: #28a745; color: white; width: 100%;"
         )
       )
     ),
-    div(
+    shiny::div(
       id = "stap_info_view",
-      fluidPage(
+      shiny::fluidPage(
         shiny::tags$p(
           "Choose a stationary period",
           style = "font-weight:bold;"
         ),
-        fluidRow(
-          column(
+        shiny::fluidRow(
+          shiny::column(
             2,
             style = "padding:0px;",
-            actionButton("previous_position", "<", width = "100%")
+            shiny::actionButton("previous_position", "<", width = "100%")
           ),
-          column(
+          shiny::column(
             8,
             style = "padding:0px;",
-            selectInput("stap_id", label = NULL, choices = "1")
+            shiny::selectInput("stap_id", label = NULL, choices = "1")
           ),
-          column(
+          shiny::column(
             2,
             style = "padding:0px;",
-            actionButton("next_position", ">", width = "100%")
+            shiny::actionButton("next_position", ">", width = "100%")
           )
         )
       ),
-      fluidRow(
-        column(6, htmlOutput("flight_prev_info")),
-        column(6, htmlOutput("flight_next_info"))
+      shiny::fluidRow(
+        shiny::column(6, shiny::htmlOutput("flight_prev_info")),
+        shiny::column(6, shiny::htmlOutput("flight_next_info"))
       ),
       shiny::tags$hr(),
-      sliderInput(
+      shiny::sliderInput(
         "speed",
         "Groundspeed limit [km/h]",
         min = 0,
@@ -131,8 +131,8 @@ ui <- bootstrapPage(
         value = 40,
         step = 10
       ),
-      div(
-        radioButtons(
+      shiny::div(
+        shiny::radioButtons(
           "map_source",
           label = "Probability map to display",
           inline = TRUE,
@@ -143,14 +143,14 @@ ui <- bootstrapPage(
         shiny::tags$p(
           "Change position by clicking on the map and update the pressure time series."
         ),
-        fluidPage(
+        shiny::fluidPage(
           id = "edit_query_position_id",
-          fluidRow(
-            column(6, actionButton("edit_position", "Edit position")),
-            column(6, actionButton("query_position", "Query pressure"))
+          shiny::fluidRow(
+            shiny::column(6, shiny::actionButton("edit_position", "Edit position")),
+            shiny::column(6, shiny::actionButton("query_position", "Query pressure"))
           )
         ),
-        checkboxInput(
+        shiny::checkboxInput(
           "edit_position_interpolate",
           label = "Interpolate positions between stap",
           value = FALSE
@@ -158,7 +158,7 @@ ui <- bootstrapPage(
       )
     )
   ),
-  fixedPanel(
+  shiny::fixedPanel(
     bottom = 0,
     left = 0,
     width = "100%",

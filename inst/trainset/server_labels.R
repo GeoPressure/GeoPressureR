@@ -9,10 +9,10 @@ initial_stap_elev_count <- if (length(elev_nums) > 0 && !all(is.na(elev_nums))) 
 } else {
   1
 }
-stap_elev_count <- reactiveVal(initial_stap_elev_count)
+stap_elev_count <- shiny::reactiveVal(initial_stap_elev_count)
 
 # Handle add label button click
-observeEvent(input$add_label_btn, {
+shiny::observeEvent(input$add_label_btn, {
   stap_elev_count(stap_elev_count() + 1)
 })
 
@@ -43,19 +43,19 @@ update_label_select <- function(series = "pressure", elev_count = 1) {
 
 # Ensure the selectize input is populated right after UI is flushed
 session$onFlushed(function() {
-  # Avoid reading reactive inputs here; initialize with the default series.
+  # Avoid reading shiny::reactive inputs here; initialize with the default series.
   update_label_select("pressure", elev_count = initial_stap_elev_count)
 }, once = TRUE)
 
 # Update label choices when elev_count changes
-observeEvent(stap_elev_count(), {
+shiny::observeEvent(stap_elev_count(), {
   series <- active_series_or_default()
   update_label_select(series, elev_count = stap_elev_count())
 })
 
 # Re-style on series changes (labels are re-sliced from the current view indices)
 if (isTRUE(has_acceleration)) {
-  observeEvent(input$active_series, {
+  shiny::observeEvent(input$active_series, {
     update_label_select(input$active_series, elev_count = stap_elev_count())
 
     labels <- view_labels()
@@ -95,7 +95,7 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
   }
 
   if (nrow(point_data) == 0) {
-    showNotification(
+    shiny::showNotification(
       glue::glue(
         "No {active_series} points in selection. Switch active series or select different points."
       ),
@@ -140,7 +140,7 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
   } else {
     glue::glue("Applied label '{selected_label}' to")
   }
-  showNotification(
+  shiny::showNotification(
     glue::glue("{label_action} {length(point_indices)} {active_series} points"),
     duration = 2,
     type = "message"
@@ -162,10 +162,10 @@ process_plotly_event <- function(event_info) {
   )
 }
 
-observeEvent(input$plotly_selected_with_keys, {
+shiny::observeEvent(input$plotly_selected_with_keys, {
   process_plotly_event(input$plotly_selected_with_keys)
 })
 
-observeEvent(input$plotly_click_with_keys, {
+shiny::observeEvent(input$plotly_click_with_keys, {
   process_plotly_event(input$plotly_click_with_keys)
 })

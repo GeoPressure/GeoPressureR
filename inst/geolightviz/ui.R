@@ -17,43 +17,43 @@ ui <- function() {
         href = "style.css"
       )
     ),
-    div(
+    shiny::div(
       class = "container-fluid d-flex flex-column vh-100",
-      fluidRow(
+      shiny::fluidRow(
         class = "text-center bg-black align-items-center",
-        column(
+        shiny::column(
           4,
-          div(
+          shiny::div(
             class = "d-flex align-items-center gap-2",
             shiny::tags$h2("GeoLightViz", class = "m-0"),
-            htmlOutput("tag_id", class = "text-secondary m-0")
+            shiny::htmlOutput("tag_id", class = "text-secondary m-0")
           ),
-          fluidRow(
+          shiny::fluidRow(
             id = "stapath_nav_container",
             class = "mt-2 d-flex justify-content-center",
-            column(
+            shiny::column(
               2,
               class = "p-0",
-              actionButton(
+              shiny::actionButton(
                 "previous_position",
                 "<",
                 class = "btn-nav btn-nav-prev"
               )
             ),
-            column(
+            shiny::column(
               6,
               class = "p-0",
-              selectInput(
+              shiny::selectInput(
                 "stap_id",
                 label = NULL,
                 choices = "1",
                 width = "100%"
               )
             ),
-            column(
+            shiny::column(
               2,
               class = "p-0",
-              actionButton(
+              shiny::actionButton(
                 "next_position",
                 ">",
                 class = "btn-nav btn-nav-next"
@@ -61,30 +61,30 @@ ui <- function() {
             )
           )
         ),
-        column(
+        shiny::column(
           3,
-          div(
+          shiny::div(
             class = "stationary-box",
-            tags$p(
+            shiny::tags$p(
               "Labeling:",
               class = "section-label"
             ),
-            actionButton(
+            shiny::actionButton(
               "label_twilight",
               "Edit",
               class = "btn-primary btn-sm",
-              icon = icon("pen"),
+              icon = shiny::icon("pen"),
               width = "70px"
             ),
-            actionButton(
+            shiny::actionButton(
               "save_twilight",
               "Save",
               class = "btn-success btn-sm",
-              icon = icon("save"),
+              icon = shiny::icon("save"),
               width = "70px"
             ),
             shinyjs::hidden(
-              downloadButton(
+              shiny::downloadButton(
                 "export_twilight",
                 "Export",
                 class = "btn-primary btn-sm",
@@ -93,44 +93,44 @@ ui <- function() {
             )
           )
         ),
-        column(
+        shiny::column(
           3,
-          div(
+          shiny::div(
             class = "stationary-box",
-            tags$p(
+            shiny::tags$p(
               "Stationary period:",
               class = "section-label"
             ),
-            div(
+            shiny::div(
               class = "btn-group",
-              actionButton(
+              shiny::actionButton(
                 "add_stap",
                 NULL,
-                icon = icon("square-plus"),
+                icon = shiny::icon("square-plus"),
                 class = "btn-sm bg-secondary"
               ),
-              actionButton(
+              shiny::actionButton(
                 "remove_stap",
                 NULL,
-                icon = icon("square-minus"),
+                icon = shiny::icon("square-minus"),
                 class = "btn-sm bg-secondary"
               ),
-              actionButton(
+              shiny::actionButton(
                 "change_range",
                 NULL,
-                icon = icon("pen"),
+                icon = shiny::icon("pen"),
                 class = "btn-sm bg-secondary"
               )
             ),
-            actionButton(
+            shiny::actionButton(
               "save_stap",
               "Save",
               class = "btn-success btn-sm",
-              icon = icon("save"),
+              icon = shiny::icon("save"),
               width = "70px"
             ),
             shinyjs::hidden(
-              downloadButton(
+              shiny::downloadButton(
                 "export_stap",
                 "Export",
                 class = "btn-primary btn-sm",
@@ -139,30 +139,30 @@ ui <- function() {
             )
           )
         ),
-        column(
+        shiny::column(
           2,
           class = "p-0",
-          actionButton(
+          shiny::actionButton(
             "show_twilight_histogram",
             "Likelihood Settings",
-            icon = icon("sliders-h"),
+            icon = shiny::icon("sliders-h"),
             class = "bg-secondary"
           )
         ),
       ),
-      fluidRow(
+      shiny::fluidRow(
         class = "d-flex flex-fill",
-        column(
+        shiny::column(
           7,
           id = "plot_container",
           class = "d-flex flex-column flex-fill bg-black",
-          div(
+          shiny::div(
             class = "d-flex flex-column flex-fill",
             height = "100%",
             plotly::plotlyOutput("plotly_div", width = "100%", height = "100%"),
           )
         ),
-        column(
+        shiny::column(
           5,
           id = "map_container",
           class = "flex-fill p-0",

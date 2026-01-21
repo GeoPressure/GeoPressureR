@@ -16,17 +16,17 @@ create_draw_range_function <- function(drawing, session) {
       shinyjs::enable("change_range")
       shinyjs::enable("add_stap")
       shinyjs::enable("remove_stap")
-      shiny::updateActionButton(session, "change_range", icon = icon("pen"))
-      shiny::updateActionButton(session, "add_stap", icon = icon("square-plus"))
+      shiny::updateActionButton(session, "change_range", icon = shiny::icon("pen"))
+      shiny::updateActionButton(session, "add_stap", icon = shiny::icon("square-plus"))
     } else {
       # Disable certain buttons based on drawing type
       shinyjs::disable(c("label_twilight", "remove_stap"))
       if (type == "change_range") {
-        shiny::updateActionButton(session, "change_range", icon = icon("ban"))
+        shiny::updateActionButton(session, "change_range", icon = shiny::icon("ban"))
         shinyjs::disable("add_stap")
         shinyjs::disable("remove_stap")
       } else if (type == "add_stap") {
-        shiny::updateActionButton(session, "add_stap", icon = icon("ban"))
+        shiny::updateActionButton(session, "add_stap", icon = shiny::icon("ban"))
         shinyjs::disable("change_range")
         shinyjs::disable("remove_stap")
       }
@@ -48,12 +48,12 @@ setup_drawing_observers <- function(
   draw_range <- create_draw_range_function(drawing, session)
 
   # Add stap button
-  observeEvent(input$add_stap, {
+  shiny::observeEvent(input$add_stap, {
     draw_range("add_stap")
   })
 
   # Remove stap button
-  observeEvent(input$remove_stap, {
+  shiny::observeEvent(input$remove_stap, {
     stapath_ <- stapath()
     if (nrow(stapath_) == 1) {
       shinyjs::alert("Only one stap left. You cannot remove it")
@@ -66,12 +66,12 @@ setup_drawing_observers <- function(
   })
 
   # Change range button
-  observeEvent(input$change_range, {
+  shiny::observeEvent(input$change_range, {
     draw_range("change_range")
   })
 
   # Plotly relayout event (for drawing rectangles)
-  observeEvent(plotly::event_data("plotly_relayout"), {
+  shiny::observeEvent(plotly::event_data("plotly_relayout"), {
     drawing_ <- drawing()
     if (is.null(drawing_)) {
       return()

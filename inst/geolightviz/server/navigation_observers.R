@@ -1,6 +1,6 @@
 # Navigation observers for previous/next position and stapath updates
 
-# Helper function to update stapath selectInput
+# Helper function to update stapath shiny::selectInput
 update_stapath_helper <- function(stapath, session, selected = NULL) {
   choices <- as.list(stapath$stap_id)
   names(choices) <-
@@ -29,7 +29,7 @@ setup_navigation_observers <- function(
   })
   # Render tag ID
   output$tag_id <- shiny::renderUI({
-    return(HTML(glue::glue("<h3 style='margin:0;'>", .tag$param$id, "</h3>")))
+    return(shiny::HTML(glue::glue("<h3 style='margin:0;'>", .tag$param$id, "</h3>")))
   })
 
   # Toggle visibility of navigation controls

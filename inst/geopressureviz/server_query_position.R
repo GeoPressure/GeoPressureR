@@ -10,7 +10,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
   reactVal$query_running_note_id <- NULL
   reactVal$query_button_label <- "Query pressure"
 
-  observeEvent(input$query_position, {
+  shiny::observeEvent(input$query_position, {
     stap_idx <- as.numeric(input$stap_id)
     stap_id <- stap$stap_id[stap_idx]
     # `reactVal$path` is indexed by the stap row (input$stap_id), not necessarily by `stap$stap_id`.
@@ -26,7 +26,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
       if (!is.null(reactVal$query_running_note_id)) {
         try(shiny::removeNotification(reactVal$query_running_note_id), silent = TRUE)
       }
-      reactVal$query_running_note_id <- showNotification(
+      reactVal$query_running_note_id <- shiny::showNotification(
         paste0("Query running in background… (#", stap_id, ")"),
         type = "message",
         duration = NULL
@@ -36,7 +36,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
 
   start_query_position <- function(lat0, lon0, pres_df, stap_idx, stap_id) {
     if (!is.null(reactVal$query_proc) && isTRUE(reactVal$query_proc$is_alive())) {
-      showNotification("A query is already running. Please wait.", type = "warning", duration = 4)
+      shiny::showNotification("A query is already running. Please wait.", type = "warning", duration = 4)
       return(FALSE)
     }
 
@@ -70,7 +70,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
   }
 
   query_poll_timer <- reactiveTimer(250, session)
-  observe({
+  shiny::observe({
     query_poll_timer()
 
     p <- reactVal$query_proc
@@ -99,7 +99,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
       {
             pressuretimeseries <- p$get_result()
             process_pressuretimeseries(pressuretimeseries, stap_idx, stap_id)
-            showNotification(
+            shiny::showNotification(
               paste0("Query completed. (#", stap_id, ")"),
               type = "message",
               duration = 6
@@ -110,7 +110,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
           "!" = "Function {.fun geopressure_timeseries} did not work.",
           "i" = conditionMessage(e)
         ))
-            showNotification(
+            shiny::showNotification(
               shiny::HTML(paste0(
                 "Query failed (#",
                 stap_id,

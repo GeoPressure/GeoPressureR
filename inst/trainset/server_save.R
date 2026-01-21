@@ -2,7 +2,7 @@
 
 backup_timer <- reactiveTimer(60000, session) # every 60 seconds
 
-observe({
+shiny::observe({
   backup_timer()
 
   if (!isTRUE(auto_save_enabled)) {
@@ -39,9 +39,9 @@ observe({
   )
 })
 
-observeEvent(input$save_btn, {
+shiny::observeEvent(input$save_btn, {
   if (!isTRUE(auto_save_enabled)) {
-    showNotification(
+    shiny::showNotification(
       "Automatic save is disabled for this session. Use the download dialog instead.",
       duration = 10,
       type = "error"
@@ -55,14 +55,14 @@ observeEvent(input$save_btn, {
   tryCatch(
     {
       write_labels_csv(target_file)
-      showNotification(
+      shiny::showNotification(
         glue::glue("Labels saved to {target_file}"),
         duration = 5,
         type = "message"
       )
     },
     error = function(e) {
-      showNotification(
+      shiny::showNotification(
         glue::glue("Save failed: {e$message}. Using manual download instead."),
         duration = 10,
         type = "warning"
@@ -72,7 +72,7 @@ observeEvent(input$save_btn, {
   )
 })
 
-output$export_btn <- downloadHandler(
+output$export_btn <- shiny::downloadHandler(
   filename = function() {
     base_name <- tools::file_path_sans_ext(state$tag$param$id)
     glue::glue("{base_name}-labeled.csv")
@@ -83,7 +83,7 @@ output$export_btn <- downloadHandler(
         write_labels_csv(file)
       },
       error = function(e) {
-        showNotification(
+        shiny::showNotification(
           glue::glue("Download failed: {e$message}"),
           duration = 10,
           type = "error"

@@ -66,13 +66,13 @@ server <- function(input, output, session) {
     isEdit = FALSE # if editing position
   )
 
-  observe({
+  shiny::observe({
     # Store current path as path_geopressureviz in shiny options
     shiny::shinyOptions(path_geopressureviz = reactVal$path)
   })
 
   # return the map
-  map_display <- reactive({
+  map_display <- shiny::reactive({
     if (is.null(input$map_source)) {
       return(NA)
     }
@@ -97,7 +97,7 @@ server <- function(input, output, session) {
     bindEvent(input$map_source)
 
   # list of the stap_id which are above the threashold of duration and included in the model
-  stap_id_include <- reactive({
+  stap_id_include <- shiny::reactive({
     min_dur_stap <- ifelse(
       is.na(input$min_dur_stap),
       0,
@@ -108,13 +108,13 @@ server <- function(input, output, session) {
     bindEvent(input$min_dur_stap)
 
   # Precompute flight durations for current included stap ids
-  flight_dur_reactive <- reactive({
+  flight_dur_reactive <- shiny::reactive({
     stap2flight(stap, stap_id_include())$duration
   }) |>
     bindEvent(stap_id_include())
 
   # index of the current stap_id in the stap_id_include (so not index in all stap_id, only the one to use)
-  idx <- reactive({
+  idx <- shiny::reactive({
     which(stap_id_include() == input$stap_id)
   }) |>
     bindEvent(input$stap_id)
@@ -135,8 +135,8 @@ server <- function(input, output, session) {
         position = c("topleft")
       )
   })
-  output$tag_id <- renderUI({
-    return(HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))
+  output$tag_id <- shiny::renderUI({
+    return(shiny::HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))
   })
 
   # Small helper to compute distance (km) and flight duration (hours) between two stap indices
@@ -161,7 +161,7 @@ server <- function(input, output, session) {
 
     label <- if (nextprev > 0) "Next flight" else "Previous flight"
 
-    return(HTML(
+    return(shiny::HTML(
       glue::glue("<b>{label}:</b><br>"),
       glue::glue(
         "{nb_fl} flights - {round(fl_dur, 1)} hrs<br>"
@@ -170,18 +170,18 @@ server <- function(input, output, session) {
     ))
   }
 
-  output$flight_prev_info <- renderUI({
-    req(input$stap_id)
+  output$flight_prev_info <- shiny::renderUI({
+    shiny::req(input$stap_id)
     if (idx() == 1) {
-      return(HTML(""))
+      return(shiny::HTML(""))
     }
     flight_info(idx(), -1)
   })
 
-  output$flight_next_info <- renderUI({
-    req(input$stap_id)
+  output$flight_next_info <- shiny::renderUI({
+    shiny::req(input$stap_id)
     if (idx() == length(stap_id_include())) {
-      return(HTML(""))
+      return(shiny::HTML(""))
     }
     flight_info(idx(), +1)
   })
@@ -320,7 +320,7 @@ server <- function(input, output, session) {
   })
 
   # Track current pressure plot x-range so we can cap discards only for large windows.
-  observeEvent(plotly::event_data("plotly_relayout", source = "pressure_plot"), {
+  shiny::observeEvent(plotly::event_data("plotly_relayout", source = "pressure_plot"), {
     ev <- plotly::event_data("plotly_relayout", source = "pressure_plot")
     if (is.null(ev)) return()
 
@@ -355,7 +355,7 @@ server <- function(input, output, session) {
   ## ObserveEvents ----
   # Same order than the ui
 
-  observeEvent(input$full_track, {
+  shiny::observeEvent(input$full_track, {
     if (input$full_track) {
       shinyjs::hide(id = "stap_info_view", anim = TRUE)
       shinyjs::show(id = "track_info_view", anim = TRUE)
@@ -370,7 +370,7 @@ server <- function(input, output, session) {
     }
   })
 
-  observeEvent(input$min_dur_stap, {
+  shiny::observeEvent(input$min_dur_stap, {
     if (length(stap_id_include()) > 0) {
       choices <- as.list(stap_id_include())
       names(choices) <-
@@ -381,33 +381,33 @@ server <- function(input, output, session) {
       choices <- list()
     }
     session$onFlushed(function() {
-      updateSelectInput(session, "stap_id", choices = choices)
+      shiny::updateSelectInput(session, "stap_id", choices = choices)
     })
   })
 
-  observeEvent(input$previous_position, {
+  shiny::observeEvent(input$previous_position, {
     idx_new <- min(max(idx() - 1, 1), length(stap_id_include()))
-    updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    shiny::updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
   })
 
-  observeEvent(input$next_position, {
+  shiny::observeEvent(input$next_position, {
     idx_new <- min(max(idx() + 1, 1), length(stap_id_include()))
-    updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    shiny::updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
   })
 
-  observeEvent(input$edit_position, {
+  shiny::observeEvent(input$edit_position, {
     if (reactVal$isEdit) {
       reactVal$isEdit <- FALSE
-      updateActionButton(session, "edit_position", label = "Start editing")
+      shiny::updateActionButton(session, "edit_position", label = "Start editing")
       removeClass("edit_position", "primary")
     } else {
       reactVal$isEdit <- TRUE
-      updateActionButton(session, "edit_position", label = "Stop editing")
+      shiny::updateActionButton(session, "edit_position", label = "Stop editing")
       addClass("edit_position", "primary")
     }
   })
 
-  observeEvent(input$map_click, {
+  shiny::observeEvent(input$map_click, {
     click <- input$map_click
     if (is.null(click)) {
       return()
@@ -473,7 +473,7 @@ server <- function(input, output, session) {
   })
 
   # Map
-  observe({
+  shiny::observe({
     proxy <- leaflet::leafletProxy("map") |>
       leaflet::clearShapes() |>
       leaflet::clearImages() |>
@@ -721,7 +721,7 @@ server <- function(input, output, session) {
       pressuretimeseries$lon[1]
     )
 
-    # Merge new series into reactive pressurepath, aligning columns
+    # Merge new series into shiny::reactive pressurepath, aligning columns
     if (nrow(reactVal$pressurepath) > 0) {
       missing_cols <- setdiff(
         names(reactVal$pressurepath),
@@ -739,8 +739,8 @@ server <- function(input, output, session) {
     }
 
     # Trigger UI refresh on selection
-    updateSelectInput(session, "stap_id", selected = 1)
-    updateSelectInput(session, "stap_id", selected = input$stap_id)
+    shiny::updateSelectInput(session, "stap_id", selected = 1)
+    shiny::updateSelectInput(session, "stap_id", selected = input$stap_id)
 
     invisible(NULL)
   }
@@ -756,7 +756,7 @@ server <- function(input, output, session) {
   )
 
   # Export path functionality
-  observeEvent(input$export_path, {
+  shiny::observeEvent(input$export_path, {
     file <- glue::glue("./data/interim/{tag$param$id}.RData")
 
     # Create directory if it doesn't exist
@@ -788,7 +788,7 @@ server <- function(input, output, session) {
         TRUE
       },
       error = function(e) {
-        showNotification(
+        shiny::showNotification(
           paste("Failed to export path:", conditionMessage(e)),
           type = "error",
           duration = 5
@@ -798,7 +798,7 @@ server <- function(input, output, session) {
     )
 
     if (saved_ok) {
-      showNotification(
+      shiny::showNotification(
         paste("Path exported to", normalizePath(file)),
         type = "message",
         duration = 3
@@ -807,7 +807,7 @@ server <- function(input, output, session) {
   })
 
   # Pressure Graph
-  observe({
+  shiny::observe({
     if (!input$full_track) {
       stap_id <- stap$stap_id[as.numeric(input$stap_id)]
       pressure_val_stap_id <- pressure$value[pressure$stap_id == stap_id]

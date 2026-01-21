@@ -1,6 +1,6 @@
 # STAP navigation + recompute. Sourced inside `server()`.
 
-observeEvent(input$compute_stap_btn, {
+shiny::observeEvent(input$compute_stap_btn, {
   state$tag$pressure$label <- reactive_label_pres()
   if (has_acceleration) {
     state$tag$acceleration$label <- reactive_label_acc()
@@ -21,11 +21,11 @@ observeEvent(input$compute_stap_btn, {
     )
   }
 
-  showNotification("STAP recomputed.", type = "message", duration = 2)
+  shiny::showNotification("STAP recomputed.", type = "message", duration = 2)
 })
 
 #----- STAP -----
-observe({
+shiny::observe({
   d <- state$stap_data
   if (nrow(d) == 0) {
     return()
@@ -44,7 +44,7 @@ observe({
     current <- ""
   }
 
-  updateSelectInput(
+  shiny::updateSelectInput(
     session,
     "stap_id",
     choices = stap_choices,
@@ -52,7 +52,7 @@ observe({
   )
 })
 
-observeEvent(input$stap_id_prev, {
+shiny::observeEvent(input$stap_id_prev, {
   d <- state$stap_data
   if (nrow(d) == 0) {
     return()
@@ -70,10 +70,10 @@ observeEvent(input$stap_id_prev, {
       new_stap <- ""
     }
   }
-  updateSelectInput(session, "stap_id", selected = new_stap)
+  shiny::updateSelectInput(session, "stap_id", selected = new_stap)
 })
 
-observeEvent(input$stap_id_next, {
+shiny::observeEvent(input$stap_id_next, {
   d <- state$stap_data
   if (nrow(d) == 0) {
     return()
@@ -91,10 +91,10 @@ observeEvent(input$stap_id_next, {
       new_stap <- current_stap
     }
   }
-  updateSelectInput(session, "stap_id", selected = new_stap)
+  shiny::updateSelectInput(session, "stap_id", selected = new_stap)
 })
 
-observeEvent(input$stap_id, {
+shiny::observeEvent(input$stap_id, {
   if (!is.null(input$stap_id) && input$stap_id != "") {
     d <- state$stap_data
     if (nrow(d) == 0) {

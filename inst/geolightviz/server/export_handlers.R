@@ -27,9 +27,9 @@ setup_export_handlers <- function(output, input, session, twl, stapath, .tag) {
     once = TRUE
   )
 
-  observeEvent(input$save_twilight, {
+  shiny::observeEvent(input$save_twilight, {
     if (!isTRUE(auto_label_save)) {
-      showNotification(
+      shiny::showNotification(
         "Automatic save is disabled for this session. Use the download dialog instead.",
         duration = 10,
         type = "error"
@@ -43,14 +43,14 @@ setup_export_handlers <- function(output, input, session, twl, stapath, .tag) {
         tag <- .tag
         tag$twilight <- twl()
         twilight_label_write(tag, file = target_file, quiet = TRUE)
-        showNotification(
+        shiny::showNotification(
           glue::glue("Labels saved to {target_file}"),
           duration = 5,
           type = "message"
         )
       },
       error = function(e) {
-        showNotification(
+        shiny::showNotification(
           glue::glue("Save failed: {e$message}. Using manual download instead."),
           duration = 10,
           type = "warning"
@@ -60,9 +60,9 @@ setup_export_handlers <- function(output, input, session, twl, stapath, .tag) {
     )
   })
 
-  observeEvent(input$save_stap, {
+  shiny::observeEvent(input$save_stap, {
     if (!isTRUE(auto_stap_save)) {
-      showNotification(
+      shiny::showNotification(
         "Automatic save is disabled for this session. Use the download dialog instead.",
         duration = 10,
         type = "error"
@@ -74,14 +74,14 @@ setup_export_handlers <- function(output, input, session, twl, stapath, .tag) {
     tryCatch(
       {
         utils::write.csv(stapath(), target_file, row.names = FALSE)
-        showNotification(
+        shiny::showNotification(
           glue::glue("Stap saved to {target_file}"),
           duration = 5,
           type = "message"
         )
       },
       error = function(e) {
-        showNotification(
+        shiny::showNotification(
           glue::glue("Save failed: {e$message}. Using manual download instead."),
           duration = 10,
           type = "warning"

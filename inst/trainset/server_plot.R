@@ -154,7 +154,7 @@ refresh_detail_traces <- function(xmin, xmax) {
 # Active series selector (only when acceleration exists)
 init_active_series <- "pressure"
 if (has_acceleration) {
-  updateSelectInput(
+  shiny::updateSelectInput(
     session,
     "active_series",
     choices = c("Pressure" = "pressure", "Acceleration" = "acceleration"),
@@ -372,7 +372,7 @@ output$ts_plot <- plotly::renderPlotly({
     )
 })
 
-observeEvent(input$plotly_relayout_xrange, {
+shiny::observeEvent(input$plotly_relayout_xrange, {
   ev <- input$plotly_relayout_xrange
   if (is.null(ev)) {
     return()

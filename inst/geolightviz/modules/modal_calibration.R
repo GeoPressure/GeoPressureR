@@ -2,16 +2,16 @@
 modal_calibration_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-    div(
+    shiny::div(
       class = "modal-calibration-container",
-      h4("Twilight Calibration"),
-      p(
+      shiny::h4("Twilight Calibration"),
+      shiny::p(
         "The histogram shows twilight errors for the selected stationary period and the line shows the proposed calibration. When available, the active calibration is overlaid in blue."
       ),
-      div(
+      shiny::div(
         class = "modal-input-group",
-        tags$label("Calibration staps:"),
-        selectizeInput(
+        shiny::tags$label("Calibration staps:"),
+        shiny::selectizeInput(
           ns("calib_stap_ids"),
           label = NULL,
           choices = NULL,
@@ -25,26 +25,26 @@ modal_calibration_ui <- function(id) {
         width = "100%",
         height = "450px"
       ),
-      p(
+      shiny::p(
         "The calibration consists of fitting a kernel density to the twilight errors. You can control the smoothness of the fit using the ",
-        tags$code("twl_calib_adjust"),
+        shiny::tags$code("twl_calib_adjust"),
         " argument of ",
-        tags$a(
-          tags$code("geolight_map()"),
+        shiny::tags$a(
+          shiny::tags$code("geolight_map()"),
           href = "https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.html#arg-twl-calib-adjust",
           target = "_blank"
         ),
       ),
-      fluidRow(
-        column(
+      shiny::fluidRow(
+        shiny::column(
           6,
-          div(
+          shiny::div(
             class = "modal-input-group",
-            tags$label(
+            shiny::tags$label(
               "twl_calib_adjust:",
               title = "Adjustment parameter for density()"
             ),
-            numericInput(
+            shiny::numericInput(
               ns("twl_calib_adjust"),
               label = NULL,
               value = 1.2,
@@ -53,57 +53,57 @@ modal_calibration_ui <- function(id) {
             )
           ),
         ),
-        column(
+        shiny::column(
           6,
           shiny::actionButton(
             ns("use_calibration"),
             "Use the proposed calibration",
             class = "btn-primary",
-            icon = icon("check"),
+            icon = shiny::icon("check"),
             style = "width: 100%;"
           )
         )
       ),
       shiny::hr(),
-      h4("Likelihood Aggregation"),
-      p(
+      shiny::h4("Likelihood Aggregation"),
+      shiny::p(
         "The second parameter controlling the likelihood map is how twilight likelihood maps are aggregated over stationary periods. Since twilight errors are typically correlated over time, we use a log-linear pooling function. See more information in the ",
-        a(
+        shiny::tags$a(
           "Probability Aggregation chapter of the GeoPressureManual",
           href = "https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#log-linear-pooling-w-lognn",
           target = "_blank"
         ),
         " and ",
-        tags$a(
-          tags$code("geolight_map()"),
+        shiny::tags$a(
+          shiny::tags$code("geolight_map()"),
           href = "https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.html#arg-twl-llp",
           target = "_blank"
         ),
         "."
       ),
-      fluidRow(
-        column(
+      shiny::fluidRow(
+        shiny::column(
           6,
-          div(
+          shiny::div(
             class = "modal-input-group",
-            tags$label("Log-Linear Pooling factor: f(n) = 1 /"),
-            numericInput(
+            shiny::tags$label("Log-Linear Pooling factor: f(n) = 1 /"),
+            shiny::numericInput(
               ns("llp_adjust"),
               label = NULL,
               value = 1.0,
               step = 0.1,
               width = "70px"
             ),
-            tags$label("log(n) / n")
+            shiny::tags$label("log(n) / n")
           )
         ),
-        column(
+        shiny::column(
           6,
-          actionButton(
+          shiny::actionButton(
             ns("update_likelihood"),
             "Update Likelihood Map",
             class = "btn-primary",
-            icon = icon("refresh"),
+            icon = shiny::icon("refresh"),
             style = "width: 100%;"
           )
         )
@@ -123,7 +123,7 @@ modal_calibration_server <- function(
   llp_param
 ) {
   shiny::moduleServer(id, function(input, output, session) {
-    selected_stap_idx <- reactiveVal(NULL)
+    selected_stap_idx <- shiny::reactiveVal(NULL)
 
     make_stap_choices <- function(stapath_) {
       choices <- as.list(stapath_$stap_id)
@@ -149,8 +149,8 @@ modal_calibration_server <- function(
     }
 
     # Compute calibration based on selected stap and input adjustment
-    current_calibration <- reactive({
-      req(selected_stap_idx())
+    current_calibration <- shiny::reactive({
+      shiny::req(selected_stap_idx())
 
       adjust <- if (is.null(input$twl_calib_adjust)) {
         get_current_adjust()
@@ -225,7 +225,7 @@ modal_calibration_server <- function(
     # Render the plot
     output$calibration_plot <- plotly::renderPlotly({
       twl_calib_stap <- current_calibration()
-      validate(need(
+      shiny::validate(shiny::need(
         twl_calib_stap,
         "Could not compute calibration for this stationary period."
       ))
@@ -276,11 +276,11 @@ modal_calibration_server <- function(
 
       # Check if position is set for calibration
       if (is.na(stapath_$lat[idx]) || is.na(stapath_$lon[idx])) {
-        showModal(modalDialog(
+        shiny::showModal(shiny::modalDialog(
           title = "No Position Set",
           "Please select a location on the map for this stationary period to compute the calibration.",
           easyClose = TRUE,
-          footer = modalButton("Close")
+          footer = shiny::modalButton("Close")
         ))
         return()
       }
@@ -294,11 +294,11 @@ modal_calibration_server <- function(
         )
 
       if (nrow(twl_stap) == 0) {
-        showModal(modalDialog(
+        shiny::showModal(shiny::modalDialog(
           title = "No Data",
           "No valid twilight data found for this stationary period.",
           easyClose = TRUE,
-          footer = modalButton("Close")
+          footer = shiny::modalButton("Close")
         ))
         return()
       }
@@ -306,7 +306,7 @@ modal_calibration_server <- function(
       selected_stap_idx(idx)
 
       # Show modal
-      showModal(modalDialog(
+      shiny::showModal(shiny::modalDialog(
         title = "Likelihood Map Settings",
         modal_calibration_ui(id),
         size = "xl",
@@ -316,7 +316,7 @@ modal_calibration_server <- function(
 
       # Update inputs with current active values (must be after showModal)
       choices <- make_stap_choices(stapath_)
-      updateSelectizeInput(
+      shiny::updateSelectizeInput(
         session,
         "calib_stap_ids",
         choices = choices,
@@ -326,12 +326,12 @@ modal_calibration_server <- function(
       current_adjust <- get_current_adjust()
       current_llp <- get_current_llp()
 
-      updateNumericInput(session, "twl_calib_adjust", value = current_adjust)
-      updateNumericInput(session, "llp_adjust", value = current_llp)
+      shiny::updateNumericInput(session, "twl_calib_adjust", value = current_adjust)
+      shiny::updateNumericInput(session, "llp_adjust", value = current_llp)
     }
 
-    observeEvent(input$use_calibration, {
-      req(current_calibration())
+    shiny::observeEvent(input$use_calibration, {
+      shiny::req(current_calibration())
 
       # Disable button during processing
       shinyjs::disable("use_calibration")
@@ -354,14 +354,14 @@ modal_calibration_server <- function(
             quiet = TRUE
           )
           map_light_twl(tag_likelihood$map_light_twl)
-          showNotification(
+          shiny::showNotification(
             "Calibration updated and likelihood maps recomputed.",
             type = "message"
           )
-          removeModal() # Close modal on success
+          shiny::removeModal() # Close modal on success
         },
         error = function(e) {
-          showNotification(
+          shiny::showNotification(
             paste("Error recomputing map:", e$message),
             type = "error"
           )
@@ -369,7 +369,7 @@ modal_calibration_server <- function(
       )
     })
 
-    observeEvent(input$update_likelihood, {
+    shiny::observeEvent(input$update_likelihood, {
       # Disable button during processing
       shinyjs::disable("update_likelihood")
       on.exit(shinyjs::enable("update_likelihood"))
@@ -377,11 +377,11 @@ modal_calibration_server <- function(
       # Update llp_param (transform input to 1/x)
       if (!is.null(input$llp_adjust) && input$llp_adjust != 0) {
         llp_param(1 / input$llp_adjust)
-        showNotification(
+        shiny::showNotification(
           "Likelihood map updated with new Log-Linear Pool factor.",
           type = "message"
         )
-        removeModal() # Close modal on success
+        shiny::removeModal() # Close modal on success
       }
     })
 

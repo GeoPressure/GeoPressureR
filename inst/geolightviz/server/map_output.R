@@ -36,10 +36,10 @@ render_map_output <- function(
         extent[4]
       ) |>
       leaflet::addControl(
-        div(
+        shiny::div(
           class = "map-control-box",
-          div(
-            radioButtons(
+          shiny::div(
+            shiny::radioButtons(
               "map_style",
               NULL,
               choices = c("Raster" = "raster", "Contour" = "contour"),
@@ -47,13 +47,13 @@ render_map_output <- function(
               inline = TRUE
             )
           ),
-          actionButton(
+          shiny::actionButton(
             "ml_position",
             "Find ML Position",
             class = "btn-sm",
             onclick = "event.stopPropagation();"
           ),
-          actionButton(
+          shiny::actionButton(
             "edit_position",
             "Edit Position",
             class = "btn-sm",
@@ -67,7 +67,7 @@ render_map_output <- function(
 
   # Observer for updating map
   shiny::observe({
-    req(input$map_style)
+    shiny::req(input$map_style)
     proxy <- leaflet::leafletProxy("map") |>
       leaflet::clearShapes() |>
       leaflet::clearImages() |>

@@ -1,5 +1,5 @@
 library(shiny)
-# Initialize parameters and reactive expressions
+# Initialize parameters and shiny::reactive expressions
 init <- function(
   .tag,
   .stapath,
@@ -14,13 +14,13 @@ init <- function(
   rv$col <- rep(RColorBrewer::brewer.pal(8, "Dark2"), times = 20)
 
   # Toggle states for buttons
-  rv$drawing <- reactiveVal(NULL)
-  rv$is_modifying <- reactiveVal(FALSE)
-  rv$is_edit <- reactiveVal(FALSE)
-  rv$zoom_state <- reactiveVal(NULL)
+  rv$drawing <- shiny::reactiveVal(NULL)
+  rv$is_modifying <- shiny::reactiveVal(FALSE)
+  rv$is_edit <- shiny::reactiveVal(FALSE)
+  rv$zoom_state <- shiny::reactiveVal(NULL)
 
-  # Data reactive values
-  rv$stapath <- reactiveVal(.stapath)
+  # Data shiny::reactive values
+  rv$stapath <- shiny::reactiveVal(.stapath)
   rv$twl <- shiny::reactiveVal(.twl)
   tag_for_map <- .tag
   tag_for_map$stap <- .stapath
@@ -74,7 +74,7 @@ init <- function(
       tag_for_map$param$geolight_map[["twl_calib"]] <- twl_calib
     }
   }
-  rv$twl_calib <- reactiveVal(twl_calib)
+  rv$twl_calib <- shiny::reactiveVal(twl_calib)
 
   # Pre-compute twilight likelihood maps using GeoPressureR's structure
   if (rv$has_map && !is.null(twl_calib)) {
@@ -110,7 +110,7 @@ init <- function(
   }
 
   # Likelihood calculation helper
-  rv$llp_param <- reactiveVal(llp_param)
+  rv$llp_param <- shiny::reactiveVal(llp_param)
   twl_llp <- function(n) rv$llp_param() * log(n) / n
 
   rv$map_light_aggregate <- function(stapath_override) {
@@ -147,7 +147,7 @@ init <- function(
   }
 
   # Reactive: Calculate likelihood map
-  rv$map_likelihood <- reactive({
+  rv$map_likelihood <- shiny::reactive({
     if (!rv$has_map) {
       return(NULL)
     }
@@ -185,7 +185,7 @@ init <- function(
   })
 
   # Reactive: Project map for display
-  rv$map_display <- reactive({
+  rv$map_display <- shiny::reactive({
     map_likelihood_ <- rv$map_likelihood()
     if (!rv$has_map || is.null(map_likelihood_)) {
       return(NULL)
@@ -205,7 +205,7 @@ init <- function(
   })
 
   # Reactive: Generate contour display
-  rv$contour_display <- reactive({
+  rv$contour_display <- shiny::reactive({
     map_likelihood_ <- rv$map_likelihood()
     if (!rv$has_map || is.null(map_likelihood_)) {
       return(data.frame(lng = numeric(0), lat = numeric(0)))

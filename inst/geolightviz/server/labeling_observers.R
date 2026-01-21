@@ -19,7 +19,7 @@ setup_labeling_observers <- function(
         session,
         "label_twilight",
         label = "Stop",
-        icon = icon("stop")
+        icon = shiny::icon("stop")
       )
       shinyjs::removeClass("label_twilight", "primary")
     } else {
@@ -30,7 +30,7 @@ setup_labeling_observers <- function(
         session,
         "label_twilight",
         label = "Start",
-        icon = icon("pen")
+        icon = shiny::icon("pen")
       )
       shinyjs::addClass("label_twilight", "primary")
     }

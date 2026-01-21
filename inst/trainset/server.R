@@ -92,8 +92,8 @@ server <- function(input, output, session) {
     acc_has_lines = TRUE
   )
 
-  reactive_label_pres <- reactiveVal(pressure_data$label)
-  reactive_label_acc <- reactiveVal(acceleration_data$label)
+  reactive_label_pres <- shiny::reactiveVal(pressure_data$label)
+  reactive_label_acc <- shiny::reactiveVal(acceleration_data$label)
 
   trainset_debug <- isTRUE(shiny::getShinyOption("trainset_debug"))
 
@@ -120,7 +120,7 @@ server <- function(input, output, session) {
         shinyjs::hide("save_btn")
         shinyjs::show("export_btn")
         folder_msg <- if (!is.null(label_dir)) label_dir else "data/tag-label"
-        showNotification(
+        shiny::showNotification(
           glue::glue(
             "Automatic save is disabled: folder {folder_msg} does not exist. Use the download dialog to save labels."
           ),
@@ -132,7 +132,7 @@ server <- function(input, output, session) {
     once = TRUE
   )
 
-  observe({
+  shiny::observe({
     if (!is.null(input$active_series) && input$active_series == "acceleration") {
       shinyjs::disable("add_label_btn")
     } else {
@@ -142,8 +142,8 @@ server <- function(input, output, session) {
 
   session$sendCustomMessage("updateTitle", glue::glue("Trainset - {tag$param$id}"))
 
-  output$header_title <- renderUI({
-    tagList(
+  output$header_title <- shiny::renderUI({
+    shiny::tagList(
       span("GeoPressure Trainset"),
       span(
         glue::glue("  {tag$param$id}"),
@@ -156,12 +156,12 @@ server <- function(input, output, session) {
     session$onSessionEnded(stopApp)
   }
 
-  output$acceleration_data_available <- reactive({
+  output$acceleration_data_available <- shiny::reactive({
     has_acceleration
   })
   outputOptions(output, "acceleration_data_available", suspendWhenHidden = FALSE)
 
-  output$stap_data_available <- reactive({
+  output$stap_data_available <- shiny::reactive({
     nrow(state$stap_data) > 0
   })
   outputOptions(output, "stap_data_available", suspendWhenHidden = FALSE)
