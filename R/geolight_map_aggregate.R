@@ -26,7 +26,7 @@ geolight_map_aggregate <- function(
   twl$stap_id <- find_stap(tag$stap, twl$twilight)
 
   # Group twilight by stap
-  twl_idx <- which(twl$include)
+  twl_idx <- which(twl$include & twl$stap_id == as.integer(twl$stap_id))
   twl_id_stap_id <- split(twl_idx, twl$stap_id[twl_idx])
 
   # Compute the number of twilight per stap
