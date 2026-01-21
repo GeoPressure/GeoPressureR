@@ -20,22 +20,20 @@ geolight_map(
 
 geolight_map_aggregate(
   tag,
-  compute_known = formals(geolight_map)$compute_known,
-  twl_llp = eval(formals(geolight_map)$twl_llp),
-  keep_twl = formals(geolight_map)$keep_twl,
+  compute_known = FALSE,
+  twl_llp = function(n) log(n)/n,
+  keep_twl = FALSE,
   quiet = FALSE
 )
 
 geolight_map_calibrate(
   tag,
-  twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
-  fitted_location_duration = formals(geolight_map)$fitted_location_duration
+  twl_calib_adjust = 1.4,
+  fitted_location_duration = Inf,
+  quiet = FALSE
 )
 
-geolight_map_likelihood(
-  tag,
-  compute_known = formals(geolight_map)$compute_known
-)
+geolight_map_likelihood(tag, compute_known = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}

@@ -66,6 +66,7 @@ plot(map)
 }
 \seealso{
 Other map: 
+\code{\link{map_add_mask_water}()},
 \code{\link{print.map}()},
 \code{\link{rast.map}()}
 }

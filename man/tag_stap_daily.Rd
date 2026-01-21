@@ -15,8 +15,8 @@ tag_stap_daily(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object with \code{twilight}.}
 
-\item{stap0}{optional data.frame with columns \code{start} and \code{end}, or a CSV path with those
-columns (POSIXct-compatible strings).}
+\item{stap0}{optional \code{stap} data.frame with columns \code{start} and \code{end}, a CSV path with those
+columns (POSIXct-compatible strings), or a GeoPressureR \code{tag} passed to \code{read_stap()}.}
 
 \item{twl_grouping}{Which twilight pairs define a boundary: \code{"night"} (sunset to sunrise,
 default) or \code{"day"} (sunrise to sunset).}

@@ -34,6 +34,7 @@ print(tag$map_pressure)
 }
 \seealso{
 Other map: 
+\code{\link{map_add_mask_water}()},
 \code{\link{map_create}()},
 \code{\link{rast.map}()}
 }
