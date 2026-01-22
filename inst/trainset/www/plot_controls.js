@@ -18,6 +18,35 @@ $(document).ready(function () {
       window.trainsetKeyState.ctrlOrMeta = true;
     }
 
+    // Numeric label shortcuts (0..9) when not typing in a field
+    var tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : "";
+    var isEditable =
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      (e.target && e.target.isContentEditable);
+    if (!isEditable && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      var digit = null;
+      if (e.which >= 48 && e.which <= 57) digit = e.which - 48;
+      if (e.which >= 96 && e.which <= 105) digit = e.which - 96;
+      if (digit !== null) {
+        var selectEl = document.getElementById("label_select");
+        var selectize = selectEl && selectEl.selectize ? selectEl.selectize : null;
+        var order =
+          selectize && selectize.order && selectize.order.length
+            ? selectize.order
+            : selectize
+            ? Object.keys(selectize.options)
+            : null;
+        var value = order && order.length > digit ? order[digit] : undefined;
+        if (selectize && value !== undefined) {
+          e.preventDefault();
+          selectize.setValue(value, true);
+          return;
+        }
+      }
+    }
+
     var plot = document.getElementById("ts_plot");
     if (plot && plot.data) {
       var currentRange = plot.layout.xaxis.range;

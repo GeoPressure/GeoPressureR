@@ -11,6 +11,13 @@ shiny::observeEvent(input$shortcuts_help, {
         shiny::h4("Labeling"),
         shiny::tags$ul(
           shiny::tags$li("Click or drag on the plot to apply the selected label."),
+          shiny::tags$li(shiny::tagList(
+            "Press ",
+            shiny::tags$kbd("1"),
+            " to ",
+            shiny::tags$kbd("9"),
+            " to select a label by its order in the label dropdown."
+          )),
           shiny::tags$li(
             shiny::tagList(
               shiny::tags$kbd("Ctrl"),
@@ -22,7 +29,10 @@ shiny::observeEvent(input$shortcuts_help, {
         ),
         shiny::h4("Time navigation (x-axis)"),
         shiny::tags$ul(
-          shiny::tags$li(shiny::tagList(shiny::tags$kbd("Mouse wheel"), " over plot area: zoom in/out in time.")),
+          shiny::tags$li(shiny::tagList(
+            shiny::tags$kbd("Mouse wheel"),
+            " over plot area: zoom in/out in time."
+          )),
           shiny::tags$li(shiny::tagList(
             shiny::tags$kbd("\u2191"),
             " / ",
@@ -46,7 +56,10 @@ shiny::observeEvent(input$shortcuts_help, {
         ),
         shiny::h4("Y-axis zoom"),
         shiny::tags$ul(
-          shiny::tags$li(shiny::tagList(shiny::tags$kbd("Mouse wheel"), " over left y-axis: zoom pressure axis.")),
+          shiny::tags$li(shiny::tagList(
+            shiny::tags$kbd("Mouse wheel"),
+            " over left y-axis: zoom pressure axis."
+          )),
           shiny::tags$li(shiny::tagList(
             shiny::tags$kbd("Mouse wheel"),
             " over right y-axis: zoom acceleration axis (when available)."

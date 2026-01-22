@@ -127,6 +127,7 @@ refresh_detail_traces <- function(xmin, xmax) {
     pres$date,
     pres$value,
     pres$row_index,
+    text = pres$label,
     extra = styles$pressure_detail_line_style
   )
   restyle_xy(
@@ -236,6 +237,7 @@ output$ts_plot <- plotly::renderPlotly({
       data = data.frame(
         date = initial_pressure_detail$date,
         value = initial_pressure_detail$value,
+        label = initial_pressure_detail$label,
         row_index = initial_pressure_detail$row_index
       ),
       x = ~date,
@@ -248,7 +250,8 @@ output$ts_plot <- plotly::renderPlotly({
         color = initial_styles$pressure_detail_line_style$line.color
       ),
       yaxis = "y",
-      hoverinfo = "skip",
+      text = ~label,
+      hovertemplate = "Pressure: %{y}<br>Time: %{x}<br>Label: %{text}<extra></extra>",
       showlegend = FALSE,
       customdata = ~row_index
     ) |>
