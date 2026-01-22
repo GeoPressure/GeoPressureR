@@ -47,7 +47,7 @@ ui <- shiny::fluidPage(
       shiny::conditionalPanel(
         condition = "output.stap_data_available == true",
         shiny::div(
-          class = "d-flex flex-shiny::column",
+          class = "d-flex flex-column",
           shiny::tags$label(class = "form-label text-white small mb-1", "Stap ID:"),
           shiny::div(
             class = "input-group align-items-center",
@@ -76,7 +76,7 @@ ui <- shiny::fluidPage(
       shiny::conditionalPanel(
         condition = "output.acceleration_data_available == true",
         shiny::div(
-          class = "d-flex flex-shiny::column",
+          class = "d-flex flex-column",
           shiny::tags$label(class = "form-label text-white small mb-1", "Active Series:"),
           shiny::selectInput(
             "active_series",
@@ -90,11 +90,11 @@ ui <- shiny::fluidPage(
 
       # Label selector with add button
       shiny::div(
-        class = "d-flex flex-shiny::column",
+        class = "d-flex flex-column",
         shiny::tags$label(class = "form-label text-white small mb-1", "Label:"),
         shiny::div(
           class = "input-group",
-          id = "shiny::div-group-label",
+          id = "div-group-label",
           shiny::selectizeInput(
             "label_select",
             NULL,
@@ -120,7 +120,7 @@ ui <- shiny::fluidPage(
                     var txt = item.text || item.label || item.value || '';
                     var lbl = item.value || txt;
                     var dot = '<span class=\"label-dot\" style=\"background-color:' + labelColor(lbl) + '\"></span>';
-                    return '<shiny::div>' + dot + escape(txt) + '</shiny::div>';
+                    return '<div>' + dot + escape(txt) + '</div>';
                   },
                   item: function(item, escape) {
                     function labelColor(lbl) {
@@ -138,7 +138,7 @@ ui <- shiny::fluidPage(
                     var txt = item.text || item.label || item.value || '';
                     var lbl = item.value || txt;
                     var dot = '<span class=\"label-dot\" style=\"background-color:' + labelColor(lbl) + '\"></span>';
-                    return '<shiny::div>' + dot + escape(txt) + '</shiny::div>';
+                    return '<div class=\"item\">' + dot + escape(txt) + '</div>';
                   }
                 }"
               )
@@ -150,9 +150,14 @@ ui <- shiny::fluidPage(
 
       # Save button (with hidden download fallback)
       shiny::div(
-        class = "d-flex flex-shiny::column justify-content-end mt-2",
+        class = "d-flex flex-column justify-content-end mt-2",
         shiny::tagList(
-          shiny::actionButton("save_btn", "Save", class = "btn btn-success", icon = shiny::icon("save")),
+          shiny::actionButton(
+            "save_btn",
+            "Save",
+            class = "btn btn-success",
+            icon = shiny::icon("save")
+          ),
           shinyjs::hidden(
             shiny::downloadButton(
               "export_btn",
