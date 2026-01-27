@@ -533,7 +533,7 @@ plot_tag_twilight <- function(
           data = twl,
           ggplot2::aes(x = .data$date, y = .data$time),
           colour = "yellow",
-          size = 2,
+          size = 4,
           shape = 16
         )
     } else {
@@ -549,7 +549,7 @@ plot_tag_twilight <- function(
               y = .data$time,
               colour = .data$stap_id
             ),
-            size = 2,
+            size = 6,
             shape = 16
           ) +
           ggplot2::scale_color_manual(
@@ -560,11 +560,11 @@ plot_tag_twilight <- function(
           ggplot2::geom_point(
             data = twl,
             ggplot2::aes(x = .data$date, y = .data$time, color = .data$rise),
-            size = 2,
+            size = 4,
             shape = 16
           ) +
           ggplot2::scale_color_manual(
-            values = c("TRUE" = "lightyellow", "FALSE" = "orange")
+            values = c("TRUE" = "yellow", "FALSE" = "orange")
           )
       }
     }
