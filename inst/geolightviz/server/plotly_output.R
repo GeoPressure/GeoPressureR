@@ -65,7 +65,8 @@ render_plotly_output <- function(
     }
 
     # Add predicted twilight lines if position exists
-    if (!is.na(stapath_$lat[idx]) && !is.na(stapath_$lon[idx])) {
+    if (!is.na(idx) && idx >= 1 && idx <= nrow(stapath_) &&
+      !is.na(stapath_$lat[idx]) && !is.na(stapath_$lon[idx])) {
       twll <- GeoPressureR::path2twilight(stapath_[idx, ])
       twll$plottime <- GeoPressureR:::time2plottime(
         twll$twilight,

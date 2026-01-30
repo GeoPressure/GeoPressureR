@@ -32,6 +32,15 @@ init <- function(
   if (!("known_lon" %in% names(.stapath))) {
     .stapath$known_lon <- rep(NA_real_, nrow(.stapath))
   }
+  if (!("lat" %in% names(.stapath))) {
+    .stapath$lat <- rep(NA_real_, nrow(.stapath))
+  }
+  if (!("lon" %in% names(.stapath))) {
+    .stapath$lon <- rep(NA_real_, nrow(.stapath))
+  }
+  if (!("duration" %in% names(.stapath))) {
+    .stapath$duration <- stap2duration(.stapath)
+  }
   if (!("include" %in% names(.stapath))) {
     .stapath$include <- rep(TRUE, nrow(.stapath))
   }

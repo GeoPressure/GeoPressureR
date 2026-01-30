@@ -79,7 +79,7 @@ ui <- function() {
             shiny::actionButton(
               "save_twilight",
               "Save",
-              class = "btn-success btn-sm",
+              class = "btn-success btn-sm btn-inline-icon",
               icon = shiny::icon("save"),
               width = "70px"
             ),
@@ -125,7 +125,7 @@ ui <- function() {
             shiny::actionButton(
               "save_stap",
               "Save",
-              class = "btn-success btn-sm",
+              class = "btn-success btn-sm btn-inline-icon",
               icon = shiny::icon("save"),
               width = "70px"
             ),

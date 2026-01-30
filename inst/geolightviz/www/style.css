@@ -58,6 +58,13 @@ p, span, li, td, th {
     border-bottom-left-radius: 0;
 }
 
+.btn-inline-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
 .stationary-box {
     border: 1px solid #ccc;
     padding: 8px;
