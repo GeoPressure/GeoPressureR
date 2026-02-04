@@ -21,7 +21,8 @@ tag_create_migratetech <- function(
   if (!is.null(deg_path)) {
     assertthat::assert_that(grepl(
       "Migrate Technology",
-      readLines(deg_path, n = 1)
+      readLines(deg_path, n = 1),
+      fixed = TRUE
     ))
     line2 <- readLines(deg_path, n = 2)[[2]]
     v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
