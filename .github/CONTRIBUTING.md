@@ -30,7 +30,8 @@ New code should follow the project conventions:
 - Base R only; do not introduce new dependencies without prior discussion.
 - Prefer compact, vectorized code and avoid unnecessary intermediate objects.
 - Use `cli` and `glue` for messages and string interpolation.
-- Follow the jarl rules: https://jarl.etiennebacher.com/rules
+- Code is formatted with Posit `air` (the CI runs `air format . --check`). See https://github.com/posit-dev/air for install and usage.
+- Follow the jarl rules (linting standards used in CI): https://jarl.etiennebacher.com/rules
 
 We use [roxygen2](https://cran.r-project.org/package=roxygen2), with [Markdown syntax](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html), for documentation.
 We use [testthat](https://cran.r-project.org/package=testthat) for unit tests. Contributions with test cases included are easier to accept.
