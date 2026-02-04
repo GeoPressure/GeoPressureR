@@ -32,7 +32,7 @@ geopressure_map_likelihood <- function(
 
   map_pressure <- vector("list", nrow(tag$stap))
 
-  for (istap in which(!sapply(tag$map_pressure_mse$data, is.null))) {
+  for (istap in which(!vapply(tag$map_pressure_mse$data, is.null, logical(1)))) {
     # Number of sample
     n <- tag$stap$nb_sample[istap]
 
@@ -61,7 +61,8 @@ geopressure_map_likelihood <- function(
   # Add known location only if map_pressure_mse is null
   # (ie., if .known_compute = TRUE in geopressure_map_mse)
   for (stap_id in which(
-    !is.na(tag$stap$known_lat) & sapply(tag$map_pressure_mse$data, is.null)
+    !is.na(tag$stap$known_lat) &
+      vapply(tag$map_pressure_mse$data, is.null, logical(1))
   )) {
     # Initiate an empty map
     map_pressure[[stap_id]] <- matrix(0, nrow = g$dim[1], ncol = g$dim[2])

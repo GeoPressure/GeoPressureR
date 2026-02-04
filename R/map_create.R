@@ -52,9 +52,9 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   g <- map_expand(extent, scale)
 
   assertthat::assert_that(is.list(data))
-  stap_id_null <- sapply(data, is.null)
+  stap_id_null <- vapply(data, is.null, logical(1))
   lapply(data[!stap_id_null], \(x) assertthat::assert_that(is.matrix(x)))
-  data_dim <- sapply(data[!stap_id_null], \(x) dim(x))
+  data_dim <- vapply(data[!stap_id_null], \(x) dim(x), integer(2))
   assertthat::assert_that(
     length(unique(data_dim[1, ])) == 1 & length(unique(data_dim[2, ])) == 1,
     msg = "All matrices of data don't have the same size"
@@ -71,11 +71,11 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   type <- match.arg(type, choices = names(.MAP_TYPE))
 
   # Define the mask of water
-  tmp <- data[[which(!sapply(data, is.null))[1]]]
+  tmp <- data[[which(!stap_id_null)[1]]]
   mask_water <- tmp < -1.5 | is.na(tmp)
 
   # Replace negative value (-1|not computed or -2|water) by NA
-  for (istap in which(!sapply(data, is.null))) {
+  for (istap in which(!stap_id_null)) {
     data[[istap]][data[[istap]] < 0] <- NA
   }
 

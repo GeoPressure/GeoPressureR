@@ -96,9 +96,9 @@ stap2flight <- function(
   ]
 
   # create the list of flight per stationary period modelled
-  stap_flight_group <- sapply(flight_all$stap_s, function(s) {
+  stap_flight_group <- vapply(flight_all$stap_s, function(s) {
     sum(include_stap_id <= s)
-  })
+  }, numeric(1))
   flight_list <- split(flight_all, include_stap_id[stap_flight_group])
 
   if (format == "list") {

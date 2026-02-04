@@ -59,7 +59,7 @@ tag_prepare_likelihood <- function(
   }
 
   # Check that the likelihood is not null for the selected stationary periods
-  lk_null <- sapply(lk, is.null)
+  lk_null <- vapply(lk, is.null, logical(1))
   if (any(lk_null)) {
     cli::cli_abort(c(
       x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods {.var {stap_include[lk_null]}} while those stationary period are required in {.var stap$include}",
@@ -91,7 +91,7 @@ tag_prepare_likelihood <- function(
   })
 
   # Check for invalid map
-  stap_id_0 <- sapply(lk_norm, sum) == 0
+  stap_id_0 <- vapply(lk_norm, sum, numeric(1)) == 0
   if (anyNA(stap_id_0)) {
     cli::cli_abort(c(
       x = "{.var likelihood} is invalid for the stationary period: {stap_include[which(is.na(stap_id_0))]}"
@@ -118,7 +118,7 @@ tag_prepare_likelihood <- function(
   })
 
   # Check that there are still values
-  lk_mask_0 <- sapply(lk_mask, sum) == 0
+  lk_mask_0 <- vapply(lk_mask, sum, numeric(1)) == 0
   if (any(lk_mask_0)) {
     cli::cli_abort(c(
       x = "Using the {.var thr_likelihood} of {.val {thr_likelihood}}, there are not any nodes left at stationary period: {.val {stap_include[which(lk_mask_0)]}}"
@@ -126,7 +126,7 @@ tag_prepare_likelihood <- function(
   }
 
   if (!quiet) {
-    lk_mask_nb <- sum(sapply(lk_mask, \(l) sum(l)))
+    lk_mask_nb <- sum(vapply(lk_mask, \(l) sum(l), numeric(1)))
     dist_mask_nb <- NULL
     cli::cli_progress_done()
     cli::cli_progress_step(
@@ -180,14 +180,14 @@ tag_prepare_likelihood <- function(
   }
 
   # Check that there are still pixel present
-  dist_mask_sum <- sapply(dist_mask, sum)
+  dist_mask_sum <- vapply(dist_mask, sum, numeric(1))
   if (any(dist_mask_sum == 0)) {
     cli::cli_abort(c(
       x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left."
     ))
   }
   if (!quiet) {
-    dist_mask_nb <- sum(sapply(dist_mask, \(l) sum(l)))
+    dist_mask_nb <- sum(vapply(dist_mask, \(l) sum(l), numeric(1)))
     cli::cli_progress_done()
   }
 

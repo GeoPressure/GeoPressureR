@@ -97,7 +97,7 @@ geopressure_map_mismatch <- function(
 
   # Get urls
   urls <- resp_json$data$urls
-  urls[sapply(urls, is.null)] <- NA
+  urls[vapply(urls, is.null, logical(1))] <- NA
   urls <- unlist(urls)
   labels <- unlist(resp_json$data$labels)
 

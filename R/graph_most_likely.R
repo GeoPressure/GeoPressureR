@@ -97,7 +97,7 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   node_stap <- split(node, node$stap)
 
   # Compute number of nodes per stap
-  n_edge <- sapply(node_stap, nrow)
+  n_edge <- vapply(node_stap, nrow, integer(1))
 
   if (!quiet) {
     i_s <- 0
@@ -119,14 +119,14 @@ graph_most_likely <- function(graph, quiet = FALSE) {
 
     # Find the value of the maximum possible transition for each target node and store it into
     # path_max
-    max_v <- sapply(split(node_i_s$p, node_i_s$t), max)
+    max_v <- vapply(split(node_i_s$p, node_i_s$t), max, numeric(1))
     max_t <- as.numeric(names(max_v))
     path_max[max_t] <- max_v
 
     # Find the source node of the maximum possible transition for each target node
-    max_s <- sapply(split(node_i_s, node_i_s$t), function(x) {
+    max_s <- vapply(split(node_i_s, node_i_s$t), function(x) {
       x$s[which.max(x$p)]
-    })
+    }, integer(1))
     path_s[max_t] <- max_s
 
     if (!quiet) {

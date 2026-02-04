@@ -306,7 +306,7 @@ graph_create <- function(
   }
 
   # Convert gr to a graph list using pre-allocation for efficiency
-  total_rows <- sum(sapply(gr, nrow))
+  total_rows <- sum(vapply(gr, nrow, integer(1)))
 
   # Pre-allocate vectors
   s_vec <- integer(total_rows)

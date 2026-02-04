@@ -55,8 +55,8 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
 
   # find the index in the 2D grid
   ind <- rep(NA, length(map))
-  stap_id <- which(!sapply(map$data, is.null))
-  ind[stap_id] <- sapply(map[stap_id], which.max)
+  stap_id <- which(!vapply(map$data, is.null, logical(1)))
+  ind[stap_id] <- vapply(map[stap_id], which.max, integer(1))
 
   # Interpolation for short stationary period is only performed if interp>0
 
