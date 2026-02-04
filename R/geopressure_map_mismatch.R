@@ -9,6 +9,7 @@ geopressure_map_mismatch <- function(
   thr_mask = 0.9,
   timeout = 60 * 5,
   workers = "auto",
+  era5_dataset = "land",
   compute_known = FALSE,
   debug = FALSE,
   quiet = FALSE
@@ -25,6 +26,7 @@ geopressure_map_mismatch <- function(
   assertthat::assert_that(is.numeric(thr_mask))
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.numeric(timeout))
+  assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
   assertthat::assert_that(is.logical(debug))
   assertthat::assert_that(is.logical(quiet))
@@ -47,7 +49,8 @@ geopressure_map_mismatch <- function(
     max_sample = max_sample,
     margin = margin,
     includeMask = keep_mask,
-    maskThreshold = thr_mask
+    maskThreshold = thr_mask,
+    dataset = era5_dataset
   )
 
   if (debug) {
@@ -58,10 +61,8 @@ geopressure_map_mismatch <- function(
 
   if (!quiet) {
     cli::cli_progress_step(
-      msg = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
-    on {.url glp.mgravey.com/GeoPressure/v2/map/}: {.field {unique(pres$stapelev)}}",
-      msg_done = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev \\
-    on {.url glp.mgravey.com/GeoPressure/v2/map/}"
+      msg = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev on {.url glp.mgravey.com/GeoPressure/v2/map/}: {.field {unique(pres$stapelev)}}",
+      msg_done = "Generate requests for {.val {length(unique(pres$stapelev))}} stapelev on {.url glp.mgravey.com/GeoPressure/v2/map/}"
     )
   }
 
@@ -107,14 +108,12 @@ geopressure_map_mismatch <- function(
   if (all(is.na(urls))) {
     cli::cli_abort(c(
       x = "There was no urls returned for all stationary periods.",
-      i = "It is probably due to request(s)  made for periods where no data are available. \\
-            Note that ERA5 data is usually only available on GEE ~3-5 months after."
+      i = "It is probably due to request(s)  made for periods where no data are available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
     ))
   } else if (anyNA(urls)) {
     cli::cli_warn(c(
       "!" = "There was no urls returned for stationary periods {.val {labels[is.na(urls)]}}.",
-      i = "It is probably due to request(s) made for periods where no data are available. Note \\
-      that ERA5 data is usually only available on GEE ~3-5 months after."
+      i = "It is probably due to request(s) made for periods where no data are available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
     ))
     labels <- labels[!is.na(urls)]
     urls <- urls[!is.na(urls)]
