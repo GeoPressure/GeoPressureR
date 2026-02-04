@@ -42,10 +42,13 @@ update_label_select <- function(series = "pressure", elev_count = 1) {
 }
 
 # Ensure the selectize input is populated right after UI is flushed
-session$onFlushed(function() {
-  # Avoid reading shiny::reactive inputs here; initialize with the default series.
-  update_label_select("pressure", elev_count = initial_stap_elev_count)
-}, once = TRUE)
+session$onFlushed(
+  function() {
+    # Avoid reading shiny::reactive inputs here; initialize with the default series.
+    update_label_select("pressure", elev_count = initial_stap_elev_count)
+  },
+  once = TRUE
+)
 
 # Update label choices when elev_count changes
 shiny::observeEvent(stap_elev_count(), {

@@ -144,7 +144,7 @@ geolight_solar_constants <- function(date) {
 #' @param sun List returned by `geolight_solar_constants()`.
 #' @param lat Numeric vector of latitudes (degrees north).
 #' @param lon Numeric vector of longitudes (degrees east).
-#' 
+#'
 #' @return Geometric solar zenith angle(s) in degrees, without refraction.
 #' @noRd
 geolight_solar_zenith <- function(sun, lat, lon) {

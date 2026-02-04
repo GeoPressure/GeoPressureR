@@ -449,12 +449,12 @@ edge_add_wind <- function(
               units = "hours"
             ))
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][, , , 1] +
-              w_time * (var_nc[[var_i]][, , , 2] - var_nc[[var_i]][, , , 1])
+            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1] +
+              w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1])
           }
         } else {
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][, , , 1]
+            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1]
           }
         }
 
@@ -463,8 +463,8 @@ edge_add_wind <- function(
           w_pres <- (p_q[i_time] - pres[id_pres]) /
             (pres[id_pres + 1] - pres[id_pres])
           for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][, , 1] +
-              w_pres * (var_nc[[var_i]][, , 2] - var_nc[[var_i]][, , 1])
+            var_nc[[var_i]] <- var_nc[[var_i]][,, 1] +
+              w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1])
           }
         }
 

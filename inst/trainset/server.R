@@ -48,7 +48,9 @@ acceleration_value_sorted <- numeric(0)
 if (has_acceleration) {
   acceleration_ok <- is.finite(acceleration_time_num) & !is.na(acceleration_time_num)
   acceleration_sort_idx <- which(acceleration_ok)
-  acceleration_sort_idx <- acceleration_sort_idx[order(acceleration_time_num[acceleration_sort_idx])]
+  acceleration_sort_idx <- acceleration_sort_idx[order(acceleration_time_num[
+    acceleration_sort_idx
+  ])]
   acceleration_time_sorted <- acceleration_time_num[acceleration_sort_idx]
   acceleration_date_sorted <- acceleration_data$date[acceleration_sort_idx]
   acceleration_value_sorted <- acceleration_data$value[acceleration_sort_idx]

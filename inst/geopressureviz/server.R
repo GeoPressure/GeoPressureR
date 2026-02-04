@@ -205,7 +205,9 @@ server <- function(input, output, session) {
       view_days <- as.numeric(difftime(xmax, xmin, units = "days"))
     }
 
-    if (is.finite(view_days) && view_days >= discard_cap_min_days && nrow(disc) > max_discard_points) {
+    if (
+      is.finite(view_days) && view_days >= discard_cap_min_days && nrow(disc) > max_discard_points
+    ) {
       keep <- unique(pmax.int(
         1L,
         pmin.int(nrow(disc), as.integer(round(seq(1, nrow(disc), length.out = max_discard_points))))
@@ -322,7 +324,9 @@ server <- function(input, output, session) {
   # Track current pressure plot x-range so we can cap discards only for large windows.
   shiny::observeEvent(plotly::event_data("plotly_relayout", source = "pressure_plot"), {
     ev <- plotly::event_data("plotly_relayout", source = "pressure_plot")
-    if (is.null(ev)) return()
+    if (is.null(ev)) {
+      return()
+    }
 
     xmin <- NULL
     xmax <- NULL
@@ -334,17 +338,23 @@ server <- function(input, output, session) {
       xmax <- ev[["xaxis.range"]][[2]]
     }
 
-    if (is.null(xmin) || is.null(xmax)) return()
+    if (is.null(xmin) || is.null(xmax)) {
+      return()
+    }
     xmin <- as.POSIXct(xmin, tz = "UTC")
     xmax <- as.POSIXct(xmax, tz = "UTC")
-    if (anyNA(c(xmin, xmax))) return()
+    if (anyNA(c(xmin, xmax))) {
+      return()
+    }
 
     # De-dup updates to avoid re-render loops.
-    if (!is.null(reactVal$pressure_xmin) &&
-      !is.null(reactVal$pressure_xmax) &&
-      !anyNA(c(reactVal$pressure_xmin, reactVal$pressure_xmax)) &&
-      isTRUE(all.equal(as.numeric(reactVal$pressure_xmin), as.numeric(xmin))) &&
-      isTRUE(all.equal(as.numeric(reactVal$pressure_xmax), as.numeric(xmax)))) {
+    if (
+      !is.null(reactVal$pressure_xmin) &&
+        !is.null(reactVal$pressure_xmax) &&
+        !anyNA(c(reactVal$pressure_xmin, reactVal$pressure_xmax)) &&
+        isTRUE(all.equal(as.numeric(reactVal$pressure_xmin), as.numeric(xmin))) &&
+        isTRUE(all.equal(as.numeric(reactVal$pressure_xmax), as.numeric(xmax)))
+    ) {
       return()
     }
 
@@ -518,7 +528,9 @@ server <- function(input, output, session) {
       if (!is.null(map_stap_id)) {
         key <- map_type_key[[input$map_source]]
         spec <- GeoPressureR:::.MAP_TYPE[[key]]
-        if (is.null(spec)) spec <- GeoPressureR:::.MAP_TYPE[["unknown"]]
+        if (is.null(spec)) {
+          spec <- GeoPressureR:::.MAP_TYPE[["unknown"]]
+        }
         spec_dark <- spec[["dark"]]
 
         proxy <- proxy |>

@@ -13,7 +13,9 @@ pressurepath <- shiny::getShinyOption("pressurepath")
 path <- shiny::getShinyOption("path")
 file_wind <- shiny::getShinyOption("file_wind")
 
-if (is.null(tag) || is.null(maps) || is.null(map_type_key) || is.null(pressurepath) || is.null(path)) {
+if (
+  is.null(tag) || is.null(maps) || is.null(map_type_key) || is.null(pressurepath) || is.null(path)
+) {
   cli::cli_abort(
     "Required data not found in shiny options. Please restart the app with correct options."
   )

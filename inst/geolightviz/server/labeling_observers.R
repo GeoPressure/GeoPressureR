@@ -50,8 +50,7 @@ setup_labeling_observers <- function(
 
     # Find nearby points
     nearby_idx <- which(
-      abs(as.numeric(difftime(twl_$twilight, clicked_x, units = "days"))) <=
-        0.5 &
+      abs(as.numeric(difftime(twl_$twilight, clicked_x, units = "days"))) <= 0.5 &
         abs(as.numeric(difftime(
           twl_$plottime,
           clicked_y,

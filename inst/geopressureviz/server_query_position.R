@@ -36,7 +36,11 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
 
   start_query_position <- function(lat0, lon0, pres_df, stap_idx, stap_id) {
     if (!is.null(reactVal$query_proc) && isTRUE(reactVal$query_proc$is_alive())) {
-      shiny::showNotification("A query is already running. Please wait.", type = "warning", duration = 4)
+      shiny::showNotification(
+        "A query is already running. Please wait.",
+        type = "warning",
+        duration = 4
+      )
       return(FALSE)
     }
 
@@ -97,26 +101,26 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
 
     tryCatch(
       {
-            pressuretimeseries <- p$get_result()
-            process_pressuretimeseries(pressuretimeseries, stap_idx, stap_id)
-            shiny::showNotification(
-              paste0("Query completed. (#", stap_id, ")"),
-              type = "message",
-              duration = 6
-            )
+        pressuretimeseries <- p$get_result()
+        process_pressuretimeseries(pressuretimeseries, stap_idx, stap_id)
+        shiny::showNotification(
+          paste0("Query completed. (#", stap_id, ")"),
+          type = "message",
+          duration = 6
+        )
       },
       error = function(e) {
         cli::cli_alert_warning(c(
           "!" = "Function {.fun geopressure_timeseries} did not work.",
           "i" = conditionMessage(e)
         ))
-            shiny::showNotification(
-              shiny::HTML(paste0(
-                "Query failed (#",
-                stap_id,
-                ").<br>",
-                shiny::htmlEscape(conditionMessage(e))
-              )),
+        shiny::showNotification(
+          shiny::HTML(paste0(
+            "Query failed (#",
+            stap_id,
+            ").<br>",
+            shiny::htmlEscape(conditionMessage(e))
+          )),
           type = "error",
           duration = 12
         )
