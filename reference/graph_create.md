@@ -162,9 +162,9 @@ print(graph)
 #> 
 #> ── Graph size 
 #> • 1 equipement node
-#> • 51 retrieval nodes
-#> • 1,908 nodes
-#> • 846,319 edges
+#> • 501 retrieval nodes
+#> • 2,481 nodes
+#> • 1,225,809 edges
 #> 
 #> ── Movement model 
 #> ! Windspeed not computed. Use `graph_add_wind()`

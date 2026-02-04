@@ -27,6 +27,7 @@ geopressure_map(
   log_linear_pooling_weight = function(n) log(n)/n,
   timeout = 60 * 5,
   workers = "auto",
+  era5_dataset = "both",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
@@ -49,6 +50,7 @@ geopressure_map_mismatch(
   thr_mask = 0.9,
   timeout = 60 * 5,
   workers = "auto",
+  era5_dataset = "land",
   compute_known = FALSE,
   debug = FALSE,
   quiet = FALSE
@@ -101,6 +103,17 @@ geopressure_map_mismatch(
 
   number of parallel requests on GEE. Integer between 1 and 99. `"auto"`
   adjust the number of workers to the number of `stapelev` to query.
+
+- era5_dataset:
+
+  select the dataset to use: `"single-levels"` for ERA5 hourly data on
+  single levels
+  ([doi:10.24381/cds.adbb2d47](https://doi.org/10.24381/cds.adbb2d47) ),
+  `"land"` for ERA5-Land hourly data
+  ([doi:10.24381/cds.e2161bac](https://doi.org/10.24381/cds.e2161bac) )
+  or `"both"` to use land where available and single-levels otherwise
+  (i.e. over water). LAND has greater precision but is not available on
+  water. Using a single one makes the query faster.
 
 - keep_mask:
 

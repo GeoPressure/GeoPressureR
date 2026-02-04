@@ -77,6 +77,7 @@ Nussbaumer et al. (2023a; <a href="https://doi.org/10.1111/2041-210X.14043" clas
 <span>  log_linear_pooling_weight <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">/</span><span class="va">n</span>,</span>
 <span>  timeout <span class="op">=</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">5</span>,</span>
 <span>  workers <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  era5_dataset <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>  keep_mask <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  keep_mse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  compute_known <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -99,6 +100,7 @@ Nussbaumer et al. (2023a; <a href="https://doi.org/10.1111/2041-210X.14043" clas
 <span>  thr_mask <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  timeout <span class="op">=</span> <span class="fl">60</span> <span class="op">*</span> <span class="fl">5</span>,</span>
 <span>  workers <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  era5_dataset <span class="op">=</span> <span class="st">"land"</span>,</span>
 <span>  compute_known <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  debug <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  quiet <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -148,6 +150,16 @@ GeoPressureAPI and on GEE (in seconds, see <code><a href="https://httr2.r-lib.or
 <dt id="arg-workers">workers<a class="anchor" aria-label="anchor" href="#arg-workers"></a></dt>
 <dd><p>number of parallel requests on GEE. Integer between 1 and 99. <code>"auto"</code> adjust the
 number of workers to the number of <code>stapelev</code> to query.</p></dd>
+
+
+<dt id="arg-era-dataset">era5_dataset<a class="anchor" aria-label="anchor" href="#arg-era-dataset"></a></dt>
+<dd><p>select the dataset to use: <code>"single-levels"</code> for ERA5 hourly data on single
+levels (<a href="https://doi.org/10.24381/cds.adbb2d47" class="external-link">doi:10.24381/cds.adbb2d47</a>
+), <code>"land"</code> for ERA5-Land hourly data
+(<a href="https://doi.org/10.24381/cds.e2161bac" class="external-link">doi:10.24381/cds.e2161bac</a>
+) or <code>"both"</code> to use land where available and single-levels
+otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
+single one makes the query faster.</p></dd>
 
 
 <dt id="arg-keep-mask">keep_mask<a class="anchor" aria-label="anchor" href="#arg-keep-mask"></a></dt>
