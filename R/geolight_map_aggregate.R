@@ -30,7 +30,7 @@ geolight_map_aggregate <- function(
   twl_id_stap_id <- split(twl_idx, twl$stap_id[twl_idx])
 
   # Compute the number of twilight per stap
-  stopifnot(lengths(twl_id_stap_id) > 0)
+  assertthat::assert_that(length(twl_id_stap_id) > 0, all(lengths(twl_id_stap_id) > 0))
 
   pgz <- tag$map_light_twl$data
 

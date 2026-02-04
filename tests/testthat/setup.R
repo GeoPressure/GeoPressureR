@@ -19,7 +19,7 @@ copied <- file.copy(
   to = extdata_tmp,
   recursive = TRUE
 )
-stopifnot(all(copied))
+assertthat::assert_that(all(copied))
 
 # Set option so helper functions know where to find test data
 options(geopressurer.extdata_path = extdata_tmp)

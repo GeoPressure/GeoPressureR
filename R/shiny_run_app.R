@@ -27,7 +27,7 @@ shiny_run_app_bg <- function(
 ) {
   p <- callr::r_bg(
     func = function(app_dir, shiny_opts) {
-      library(GeoPressureR)
+      loadNamespace("GeoPressureR")
       do.call(shiny::shinyOptions, shiny_opts)
       shiny::runApp(app_dir)
     },
