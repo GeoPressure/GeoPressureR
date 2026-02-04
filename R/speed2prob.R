@@ -15,7 +15,8 @@
 #'     method = "gamma",
 #'     shape = 7,
 #'     scale = 7,
-#'     low_speed_fix = low_speed_fix
+#'     low_speed_fix = low_speed_fix,
+#'     zero_speed_ratio = 0
 #'   )
 #' )
 #' plot(speed, prob,
@@ -33,7 +34,8 @@
 #'     method = "power",
 #'     bird = bird,
 #'     power2prob = \(power) (1 / power)^3,
-#'     low_speed_fix = low_speed_fix
+#'     low_speed_fix = low_speed_fix,
+#'     zero_speed_ratio = 0
 #'   )
 #' )
 #' plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
