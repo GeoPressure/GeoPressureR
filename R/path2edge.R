@@ -61,10 +61,16 @@ path2edge <- function(path, tag_graph) {
   lat <- matrix(path$lat[path$stap_id %in% stap_id_included], nrow = nj)
   lon <- matrix(path$lon[path$stap_id %in% stap_id_included], nrow = nj)
 
-  ind_lat <- vapply(as.data.frame(lat), \(l) which.min(abs(l - g$lat)), integer(1))
-  ind_lon <- vapply(as.data.frame(lon), \(l) which.min(abs(l - g$lon)), integer(1))
+  ind_lat <- matrix(
+    vapply(c(lat), \(l) which.min(abs(l - g$lat)), integer(1)),
+    nrow = nj
+  )
+  ind_lon <- matrix(
+    vapply(c(lon), \(l) which.min(abs(l - g$lon)), integer(1)),
+    nrow = nj
+  )
 
-  ind2d <- matrix(ind_lat + (ind_lon - 1) * g$dim[1], nrow = nj)
+  ind2d <- ind_lat + (ind_lon - 1) * g$dim[1]
 
   ind3d <- ind2d + matrix(
     prod(g$dim) * (seq_len(ncol(ind2d)) - 1),
