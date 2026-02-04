@@ -226,15 +226,10 @@ edge_add_wind <- function(
       lon_int <- interp$lon_int
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
 
-      # Prepare the interpolated variable for each flight
-      var_fl <- list()
-      for (var_i in seq_len(length(variable))) {
-        var_fl[[var_i]] <- matrix(NA, nrow = length(t_q), ncol = length(st_id))
-      }
-
-      p_q <- numeric(length(t_q))
-
-      # Find the index of lat and lon
+      lat_int_ind <- NULL
+      lon_int_ind <- NULL
+      lat_int_int <- NULL
+      lon_int_int <- NULL
       if (!interp_spatial_linear) {
         lat_int_int <- as.vector(round(lat_int * 4) / 4)
         lat_int_ind <- matrix(match(lat_int_int, lat), nrow = nrow(lat_int))
@@ -242,159 +237,28 @@ edge_add_wind <- function(
         lon_int_ind <- matrix(match(lon_int_int, lon), nrow = nrow(lon_int))
       }
 
-      # Loop through the 1hr interval
-      for (i_time in seq_len(length(t_q))) {
-        # find the two pressure level to query (one above, one under) based on the geolocator
-        # pressure at this timestep
-        p_q[i_time] <- stats::approx(
-          pressure$date,
-          pressure$value,
-          t_q[i_time],
-          rule = 2
-        )$y
-        if (p_q[i_time] >= pres[1]) {
-          id_pres <- 1
-          n_pres <- 1
-          if (p_q[i_time] > pres[1] && pres[1] != 1000) {
-            cli::cli_warn(c(
-              "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
-              "i" = "Stationary period: {i_s}",
-              "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
-              "i" = "Time index: {i_time} of {length(t_q)}",
-              "i" = "Date: {format(t_q[i_time], '%Y-%m-%d %H:%M:%S')}",
-              "i" = "Pressure: {round(p_q[i_time], 2)} hPa",
-              "i" = "Highest available level: {pres[1]} hPa",
-              "i" = "Pressure difference: {round(p_q[i_time] - pres[1], 2)} hPa"
-            ))
-          }
-        } else if (p_q[i_time] <= pres[length(pres)]) {
-          id_pres <- length(pres)
-          n_pres <- 1
-          if (p_q[i_time] < pres[length(pres)]) {
-            cli::cli_warn(
-              "Pressure is below the lowest level. This should never happen!"
-            )
-          }
-        } else {
-          id_pres <- max(which(pres >= p_q[i_time]))
-          n_pres <- 2
-        }
-
-        # find the two time step before and after the time step to query in ERA5
-        tmp <- which(time <= t_q[i_time])
-        id_time <- tmp[which.min(abs(time[tmp] - t_q[i_time]))]
-        n_time <- ifelse(
-          id_time == length(time) | time[id_time] == t_q[i_time],
-          1,
-          2
-        )
-
-        # Find the index of lat and longitude necessary
-        id_lon <- which(
-          lon >= (min(lon_int[, i_time]) - dlon) &
-            (max(lon_int[, i_time]) + dlon) >= lon
-        )
-        id_lat <- which(
-          lat >= (min(lat_int[, i_time]) - dlat) &
-            (max(lat_int[, i_time]) + dlat) >= lat
-        )
-
-        # get the two maps of u- and v-
-        var_nc <- list()
-        for (var_i in seq_len(length(variable))) {
-          var_nc[[var_i]] <- ncdf4::ncvar_get(
-            nc,
-            variable[var_i],
-            start = c(id_lon[1], id_lat[1], id_pres, id_time),
-            count = c(length(id_lon), length(id_lat), n_pres, n_time),
-            collapse_degen = FALSE
-          )
-        }
-
-        # Interpolate linearly along time
-        if (n_time == 2) {
-          w_time <- as.numeric(difftime(
-            t_q[i_time],
-            time[id_time],
-            units = "hours"
-          )) /
-            as.numeric(difftime(
-              time[id_time + 1],
-              time[id_time],
-              units = "hours"
-            ))
-          for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1] +
-              w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1])
-          }
-        } else {
-          for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][,,, 1]
-          }
-        }
-
-        # Interpolate linearly along altitude/pressure.
-        if (n_pres == 2) {
-          w_pres <- (p_q[i_time] - pres[id_pres]) /
-            (pres[id_pres + 1] - pres[id_pres])
-          for (var_i in seq_len(length(variable))) {
-            var_nc[[var_i]] <- var_nc[[var_i]][,, 1] +
-              w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1])
-          }
-        }
-
-        if (interp_spatial_linear) {
-          # Interpolation the u- and v- component at the interpolated position at the current time
-          # step.
-          # Because lat_int and lon_int are so big, we round their value and only interpolate on the
-          # unique value that are needed. Then, we give the interpolated value back to all the
-          # lat_int lon_int dimension
-          # Convert the coordinate to 1d to have a more efficient unique.
-          ll_int_1d <- (round(lat_int[, i_time], 1) + 90) *
-            10 *
-            10000 +
-            (round(lon_int[, i_time], 1) + 180) * 10 +
-            1
-          ll_int_1d_uniq <- unique(ll_int_1d)
-
-          lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
-          lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
-          # Check that the transformation is correct with
-          # cbind((round(lat_int[, i_time], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
-          # cbind((round(lon_int[, i_time],1)+180)*10, (ll_int_1d - 1) %% 10000)
-          # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i_time], lon_int[, i_time])
-
-          id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
-
-          for (var_i in seq_len(length(variable))) {
-            tmp <- pracma::interp2(
-              rev(lat[id_lat]),
-              lon[id_lon],
-              var_nc[[var_i]][, rev(seq_len(ncol(var_nc[[var_i]])))],
-              lat_int_uniq,
-              lon_int_uniq,
-              method = "linear"
-            )
-            assertthat::assert_that(!anyNA(tmp))
-            var_fl[[var_i]][i_time, ] <- tmp[id_uniq]
-          }
-        } else {
-          # Take the closest value
-          for (var_i in seq_len(length(variable))) {
-            # Compute the index of lat, lon in the spatial extent extracted for var_nc
-            lon_int_ind_off <- lon_int_ind[, i_time] - id_lon[1] + 1
-            lat_int_ind_off <- lat_int_ind[, i_time] - id_lat[1] + 1
-
-            # compute the 2d index
-            ind <- (lat_int_ind_off - 1) *
-              nrow(var_nc[[var_i]]) +
-              lon_int_ind_off
-
-            # Extract variable
-            var_fl[[var_i]][i_time, ] <- var_nc[[var_i]][ind]
-          }
-        }
-      }
+      out <- edge_add_wind_fill_var_fl(
+        pressure,
+        t_q,
+        pres,
+        time,
+        lat,
+        lon,
+        dlat,
+        dlon,
+        lat_int,
+        lon_int,
+        lat_int_ind,
+        lon_int_ind,
+        interp_spatial_linear,
+        nc,
+        variable,
+        i_s,
+        i_fl,
+        fl_s
+      )
+      var_fl <- out$var_fl
+      p_q <- out$p_q
 
       if (return_averaged_variable) {
         # Compute the average wind component of the flight accounting for the weighting scheme
@@ -765,4 +629,187 @@ edge_add_wind_weights <- function(fl_s, i_fl, t_q, rounding_interval) {
   assertthat::assert_that(!anyNA(w))
 
   w
+}
+
+
+#' @noRd
+edge_add_wind_fill_var_fl <- function(
+  pressure,
+  t_q,
+  pres,
+  time,
+  lat,
+  lon,
+  dlat,
+  dlon,
+  lat_int,
+  lon_int,
+  lat_int_ind,
+  lon_int_ind,
+  interp_spatial_linear,
+  nc,
+  variable,
+  i_s,
+  i_fl,
+  fl_s
+) {
+  var_fl <- lapply(seq_len(length(variable)), function(var_i) {
+    matrix(NA, nrow = length(t_q), ncol = nrow(lat_int))
+  })
+  p_q <- numeric(length(t_q))
+
+  for (i_time in seq_len(length(t_q))) {
+    # find the two pressure level to query (one above, one under) based on the geolocator
+    # pressure at this timestep
+    p_q[i_time] <- stats::approx(
+      pressure$date,
+      pressure$value,
+      t_q[i_time],
+      rule = 2
+    )$y
+    if (p_q[i_time] >= pres[1]) {
+      id_pres <- 1
+      n_pres <- 1
+      if (p_q[i_time] > pres[1] && pres[1] != 1000) {
+        cli::cli_warn(c(
+          "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
+          "i" = "Stationary period: {i_s}",
+          "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
+          "i" = "Time index: {i_time} of {length(t_q)}",
+          "i" = "Date: {format(t_q[i_time], '%Y-%m-%d %H:%M:%S')}",
+          "i" = "Pressure: {round(p_q[i_time], 2)} hPa",
+          "i" = "Highest available level: {pres[1]} hPa",
+          "i" = "Pressure difference: {round(p_q[i_time] - pres[1], 2)} hPa"
+        ))
+      }
+    } else if (p_q[i_time] <= pres[length(pres)]) {
+      id_pres <- length(pres)
+      n_pres <- 1
+      if (p_q[i_time] < pres[length(pres)]) {
+        cli::cli_warn(
+          "Pressure is below the lowest level. This should never happen!"
+        )
+      }
+    } else {
+      id_pres <- max(which(pres >= p_q[i_time]))
+      n_pres <- 2
+    }
+
+    # find the two time step before and after the time step to query in ERA5
+    tmp <- which(time <= t_q[i_time])
+    id_time <- tmp[which.min(abs(time[tmp] - t_q[i_time]))]
+    n_time <- ifelse(
+      id_time == length(time) | time[id_time] == t_q[i_time],
+      1,
+      2
+    )
+
+    # Find the index of lat and longitude necessary
+    id_lon <- which(
+      lon >= (min(lon_int[, i_time]) - dlon) &
+        (max(lon_int[, i_time]) + dlon) >= lon
+    )
+    id_lat <- which(
+      lat >= (min(lat_int[, i_time]) - dlat) &
+        (max(lat_int[, i_time]) + dlat) >= lat
+    )
+
+    # get the two maps of u- and v-
+    var_nc <- vector("list", length(variable))
+    for (var_i in seq_len(length(variable))) {
+      var_nc[[var_i]] <- ncdf4::ncvar_get(
+        nc,
+        variable[var_i],
+        start = c(id_lon[1], id_lat[1], id_pres, id_time),
+        count = c(length(id_lon), length(id_lat), n_pres, n_time),
+        collapse_degen = FALSE
+      )
+    }
+
+    # Interpolate linearly along time
+    if (n_time == 2) {
+      w_time <- as.numeric(difftime(
+        t_q[i_time],
+        time[id_time],
+        units = "hours"
+      )) /
+        as.numeric(difftime(
+          time[id_time + 1],
+          time[id_time],
+          units = "hours"
+        ))
+      for (var_i in seq_len(length(variable))) {
+        var_nc[[var_i]] <- var_nc[[var_i]][,,, 1] +
+          w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1])
+      }
+    } else {
+      for (var_i in seq_len(length(variable))) {
+        var_nc[[var_i]] <- var_nc[[var_i]][,,, 1]
+      }
+    }
+
+    # Interpolate linearly along altitude/pressure.
+    if (n_pres == 2) {
+      w_pres <- (p_q[i_time] - pres[id_pres]) /
+        (pres[id_pres + 1] - pres[id_pres])
+      for (var_i in seq_len(length(variable))) {
+        var_nc[[var_i]] <- var_nc[[var_i]][,, 1] +
+          w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1])
+      }
+    }
+
+    if (interp_spatial_linear) {
+      # Interpolation the u- and v- component at the interpolated position at the current time
+      # step.
+      # Because lat_int and lon_int are so big, we round their value and only interpolate on the
+      # unique value that are needed. Then, we give the interpolated value back to all the
+      # lat_int lon_int dimension
+      # Convert the coordinate to 1d to have a more efficient unique.
+      ll_int_1d <- (round(lat_int[, i_time], 1) + 90) *
+        10 *
+        10000 +
+        (round(lon_int[, i_time], 1) + 180) * 10 +
+        1
+      ll_int_1d_uniq <- unique(ll_int_1d)
+
+      lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
+      lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
+      # Check that the transformation is correct with
+      # cbind((round(lat_int[, i_time], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
+      # cbind((round(lon_int[, i_time],1)+180)*10, (ll_int_1d - 1) %% 10000)
+      # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i_time], lon_int[, i_time])
+
+      id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
+
+      for (var_i in seq_len(length(variable))) {
+        tmp <- pracma::interp2(
+          rev(lat[id_lat]),
+          lon[id_lon],
+          var_nc[[var_i]][, rev(seq_len(ncol(var_nc[[var_i]])))],
+          lat_int_uniq,
+          lon_int_uniq,
+          method = "linear"
+        )
+        assertthat::assert_that(!anyNA(tmp))
+        var_fl[[var_i]][i_time, ] <- tmp[id_uniq]
+      }
+    } else {
+      # Take the closest value
+      for (var_i in seq_len(length(variable))) {
+        # Compute the index of lat, lon in the spatial extent extracted for var_nc
+        lon_int_ind_off <- lon_int_ind[, i_time] - id_lon[1] + 1
+        lat_int_ind_off <- lat_int_ind[, i_time] - id_lat[1] + 1
+
+        # compute the 2d index
+        ind <- (lat_int_ind_off - 1) *
+          nrow(var_nc[[var_i]]) +
+          lon_int_ind_off
+
+        # Extract variable
+        var_fl[[var_i]][i_time, ] <- var_nc[[var_i]][ind]
+      }
+    }
+  }
+
+  list(var_fl = var_fl, p_q = p_q)
 }
