@@ -16,6 +16,15 @@
 #'
 #' @return Updated `tag` with a twilight-based `stap` and optional `stap0`. The `stap` includes a
 #' logical column `stap0` set to `TRUE` when intervals come from the provided `stap0` input.
+#'
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create() |>
+#'     twilight_label_read()
+#' })
+#' tag <- tag_stap_daily(tag, twl_grouping = "night")
 #' @family tag
 #' @export
 tag_stap_daily <- function(

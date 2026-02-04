@@ -26,6 +26,16 @@
 #' @return A `path` data.frame derived from `tag$stap` with added columns:
 #'   `lon`, `lat`, `zenith`. Rows where fitting was not possible remain `NA`.
 #'
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     twilight_create() |>
+#'     twilight_label_read()
+#' })
+#' tag <- tag_stap_daily(tag, quiet = TRUE)
+#' path <- geolight_fit_location(tag, fitted_location_duration = 5, quiet = TRUE)
+#'
 #' @family geolight
 #' @export
 geolight_fit_location <- function(

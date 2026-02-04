@@ -76,7 +76,6 @@
 #' pressure paths, etc.) to the specified `file`.
 #'
 #' @examples
-#' \dontrun{
 #' # Run the complete geopressuretemplate workflow
 #' geopressuretemplate("18LX")
 #'
@@ -89,7 +88,6 @@
 #' geopressuretemplate_graph("18LX")
 #' # 3. Computation of the pressurepath
 #' geopressuretemplate_pressurepath("18LX")
-#' }
 #'
 #' @family geopressuretemplate
 #' @seealso [GeoPressureManual

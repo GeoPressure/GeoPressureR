@@ -23,7 +23,6 @@
 #' by `rnaturalearth` when available.
 #'
 #' @examples
-#' \dontrun{
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>
@@ -41,7 +40,6 @@
 #'   # View the mask
 #'   image(tag$map_light$mask_water)
 #' })
-#' }
 #'
 #' @family map
 #' @export

@@ -44,6 +44,14 @@
 #'
 #' @return Solar zenith angle(s) in degrees, corrected for atmospheric refraction.
 #'
+#' @examples
+#' date <- as.POSIXct(
+#'   c("2020-06-21 12:00:00", "2020-12-21 12:00:00"),
+#'   tz = "UTC"
+#' )
+#' z <- geolight_solar(date, lat = 46, lon = 6)
+#' z
+#'
 #' @references
 #' NOAA Global Monitoring Laboratory. Solar Calculation Details.
 #' \url{https://gml.noaa.gov/grad/solcalc/calcdetails.html}

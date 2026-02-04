@@ -14,6 +14,8 @@
 #' @param polyline list of parameters passed to `leaflet::addPolylines()`
 #' @param circle list of parameters passed to `leaflet::addCircleMarkers()`
 #'
+#' @return A `leaflet` map when `plot_leaflet = TRUE`, otherwise a `ggplot2` object.
+#'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>

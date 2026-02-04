@@ -19,6 +19,16 @@
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
+#'     geopressure_map(quiet = TRUE)
+#' })
+#' graph <- graph_create(tag, quiet = TRUE)
+#' graph <- graph_add_wind(graph, quiet = TRUE)
+#'
 #' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
