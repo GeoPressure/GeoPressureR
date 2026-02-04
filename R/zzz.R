@@ -9,7 +9,9 @@ NULL
 methods::setOldClass("map")
 
 #' @importFrom methods setMethod
-methods::setMethod(rast, "map", rast.map)
+if (methods::isGeneric("rast") && exists("rast.map", mode = "function")) {
+  methods::setMethod("rast", "map", rast.map)
+}
 
 #' @noRd
 format_minutes <- function(mins) {
