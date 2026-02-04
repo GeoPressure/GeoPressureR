@@ -63,6 +63,7 @@
 #' - `lon` longitude at each time step
 #'
 #' @examples
+#' \dontrun{
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>
@@ -71,6 +72,7 @@
 #' })
 #' graph <- graph_create(tag, quiet = TRUE)
 #' wind <- edge_add_wind(graph, edge_s = graph$s, edge_t = graph$t, quiet = TRUE)
+#' }
 #' @family edge
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)

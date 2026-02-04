@@ -34,6 +34,9 @@ leaflet::providerTileOptions()}
 
 \item{circle}{list of parameters passed to \code{leaflet::addCircleMarkers()}}
 }
+\value{
+A \code{leaflet} map when \code{plot_leaflet = TRUE}, otherwise a \code{ggplot2} object.
+}
 \description{
 This function plots a \code{path} data.frame. This function is used in \code{\link[=plot.map]{plot.map()}}.
 }

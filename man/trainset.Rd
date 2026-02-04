@@ -53,6 +53,13 @@ The app features:
 Learn more about data labeling workflows in the \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual } or explore the
 \href{https://raphaelnussbaumer.com/GeoPressureR/}{GeoPressureR documentation}.
 }
+\examples{
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+})
+trainset(tag, run_bg = FALSE, launch_browser = FALSE)
+
+}
 \seealso{
 \code{\link[=tag_label_read]{tag_label_read()}}, \code{\link[=tag_label_write]{tag_label_write()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual }
 }

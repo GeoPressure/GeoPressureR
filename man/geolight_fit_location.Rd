@@ -47,6 +47,17 @@ the set of locations at a fixed angular distance (zenith angle) from the
 subsolar point at that time. The fitted location is the point that is, in a
 least-squares sense, closest to all those circles simultaneously.
 }
+\examples{
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    twilight_create() |>
+    twilight_label_read()
+})
+tag <- tag_stap_daily(tag, quiet = TRUE)
+path <- geolight_fit_location(tag, fitted_location_duration = 5, quiet = TRUE)
+
+}
 \seealso{
 Other geolight: 
 \code{\link{geolight_map}()},

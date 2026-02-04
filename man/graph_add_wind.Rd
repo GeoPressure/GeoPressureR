@@ -44,6 +44,17 @@ See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-2
 for more technical details and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an
 illustration on how to use it.
 }
+\examples{
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
+    geopressure_map(quiet = TRUE)
+})
+graph <- graph_create(tag, quiet = TRUE)
+graph <- graph_add_wind(graph, quiet = TRUE)
+
+}
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly

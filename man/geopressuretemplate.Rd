@@ -151,7 +151,6 @@ Each of these child functions can be called individually or automatically as par
 the \code{geopressuretemplate} workflow.
 }
 \examples{
-\dontrun{
 # Run the complete geopressuretemplate workflow
 geopressuretemplate("18LX")
 
@@ -164,7 +163,6 @@ tag <- geopressuretemplate_tag("18LX")
 geopressuretemplate_graph("18LX")
 # 3. Computation of the pressurepath
 geopressuretemplate_pressurepath("18LX")
-}
 
 }
 \seealso{

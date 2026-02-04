@@ -29,6 +29,20 @@ allowing you to continue using the R console. If false, the app blocks the conso
 
 \item{...}{currently unused.}
 }
+\value{
+When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
+When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
+}
 \description{
 Start the GeoLightViz shiny app
+}
+\examples{
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    twilight_create() |>
+    twilight_label_read()
+})
+geolightviz(tag, run_bg = FALSE, launch_browser = FALSE)
+
 }

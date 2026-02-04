@@ -35,6 +35,15 @@ Build a \code{stap} table using midpoints between consecutive twilight pairs so 
 follow the twilight drift. If a \code{stap0} is provided (as a data.frame or a CSV path), its
 intervals are kept as-is and the remaining gaps are filled using twilight midpoints.
 }
+\examples{
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    twilight_create() |>
+    twilight_label_read()
+})
+tag <- tag_stap_daily(tag, twl_grouping = "night")
+}
 \seealso{
 Other tag: 
 \code{\link{print.tag}()},

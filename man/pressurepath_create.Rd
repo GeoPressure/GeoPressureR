@@ -52,11 +52,8 @@ A GeoPressureR \code{pressurepath} data.frame with columns:
 \item \code{stap_id} same as \code{pressure$stap_id}
 \item \code{pressure_tag} same as \code{pressure$value}
 \item \code{label} same as \code{pressure$label}
-\item \code{j} same as \code{path$j}
-\item \code{lat} same as \code{path$lat}
-\item \code{lon} same as \code{path$lon}
-\item \code{include} same as \code{path$include}
-\item \code{known} same as \code{path$known}
+\item \code{lat} same as \code{path$lat}, interpolated linerarly during flight
+\item \code{lon} same as \code{path$lon}, interpolated linerarly during flight
 \item \code{altitude} altitude of the bird along the path (see detail)
 \item \code{surface_pressure} pressure retrieved from ERA5.
 \item \code{surface_pressure_norm} pressure retrieved from ERA5 normalized to the average of
