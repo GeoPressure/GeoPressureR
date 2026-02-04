@@ -721,11 +721,10 @@ edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, ro
     ),
     0
   )
-  w2 <- matrix(w, nrow = length(dlat_se), ncol = length(w), byrow = TRUE)
-  lat_int <- lat_s + w2 * replicate(length(w), dlat_se)
-  lon_int <- lon_s + w2 * replicate(length(w), dlon_se)
+  lat_int <- lat_s + tcrossprod(dlat_se, w)
+  lon_int <- lon_s + tcrossprod(dlon_se, w)
 
-  rm(w2, dlat_se, dlon_se, w)
+  rm(dlat_se, dlon_se, w)
   gc()
 
   list(t_q = t_q, lat_int = lat_int, lon_int = lon_int)
