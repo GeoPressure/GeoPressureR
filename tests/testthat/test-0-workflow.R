@@ -67,7 +67,7 @@ test_that("workflow | Missing pressure value", {
   )
 
   expect_equal(
-    sapply(tag$map_pressure$data, is.null),
+    vapply(tag$map_pressure$data, is.null, logical(1)),
     c(TRUE, TRUE, FALSE, FALSE, TRUE)
   )
 
