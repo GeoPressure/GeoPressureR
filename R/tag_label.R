@@ -14,7 +14,9 @@
 #' @param tag a GeoPressure `tag` object.
 #' @param file Absolute or relative path of the label file.
 #' @param quiet logical to display message.
-#' @inheritDotParams tag_label_stap warning_flight_duration warning_stap_duration quiet
+#' @param warning_flight_duration lifecycle::deprecated()
+#' @param warning_stap_duration lifecycle::deprecated()
+#' @param ... lifecycle::deprecated()
 #'
 #' @return Same `tag` list with
 #'
@@ -51,8 +53,29 @@ tag_label <- function(
   tag,
   file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
   quiet = FALSE,
+  warning_flight_duration = lifecycle::deprecated(),
+  warning_stap_duration = lifecycle::deprecated(),
   ...
 ) {
+  if (lifecycle::is_present(warning_flight_duration)) {
+    lifecycle::deprecate_warn(
+      "3.5.0",
+      "tag_label(warning_flight_duration)"
+    )
+  }
+  if (lifecycle::is_present(warning_stap_duration)) {
+    lifecycle::deprecate_warn(
+      "3.5.0",
+      "tag_label(warning_stap_duration)"
+    )
+  }
+  if (length(list(...)) > 0) {
+    lifecycle::deprecate_warn(
+      "3.5.0",
+      "tag_label(...)",
+      details = "Additional arguments are ignored."
+    )
+  }
   tag_assert(tag)
   assertthat::assert_that(is.character(file))
 
@@ -130,7 +153,7 @@ tag_label <- function(
     tag <- tag_label_read(tag, file)
 
     # Add the stationary periods
-    tag <- tag_label_stap(tag, quiet = quiet, ...)
+    tag <- tag_label_stap(tag, quiet = quiet)
 
     return(tag)
   }

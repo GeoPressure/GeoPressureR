@@ -192,35 +192,9 @@ plot_tag_pressure <- function(
 
   # Only if tag is labelled
   if ("label" %in% names(tag$pressure)) {
-    # compute the pressure at the hourly scale
+    # Compute hourly processed pressure and warning differences.
     pres <- geopressure_map_preprocess(tag)
-
-    # convert stapelev to factor for color
-    pres$stapelev <- factor(pres$stapelev)
-
-    # Pressure difference
-    pres_diff <- data.frame(
-      value = abs(diff(pres$value)),
-      value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
-      date = utils::head(pres$date, -1) + diff(pres$date) / 2,
-      date_diff = as.numeric(diff(pres$date), units = "hours"),
-      same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
-      stap_id = (utils::tail(pres$stap_id, -1) +
-        utils::head(pres$stap_id, -1)) /
-        2
-    )
-    # Only keep the 1 hours difference
-    pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
-    # Only keep if belonging to the same stapelev
-    pres_diff <- pres_diff[pres_diff$same_stapelev, ]
-    # Remove diff overlapping between stationary periods/flight
-    pres_diff <- pres_diff[
-      (pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0,
-    ]
-    # Only keep difference which are above warning limit
-    pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
-    # Sort data.frame for displaying top 10 max
-    pres_diff <- pres_diff[order(pres_diff$value, decreasing = TRUE), ]
+    pres_diff <- pressure_diff_warning_data(tag, warning_pressure_diff)
 
     p <- p +
       ggplot2::geom_point(
@@ -242,6 +216,45 @@ plot_tag_pressure <- function(
   }
 
   plot_tag_finalize(p, plot_plotly)
+}
+
+#' Compute warning pressure differences at 1h intervals
+#'
+#' @param tag a GeoPressureR `tag` object with labels.
+#' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
+#' @noRd
+pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
+  assertthat::assert_that(is.numeric(warning_pressure_diff))
+  assertthat::assert_that(length(warning_pressure_diff) == 1)
+  assertthat::assert_that(!is.na(warning_pressure_diff))
+
+  # Compute the pressure at the hourly scale.
+  pres <- geopressure_map_preprocess(tag)
+
+  # Group by stationary period and elevation level.
+  pres$stapelev <- factor(pres$stapelev)
+
+  # Compute consecutive pressure differences.
+  pres_diff <- data.frame(
+    value = abs(diff(pres$value)),
+    value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
+    date = utils::head(pres$date, -1) + diff(pres$date) / 2,
+    date_diff = as.numeric(diff(pres$date), units = "hours"),
+    same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
+    stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
+  )
+
+  # Keep only valid 1-hour differences within a stationary period.
+  pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
+  pres_diff <- pres_diff[pres_diff$same_stapelev, ]
+  pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]
+
+  # Keep only differences above warning threshold and sort for display.
+  pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
+  pres_diff <- pres_diff[order(pres_diff$value, decreasing = TRUE), ]
+  rownames(pres_diff) <- NULL
+
+  pres_diff
 }
 
 #' Plot acceleration data of a `tag`

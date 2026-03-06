@@ -109,3 +109,70 @@ points_to_df <- function(points) {
     stringsAsFactors = FALSE
   )
 }
+
+refresh_stap_state <- function() {
+  if (has_pressure) {
+    state$tag$pressure$label <- reactive_label_pres()
+  }
+  if (has_acceleration) {
+    state$tag$acceleration$label <- reactive_label_acc()
+  }
+
+  state$tag <- tag_label_stap(
+    state$tag,
+    quiet = TRUE
+  )
+
+  state$stap_data <- if (!is.null(state$tag$stap) && nrow(state$tag$stap) > 0) {
+    d <- state$tag$stap
+    d$duration <- stap2duration(d)
+    d
+  } else {
+    data.frame(
+      start = as.POSIXct(character(0)),
+      end = as.POSIXct(character(0)),
+      stap_id = character(0),
+      duration = numeric(0)
+    )
+  }
+}
+
+zoom_to_window <- function(start, end, lag_x_hours = 12, lag_y = 5) {
+  lag_x <- as.difftime(lag_x_hours, units = "hours")
+  xmin <- start - lag_x
+  xmax <- end + lag_x
+
+  layout_update <- list(
+    xaxis = list(range = list(xmin, xmax))
+  )
+
+  active_series <- active_series_or_default()
+  if (active_series == "acceleration" && has_acceleration) {
+    y_vals <- acceleration_data$value[acceleration_data$date >= start & acceleration_data$date <= end]
+    y_axis <- if (has_pressure) "yaxis2" else "yaxis"
+  } else if (has_pressure) {
+    y_vals <- pressure_data$value[pressure_data$date >= start & pressure_data$date <= end]
+    y_axis <- "yaxis"
+  } else if (has_acceleration) {
+    y_vals <- acceleration_data$value[acceleration_data$date >= start & acceleration_data$date <= end]
+    y_axis <- "yaxis"
+  } else {
+    y_vals <- numeric(0)
+    y_axis <- "yaxis"
+  }
+
+  if (length(y_vals) > 0 && !all(is.na(y_vals))) {
+    layout_update[[y_axis]] <- list(
+      range = c(
+        min(y_vals, na.rm = TRUE) - lag_y,
+        max(y_vals, na.rm = TRUE) + lag_y
+      )
+    )
+  }
+
+  plotly::plotlyProxy("ts_plot", session) |>
+    plotly::plotlyProxyInvoke("relayout", layout_update)
+
+  state$last_relayout_ms <- c(round(as.numeric(xmin) * 1000), round(as.numeric(xmax) * 1000))
+  refresh_detail_traces(xmin, xmax)
+}

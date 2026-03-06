@@ -80,6 +80,11 @@ if (has_pressure && has_acceleration) {
   time_max <- max(time_max, max(acceleration_data$date, na.rm = TRUE), na.rm = TRUE)
 }
 
+warning_flight_duration <- 2
+warning_stap_duration <- 6
+warning_pressure_diff <- 3
+max_check_items <- 200L
+
 server <- function(input, output, session) {
   label_dir <- shiny::getShinyOption("label_dir")
   auto_save_enabled <- !is.null(label_dir) && dir.exists(label_dir)
@@ -111,7 +116,11 @@ server <- function(input, output, session) {
     view_xmax = time_max,
     pressure_detail_idx = integer(0),
     acceleration_detail_idx = integer(0),
-    acc_has_lines = TRUE
+    acc_has_lines = TRUE,
+    warning_flight_duration = warning_flight_duration,
+    warning_stap_duration = warning_stap_duration,
+    warning_pressure_diff = warning_pressure_diff,
+    max_check_items = max_check_items
   )
 
   reactive_label_pres <- shiny::reactiveVal(pressure_data$label)
@@ -224,6 +233,7 @@ server <- function(input, output, session) {
   source("server_helpers.R", local = TRUE)
   source("server_plot.R", local = TRUE)
   source("server_labels.R", local = TRUE)
+  source("server_checks.R", local = TRUE)
   source("server_stap.R", local = TRUE)
   source("server_save.R", local = TRUE)
   source("server_shortcuts.R", local = TRUE)

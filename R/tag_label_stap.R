@@ -15,9 +15,6 @@
 #'
 #'
 #' @inheritParams tag_label
-#' @param warning_flight_duration Threshold of flight duration to display warning for (hours)
-#' @param warning_stap_duration Threshold of stationary period duration to display warning for
-#' (hours)
 #' @param quiet logical to display warning message.
 #' @return `tag` is return with (1) a new data.frame of stationary periods `tag$stap` and (2) a new
 #'  column `stap_id` for each sensor data.
@@ -38,9 +35,29 @@
 tag_label_stap <- function(
   tag,
   quiet = FALSE,
-  warning_flight_duration = 2,
-  warning_stap_duration = 6
+  warning_flight_duration = lifecycle::deprecated(),
+  warning_stap_duration = lifecycle::deprecated(),
+  ...
 ) {
+  if (lifecycle::is_present(warning_flight_duration)) {
+    lifecycle::deprecate_warn(
+      "3.5.0",
+      "tag_label_stap(warning_flight_duration)"
+    )
+  }
+  if (lifecycle::is_present(warning_stap_duration)) {
+    lifecycle::deprecate_warn(
+      "3.5.0",
+      "tag_label_stap(warning_stap_duration)"
+    )
+  }
+  if (length(list(...)) > 0) {
+    lifecycle::deprecate_warn(
+      "3.5.0",
+      "tag_label_stap(...)",
+      details = "Additional arguments are ignored."
+    )
+  }
   if (tag_assert(tag, "setmap", "logical")) {
     cli::cli_abort(c(
       "x" = "{.fun tag_set_map} has already been run on this {.var tag}.",
@@ -130,95 +147,7 @@ tag_label_stap <- function(
     }
   }
 
-  if (!quiet) {
-    # Display warning based on stap duration
-    stap <- tag$stap
-    if (nrow(stap) == 1) {
-      cli::cli_warn(c(
-        "!" = "There is only a single stationary period.",
-        i = "Check that you are using {.val flight} in the label file and labelling the correct series ({.field pressure} or {.field acceleration})."
-      ))
-    }
-
-    stap$duration_num <- stap2duration(stap, units = "hours")
-    stap$duration_time <- stap2duration(stap, return_numeric = FALSE)
-
-    stap_warning <- stap[stap$duration_num <= warning_stap_duration, ]
-    cli::cli_rule(
-      "Short stationary periods ({.strong <{warning_stap_duration}hr}):"
-    )
-    if (nrow(stap_warning) > 0) {
-      for (i in seq_len(nrow(stap_warning))) {
-        s <- stap_warning[i, ]
-        cli::cli_bullets(c(
-          "!" = "Stap {s$stap} ({format(s$start, format='%Y-%m-%d %H:%M')} - {format(s$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(s$duration_time)}"
-        ))
-      }
-    } else {
-      cli::cli_bullets(c(
-        "v" = "All {nrow(stap)} stationary period{?s} duration are above {warning_stap_duration} hour{?s}."
-      ))
-    }
-
-    # Flight
-    flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
-    flight_warning <- flight[
-      as.numeric(flight$duration, units = "hours") <= warning_flight_duration,
-    ]
-    cli::cli_rule("Short flights ({.strong <{warning_flight_duration}hr}):")
-    if (nrow(flight_warning) > 0) {
-      for (i in seq_len(nrow(flight_warning))) {
-        f <- flight_warning[i, ]
-        cli::cli_bullets(c(
-          "!" = "Flight {f$stap_s} -> {f$stap_t} ({format(f$start, format='%Y-%m-%d %H:%M')} - {format(f$end, format='%Y-%m-%d %H:%M')}) : {pretty_dt(as.difftime(f$duration, units = 'hours'))}"
-        ))
-      }
-    } else {
-      cli::cli_bullets(c(
-        "v" = "All {nrow(flight)} flight{?s} duration are above {warning_flight_duration} hour{?s}."
-      ))
-    }
-  }
-
-  tag$param$tag_label$warning_flight_duration <- warning_flight_duration
-  tag$param$tag_label$warning_stap_duration <- warning_stap_duration
-
   return(tag)
-}
-
-#' Format difftime in d, h, m and s
-#'
-#' @param tim character string or numeric value specifying a time interval.
-#' @noRd
-pretty_dt <- function(tim) {
-  # Ensure the difftime object is in seconds
-  seconds <- as.numeric(as.difftime(tim), units = "secs")
-
-  # Calculate days, hours, minutes, and seconds
-  days <- floor(seconds / (24 * 60 * 60))
-  seconds <- seconds %% (24 * 60 * 60)
-  hrs <- floor(seconds / (60 * 60))
-  seconds <- seconds %% (60 * 60)
-  mins <- floor(seconds / 60)
-  secs <- round(seconds %% 60)
-
-  # Format the string
-  duration_str <- ""
-  if (days > 0) {
-    duration_str <- paste0(duration_str, days, "d ")
-  }
-  if (hrs > 0) {
-    duration_str <- paste0(duration_str, hrs, "h ")
-  }
-  if (mins > 0) {
-    duration_str <- paste0(duration_str, mins, "m ")
-  }
-  if (secs > 0 || duration_str == "") {
-    duration_str <- paste0(duration_str, secs, "s")
-  }
-
-  # Trim and return
-  trimws(duration_str)
 }
 
 #' Find the stationary period corresponding to a date
