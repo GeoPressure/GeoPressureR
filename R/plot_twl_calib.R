@@ -150,7 +150,6 @@ plot_twl_calib <- function(
 }
 
 #' @rdname plot_twl_calib
-#' @export
 plot_twl_calib_path <- function(
   tag,
   path,
