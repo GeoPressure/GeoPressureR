@@ -130,14 +130,14 @@ pressurepath_create <- function(
   )
 
   # Validate requested variables against the allowed set
-  unknown_vars <- setdiff(variable, pressurepath_variable)
+  unknown_vars <- setdiff(variable, c(pressurepath_variable, "altitude"))
   assertthat::assert_that(
     length(unknown_vars) == 0,
     msg = paste0(
       "Unknown variable(s): ",
       paste(unknown_vars, collapse = ", "),
       ". Allowed variables are: ",
-      paste(pressurepath_variable, collapse = ", ")
+      paste(c(pressurepath_variable, "altitude"), collapse = ", ")
     )
   )
 
