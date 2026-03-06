@@ -94,7 +94,7 @@ setup_drawing_observers <- function(
     }
 
     new_row <- data.frame(start = min(r), end = max(r))
-    new_row$duration <- GeoPressureR::stap2duration(new_row)
+    new_row$duration <- stap2duration(new_row)
     if (!is.finite(new_row$duration) || new_row$duration <= 0) {
       shinyjs::alert("Stap duration must be positive.")
       draw_range("")
@@ -115,7 +115,7 @@ setup_drawing_observers <- function(
       if (pos <= length(ord)) {
         new_row$end <- min(new_row$end, trim_ref$start[ord[pos]])
       }
-      new_row$duration <- GeoPressureR::stap2duration(new_row)
+      new_row$duration <- stap2duration(new_row)
       if (!is.finite(new_row$duration) || new_row$duration <= 0) {
         shinyjs::alert("Stap overlaps existing range.")
         draw_range("")

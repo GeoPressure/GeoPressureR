@@ -73,7 +73,7 @@ init <- function(
   if (tag_assert(tag_for_map, "setmap", "logical") && nrow(.stapath) > 0) {
     rv$has_map <- TRUE
 
-    g <- GeoPressureR::map_expand(
+    g <- map_expand(
       tag_for_map$param$tag_set_map$extent,
       tag_for_map$param$tag_set_map$scale
     )

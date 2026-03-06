@@ -229,7 +229,7 @@ modal_calibration_server <- function(
         twl_calib_stap,
         "Could not compute calibration for this stationary period."
       ))
-      p <- GeoPressureR::plot_twl_calib(
+      p <- plot_twl_calib(
         twl_calib_stap,
         plot_plotly = TRUE
       )

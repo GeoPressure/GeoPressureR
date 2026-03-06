@@ -102,7 +102,7 @@ server <- function(input, output, session) {
     tag = tag,
     stap_data = {
       d <- stap_data
-      d$duration <- GeoPressureR::stap2duration(d)
+      d$duration <- stap2duration(d)
       d
     },
     ui_ready = FALSE,

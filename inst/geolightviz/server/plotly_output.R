@@ -72,7 +72,7 @@ render_plotly_output <- function(
         !is.na(stapath_$lat[idx]) &&
         !is.na(stapath_$lon[idx])
     ) {
-      twll <- GeoPressureR::path2twilight(stapath_[idx, ])
+      twll <- path2twilight(stapath_[idx, ])
       twll$plottime <- GeoPressureR:::time2plottime(
         twll$twilight,
         ref = .light_trace$time[1]
