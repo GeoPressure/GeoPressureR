@@ -194,8 +194,8 @@ server <- function(input, output, session) {
 
     disc <- subset(pressure, label == "discard")
 
-    xmin <- reactVal$pressure_xmin
-    xmax <- reactVal$pressure_xmax
+    xmin <- isolate(reactVal$pressure_xmin)
+    xmax <- isolate(reactVal$pressure_xmax)
     if (!is.null(xmin) && !is.null(xmax) && !anyNA(c(xmin, xmax))) {
       disc <- disc[disc$date >= xmin & disc$date <= xmax, , drop = FALSE]
     }
@@ -300,6 +300,7 @@ server <- function(input, output, session) {
     ) |>
       plotly::layout(
         showlegend = FALSE,
+        uirevision = "pressure-plot",
         yaxis = list(title = "Pressure [hPa]")
       ) |>
       plotly::config(
