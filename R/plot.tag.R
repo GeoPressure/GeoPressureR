@@ -156,7 +156,6 @@ plot.tag <- function(x, type = NULL, ...) {
 #
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
-#' @param warning_stap_length Threshold number of pressure datapoints flagged as warning (hourly).
 #' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
 #'
 #' @return a plot or ggplotly object.
@@ -178,8 +177,7 @@ plot.tag <- function(x, type = NULL, ...) {
 plot_tag_pressure <- function(
   tag,
   plot_plotly = TRUE,
-  warning_pressure_diff = 3,
-  warning_stap_length = 12
+  warning_pressure_diff = 3
 ) {
   tag_assert(tag)
   p <- ggplot2::ggplot() +
@@ -197,21 +195,8 @@ plot_tag_pressure <- function(
     # compute the pressure at the hourly scale
     pres <- geopressure_map_preprocess(tag)
 
-    # extract stap for convenience
-    stap <- tag$stap
-
     # convert stapelev to factor for color
     pres$stapelev <- factor(pres$stapelev)
-
-    # Compute number of datapoint per stationary period
-    pressure_length <- merge(
-      stap[stap$include & is.na(stap$known_lat), ],
-      data.frame(table(pres$stap_id)),
-      by.x = "stap_id",
-      by.y = "Var1",
-      all.x = TRUE
-    )
-    pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
 
     # Pressure difference
     pres_diff <- data.frame(
