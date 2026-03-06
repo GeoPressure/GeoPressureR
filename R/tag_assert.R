@@ -184,7 +184,10 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag, "magnetic")) {
     status <- append(status, c("read", "magnetic"))
   }
-  if (assertthat::has_name(tag$pressure, "label")) {
+  if (
+    (assertthat::has_name(tag, "pressure") && assertthat::has_name(tag$pressure, "label")) ||
+      (assertthat::has_name(tag, "acceleration") && assertthat::has_name(tag$acceleration, "label"))
+  ) {
     status <- append(status, "label")
   }
   if (
