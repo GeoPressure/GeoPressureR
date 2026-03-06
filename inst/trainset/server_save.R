@@ -78,13 +78,20 @@ output$export_btn <- shiny::downloadHandler(
     glue::glue("{base_name}-labeled.csv")
   },
   content = function(file) {
+    empty_csv <- data.frame(
+      series = character(0),
+      timestamp = character(0),
+      value = numeric(0),
+      label = character(0)
+    )
     tryCatch(
       {
         write_labels_csv(file)
       },
       error = function(e) {
+        utils::write.csv(empty_csv, file = file, row.names = FALSE)
         shiny::showNotification(
-          glue::glue("Download failed: {e$message}"),
+          glue::glue("Download failed: {e$message}. Exported an empty CSV instead."),
           duration = 10,
           type = "error"
         )

@@ -1,5 +1,10 @@
 # Preprocess tag data before server starts
-pressure_data <- tag$pressure
+has_pressure <- !is.null(tag$pressure) && nrow(tag$pressure) > 0
+pressure_data <- if (has_pressure) {
+  tag$pressure
+} else {
+  data.frame(date = as.POSIXct(character(0), tz = "UTC"), value = numeric(0), label = character(0))
+}
 if (!"label" %in% names(pressure_data)) {
   pressure_data$label <- ""
 }
@@ -9,7 +14,7 @@ has_acceleration <- !is.null(tag$acceleration) && nrow(tag$acceleration) > 0
 acceleration_data <- if (has_acceleration) {
   tag$acceleration
 } else {
-  data.frame(date = as.POSIXct(character(0)), value = numeric(0), label = character(0))
+  data.frame(date = as.POSIXct(character(0), tz = "UTC"), value = numeric(0), label = character(0))
 }
 if (!"label" %in% names(acceleration_data)) {
   acceleration_data$label <- ""
@@ -29,6 +34,9 @@ stap_data <- if (!is.null(tag$stap) && nrow(tag$stap) > 0) {
 pressure_time_num <- as.numeric(pressure_data$date)
 acceleration_time_num <- as.numeric(acceleration_data$date)
 time_tz <- attr(pressure_data$date, "tzone")
+if (is.null(time_tz) || identical(time_tz, "")) {
+  time_tz <- attr(acceleration_data$date, "tzone")
+}
 if (is.null(time_tz) || identical(time_tz, "")) {
   time_tz <- "UTC"
 }
@@ -57,9 +65,17 @@ if (has_acceleration) {
 }
 
 # Avoid c() on huge vectors
-time_min <- min(pressure_data$date, na.rm = TRUE)
-time_max <- max(pressure_data$date, na.rm = TRUE)
-if (has_acceleration && nrow(acceleration_data) > 0) {
+if (!has_pressure && !has_acceleration) {
+  cli::cli_abort("Tag needs pressure and/or acceleration data to run trainset.")
+}
+if (has_pressure) {
+  time_min <- min(pressure_data$date, na.rm = TRUE)
+  time_max <- max(pressure_data$date, na.rm = TRUE)
+} else {
+  time_min <- min(acceleration_data$date, na.rm = TRUE)
+  time_max <- max(acceleration_data$date, na.rm = TRUE)
+}
+if (has_pressure && has_acceleration) {
   time_min <- min(time_min, min(acceleration_data$date, na.rm = TRUE), na.rm = TRUE)
   time_max <- max(time_max, max(acceleration_data$date, na.rm = TRUE), na.rm = TRUE)
 }
@@ -73,10 +89,14 @@ server <- function(input, output, session) {
   max_points_overview <- 5000L
   min_window_seconds <- 86400 # 1 day
 
-  curve_overview_pressure <- 0
-  curve_pressure_detail_line <- 1
-  curve_pressure_markers <- 2
-  curve_acceleration <- if (has_acceleration) 3 else NA_integer_
+  curve_overview_pressure <- if (has_pressure) 0 else NA_integer_
+  curve_pressure_detail_line <- if (has_pressure) 1 else NA_integer_
+  curve_pressure_markers <- if (has_pressure) 2 else NA_integer_
+  curve_acceleration <- if (has_acceleration) {
+    if (has_pressure) 3 else 0
+  } else {
+    NA_integer_
+  }
 
   state <- reactiveValues(
     tag = tag,
@@ -100,7 +120,9 @@ server <- function(input, output, session) {
   trainset_debug <- isTRUE(shiny::getShinyOption("trainset_debug"))
 
   update_state_tag_labels <- function() {
-    state$tag$pressure$label <- reactive_label_pres()
+    if (has_pressure) {
+      state$tag$pressure$label <- reactive_label_pres()
+    }
     if (has_acceleration) {
       state$tag$acceleration$label <- reactive_label_acc()
     }
@@ -108,7 +130,37 @@ server <- function(input, output, session) {
 
   write_labels_csv <- function(path) {
     update_state_tag_labels()
-    GeoPressureR::tag_label_write(state$tag, file = path, quiet = TRUE)
+    out <- data.frame(
+      series = character(0),
+      timestamp = character(0),
+      value = numeric(0),
+      label = character(0)
+    )
+    if (has_pressure) {
+      i <- !is.na(state$tag$pressure$value)
+      out <- rbind(
+        out,
+        data.frame(
+          series = "pressure",
+          timestamp = strftime(state$tag$pressure$date[i], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+          value = state$tag$pressure$value[i],
+          label = gsub("\\.", "-", as.character(state$tag$pressure$label[i]))
+        )
+      )
+    }
+    if (has_acceleration && nrow(state$tag$acceleration) > 0) {
+      i <- !is.na(state$tag$acceleration$value)
+      out <- rbind(
+        out,
+        data.frame(
+          series = "acceleration",
+          timestamp = strftime(state$tag$acceleration$date[i], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+          value = state$tag$acceleration$value[i],
+          label = gsub("\\.", "-", as.character(state$tag$acceleration$label[i]))
+        )
+      )
+    }
+    utils::write.csv(out, file = path, row.names = FALSE)
     state$labels_dirty <- FALSE
   }
 
@@ -135,7 +187,7 @@ server <- function(input, output, session) {
   )
 
   shiny::observe({
-    if (!is.null(input$active_series) && input$active_series == "acceleration") {
+    if (!has_pressure || (!is.null(input$active_series) && input$active_series == "acceleration")) {
       shinyjs::disable("add_label_btn")
     } else {
       shinyjs::enable("add_label_btn")
@@ -159,7 +211,7 @@ server <- function(input, output, session) {
   }
 
   output$acceleration_data_available <- shiny::reactive({
-    has_acceleration
+    has_pressure && has_acceleration
   })
   outputOptions(output, "acceleration_data_available", suspendWhenHidden = FALSE)
 

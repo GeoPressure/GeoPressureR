@@ -1,7 +1,7 @@
 # Utility functions for GeoPressure trainset Shiny app
 
-get_plot_styles <- function(active_series, label_pres, label_acc = NULL, acc_has_lines = TRUE) {
-  pressure_colors <- get_marker_colors(label_pres)
+get_plot_styles <- function(active_series, label_pres = NULL, label_acc = NULL, acc_has_lines = TRUE) {
+  pressure_colors <- if (is.null(label_pres)) NULL else get_marker_colors(label_pres)
 
   # Overview line (used for range slider) should stay lightweight and unobtrusive.
   pressure_overview_line_style <- list(
@@ -22,17 +22,16 @@ get_plot_styles <- function(active_series, label_pres, label_acc = NULL, acc_has
     )
   }
 
-  pressure_markers_style <- list(
-    "marker.size" = if (active_series == "pressure") 10 else 4,
-    "marker.opacity" = if (active_series == "pressure") 0.8 else 0.4,
-    "marker.color" = list(pressure_colors)
-  )
-
-  result <- list(
-    pressure_overview_line_style = pressure_overview_line_style,
-    pressure_detail_line_style = pressure_detail_line_style,
-    pressure_markers_style = pressure_markers_style
-  )
+  result <- list()
+  if (!is.null(pressure_colors)) {
+    result$pressure_overview_line_style <- pressure_overview_line_style
+    result$pressure_detail_line_style <- pressure_detail_line_style
+    result$pressure_markers_style <- list(
+      "marker.size" = if (active_series == "pressure") 10 else 4,
+      "marker.opacity" = if (active_series == "pressure") 0.8 else 0.4,
+      "marker.color" = list(pressure_colors)
+    )
+  }
 
   if (!is.null(label_acc)) {
     acceleration_colors <- get_marker_colors(label_acc)
@@ -58,8 +57,10 @@ get_plot_styles <- function(active_series, label_pres, label_acc = NULL, acc_has
 apply_plot_styling <- function(
   plot_proxy,
   active_series,
-  label_pres,
+  label_pres = NULL,
   label_acc = NULL,
+  has_pressure = TRUE,
+  has_acceleration = TRUE,
   acc_has_lines = TRUE,
   pressure_overview_trace = 0,
   pressure_markers_trace = 1,
@@ -71,28 +72,28 @@ apply_plot_styling <- function(
   plot_proxy |>
     plotly::plotlyProxyInvoke("restyle", list(selectedpoints = NULL))
 
-  plot_proxy |>
-    plotly::plotlyProxyInvoke(
-      "restyle",
-      styles$pressure_overview_line_style,
-      list(pressure_overview_trace)
-    )
+  if (has_pressure) {
+    plot_proxy |>
+      plotly::plotlyProxyInvoke(
+        "restyle",
+        styles$pressure_overview_line_style,
+        list(pressure_overview_trace)
+      )
+    plot_proxy |>
+      plotly::plotlyProxyInvoke(
+        "restyle",
+        styles$pressure_markers_style,
+        list(pressure_markers_trace)
+      )
+    plot_proxy |>
+      plotly::plotlyProxyInvoke(
+        "restyle",
+        styles$pressure_detail_line_style,
+        list(pressure_detail_trace)
+      )
+  }
 
-  plot_proxy |>
-    plotly::plotlyProxyInvoke(
-      "restyle",
-      styles$pressure_markers_style,
-      list(pressure_markers_trace)
-    )
-
-  plot_proxy |>
-    plotly::plotlyProxyInvoke(
-      "restyle",
-      styles$pressure_detail_line_style,
-      list(pressure_detail_trace)
-    )
-
-  if (!is.null(label_acc) && !is.null(styles$acceleration_style)) {
+  if (has_acceleration && !is.null(label_acc) && !is.null(styles$acceleration_style)) {
     plot_proxy |>
       plotly::plotlyProxyInvoke("restyle", styles$acceleration_style, list(acceleration_trace))
   }

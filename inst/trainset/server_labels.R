@@ -17,7 +17,7 @@ shiny::observeEvent(input$add_label_btn, {
 })
 
 update_label_select <- function(series = "pressure", elev_count = 1) {
-  if (series == "acceleration") {
+  if (series == "acceleration" || !has_pressure) {
     label_choices <- "flight"
   } else {
     label_choices <- c("discard")
@@ -44,8 +44,8 @@ update_label_select <- function(series = "pressure", elev_count = 1) {
 # Ensure the selectize input is populated right after UI is flushed
 session$onFlushed(
   function() {
-    # Avoid reading shiny::reactive inputs here; initialize with the default series.
-    update_label_select("pressure", elev_count = initial_stap_elev_count)
+    # Avoid reading shiny::reactive inputs here; initialize with available default series.
+    update_label_select(active_series_or_default(), elev_count = initial_stap_elev_count)
   },
   once = TRUE
 )
@@ -57,7 +57,7 @@ shiny::observeEvent(stap_elev_count(), {
 })
 
 # Re-style on series changes (labels are re-sliced from the current view indices)
-if (isTRUE(has_acceleration)) {
+if (isTRUE(has_pressure && has_acceleration)) {
   shiny::observeEvent(input$active_series, {
     update_label_select(input$active_series, elev_count = stap_elev_count())
 
@@ -81,11 +81,13 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
   }
 
   # Treat pressure overview/detail line clicks as pressure markers for labeling
-  point_data$curveNumber[
-    point_data$curveNumber %in% c(curve_overview_pressure, curve_pressure_detail_line)
-  ] <- curve_pressure_markers
+  if (has_pressure) {
+    point_data$curveNumber[
+      point_data$curveNumber %in% c(curve_overview_pressure, curve_pressure_detail_line)
+    ] <- curve_pressure_markers
+  }
 
-  target_curve <- if (active_series == "pressure") {
+  target_curve <- if (active_series == "pressure" && has_pressure) {
     curve_pressure_markers
   } else if (active_series == "acceleration" && has_acceleration) {
     curve_acceleration
@@ -126,11 +128,11 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
   point_indices <- unique(point_indices)
   point_indices <- point_indices[point_indices > 0]
 
-  if (active_series == "pressure") {
+  if (active_series == "pressure" && has_pressure) {
     current_labels <- reactive_label_pres()
     current_labels[point_indices] <- selected_label
     reactive_label_pres(current_labels)
-  } else if (active_series == "acceleration") {
+  } else if (active_series == "acceleration" && has_acceleration) {
     current_labels <- reactive_label_acc()
     current_labels[point_indices] <- selected_label
     reactive_label_acc(current_labels)

@@ -1,7 +1,9 @@
 # STAP navigation + recompute. Sourced inside `server()`.
 
 shiny::observeEvent(input$compute_stap_btn, {
-  state$tag$pressure$label <- reactive_label_pres()
+  if (has_pressure) {
+    state$tag$pressure$label <- reactive_label_pres()
+  }
   if (has_acceleration) {
     state$tag$acceleration$label <- reactive_label_acc()
   }
@@ -106,16 +108,28 @@ shiny::observeEvent(input$stap_id, {
       lag_x <- 60 * 60 * 24 / 2
       lag_y <- 5
 
-      pressure_val_stap_id <- pressure_data$value[
-        pressure_data$date >= selected_stap$start & pressure_data$date <= selected_stap$end
-      ]
-
       layout_update <- list(
-        xaxis = list(range = list(selected_stap$start - lag_x, selected_stap$end + lag_x)),
-        yaxis = list(
-          range = c(min(pressure_val_stap_id) - lag_y, max(pressure_val_stap_id) + lag_y)
-        )
+        xaxis = list(range = list(selected_stap$start - lag_x, selected_stap$end + lag_x))
       )
+      if (has_pressure) {
+        pressure_val_stap_id <- pressure_data$value[
+          pressure_data$date >= selected_stap$start & pressure_data$date <= selected_stap$end
+        ]
+        if (length(pressure_val_stap_id) > 0 && !all(is.na(pressure_val_stap_id))) {
+          layout_update$yaxis <- list(
+            range = c(min(pressure_val_stap_id, na.rm = TRUE) - lag_y, max(pressure_val_stap_id, na.rm = TRUE) + lag_y)
+          )
+        }
+      } else if (has_acceleration) {
+        acceleration_val_stap_id <- acceleration_data$value[
+          acceleration_data$date >= selected_stap$start & acceleration_data$date <= selected_stap$end
+        ]
+        if (length(acceleration_val_stap_id) > 0 && !all(is.na(acceleration_val_stap_id))) {
+          layout_update$yaxis <- list(
+            range = c(min(acceleration_val_stap_id, na.rm = TRUE) - lag_y, max(acceleration_val_stap_id, na.rm = TRUE) + lag_y)
+          )
+        }
+      }
 
       plotly::plotlyProxy("ts_plot", session) |>
         plotly::plotlyProxyInvoke("relayout", layout_update)

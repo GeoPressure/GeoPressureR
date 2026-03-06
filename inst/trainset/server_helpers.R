@@ -1,5 +1,6 @@
 # Helpers sourced inside `server()`. Assumes the following exist in the calling environment:
-# `input`, `output`, `session`, `state`, `has_acceleration`, curve indices, and `reactive_label_*`.
+# `input`, `output`, `session`, `state`, `has_pressure`, `has_acceleration`, curve indices, and
+# `reactive_label_*`.
 
 dbg <- function(...) {
   if (!isTRUE(trainset_debug)) {
@@ -12,12 +13,15 @@ dbg <- function(...) {
 
 active_series_or_default <- function() {
   series <- isolate(input$active_series)
-  if (is.null(series)) "pressure" else series
+  if (!is.null(series)) {
+    return(series)
+  }
+  if (has_pressure) "pressure" else "acceleration"
 }
 
 view_labels <- function() {
   list(
-    pressure = reactive_label_pres()[state$pressure_detail_idx],
+    pressure = if (has_pressure) reactive_label_pres()[state$pressure_detail_idx] else NULL,
     acceleration = if (has_acceleration) {
       reactive_label_acc()[state$acceleration_detail_idx]
     } else {
@@ -35,6 +39,9 @@ apply_current_styling <- function(
   if (is.null(active_series)) {
     active_series <- active_series_or_default()
   }
+  if (!has_pressure) {
+    pressure_labels <- NULL
+  }
   if (!has_acceleration) {
     acceleration_labels <- NULL
   }
@@ -44,6 +51,8 @@ apply_current_styling <- function(
     active_series,
     pressure_labels,
     acceleration_labels,
+    has_pressure = has_pressure,
+    has_acceleration = has_acceleration,
     acc_has_lines = if (has_acceleration) state$acc_has_lines else TRUE,
     pressure_overview_trace = curve_overview_pressure,
     pressure_markers_trace = curve_pressure_markers,

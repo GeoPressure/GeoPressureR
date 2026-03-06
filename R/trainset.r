@@ -146,13 +146,19 @@ csv2tag <- function(file, id = NULL) {
     id <- sub("-labeled$", "", sub("\\..*$", "", basename(file)))
   }
 
+  pressure <- csv[csv$series == "pressure", ]
+  acceleration <- csv[csv$series == "acceleration", ]
+
   tag <- tag_create_dataframe(
     id,
-    pressure_file = csv[csv$series == "pressure", ],
-    acceleration_file = csv[csv$series == "acceleration", ],
+    pressure_file = if (nrow(pressure)) pressure else NULL,
+    acceleration_file = if (nrow(acceleration)) acceleration else NULL,
     quiet = TRUE
   )
 
-  tag <- tag_label_stap(tag, quiet = TRUE)
+  if (tag_assert(tag, "label", "logical")) {
+    tag <- tag_label_stap(tag, quiet = TRUE)
+  }
+
   tag
 }

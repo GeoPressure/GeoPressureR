@@ -71,24 +71,25 @@ refresh_detail_traces <- function(xmin, xmax) {
   view_seconds <- as.numeric(difftime(xmax, xmin, units = "secs"))
   dbg("refresh_detail_traces view=", round(view_seconds / 3600, 3), "h")
 
-  pres <- subset_for_view(
-    pressure_date_sorted,
-    pressure_value_sorted,
-    pressure_time_sorted,
-    pressure_sort_idx,
-    reactive_label_pres(),
-    xmin,
-    xmax,
-    max_points_detail,
-    min_window_seconds
-  )
-  state$pressure_detail_idx <- pres$row_index
-  dbg("pressure points=", length(pres$row_index))
+  pres <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+  if (has_pressure) {
+    pres <- subset_for_view(
+      pressure_date_sorted,
+      pressure_value_sorted,
+      pressure_time_sorted,
+      pressure_sort_idx,
+      reactive_label_pres(),
+      xmin,
+      xmax,
+      max_points_detail,
+      min_window_seconds
+    )
+    state$pressure_detail_idx <- pres$row_index
+    dbg("pressure points=", length(pres$row_index))
+  }
 
-  plot_proxy <- plotly::plotlyProxy("ts_plot", session)
-  active_series <- active_series_or_default()
-
-  acc_labels_view <- NULL
+  acc <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+  acc_mode <- "markers"
   if (has_acceleration) {
     acc <- subset_for_view(
       acceleration_date_sorted,
@@ -106,14 +107,14 @@ refresh_detail_traces <- function(xmin, xmax) {
 
     acc_mode <- if (length(acc$row_index) > 20000) "markers" else "lines+markers"
     state$acc_has_lines <- identical(acc_mode, "lines+markers")
-
-    acc_labels_view <- acc$label
   }
 
+  plot_proxy <- plotly::plotlyProxy("ts_plot", session)
+  active_series <- active_series_or_default()
   styles <- get_plot_styles(
     active_series,
-    pres$label,
-    acc_labels_view,
+    if (has_pressure) pres$label else NULL,
+    if (has_acceleration) acc$label else NULL,
     acc_has_lines = if (has_acceleration) state$acc_has_lines else TRUE
   )
 
@@ -121,26 +122,28 @@ refresh_detail_traces <- function(xmin, xmax) {
   plot_proxy |>
     plotly::plotlyProxyInvoke("restyle", list(selectedpoints = NULL))
 
-  restyle_xy(
-    plot_proxy,
-    curve_pressure_detail_line,
-    pres$date,
-    pres$value,
-    pres$row_index,
-    text = pres$label,
-    extra = styles$pressure_detail_line_style
-  )
-  restyle_xy(
-    plot_proxy,
-    curve_pressure_markers,
-    pres$date,
-    pres$value,
-    pres$row_index,
-    text = pres$label,
-    extra = styles$pressure_markers_style
-  )
+  if (has_pressure) {
+    restyle_xy(
+      plot_proxy,
+      curve_pressure_detail_line,
+      pres$date,
+      pres$value,
+      pres$row_index,
+      text = pres$label,
+      extra = styles$pressure_detail_line_style
+    )
+    restyle_xy(
+      plot_proxy,
+      curve_pressure_markers,
+      pres$date,
+      pres$value,
+      pres$row_index,
+      text = pres$label,
+      extra = styles$pressure_markers_style
+    )
+  }
 
-  if (has_acceleration && !is.null(acc_labels_view) && !is.null(styles$acceleration_style)) {
+  if (has_acceleration && !is.null(styles$acceleration_style)) {
     restyle_xy(
       plot_proxy,
       curve_acceleration,
@@ -152,9 +155,9 @@ refresh_detail_traces <- function(xmin, xmax) {
   }
 }
 
-# Active series selector (only when acceleration exists)
-init_active_series <- "pressure"
-if (has_acceleration) {
+# Active series selector (only when both series exist)
+init_active_series <- if (has_pressure) "pressure" else "acceleration"
+if (has_pressure && has_acceleration) {
   shiny::updateSelectInput(
     session,
     "active_series",
@@ -164,29 +167,35 @@ if (has_acceleration) {
 }
 
 # Overview (range slider) is a light downsample of pressure.
-n_pressure_sorted <- length(pressure_sort_idx)
-pressure_overview_idx <- downsample_indices(n_pressure_sorted, max_points_overview)
-pressure_overview <- data.frame(
-  date = pressure_date_sorted[pressure_overview_idx],
-  value = pressure_value_sorted[pressure_overview_idx],
-  row_index = pressure_sort_idx[pressure_overview_idx]
-)
+pressure_overview <- data.frame(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), row_index = integer(0))
+if (has_pressure) {
+  n_pressure_sorted <- length(pressure_sort_idx)
+  pressure_overview_idx <- downsample_indices(n_pressure_sorted, max_points_overview)
+  pressure_overview <- data.frame(
+    date = pressure_date_sorted[pressure_overview_idx],
+    value = pressure_value_sorted[pressure_overview_idx],
+    row_index = pressure_sort_idx[pressure_overview_idx]
+  )
+}
 
 # Initial detail traces use the full time range but are capped.
-initial_pressure_detail <- subset_for_view(
-  pressure_date_sorted,
-  pressure_value_sorted,
-  pressure_time_sorted,
-  pressure_sort_idx,
-  isolate(reactive_label_pres()),
-  time_min,
-  time_max,
-  max_points_detail,
-  min_window_seconds
-)
-state$pressure_detail_idx <- initial_pressure_detail$row_index
+initial_pressure_detail <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+if (has_pressure) {
+  initial_pressure_detail <- subset_for_view(
+    pressure_date_sorted,
+    pressure_value_sorted,
+    pressure_time_sorted,
+    pressure_sort_idx,
+    isolate(reactive_label_pres()),
+    time_min,
+    time_max,
+    max_points_detail,
+    min_window_seconds
+  )
+  state$pressure_detail_idx <- initial_pressure_detail$row_index
+}
 
-initial_acc_detail <- NULL
+initial_acc_detail <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
 acc_has_lines_initial <- TRUE
 if (has_acceleration) {
   initial_acc_detail <- subset_for_view(
@@ -207,7 +216,7 @@ if (has_acceleration) {
 
 initial_styles <- get_plot_styles(
   init_active_series,
-  initial_pressure_detail$label,
+  if (has_pressure) initial_pressure_detail$label else NULL,
   if (has_acceleration) initial_acc_detail$label else NULL,
   acc_has_lines = acc_has_lines_initial
 )
@@ -215,69 +224,73 @@ initial_styles <- get_plot_styles(
 time_range <- list(time_min, time_max)
 
 output$ts_plot <- plotly::renderPlotly({
-  p <- plotly::plot_ly() |>
-    plotly::add_trace(
-      data = pressure_overview,
-      x = ~date,
-      y = ~value,
-      type = "scatter",
-      mode = "lines",
-      name = "Pressure_overview",
-      line = list(
-        width = initial_styles$pressure_overview_line_style$line.width,
-        color = initial_styles$pressure_overview_line_style$line.color
-      ),
-      yaxis = "y",
-      hoverinfo = "skip",
-      showlegend = FALSE,
-      visible = TRUE,
-      customdata = ~row_index
-    ) |>
-    plotly::add_trace(
-      data = data.frame(
-        date = initial_pressure_detail$date,
-        value = initial_pressure_detail$value,
-        label = initial_pressure_detail$label,
-        row_index = initial_pressure_detail$row_index
-      ),
-      x = ~date,
-      y = ~value,
-      type = "scattergl",
-      mode = "lines",
-      name = "Pressure_detail_line",
-      line = list(
-        width = initial_styles$pressure_detail_line_style$line.width,
-        color = initial_styles$pressure_detail_line_style$line.color
-      ),
-      yaxis = "y",
-      text = ~label,
-      hovertemplate = "Pressure: %{y}<br>Time: %{x}<br>Label: %{text}<extra></extra>",
-      showlegend = FALSE,
-      customdata = ~row_index
-    ) |>
-    plotly::add_trace(
-      data = data.frame(
-        date = initial_pressure_detail$date,
-        value = initial_pressure_detail$value,
-        label = initial_pressure_detail$label,
-        row_index = initial_pressure_detail$row_index
-      ),
-      x = ~date,
-      y = ~value,
-      type = "scattergl",
-      mode = "markers",
-      name = "Pressure",
-      marker = list(
-        size = initial_styles$pressure_markers_style$marker.size,
-        color = initial_styles$pressure_markers_style$marker.color[[1]],
-        opacity = initial_styles$pressure_markers_style$marker.opacity
-      ),
-      yaxis = "y",
-      text = ~label,
-      hovertemplate = "Pressure: %{y}<br>Time: %{x}<br>Label: %{text}<extra></extra>",
-      showlegend = FALSE,
-      customdata = ~row_index
-    )
+  p <- plotly::plot_ly()
+
+  if (has_pressure) {
+    p <- p |>
+      plotly::add_trace(
+        data = pressure_overview,
+        x = ~date,
+        y = ~value,
+        type = "scatter",
+        mode = "lines",
+        name = "Pressure_overview",
+        line = list(
+          width = initial_styles$pressure_overview_line_style$line.width,
+          color = initial_styles$pressure_overview_line_style$line.color
+        ),
+        yaxis = "y",
+        hoverinfo = "skip",
+        showlegend = FALSE,
+        visible = TRUE,
+        customdata = ~row_index
+      ) |>
+      plotly::add_trace(
+        data = data.frame(
+          date = initial_pressure_detail$date,
+          value = initial_pressure_detail$value,
+          label = initial_pressure_detail$label,
+          row_index = initial_pressure_detail$row_index
+        ),
+        x = ~date,
+        y = ~value,
+        type = "scattergl",
+        mode = "lines",
+        name = "Pressure_detail_line",
+        line = list(
+          width = initial_styles$pressure_detail_line_style$line.width,
+          color = initial_styles$pressure_detail_line_style$line.color
+        ),
+        yaxis = "y",
+        text = ~label,
+        hovertemplate = "Pressure: %{y}<br>Time: %{x}<br>Label: %{text}<extra></extra>",
+        showlegend = FALSE,
+        customdata = ~row_index
+      ) |>
+      plotly::add_trace(
+        data = data.frame(
+          date = initial_pressure_detail$date,
+          value = initial_pressure_detail$value,
+          label = initial_pressure_detail$label,
+          row_index = initial_pressure_detail$row_index
+        ),
+        x = ~date,
+        y = ~value,
+        type = "scattergl",
+        mode = "markers",
+        name = "Pressure",
+        marker = list(
+          size = initial_styles$pressure_markers_style$marker.size,
+          color = initial_styles$pressure_markers_style$marker.color[[1]],
+          opacity = initial_styles$pressure_markers_style$marker.opacity
+        ),
+        yaxis = "y",
+        text = ~label,
+        hovertemplate = "Pressure: %{y}<br>Time: %{x}<br>Label: %{text}<extra></extra>",
+        showlegend = FALSE,
+        customdata = ~row_index
+      )
+  }
 
   if (has_acceleration) {
     acc_mode <- if (length(initial_acc_detail$row_index) > 20000) "markers" else "lines+markers"
@@ -306,7 +319,7 @@ output$ts_plot <- plotly::renderPlotly({
           color = initial_styles$acceleration_style$marker.color[[1]],
           opacity = initial_styles$acceleration_style$marker.opacity
         ),
-        yaxis = "y2",
+        yaxis = if (has_pressure) "y2" else "y",
         hovertemplate = "Acceleration: %{y}<br>Time: %{x}<extra></extra>",
         showlegend = FALSE,
         visible = TRUE,
@@ -326,9 +339,9 @@ output$ts_plot <- plotly::renderPlotly({
           list(step = "all", label = "All")
         )
       ),
-      rangeslider = list(visible = TRUE, range = time_range)
+      rangeslider = list(visible = has_pressure, range = time_range)
     ),
-    yaxis = list(title = "Pressure", side = "left", fixedrange = FALSE),
+    yaxis = list(title = if (has_pressure) "Pressure" else "Acceleration", side = "left", fixedrange = FALSE),
     dragmode = "select",
     selectdirection = "d",
     showlegend = FALSE,
@@ -336,7 +349,7 @@ output$ts_plot <- plotly::renderPlotly({
     hovermode = "closest"
   )
 
-  if (has_acceleration) {
+  if (has_pressure && has_acceleration) {
     layout_config$yaxis2 <- list(
       title = "Acceleration",
       side = "right",
