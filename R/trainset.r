@@ -51,10 +51,12 @@ trainset <- function(
   run_bg = TRUE,
   debug = FALSE
 ) {
-  label_dir <- getwd()
-
   if (inherits(x, "tag")) {
     tag <- x
+    if (!tag_assert(tag, "label", "logical")) {
+      tag <- tag_label_auto(tag)
+    }
+    label_dir <- "./data/tag-label"
   } else if (is.character(x) && length(x) == 1) {
     if (file.exists(x)) {
       # x is a path to a file that exists: decide based on extension
