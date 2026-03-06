@@ -614,7 +614,7 @@ plot_tag_twilight <- function(
     ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
 
   # Setting the breaks seems to mess up plotly
-  plot_tag_finalize(p, plot_plotly)
+  plot_tag_finalize(p, plot_plotly, autorange = FALSE)
 }
 
 
@@ -757,9 +757,21 @@ ts2mat_to_long <- function(mat, value_name) {
 }
 
 #' @noRd
-plot_tag_finalize <- function(p, plot_plotly) {
+plot_tag_finalize <- function(
+  p,
+  plot_plotly,
+  autorange = TRUE
+) {
   if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
+    p <- plotly::ggplotly(p, dynamicTicks = TRUE)
+    if (isFALSE(autorange)) {
+      p <- p |>
+        plotly::layout(
+          xaxis = list(autorange = FALSE),
+          yaxis = list(autorange = FALSE)
+        )
+    }
+    return(p)
   }
   p
 }
