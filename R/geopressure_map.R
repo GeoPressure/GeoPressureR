@@ -111,6 +111,7 @@
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
+#' @inheritParams pressurepath_create
 #'
 #' @return Returns the same GeoPressureR `tag` object including the GeoPressureR `map` object
 #' `tag$map_pressure` containing the likelihood map of each stationary period. See `map_create()`
@@ -163,6 +164,7 @@ geopressure_map <- function(
   log_linear_pooling_weight = \(n) log(n) / n,
   timeout = 300,
   workers = "auto",
+  era5_dataset = "both",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
@@ -178,6 +180,7 @@ geopressure_map <- function(
     keep_mask = keep_mask,
     timeout = timeout,
     workers = workers,
+    era5_dataset = era5_dataset,
     compute_known = compute_known,
     debug = debug,
     quiet = quiet

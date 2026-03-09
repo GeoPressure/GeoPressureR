@@ -16,6 +16,7 @@ geopressure_map(
   log_linear_pooling_weight = function(n) log(n)/n,
   timeout = 300,
   workers = "auto",
+  era5_dataset = "both",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
@@ -37,6 +38,7 @@ geopressure_map_mismatch(
   thr_mask = 0.9,
   timeout = 300,
   workers = "auto",
+  era5_dataset = "land",
   compute_known = FALSE,
   keep_mask = TRUE,
   debug = FALSE,
@@ -68,6 +70,12 @@ GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
 \item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
 number of workers to the number of \code{stapelev} to query.}
+
+\item{era5_dataset}{select the dataset to use: \code{"single-levels"} for ERA5 hourly data on single
+levels (\doi{10.24381/cds.adbb2d47}), \code{"land"} for ERA5-Land hourly data
+(\doi{10.24381/cds.e2161bac}) or \code{"both"} to use land where available and single-levels
+otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
+single one makes the query faster.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 

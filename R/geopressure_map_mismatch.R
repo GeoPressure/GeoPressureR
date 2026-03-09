@@ -8,6 +8,7 @@ geopressure_map_mismatch <- function(
   thr_mask = 0.9,
   timeout = 300,
   workers = "auto",
+  era5_dataset = "land",
   compute_known = FALSE,
   keep_mask = TRUE,
   debug = FALSE,
@@ -25,6 +26,7 @@ geopressure_map_mismatch <- function(
   assertthat::assert_that(is.numeric(thr_mask))
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.numeric(timeout))
+  assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
   assertthat::assert_that(is.logical(debug))
   assertthat::assert_that(is.logical(quiet))
@@ -47,7 +49,8 @@ geopressure_map_mismatch <- function(
     max_sample = max_sample,
     margin = margin,
     includeMask = keep_mask,
-    maskThreshold = thr_mask
+    maskThreshold = thr_mask,
+    dataset = era5_dataset
   )
 
   if (debug) {
