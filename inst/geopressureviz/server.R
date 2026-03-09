@@ -528,9 +528,9 @@ server <- function(input, output, session) {
       map_stap_id <- map_display()[[as.numeric(input$stap_id)]]
       if (!is.null(map_stap_id)) {
         key <- map_type_key[[input$map_source]]
-        spec <- GeoPressureR:::.MAP_TYPE[[key]]
+        spec <- GeoPressureR::map_type()[[key]]
         if (is.null(spec)) {
-          spec <- GeoPressureR:::.MAP_TYPE[["unknown"]]
+          spec <- GeoPressureR::map_type()[["unknown"]]
         }
         spec_dark <- spec[["dark"]]
 

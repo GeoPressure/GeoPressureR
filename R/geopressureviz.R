@@ -106,7 +106,8 @@ geopressureviz <- function(
   }
 
   # Add possible map to display
-  map_entries <- .MAP_TYPE[setdiff(names(.MAP_TYPE), c("unknown", "mask_water"))]
+  map_types <- map_type()
+  map_entries <- map_types[setdiff(names(map_types), c("unknown", "mask_water"))]
   map_display <- vapply(map_entries, function(x) x$display, character(1))
   map_needed <- lapply(map_entries, function(x) x$name)
   available <- vapply(map_needed, function(x) all(x %in% names(tag)), logical(1))

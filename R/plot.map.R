@@ -110,9 +110,10 @@ plot.map <- function(
 
   # Get palette (leaflet only)
   if (is.null(palette)) {
-    spec <- .MAP_TYPE[[map$type]]
+    map_types <- map_type()
+    spec <- map_types[[map$type]]
     if (is.null(spec)) {
-      spec <- .MAP_TYPE[["unknown"]]
+      spec <- map_types[["unknown"]]
     }
     palette <- spec[["light"]]$palette
     reverse <- isTRUE(spec[["light"]]$reverse)

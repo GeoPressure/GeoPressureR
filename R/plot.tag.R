@@ -72,10 +72,8 @@ plot.tag <- function(x, type = NULL, ...) {
 
   is_map_type <- function(x) {
     map_types <- grepl("^map_", x) | x == "map"
-    if (exists(".MAP_TYPE", inherits = TRUE)) {
-      map_names <- unlist(lapply(.MAP_TYPE, `[[`, "name"), use.names = FALSE)
-      map_types <- map_types | x %in% map_names
-    }
+    map_names <- unlist(lapply(map_type(), `[[`, "name"), use.names = FALSE)
+    map_types <- map_types | x %in% map_names
     map_types
   }
 

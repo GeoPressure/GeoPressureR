@@ -147,6 +147,8 @@ prepare_twilight <- function(tag, ref, compute_known = NULL) {
 }
 
 #' @noRd
+#' @keywords internal
+#' @export
 time2plottime <- function(x, ref = x[1]) {
   floathour <- datetime2floathour(x)
   time_hour <- floathour + 24 * (floathour < datetime2floathour(ref))

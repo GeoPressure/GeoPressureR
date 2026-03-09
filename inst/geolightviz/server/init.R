@@ -102,7 +102,7 @@ init <- function(
   if (rv$has_map) {
     if (is.null(twl_calib)) {
       print(fitted_location_duration)
-      tag_calib <- GeoPressureR:::geolight_map_calibrate(
+      tag_calib <- GeoPressureR::geolight_map_calibrate(
         tag = tag_for_map,
         twl_calib_adjust = twl_calib_adjust,
         fitted_location_duration = fitted_location_duration,
@@ -119,7 +119,7 @@ init <- function(
     tag_likelihood <- tag_for_map
     tag_likelihood$stap <- .stapath
     tag_likelihood$param$geolight_map[["twl_calib"]] <- twl_calib
-    tag_likelihood <- GeoPressureR:::geolight_map_likelihood(
+    tag_likelihood <- GeoPressureR::geolight_map_likelihood(
       tag = tag_likelihood,
       compute_known = compute_known,
       quiet = FALSE
@@ -161,7 +161,7 @@ init <- function(
     twl_ <- rv$twl()
     include <- include & twl_$label != "discard"
 
-    stap_id_override <- GeoPressureR:::find_stap(
+    stap_id_override <- GeoPressureR::find_stap(
       stapath_override,
       map_light_twl$stap$twilight
     )
@@ -173,7 +173,7 @@ init <- function(
     tag_agg$stap <- stapath_override
     tag_agg$map_light_twl <- map_light_twl
 
-    tag_agg <- GeoPressureR:::geolight_map_aggregate(
+    tag_agg <- GeoPressureR::geolight_map_aggregate(
       tag = tag_agg,
       compute_known = compute_known,
       twl_llp = twl_llp,

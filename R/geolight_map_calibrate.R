@@ -57,6 +57,8 @@ geolight_map_calibrate <- function(
 #' * `hist_counts`: list of histogram counts per calibration stationary period
 #' * `calib_stap`: calibration stationary periods used for calibration
 #'
+#' @keywords internal
+#' @export
 #' @noRd
 geolight_calibrate <- function(
   twl,

@@ -8,7 +8,7 @@ test_that("mask_water() | basic functionality", {
   extent <- c(-10, 5, 50, 60) # UK, Ireland, North Sea
   scale <- 2
 
-  mask <- GeoPressureR:::mask_water(extent, scale)
+  mask <- mask_water(extent, scale)
 
   # Check that output is a logical matrix
   expect_true(is.matrix(mask))
@@ -31,7 +31,7 @@ test_that("mask_water() | geographic accuracy", {
   extent <- c(-10, 5, 50, 60)
   scale <- 2
 
-  mask <- GeoPressureR:::mask_water(extent, scale)
+  mask <- mask_water(extent, scale)
 
   # Western pixels should include UK/Ireland (land)
   # Most of western portion should be land
@@ -52,7 +52,7 @@ test_that("mask_water() | island detection", {
   extent <- c(-30, -24, 37, 40)
   scale <- 4 # Higher resolution to detect islands
 
-  mask <- GeoPressureR:::mask_water(extent, scale)
+  mask <- mask_water(extent, scale)
 
   # Should have some land pixels (the Azores islands)
   expect_true(!all(mask), info = "Azores islands should be detected")
@@ -70,7 +70,7 @@ test_that("mask_water() | all water extent", {
   extent <- c(-40, -30, 30, 40)
   scale <- 1
 
-  mask <- GeoPressureR:::mask_water(extent, scale)
+  mask <- mask_water(extent, scale)
 
   # Should be all water (or nearly all)
   water_pct <- mean(mask)
@@ -84,7 +84,7 @@ test_that("mask_water() | all land extent", {
   extent <- c(5, 15, 45, 55)
   scale <- 2
 
-  mask <- GeoPressureR:::mask_water(extent, scale)
+  mask <- mask_water(extent, scale)
 
   # Should be mostly land
   land_pct <- mean(!mask)
@@ -97,16 +97,16 @@ test_that("mask_water() | different scales", {
   extent <- c(-10, 5, 50, 60)
 
   # Test low resolution
-  mask_low <- GeoPressureR:::mask_water(extent, scale = 1)
+  mask_low <- mask_water(extent, scale = 1)
   expect_true(is.matrix(mask_low))
 
   # Test medium resolution
-  mask_med <- GeoPressureR:::mask_water(extent, scale = 2)
+  mask_med <- mask_water(extent, scale = 2)
   expect_true(is.matrix(mask_med))
 
   # Test high resolution (if available)
   skip_if_not_installed("rnaturalearthhires")
-  mask_high <- GeoPressureR:::mask_water(extent, scale = 4)
+  mask_high <- mask_water(extent, scale = 4)
   expect_true(is.matrix(mask_high))
 
   # Higher resolution should have more pixels

@@ -152,6 +152,8 @@ tag_label_stap <- function(
 
 #' Find the stationary period corresponding to a date
 #'
+#' @keywords internal
+#' @export
 #' @noRd
 find_stap <- function(stap, date) {
   start_num <- as.numeric(stap$start)

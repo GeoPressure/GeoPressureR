@@ -30,11 +30,12 @@ tag2map <- function(tag, likelihood = NULL) {
 #' @noRd
 tag2likelihood <- function(tag, likelihood = NULL) {
   tag_assert(tag)
+  map_types <- map_type()
 
-  # Allowed inputs are either `.MAP_TYPE[[*]]$name` (tag field name(s)) or `names(.MAP_TYPE)`.
-  type_name <- lapply(.MAP_TYPE, `[[`, "name")
+  # Allowed inputs are either `map_type()[[*]]$name` (tag field name(s)) or `names(map_type())`.
+  type_name <- lapply(map_types, `[[`, "name")
   allowed_fields <- unique(unlist(type_name, use.names = FALSE))
-  allowed_user <- unique(c(names(.MAP_TYPE), allowed_fields))
+  allowed_user <- unique(c(names(map_types), allowed_fields))
 
   # Automatic determination
   if (is.null(likelihood)) {
@@ -43,7 +44,7 @@ tag2likelihood <- function(tag, likelihood = NULL) {
       return(c("map_pressure", "map_light"))
     }
 
-    # Priority 2: first `.MAP_TYPE` entry (in `.MAP_TYPE` order) that is available on the tag
+    # Priority 2: first map type entry (in `map_type()` order) that is available on the tag
     available <- vapply(type_name, function(cand) all(cand %in% names(tag)), logical(1))
     if (any(available)) {
       return(type_name[[which(available)[1]]])
@@ -57,7 +58,7 @@ tag2likelihood <- function(tag, likelihood = NULL) {
   }
 
   likelihood <- unlist(
-    lapply(likelihood, function(lk) if (lk %in% names(.MAP_TYPE)) .MAP_TYPE[[lk]]$name else lk),
+    lapply(likelihood, function(lk) if (lk %in% names(map_types)) map_types[[lk]]$name else lk),
     use.names = FALSE
   )
   bad <- setdiff(likelihood, allowed_fields)

@@ -210,7 +210,7 @@ modal_calibration_server <- function(
       # Compute calibration
       tryCatch(
         {
-          GeoPressureR:::geolight_calibrate(
+          GeoPressureR::geolight_calibrate(
             twl = twl_stap,
             calib_stap = stap_known,
             twl_calib_adjust = adjust
@@ -348,7 +348,7 @@ modal_calibration_server <- function(
           tag_likelihood$param$geolight_map[[
             "twl_calib"
           ]] <- current_calibration()
-          tag_likelihood <- GeoPressureR:::geolight_map_likelihood(
+          tag_likelihood <- GeoPressureR::geolight_map_likelihood(
             tag = tag_likelihood,
             compute_known = compute_known,
             quiet = TRUE

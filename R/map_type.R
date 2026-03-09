@@ -78,3 +78,12 @@ NULL
     )
   )
 })
+
+#' Get map type specifications
+#'
+#' @keywords internal
+#' @export
+#' @noRd
+map_type <- function() {
+  .MAP_TYPE
+}
