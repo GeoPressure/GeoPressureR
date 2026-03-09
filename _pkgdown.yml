@@ -97,7 +97,6 @@ reference:
     desc: Defining the movement model, optionally using wind data and bird morphology.
     contents:
       - graph_set_movement
-      - graph_transition
       - tag_download_wind
       - graph_add_wind
       - bird_create
@@ -128,14 +127,12 @@ reference:
   - title: Path
     desc: Data.frame of positions defining a bird trajectory.
     contents:
-      - ind2path
       - path2edge
       - plot_path
   - title: Sampling path
     desc: Gibbs sampling from movement model.
     contents:
-      - sampling_path
-      - sampling_path_diagnostic
+      - tag2path
   - title: Pressurepath
     desc: Data.frame of pressure time series along a path.
     contents:
