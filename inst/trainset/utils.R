@@ -1,6 +1,11 @@
 # Utility functions for GeoPressure trainset Shiny app
 
-get_plot_styles <- function(active_series, label_pres = NULL, label_acc = NULL, acc_has_lines = TRUE) {
+get_plot_styles <- function(
+  active_series,
+  label_pres = NULL,
+  label_acc = NULL,
+  acc_has_lines = TRUE
+) {
   pressure_colors <- if (is.null(label_pres)) NULL else get_marker_colors(label_pres)
 
   # Overview line (used for range slider) should stay lightweight and unobtrusive.

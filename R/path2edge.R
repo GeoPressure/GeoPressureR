@@ -72,12 +72,13 @@ path2edge <- function(path, tag_graph) {
 
   ind2d <- ind_lat + (ind_lon - 1) * g$dim[1]
 
-  ind3d <- ind2d + matrix(
-    prod(g$dim) * (seq_len(ncol(ind2d)) - 1),
-    nrow = nj,
-    ncol = ncol(ind2d),
-    byrow = TRUE
-  )
+  ind3d <- ind2d +
+    matrix(
+      prod(g$dim) * (seq_len(ncol(ind2d)) - 1),
+      nrow = nj,
+      ncol = ncol(ind2d),
+      byrow = TRUE
+    )
 
   stap3d <- t(replicate(nj, stap_id_included))
 

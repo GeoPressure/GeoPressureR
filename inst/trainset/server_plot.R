@@ -71,7 +71,12 @@ refresh_detail_traces <- function(xmin, xmax) {
   view_seconds <- as.numeric(difftime(xmax, xmin, units = "secs"))
   dbg("refresh_detail_traces view=", round(view_seconds / 3600, 3), "h")
 
-  pres <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+  pres <- list(
+    date = as.POSIXct(character(0), tz = time_tz),
+    value = numeric(0),
+    label = character(0),
+    row_index = integer(0)
+  )
   if (has_pressure) {
     pres <- subset_for_view(
       pressure_date_sorted,
@@ -88,7 +93,12 @@ refresh_detail_traces <- function(xmin, xmax) {
     dbg("pressure points=", length(pres$row_index))
   }
 
-  acc <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+  acc <- list(
+    date = as.POSIXct(character(0), tz = time_tz),
+    value = numeric(0),
+    label = character(0),
+    row_index = integer(0)
+  )
   acc_mode <- "markers"
   if (has_acceleration) {
     acc <- subset_for_view(
@@ -167,7 +177,11 @@ if (has_pressure && has_acceleration) {
 }
 
 # Overview (range slider) is a light downsample of pressure.
-pressure_overview <- data.frame(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), row_index = integer(0))
+pressure_overview <- data.frame(
+  date = as.POSIXct(character(0), tz = time_tz),
+  value = numeric(0),
+  row_index = integer(0)
+)
 if (has_pressure) {
   n_pressure_sorted <- length(pressure_sort_idx)
   pressure_overview_idx <- downsample_indices(n_pressure_sorted, max_points_overview)
@@ -179,7 +193,12 @@ if (has_pressure) {
 }
 
 # Initial detail traces use the full time range but are capped.
-initial_pressure_detail <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+initial_pressure_detail <- list(
+  date = as.POSIXct(character(0), tz = time_tz),
+  value = numeric(0),
+  label = character(0),
+  row_index = integer(0)
+)
 if (has_pressure) {
   initial_pressure_detail <- subset_for_view(
     pressure_date_sorted,
@@ -195,7 +214,12 @@ if (has_pressure) {
   state$pressure_detail_idx <- initial_pressure_detail$row_index
 }
 
-initial_acc_detail <- list(date = as.POSIXct(character(0), tz = time_tz), value = numeric(0), label = character(0), row_index = integer(0))
+initial_acc_detail <- list(
+  date = as.POSIXct(character(0), tz = time_tz),
+  value = numeric(0),
+  label = character(0),
+  row_index = integer(0)
+)
 acc_has_lines_initial <- TRUE
 if (has_acceleration) {
   initial_acc_detail <- subset_for_view(
@@ -341,7 +365,11 @@ output$ts_plot <- plotly::renderPlotly({
       ),
       rangeslider = list(visible = has_pressure, range = time_range)
     ),
-    yaxis = list(title = if (has_pressure) "Pressure" else "Acceleration", side = "left", fixedrange = FALSE),
+    yaxis = list(
+      title = if (has_pressure) "Pressure" else "Acceleration",
+      side = "left",
+      fixedrange = FALSE
+    ),
     dragmode = "select",
     selectdirection = "d",
     showlegend = FALSE,

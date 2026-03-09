@@ -124,9 +124,13 @@ graph_most_likely <- function(graph, quiet = FALSE) {
     path_max[max_t] <- max_v
 
     # Find the source node of the maximum possible transition for each target node
-    max_s <- vapply(split(node_i_s, node_i_s$t), function(x) {
-      x$s[which.max(x$p)]
-    }, integer(1))
+    max_s <- vapply(
+      split(node_i_s, node_i_s$t),
+      function(x) {
+        x$s[which.max(x$p)]
+      },
+      integer(1)
+    )
     path_s[max_t] <- max_s
 
     if (!quiet) {

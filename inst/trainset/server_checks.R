@@ -71,7 +71,11 @@ compute_pressure_warning <- function(tag, warning_pressure_diff) {
         c("date", "stap_id", "value"),
         drop = FALSE
       ]
-      pressure_warning <- pressure_warning[order(pressure_warning$value, decreasing = TRUE), , drop = FALSE]
+      pressure_warning <- pressure_warning[
+        order(pressure_warning$value, decreasing = TRUE),
+        ,
+        drop = FALSE
+      ]
       rownames(pressure_warning) <- NULL
 
       list(
@@ -109,7 +113,11 @@ compute_check_rows <- function(
   # Filter short stationary periods.
   duration_hours <- stap2duration(stap, units = "hours")
   duration_time <- stap2duration(stap, return_numeric = FALSE)
-  stap_warning <- stap[duration_hours <= warning_stap_duration, c("stap_id", "start", "end"), drop = FALSE]
+  stap_warning <- stap[
+    duration_hours <= warning_stap_duration,
+    c("stap_id", "start", "end"),
+    drop = FALSE
+  ]
   stap_warning$duration <- duration_time[duration_hours <= warning_stap_duration]
   stap_warning$duration_text <- vapply(
     stap_warning$duration,
@@ -443,17 +451,23 @@ show_check_modal <- function() {
 }
 
 output$check_modal_results <- shiny::renderUI({
-  warning_stap_duration <- if (!is.null(input$check_warning_stap_duration) && is.finite(input$check_warning_stap_duration)) {
+  warning_stap_duration <- if (
+    !is.null(input$check_warning_stap_duration) && is.finite(input$check_warning_stap_duration)
+  ) {
     input$check_warning_stap_duration
   } else {
     state$warning_stap_duration
   }
-  warning_flight_duration <- if (!is.null(input$check_warning_flight_duration) && is.finite(input$check_warning_flight_duration)) {
+  warning_flight_duration <- if (
+    !is.null(input$check_warning_flight_duration) && is.finite(input$check_warning_flight_duration)
+  ) {
     input$check_warning_flight_duration
   } else {
     state$warning_flight_duration
   }
-  warning_pressure_diff <- if (!is.null(input$check_warning_pressure_diff) && is.finite(input$check_warning_pressure_diff)) {
+  warning_pressure_diff <- if (
+    !is.null(input$check_warning_pressure_diff) && is.finite(input$check_warning_pressure_diff)
+  ) {
     input$check_warning_pressure_diff
   } else {
     state$warning_pressure_diff
@@ -485,17 +499,29 @@ set_check_threshold <- function(input_value, state_name) {
   }
 }
 
-shiny::observeEvent(input$check_warning_stap_duration, {
-  set_check_threshold(input$check_warning_stap_duration, "warning_stap_duration")
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$check_warning_stap_duration,
+  {
+    set_check_threshold(input$check_warning_stap_duration, "warning_stap_duration")
+  },
+  ignoreInit = TRUE
+)
 
-shiny::observeEvent(input$check_warning_flight_duration, {
-  set_check_threshold(input$check_warning_flight_duration, "warning_flight_duration")
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$check_warning_flight_duration,
+  {
+    set_check_threshold(input$check_warning_flight_duration, "warning_flight_duration")
+  },
+  ignoreInit = TRUE
+)
 
-shiny::observeEvent(input$check_warning_pressure_diff, {
-  set_check_threshold(input$check_warning_pressure_diff, "warning_pressure_diff")
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$check_warning_pressure_diff,
+  {
+    set_check_threshold(input$check_warning_pressure_diff, "warning_pressure_diff")
+  },
+  ignoreInit = TRUE
+)
 
 shiny::observeEvent(input$check_zoom_stap, {
   if (is.null(input$check_zoom_stap) || identical(input$check_zoom_stap, "")) {

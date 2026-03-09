@@ -148,13 +148,17 @@ zoom_to_window <- function(start, end, lag_x_hours = 12, lag_y = 5) {
 
   active_series <- active_series_or_default()
   if (active_series == "acceleration" && has_acceleration) {
-    y_vals <- acceleration_data$value[acceleration_data$date >= start & acceleration_data$date <= end]
+    y_vals <- acceleration_data$value[
+      acceleration_data$date >= start & acceleration_data$date <= end
+    ]
     y_axis <- if (has_pressure) "yaxis2" else "yaxis"
   } else if (has_pressure) {
     y_vals <- pressure_data$value[pressure_data$date >= start & pressure_data$date <= end]
     y_axis <- "yaxis"
   } else if (has_acceleration) {
-    y_vals <- acceleration_data$value[acceleration_data$date >= start & acceleration_data$date <= end]
+    y_vals <- acceleration_data$value[
+      acceleration_data$date >= start & acceleration_data$date <= end
+    ]
     y_axis <- "yaxis"
   } else {
     y_vals <- numeric(0)
