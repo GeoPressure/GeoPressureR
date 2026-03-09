@@ -64,13 +64,11 @@
 #' @return A GeoPressureR `pressurepath` data.frame with columns:
 #' - `date` same as `pressure$date`
 #' - `stap_id` same as `pressure$stap_id`
+#' - `j` same as `path$j` (optional)
 #' - `pressure_tag` same as `pressure$value`
 #' - `label` same as `pressure$label`
-#' - `j` same as `path$j`
-#' - `lat` same as `path$lat`
-#' - `lon` same as `path$lon`
-#' - `include` same as `path$include`
-#' - `known` same as `path$known`
+#' - `lat` same as `path$lat`, interpolated linerarly during flight
+#' - `lon` same as `path$lon`, interpolated linerarly during flight
 #' - `altitude` altitude of the bird along the path (see detail)
 #' - `surface_pressure` pressure retrieved from ERA5.
 #' - `surface_pressure_norm` pressure retrieved from ERA5 normalized to the average of
@@ -184,7 +182,7 @@ pressurepath_create <- function(
   # Create pressurepath by combining pressure and path
   pressurepath <- merge(
     pressure_w_path,
-    path[!(names(path) %in% c("start", "end"))],
+    path[, intersect(c("stap_id", "lat", "lon", "j"), names(path)), drop = FALSE],
     by = "stap_id",
     all.x = TRUE
   )
