@@ -85,19 +85,28 @@ geolight_fit_location <- function(
   # Split twilight row indices by stationary period
   twl_id_by_stap <- split(which(twl$include), twl$stap_id[twl$include])
 
+  # Ensure known coordinates are always available
+  stap <- tag$stap
+  if (!"known_lat" %in% names(stap)) {
+    stap$known_lat <- NA_real_
+  }
+  if (!"known_lon" %in% names(stap)) {
+    stap$known_lon <- NA_real_
+  }
+
   # Eligible stationary periods
-  eligible <- stap2duration(tag$stap) >= fitted_location_duration
-  if ("include" %in% names(tag$stap)) {
-    eligible <- eligible & tag$stap$include
+  eligible <- stap2duration(stap) >= fitted_location_duration
+  if ("include" %in% names(stap)) {
+    eligible <- eligible & stap$include
   }
   if (!compute_known) {
     eligible <- eligible &
-      is.na(tag$stap$known_lat) &
-      is.na(tag$stap$known_lon)
+      is.na(stap$known_lat) &
+      is.na(stap$known_lon)
   }
 
   # Only keep eligible staps for fitting
-  twl_id_by_stap <- twl_id_by_stap[names(twl_id_by_stap) %in% tag$stap$stap_id[eligible]]
+  twl_id_by_stap <- twl_id_by_stap[names(twl_id_by_stap) %in% stap$stap_id[eligible]]
 
   # Keep only periods with at least one twilight
   twl_id_by_stap <- twl_id_by_stap[lengths(twl_id_by_stap) > 0]
@@ -117,7 +126,7 @@ geolight_fit_location <- function(
   names(lower) <- names(upper) <- c("lon", "lat", "zenith")
 
   # Prepare output table
-  path <- tag$stap[, c("stap_id", "start", "end", "known_lon", "known_lat")]
+  path <- stap[, c("stap_id", "start", "end", "known_lon", "known_lat")]
   path$lon <- NA_real_
   path$lat <- NA_real_
   path$zenith <- NA_real_
@@ -166,12 +175,12 @@ geolight_fit_location <- function(
 
   if (!compute_known) {
     known_idx <- which(
-      !is.na(tag$stap$known_lat) & !is.na(tag$stap$known_lon)
+      !is.na(stap$known_lat) & !is.na(stap$known_lon)
     )
     for (i in known_idx) {
-      path$lon[path$stap_id == tag$stap$stap_id[i]] <- tag$stap$known_lon[i]
-      path$lat[path$stap_id == tag$stap$stap_id[i]] <- tag$stap$known_lat[i]
-      path$zenith[path$stap_id == tag$stap$stap_id[i]] <- NA_real_
+      path$lon[path$stap_id == stap$stap_id[i]] <- stap$known_lon[i]
+      path$lat[path$stap_id == stap$stap_id[i]] <- stap$known_lat[i]
+      path$zenith[path$stap_id == stap$stap_id[i]] <- NA_real_
     }
   }
 
