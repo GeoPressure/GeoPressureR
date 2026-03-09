@@ -37,6 +37,7 @@ When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
 Start the GeoLightViz shiny app
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>
     tag_label(quiet = TRUE) |>
@@ -44,5 +45,5 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     twilight_label_read()
 })
 geolightviz(tag, run_bg = FALSE, launch_browser = FALSE)
-
+\dontshow{\}) # examplesIf}
 }

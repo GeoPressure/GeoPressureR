@@ -43,7 +43,6 @@ Suggests:
     covr,
     ecmwfr (>= 2.0.0),
     knitr,
-    leaflet.extras,
     leaflet.providers,
     maps,
     rnaturalearth,

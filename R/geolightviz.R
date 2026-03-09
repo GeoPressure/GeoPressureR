@@ -13,7 +13,7 @@
 #' @return When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
 #' When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
 #'
-#' @examples
+#' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>
