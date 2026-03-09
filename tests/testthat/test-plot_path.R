@@ -34,7 +34,7 @@ test_that("plot_path() returns ggplot and respects point_fill logic", {
 test_that("plot_path() handles missing j and missing coordinates", {
   path <- data.frame(
     stap_id = 1:4,
-    lon = c(10, 11, 12, 14),
+    lon = c(10, NA, 12, 14),
     lat = c(50, NA, 52, 54)
   )
 
