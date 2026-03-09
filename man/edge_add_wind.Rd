@@ -98,6 +98,7 @@ reasons.
 }
 }
 \examples{
+\dontrun{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>
     tag_label(quiet = TRUE) |>
@@ -106,6 +107,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 })
 graph <- graph_create(tag, quiet = TRUE)
 wind <- edge_add_wind(graph, edge_s = graph$s, edge_t = graph$t, quiet = TRUE)
+}
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}

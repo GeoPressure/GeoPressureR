@@ -7,8 +7,9 @@
 tag_label_stap(
   tag,
   quiet = FALSE,
-  warning_flight_duration = 2,
-  warning_stap_duration = 6
+  warning_flight_duration = lifecycle::deprecated(),
+  warning_stap_duration = lifecycle::deprecated(),
+  ...
 )
 }
 \arguments{
@@ -16,10 +17,11 @@ tag_label_stap(
 
 \item{quiet}{logical to display warning message.}
 
-\item{warning_flight_duration}{Threshold of flight duration to display warning for (hours)}
+\item{warning_flight_duration}{lifecycle::deprecated()}
 
-\item{warning_stap_duration}{Threshold of stationary period duration to display warning for
-(hours)}
+\item{warning_stap_duration}{lifecycle::deprecated()}
+
+\item{...}{lifecycle::deprecated()}
 }
 \value{
 \code{tag} is return with (1) a new data.frame of stationary periods \code{tag$stap} and (2) a new

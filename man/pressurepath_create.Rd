@@ -50,6 +50,7 @@ A GeoPressureR \code{pressurepath} data.frame with columns:
 \itemize{
 \item \code{date} same as \code{pressure$date}
 \item \code{stap_id} same as \code{pressure$stap_id}
+\item \code{j} same as \code{path$j} (optional)
 \item \code{pressure_tag} same as \code{pressure$value}
 \item \code{label} same as \code{pressure$label}
 \item \code{lat} same as \code{path$lat}, interpolated linerarly during flight
