@@ -146,7 +146,11 @@ prepare_twilight <- function(tag, ref, compute_known = NULL) {
   twl
 }
 
-#' @noRd
+#' Convert datetimes to a plotting time-of-day scale
+#'
+#' @param x a POSIXct vector of datetimes.
+#' @param ref reference datetime used to keep ordering around midnight.
+#' @return POSIXct vector on an arbitrary day encoding plotted time-of-day.
 #' @keywords internal
 #' @export
 time2plottime <- function(x, ref = x[1]) {

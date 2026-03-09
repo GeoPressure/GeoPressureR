@@ -54,11 +54,12 @@ Learn more about data labeling workflows in the \href{https://raphaelnussbaumer.
 \href{https://raphaelnussbaumer.com/GeoPressureR/}{GeoPressureR documentation}.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 })
 trainset(tag, run_bg = FALSE, launch_browser = FALSE)
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=tag_label_read]{tag_label_read()}}, \code{\link[=tag_label_write]{tag_label_write()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual }

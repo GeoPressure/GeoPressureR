@@ -36,7 +36,7 @@
 #' is returned invisibly, with the `tag` attached as an attribute `attr(p, "tag")`.
 #' The labeled data can be exported directly from the app interface.
 #'
-#' @examples
+#' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
 #' })

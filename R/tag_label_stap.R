@@ -152,9 +152,11 @@ tag_label_stap <- function(
 
 #' Find the stationary period corresponding to a date
 #'
+#' @param stap a data.frame with columns `start` and `end` defining stationary periods.
+#' @param date a POSIXct vector of datetimes to map to stationary periods.
+#' @return Numeric vector of `stap_id` indices (fractional values for in-flight gaps).
 #' @keywords internal
 #' @export
-#' @noRd
 find_stap <- function(stap, date) {
   start_num <- as.numeric(stap$start)
   end_num <- as.numeric(stap$end)

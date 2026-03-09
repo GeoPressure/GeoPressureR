@@ -59,7 +59,6 @@ geolight_map_calibrate <- function(
 #'
 #' @keywords internal
 #' @export
-#' @noRd
 geolight_calibrate <- function(
   twl,
   calib_stap,

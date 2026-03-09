@@ -1,8 +1,13 @@
 library(testthat)
 library(GeoPressureR)
 
-test_that("mask_water() | basic functionality", {
+skip_if_no_naturalearth <- function() {
   skip_if_not_installed("rnaturalearth")
+  skip_if_not_installed("rnaturalearthdata")
+}
+
+test_that("mask_water() | basic functionality", {
+  skip_if_no_naturalearth()
 
   # Test with simple extent/scale
   extent <- c(-10, 5, 50, 60) # UK, Ireland, North Sea
@@ -25,7 +30,7 @@ test_that("mask_water() | basic functionality", {
 })
 
 test_that("mask_water() | geographic accuracy", {
-  skip_if_not_installed("rnaturalearth")
+  skip_if_no_naturalearth()
 
   # Test with UK and Ireland (known land/water distribution)
   extent <- c(-10, 5, 50, 60)
@@ -46,7 +51,7 @@ test_that("mask_water() | geographic accuracy", {
 })
 
 test_that("mask_water() | island detection", {
-  skip_if_not_installed("rnaturalearth")
+  skip_if_no_naturalearth()
 
   # Test with Azores (small islands in Atlantic)
   extent <- c(-30, -24, 37, 40)
@@ -64,7 +69,7 @@ test_that("mask_water() | island detection", {
 })
 
 test_that("mask_water() | all water extent", {
-  skip_if_not_installed("rnaturalearth")
+  skip_if_no_naturalearth()
 
   # Test with mid-Atlantic (no land)
   extent <- c(-40, -30, 30, 40)
@@ -78,7 +83,7 @@ test_that("mask_water() | all water extent", {
 })
 
 test_that("mask_water() | all land extent", {
-  skip_if_not_installed("rnaturalearth")
+  skip_if_no_naturalearth()
 
   # Test with central Europe (mostly land)
   extent <- c(5, 15, 45, 55)
@@ -92,7 +97,7 @@ test_that("mask_water() | all land extent", {
 })
 
 test_that("mask_water() | different scales", {
-  skip_if_not_installed("rnaturalearth")
+  skip_if_no_naturalearth()
 
   extent <- c(-10, 5, 50, 60)
 
@@ -114,7 +119,7 @@ test_that("mask_water() | different scales", {
 })
 
 test_that("map_add_mask_water() | main function with map", {
-  skip_if_not_installed("rnaturalearth")
+  skip_if_no_naturalearth()
 
   extent <- c(-10, 5, 50, 60)
   scale <- 2

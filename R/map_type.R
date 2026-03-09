@@ -81,9 +81,9 @@ NULL
 
 #' Get map type specifications
 #'
+#' @return A named list of map type specifications used by plotting and Shiny apps.
 #' @keywords internal
 #' @export
-#' @noRd
 map_type <- function() {
   .MAP_TYPE
 }

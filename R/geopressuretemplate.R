@@ -75,7 +75,7 @@
 #' The function returns nothing. Instead, it saves the processed outputs (tag, graph,
 #' pressure paths, etc.) to the specified `file`.
 #'
-#' @examples
+#' @examplesIf FALSE
 #' # Run the complete geopressuretemplate workflow
 #' geopressuretemplate("18LX")
 #'
