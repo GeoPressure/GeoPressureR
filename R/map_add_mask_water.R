@@ -22,7 +22,7 @@
 #' `scale` from the map). For `"large"`/`10` resolution, `rnaturalearthhires` is used
 #' by `rnaturalearth` when available.
 #'
-#' @examples
+#' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>
@@ -53,6 +53,12 @@ map_add_mask_water <- function(map, ne_scale = "medium") {
     cli::cli_abort(c(
       "x" = "Package {.pkg rnaturalearth} is required for {.fun map_add_mask_water}.",
       "i" = "Install it with {.run install.packages('rnaturalearth')}."
+    ))
+  }
+  if (!requireNamespace("rnaturalearthdata", quietly = TRUE)) {
+    cli::cli_abort(c(
+      "x" = "Package {.pkg rnaturalearthdata} is required for {.fun map_add_mask_water}.",
+      "i" = "Install it with {.run install.packages('rnaturalearthdata')}."
     ))
   }
   assertthat::assert_that(inherits(map, "map"))

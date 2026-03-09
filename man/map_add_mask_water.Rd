@@ -32,6 +32,7 @@ The coastline data is rasterized to match the map's grid (defined by \code{exten
 by \code{rnaturalearth} when available.
 }
 \examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>
     tag_label(quiet = TRUE) |>
@@ -54,7 +55,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   # View the mask
   image(tag$map_light$mask_water)
 })
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other map: 
