@@ -63,7 +63,9 @@ test_that("workflow | Missing pressure value", {
   tag <- tag_set_map(tag, extent = c(-16, 23, 0, 50), scale = 1)
 
   expect_warning(
-    tag <- geopressure_map(tag, quiet = TRUE)
+    expect_warning(
+      tag <- geopressure_map(tag, quiet = TRUE)
+    )
   )
 
   expect_equal(
