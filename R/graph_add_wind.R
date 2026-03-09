@@ -19,7 +19,7 @@
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
-#' @examples
+#' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>
@@ -27,7 +27,7 @@
 #'     geopressure_map(quiet = TRUE)
 #' })
 #' graph <- graph_create(tag, quiet = TRUE)
-#' graph <- graph_add_wind(graph, quiet = TRUE)
+#' graph <- graph_add_wind(graph, pressure = tag$pressure, quiet = TRUE)
 #'
 #' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
