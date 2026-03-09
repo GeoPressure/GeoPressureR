@@ -148,6 +148,16 @@ ui <- shiny::fluidPage(
         )
       ),
 
+      shiny::div(
+        class = "d-flex flex-column justify-content-end mt-2",
+        shiny::actionButton(
+          "check_btn",
+          "Check",
+          class = "btn btn-outline-light btn-sm",
+          icon = shiny::icon("check")
+        )
+      ),
+
       # Save button (with hidden download fallback)
       shiny::div(
         class = "d-flex flex-column justify-content-end mt-2",
