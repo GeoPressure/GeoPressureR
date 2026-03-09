@@ -37,7 +37,12 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     tag_label(quiet = TRUE) |>
     tag_set_map(
       extent = c(-16, 23, 0, 50),
-      scale = 4
+      scale = 4,
+      known = data.frame(
+        stap_id = 1,
+        known_lon = 17.05,
+        known_lat = 48.9
+      )
     ) |>
     twilight_create() |>
     twilight_label_read() |>
