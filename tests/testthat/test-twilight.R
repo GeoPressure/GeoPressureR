@@ -37,7 +37,7 @@ test_that("twilight_label_write() and twilight_label_read() work", {
 
   file_missing_dir <- file.path(tempdir(), "gpr-twilight", basename(tempfile()))
   expect_false(dir.exists(dirname(file_missing_dir)))
-  expect_no_error(twilight_label_write(tag, file = file_missing_dir))
+  expect_no_error(twilight_label_write(tag, file = file_missing_dir, quiet = TRUE))
   expect_true(dir.exists(dirname(file_missing_dir)))
 
   # Works when twilight has no stap_id and no label

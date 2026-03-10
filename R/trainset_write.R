@@ -48,9 +48,11 @@ trainset_write <- function(
   # Check if folder exist
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
-    cli::cli_bullets(c(
-      "!" = "The directory {.file {dir_file}} does not exists."
-    ))
+    if (!quiet) {
+      cli::cli_bullets(c(
+        "!" = "The directory {.file {dir_file}} does not exists."
+      ))
+    }
     # In non-interactive runs, honor options(askYesNo=...) when provided.
     res <- if (interactive() || !is.null(getOption("askYesNo"))) {
       utils::askYesNo("Do you want to create it?")
