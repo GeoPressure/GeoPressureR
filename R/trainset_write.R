@@ -51,14 +51,16 @@ trainset_write <- function(
     cli::cli_bullets(c(
       "!" = "The directory {.file {dir_file}} does not exists."
     ))
-    # nocov start
-    res <- utils::askYesNo("Do you want to create it?")
+    res <- if (interactive()) {
+      utils::askYesNo("Do you want to create it?") # nocov
+    } else {
+      TRUE
+    }
     if (res) {
       dir.create(dir_file, recursive = TRUE)
     } else {
       return(FALSE)
     }
-    # nocov end
   }
 
   # write a combined data.frame of pressure and acceleration in csv.

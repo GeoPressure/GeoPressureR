@@ -182,10 +182,13 @@ tag_set_map <- function(
             "!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different tag_set_map parameters."
           )
         )
-        # nocov start
-        res <- utils::askYesNo(
-          "Do you want to overwrite the parameters and delete the likelihood maps?"
-        )
+        res <- if (interactive()) {
+          utils::askYesNo(
+            "Do you want to overwrite the parameters and delete the likelihood maps?"
+          ) # nocov
+        } else {
+          FALSE
+        }
         if (res) {
           # If yes, remove existing likelihood map and carry on the overwrite of parameter
           tag$map_pressure <- NULL
@@ -203,7 +206,6 @@ tag_set_map <- function(
           # If no, stop and return the existing tag
           return(tag)
         }
-        # nocov end
       } else {
         cli::cli_warn(c(
           "!" = "{.fun tag_set_map} has already been run on this {.var tag} object and the input parameters are different.",

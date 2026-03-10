@@ -17,14 +17,17 @@ geopressuretemplate_tag <- function(
     cli::cli_bullets(c(
       "!" = "The directory {.file {dir_file}} does not exists."
     ))
-    # nocov start
-    res <- utils::askYesNo("Do you want to create it?")
+    # Use interactive prompt only in interactive sessions.
+    res <- if (interactive()) {
+      utils::askYesNo("Do you want to create it?")
+    } else {
+      TRUE
+    }
     if (res) {
       dir.create(dir_file, recursive = TRUE)
     } else {
       cli::cli_abort("Please create the directory and run the function again.")
     }
-    # nocov end
   }
 
   if (!quiet) {
