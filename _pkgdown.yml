@@ -34,7 +34,6 @@ reference:
     contents:
       - tag_create
       - tag_set_map
-      - tag_update
   - subtitle: Visualize tag
     desc: Print and plot a `tag` object.
     contents:
