@@ -62,7 +62,7 @@ tag_label_read <- function(
     )
 
     # Check that all label are correct
-    if ("label" %in% tag$acceleration) {
+    if ("label" %in% names(tag$acceleration)) {
       unique_label <- unique(tag$acceleration$label)
       unique_label <- unique_label[
         !(unique_label %in%
