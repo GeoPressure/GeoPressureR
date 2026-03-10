@@ -5,7 +5,7 @@
 ## Usage
 
 ``` r
-trainset(x, launch_browser = TRUE, run_bg = TRUE)
+trainset(x, launch_browser = TRUE, run_bg = TRUE, debug = FALSE)
 ```
 
 ## Arguments
@@ -36,6 +36,11 @@ trainset(x, launch_browser = TRUE, run_bg = TRUE)
   If true, the app runs in a background R session using the `callr`
   package. This allows you to continue using your R session while the
   app is running.
+
+- debug:
+
+  If `TRUE`, prints debug messages about plot refreshes (x-range changes
+  and point counts) to the R console. Defaults to `FALSE`.
 
 ## Value
 
@@ -76,3 +81,14 @@ documentation](https://raphaelnussbaumer.com/GeoPressureR/).
 [`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md),
 [`tag_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_write.md),
 [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/)
+
+## Examples
+
+``` r
+if (FALSE) {
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+})
+trainset(tag, run_bg = FALSE, launch_browser = FALSE)
+}
+```

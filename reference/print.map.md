@@ -26,6 +26,7 @@ print(x, ...)
 ## See also
 
 Other map:
+[`map_add_mask_water()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_add_mask_water.md),
 [`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md),
 [`rast.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/rast.map.md)
 
@@ -45,7 +46,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 print(tag$map_pressure)
 #> 
-#> ── GeoPressureR `map` object  of pressure for 18LX ─────────────────────────────
+#> ── GeoPressureR `map` object of pressure for 18LX ──────────────────────────────
 #> 
 #> ── Map 
 #> • Extent (W, E, S, N): -16°, 23°, 0°, 50°

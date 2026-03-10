@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,10 +47,12 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_path</span><span class="op">(</span></span>
 <span>  <span class="va">path</span>,</span>
 <span>  plot_leaflet <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  map <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  provider <span class="op">=</span> <span class="st">"Esri.WorldTopoMap"</span>,</span>
 <span>  provider_options <span class="op">=</span> <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addProviderTiles.html" class="external-link">providerTileOptions</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  pad <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  <span class="va">...</span></span>
+<span>  polyline <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  circle <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -67,10 +69,12 @@
 basic plot.</p></dd>
 
 
+<dt id="arg-map">map<a class="anchor" aria-label="anchor" href="#arg-map"></a></dt>
+<dd><p>optional <code>map</code> object to plot the path on top of.</p></dd>
+
+
 <dt id="arg-provider">provider<a class="anchor" aria-label="anchor" href="#arg-provider"></a></dt>
-<dd><p>the name of the provider (see
-<a href="https://leaflet-extras.github.io/leaflet-providers/preview/" class="external-link">https://leaflet-extras.github.io/leaflet-providers/preview/</a> and
-<a href="https://github.com/leaflet-extras/leaflet-providers" class="external-link">https://github.com/leaflet-extras/leaflet-providers</a>)</p></dd>
+<dd><p>tile provider name (see <code><a href="https://rstudio.github.io/leaflet/reference/providers.html" class="external-link">leaflet::providers</a></code>).</p></dd>
 
 
 <dt id="arg-provider-options">provider_options<a class="anchor" aria-label="anchor" href="#arg-provider-options"></a></dt>
@@ -82,19 +86,22 @@ leaflet::providerTileOptions()</p></dd>
 <dd><p>padding of the map in degree lat-lon (only for <code>plot_leaflet = FALSE</code>).</p></dd>
 
 
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>additional parameters for <code>plot_path_leaflet()</code></p></dd>
+<dt id="arg-polyline">polyline<a class="anchor" aria-label="anchor" href="#arg-polyline"></a></dt>
+<dd><p>list of parameters passed to <code><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">leaflet::addPolylines()</a></code></p></dd>
+
+
+<dt id="arg-circle">circle<a class="anchor" aria-label="anchor" href="#arg-circle"></a></dt>
+<dd><p>list of parameters passed to <code><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">leaflet::addCircleMarkers()</a></code></p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>modified map object</p>
+    <p>A <code>leaflet</code> map when <code>plot_leaflet = TRUE</code>, otherwise a <code>ggplot2</code> object.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="plot.map.html">plot.map()</a></code></p>
 <p>Other path:
-<code><a href="ind2path.html">ind2path()</a></code>,
 <code><a href="path2edge.html">path2edge()</a></code>,
 <code><a href="path2elevation.html">path2elevation()</a></code>,
 <code><a href="path2twilight.html">path2twilight()</a></code>,
@@ -105,14 +112,31 @@ leaflet::providerTileOptions()</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">with_dir</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>, <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="tag_set_map.html">tag_set_map</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">23</span>, <span class="fl">0</span>, <span class="fl">50</span><span class="op">)</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="ind2path.html">ind2path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1652</span>, <span class="fl">1603</span>, <span class="fl">1755</span>, <span class="fl">1708</span>, <span class="fl">1607</span><span class="op">)</span>, <span class="va">tag</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  stap_id <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,</span></span>
+<span class="r-in"><span>  lon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">17.05</span>, <span class="fl">16.2</span>, <span class="cn">NA</span>, <span class="fl">15.4</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  lat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">48.9</span>, <span class="fl">47.8</span>, <span class="cn">NA</span>, <span class="fl">46.5</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  known_lon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">17.05</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  known_lat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">48.9</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  start <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2018-01-01"</span>, <span class="st">"2018-01-03"</span>, <span class="st">"2018-01-05"</span>, <span class="st">"2018-01-07"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    tz <span class="op">=</span> <span class="st">"UTC"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span>,</span></span>
+<span class="r-in"><span>  end <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2018-01-02"</span>, <span class="st">"2018-01-04"</span>, <span class="st">"2018-01-06"</span>, <span class="st">"2018-01-08"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    tz <span class="op">=</span> <span class="st">"UTC"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">plot_path</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<div id="htmlwidget-da0b268a2927f570ebf3" style="width:700px;height:600px;" class="leaflet html-widget"></div>
-<script type="application/json" data-for="htmlwidget-da0b268a2927f570ebf3">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[17.5,16.5,19.5,18.5,16.5],"lat":[48.5,47.5,45.5,42.5,43.5]}]]],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.5,47.5,45.5,42.5,43.5],[17.5,16.5,19.5,18.5,16.5],[10.34131237750732,5.744562646538029,5.449631621480024,5.421612021659069,7.125933808241013],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,true,true,true,true],"fillColor":"grey","fillOpacity":0.8},null,null,null,null,["#1, 8.8 days","#2, 0.8 days","#3, 0.7 days","#4, 0.7 days","#5, 2 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[42.5,48.5],"lng":[16.5,19.5]}},"evals":[],"jsHooks":[]}</script><span class="r-in"><span></span></span>
+<div id="htmlwidget-6b83523733b890d61edc" style="width:700px;height:600px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6b83523733b890d61edc">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[17.05,16.2,15.4],"lat":[48.9,47.8,46.5]}]]],null,[1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"grey","weight":5,"opacity":0.35,"fill":false,"fillColor":"grey","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addPolylines","args":[[[[{"lng":[17.05,16.2],"lat":[48.9,47.8]}]],[[{"lng":[15.4],"lat":[46.5]}]]],null,[1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.9,47.8,46.5],[17.05,16.2,15.4],[6,6,6,6],null,[1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,true,true,true],"fillColor":["#D1495B","black","black","black"],"fillOpacity":0.8},null,null,null,null,["#1, 1 days","#2, 1 days","#3, 1 days","#4, 1 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[46.5,48.9],"lng":[15.4,17.05]}},"evals":[],"jsHooks":[]}</script><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">plot_path</span><span class="op">(</span><span class="va">path</span>, plot_leaflet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_path-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -228,7 +228,9 @@ instance to remove pre-equipment or post-retrieval data.
 
 Other tag:
 [`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
-[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md)
+[`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md),
+[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md),
+[`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
 
 ## Examples
 
@@ -333,7 +335,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>  $ param   :List of 3
 #>   ..$ id                  : chr "xxx"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 4 6
+#>   .. ..$ : int [1:3] 3 5 0
 #>   ..$ tag_create          :List of 3
 #>   .. ..$ pressure_file: chr "df"
 #>   .. ..$ manufacturer : chr "df"

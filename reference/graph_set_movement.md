@@ -1,9 +1,7 @@
 # Define the movement model of a `graph`
 
 Configure the movement model of a `graph` by defining the value of the
-parameters needed to build the transition
-[`graph_transition()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.md)
-through
+parameters needed to build the transition `graph_transition()` through
 [`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md).
 
 Three methods are currently implemented with two parametric function
@@ -111,7 +109,6 @@ Other graph:
 
 Other movement:
 [`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
-[`graph_transition()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.md),
 [`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md),
 [`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md),
 [`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)

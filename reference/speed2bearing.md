@@ -33,3 +33,11 @@ speed2bearing(
 ## Value
 
 bearing angle in degree
+
+## Examples
+
+``` r
+if (FALSE) {
+  speed2bearing(complex(real = 10, imaginary = 5))
+}
+```

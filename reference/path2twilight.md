@@ -80,7 +80,6 @@ with columns:
 , [suntools](https://github.com/adokter/suntools)
 
 Other path:
-[`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
 [`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
 [`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
 [`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
@@ -91,7 +90,7 @@ Other path:
 ``` r
 path <- data.frame(
   stap_id = c(1, 2, 3, 4, 5),
-  j = c(1L, 1L, 1L, 1L, 1L),
+  j = c(1, 1, 1, 1, 1),
   ind = c(1652L, 1603L, 1505L, 1609L, 1463L),
   lat = c(48.9, 47.5, 45.5, 41.5, 37.5),
   lon = c(17.05, 16.5, 14.5, 16.5, 13.5),

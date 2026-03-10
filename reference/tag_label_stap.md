@@ -23,8 +23,9 @@ pressure data.frame.
 tag_label_stap(
   tag,
   quiet = FALSE,
-  warning_flight_duration = 2,
-  warning_stap_duration = 6
+  warning_flight_duration = lifecycle::deprecated(),
+  warning_stap_duration = lifecycle::deprecated(),
+  ...
 )
 ```
 
@@ -40,11 +41,15 @@ tag_label_stap(
 
 - warning_flight_duration:
 
-  Threshold of flight duration to display warning for (hours)
+  lifecycle::deprecated()
 
 - warning_stap_duration:
 
-  Threshold of stationary period duration to display warning for (hours)
+  lifecycle::deprecated()
+
+- ...:
+
+  lifecycle::deprecated()
 
 ## Value
 
@@ -74,15 +79,11 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
   str(tag$stap)
 })
-#> ── Short stationary periods (<6hr): ────────────────────────────────────────────
-#> ✔ All 5 stationary periods duration are above 6 hours.
-#> ── Short flights (<2hr): ───────────────────────────────────────────────────────
-#> ✔ All 4 flights duration are above 2 hours.
 #> List of 6
 #>  $ param               :List of 4
 #>   ..$ id                  : chr "18LX"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 4 6
+#>   .. ..$ : int [1:3] 3 5 0
 #>   ..$ tag_create          :List of 6
 #>   .. ..$ pressure_file            : chr "./data/raw-tag/18LX/18LX_20180725.pressure"
 #>   .. ..$ light_file               : chr "./data/raw-tag/18LX/18LX_20180725.glf"
@@ -90,10 +91,8 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>   .. ..$ temperature_external_file: chr "./data/raw-tag/18LX/18LX_20180725.temperature"
 #>   .. ..$ manufacturer             : chr "soi"
 #>   .. ..$ directory                : 'glue' chr "./data/raw-tag/18LX"
-#>   ..$ tag_label           :List of 3
-#>   .. ..$ file                   : 'glue' chr "./data/tag-label/18LX-labeled.csv"
-#>   .. ..$ warning_flight_duration: num 2
-#>   .. ..$ warning_stap_duration  : num 6
+#>   ..$ tag_label           :List of 1
+#>   .. ..$ file: 'glue' chr "./data/tag-label/18LX-labeled.csv"
 #>   ..- attr(*, "class")= chr "param"
 #>  $ pressure            :'data.frame':    672 obs. of  4 variables:
 #>   ..$ date   : POSIXct[1:672], format: "2017-07-27 00:00:00" "2017-07-27 00:30:00" ...

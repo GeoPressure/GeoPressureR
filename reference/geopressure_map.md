@@ -25,7 +25,7 @@ geopressure_map(
   sd = 1,
   thr_mask = 0.9,
   log_linear_pooling_weight = function(n) log(n)/n,
-  timeout = 60 * 5,
+  timeout = 300,
   workers = "auto",
   era5_dataset = "both",
   keep_mask = FALSE,
@@ -37,21 +37,21 @@ geopressure_map(
 
 geopressure_map_likelihood(
   tag,
-  sd = formals(geopressure_map)$sd,
+  sd = 1,
   log_linear_pooling_weight = function(n) log(n)/n,
   keep_mse = TRUE
 )
 
 geopressure_map_mismatch(
   tag,
-  max_sample = formals(geopressure_map)$max_sample,
-  margin = formals(geopressure_map)$margin,
-  keep_mask = TRUE,
+  max_sample = 250,
+  margin = 30,
   thr_mask = 0.9,
-  timeout = 60 * 5,
+  timeout = 300,
   workers = "auto",
   era5_dataset = "land",
   compute_known = FALSE,
+  keep_mask = TRUE,
   debug = FALSE,
   quiet = FALSE
 )

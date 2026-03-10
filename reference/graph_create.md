@@ -46,11 +46,9 @@ graph_create(
 
 - likelihood:
 
-  Field of the `tag` list containing the likelihood map (character).
-  Possible value are `map_pressure`, `map_light`, `map_pressure_mse`,
-  `map_pressure_mse`, `map_pressure_mse`, `mask_water`. Default `NA` is
-  to take the product of `map_pressure` and `map_light`, or if not
-  available, taking the first of the possible values.
+  Field of the `tag` list containing the likelihood map (character). By
+  default, uses the product of `map_pressure` and `map_light` if
+  available, otherwise the first available likelihood map in the tag.
 
 - quiet:
 
@@ -149,11 +147,11 @@ print(graph)
 #> Run `graph$param` to display all parameters
 #> 
 #> ── Stationary periods stap 
-#> stap_id | start               | end                 | known_lat | known_lon | include
-#> 1       | 2017-07-27 00:00:00 | 2017-08-04 19:47:30 | 48.9      | 17.05     | TRUE   
-#> 2       | 2017-08-04 23:17:30 | 2017-08-05 19:27:30 | NA        | NA        | TRUE   
+#> stap_id | start               | end                 | known_lat | known_lon | include | nb_sample
+#> 1       | 2017-07-27 00:00:00 | 2017-08-04 19:47:30 | 48.9      | 17.05     | TRUE    | 0        
+#> 2       | 2017-08-04 23:17:30 | 2017-08-05 19:27:30 | NA        | NA        | TRUE    | 20       
 #> ...
-#> 5       | 2017-08-08 00:12:30 | 2017-08-09 23:57:30 | NA        | NA        | TRUE   
+#> 5       | 2017-08-08 00:12:30 | 2017-08-09 23:57:30 | NA        | NA        | TRUE    | 48       
 #> Run `tag$stap` to see full stap table
 #> 
 #> ── Map 
@@ -162,9 +160,9 @@ print(graph)
 #> 
 #> ── Graph size 
 #> • 1 equipement node
-#> • 501 retrieval nodes
-#> • 2,481 nodes
-#> • 1,225,809 edges
+#> • 452 retrieval nodes
+#> • 2,335 nodes
+#> • 1,106,148 edges
 #> 
 #> ── Movement model 
 #> ! Windspeed not computed. Use `graph_add_wind()`

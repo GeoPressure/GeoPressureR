@@ -187,7 +187,7 @@ automatically as part of the `geopressuretemplate` workflow.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+if (FALSE) {
 # Run the complete geopressuretemplate workflow
 geopressuretemplate("18LX")
 
@@ -200,5 +200,5 @@ tag <- geopressuretemplate_tag("18LX")
 geopressuretemplate_graph("18LX")
 # 3. Computation of the pressurepath
 geopressuretemplate_pressurepath("18LX")
-} # }
+}
 ```

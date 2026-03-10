@@ -50,9 +50,7 @@ Data.frame of the edge containing:
 
 - `n`: number of flight.
 
-- `bearing`: Angle of the flight in degree (0° = North, 90° = East),
-  computed with
-  [`geosphere::bearing()`](https://rdrr.io/pkg/geosphere/man/bearing.html).
+- `bearing`: Angle of the flight in degree (0° = North, 90° = East).
 
 - `gs`: groundspeed vector expressed as a complex number. You can
   compute the groundspeed value (km/h) with `abs(gs)`, the W-E and S-N
@@ -70,8 +68,15 @@ Data.frame of the edge containing:
 [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
 
 Other path:
-[`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
 [`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
 [`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
 [`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
 [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+
+## Examples
+
+``` r
+if (FALSE) {
+  edge <- path2edge(path, tag)
+}
+```

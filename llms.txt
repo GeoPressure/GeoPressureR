@@ -89,6 +89,11 @@ Core functions related to a `tag` object.
   Configure the spatial and temporal parameters of the `map` of a `tag`
   object
 
+- [`tag_update()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_update.md)
+  **\[deprecated\]** :
+
+  Update a `tag` object
+
 ### Visualize tag
 
 Print and plot a `tag` object.
@@ -156,9 +161,6 @@ Core functions related to labelling a `tag` object.
 - [`tag_label_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_stap.md)
   : Create stationary periods from a tag label
 
-- [`trainset()`](https://raphaelnussbaumer.com/GeoPressureR/reference/trainset.md)
-  **\[experimental\]** : Start the GeoPressure Trainset shiny app
-
 ### Tag utilities
 
 Various utility functions related to a `tag` object.
@@ -168,15 +170,16 @@ Various utility functions related to a `tag` object.
 
   Assert the status of a `tag`
 
+- [`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md)
+  : Read or validate stap data
+
+- [`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
+  : Create stationary periods from twilight midpoints
+
 - [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
   :
 
   Build a `path` from the likelihood maps of a `tag`
-
-- [`tag2map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2map.md)
-  :
-
-  Extract a likelihood `map` from a `tag`
 
 ## GeoPressure
 
@@ -215,8 +218,18 @@ Geopositioning based on light data.
   : Write a twilight label file
 - [`twilight_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_read.md)
   : Read a twilight label file
+- [`geolight_solar()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_solar.md)
+  : Solar zenith angle using NOAA / Meeus equations
 - [`geolight_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
+  [`geolight_map_aggregate()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
+  [`geolight_map_calibrate()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
+  [`geolight_map_likelihood()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md)
   : Compute likelihood map from twilight
+- [`geolight_fit_location()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_fit_location.md)
+  : Estimate one location per stationary period from twilight times
+- [`plot_twl_calib()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_twl_calib.md)
+  [`plot_twl_calib_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_twl_calib.md)
+  : Plot twilight calibration diagnostics
 - [`ts2mat()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ts2mat.md)
   : Format time series data frame into a matrix
 
@@ -239,11 +252,6 @@ morphology.
   :
 
   Define the movement model of a `graph`
-
-- [`graph_transition()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.md)
-  :
-
-  Compute transition probabilities of a `graph`
 
 - [`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
   : Download flight data
@@ -326,14 +334,12 @@ Container for spatio-temporal (stationary periods) data.
 
   Construct grid from `extent` and `scale`
 
+- [`map_add_mask_water()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_add_mask_water.md)
+  : Create water mask for geolight map
+
 ## Path
 
 Data.frame of positions defining a bird trajectory.
-
-- [`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md)
-  :
-
-  Create a `path` from indices of coordinates
 
 - [`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md)
   :
@@ -344,6 +350,15 @@ Data.frame of positions defining a bird trajectory.
   :
 
   Plot a `path`
+
+## Sampling path
+
+Gibbs sampling from movement model.
+
+- [`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+  :
+
+  Build a `path` from the likelihood maps of a `tag`
 
 ## Pressurepath
 
@@ -374,6 +389,17 @@ Wrapper functions for the full GeoPressureR worflow
   : Workflow for GeoPressureR
 - [`load_interim()`](https://raphaelnussbaumer.com/GeoPressureR/reference/load_interim.md)
   : Load interim objects from an RData file
+
+## Shiny Apps
+
+Web applications for labeling and visualizing data.
+
+- [`geopressureviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressureviz.md)
+  : Start the GeoPressureViz shiny app
+- [`geolightviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolightviz.md)
+  : Start the GeoLightViz shiny app
+- [`trainset()`](https://raphaelnussbaumer.com/GeoPressureR/reference/trainset.md)
+  **\[experimental\]** : Start the GeoPressure Trainset shiny app
 
 ## Param
 
@@ -410,9 +436,6 @@ General utility functions of the package.
 
   Compute exact astronomical twilights from a `path` (positions and
   dates)
-
-- [`geopressureviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressureviz.md)
-  : Start the GeoPressureViz shiny app
 
 - [`GeoPressureR`](https://raphaelnussbaumer.com/GeoPressureR/reference/GeoPressureR.md)
   : GeoPressureR: Global positioning by atmospheric pressure.

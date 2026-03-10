@@ -22,3 +22,11 @@ graph_assert(graph, condition = "graph")
 ## Value
 
 logical indicating whether the `graph` object fulfil the condition.
+
+## Examples
+
+``` r
+if (FALSE) {
+  graph_assert(graph, "movement")
+}
+```

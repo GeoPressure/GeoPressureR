@@ -94,7 +94,9 @@ A GeoPressureR `tag` object with:
 
 Other tag:
 [`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
-[`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md)
+[`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md),
+[`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md),
+[`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
 
 ## Examples
 

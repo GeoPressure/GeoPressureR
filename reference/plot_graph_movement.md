@@ -12,7 +12,8 @@ plot_graph_movement(graph, speed = seq(0, 120), plot_plotly = FALSE)
 
 - graph:
 
-  a GeoPressureR `graph` object.
+  a GeoPressureR `graph` object or a movement list (from
+  `graph_set_movement`).
 
 - speed:
 
@@ -31,6 +32,42 @@ a plot or ggplotly object.
 Other movement:
 [`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
 [`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`graph_transition()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.md),
 [`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md),
 [`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
+
+## Examples
+
+``` r
+movement_gamma <- list(
+  type = "gs",
+  method = "gamma",
+  shape = 7,
+  scale = 7,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+)
+plot_graph_movement(movement_gamma)
+
+
+movement_logis <- list(
+  type = "gs",
+  method = "logis",
+  scale = 7,
+  location = 40,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+)
+plot_graph_movement(movement_logis)
+
+
+bird <- bird_create("Example bird", mass = 0.1, wing_span = 0.4, wing_aspect = 7)
+movement_power <- list(
+  type = "as",
+  method = "power",
+  bird = bird,
+  power2prob = \(power) (1 / power)^3,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+)
+plot_graph_movement(movement_power)
+```

@@ -72,3 +72,11 @@ or with this [demo of the Great Reed Warbler
 ## See also
 
 [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
+
+## Examples
+
+``` r
+if (FALSE) {
+  geopressureviz("18LX")
+}
+```

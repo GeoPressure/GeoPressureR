@@ -54,3 +54,11 @@ windsupport(windspeed, groundspeed, drift = FALSE)
 ## Value
 
 wind support as scalar value (same unit as `gs` and `ws`)
+
+## Examples
+
+``` r
+if (FALSE) {
+  windsupport(windspeed = 5 + 2i, groundspeed = 10 + 0i)
+}
+```

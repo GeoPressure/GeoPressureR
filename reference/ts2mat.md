@@ -5,12 +5,7 @@ Format time series data frame into a matrix
 ## Usage
 
 ``` r
-ts2mat(
-  ts,
-  twl_offset = 0,
-  value = "value",
-  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
-)
+ts2mat(ts, twl_offset = 0, value = "value", twl_time_tolerance = 180)
 ```
 
 ## Arguments
@@ -37,3 +32,11 @@ ts2mat(
 ## Value
 
 A data.frame with columns `date` and `value`.
+
+## Examples
+
+``` r
+if (FALSE) {
+  mat <- ts2mat(tag$pressure)
+}
+```

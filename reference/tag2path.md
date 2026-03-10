@@ -29,11 +29,9 @@ tag2path(tag, likelihood = NULL, interp = FALSE, use_known = TRUE)
 
 - likelihood:
 
-  Field of the `tag` list containing the likelihood map (character).
-  Possible value are `map_pressure`, `map_light`, `map_pressure_mse`,
-  `map_pressure_mse`, `map_pressure_mse`, `mask_water`. Default `NA` is
-  to take the product of `map_pressure` and `map_light`, or if not
-  available, taking the first of the possible values.
+  Field of the `tag` list containing the likelihood map (character). By
+  default, uses the product of `map_pressure` and `map_light` if
+  available, otherwise the first available likelihood map in the tag.
 
 - interp:
 
@@ -43,9 +41,9 @@ tag2path(tag, likelihood = NULL, interp = FALSE, use_known = TRUE)
 
 - use_known:
 
-  If true, enforce the known position in the path created. The known
-  positions are approximated to the map resolution in order to
-  corresponds to integer index.
+  If `TRUE`, enforce known positions from `tag$stap` when building the
+  path. Known positions are approximated to the map resolution so they
+  correspond to integer indices.
 
 ## Value
 
@@ -63,7 +61,6 @@ A path data.frame
 ## See also
 
 Other path:
-[`ind2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/ind2path.md),
 [`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
 [`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
 [`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
@@ -86,11 +83,11 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 path <- tag2path(tag)
 plot_path(path)
 
-{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[16.75,-0.25,20.25,15.75,13.25],"lat":[48.75,35.25,38.75,39.75,40.75]}]]],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.75,35.25,38.75,39.75,40.75],[16.75,-0.25,20.25,15.75,13.25],[10.34131237750732,5.744562646538029,5.449631621480024,5.421612021659069,7.125933808241013],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,true,true,true,true],"fillColor":"grey","fillOpacity":0.8},null,null,null,null,["#1, 8.8 days","#2, 0.8 days","#3, 0.7 days","#4, 0.7 days","#5, 2 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[35.25,48.75],"lng":[-0.25,20.25]}},"evals":[],"jsHooks":[]}
+{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[16.75,-0.25,20.25,15.75,13.25],"lat":[48.75,35.25,38.75,39.75,40.75]}]]],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.75,35.25,38.75,39.75,40.75],[16.75,-0.25,20.25,15.75,13.25],[10.34131237750732,5.744562646538029,5.449631621480024,5.421612021659069,7.125933808241013],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,true,true,true,true],"fillColor":["black","black","black","black","black"],"fillOpacity":0.8},null,null,null,null,["#1, 8.8 days","#2, 0.8 days","#3, 0.7 days","#4, 0.7 days","#5, 2 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[35.25,48.75],"lng":[-0.25,20.25]}},"evals":[],"jsHooks":[]}
 # Short stationary periods (e.g. 1 day) can be unreliably
 # estimated, so interpolating them is often better
 path <- tag2path(tag, interp = 1)
 plot_path(path)
 
-{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[16.75,16.25,15.25,13.75,13.25],"lat":[48.75,47.75,45.25,42.25,40.75]}]]],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.75,47.75,45.25,42.25,40.75],[16.75,16.25,15.25,13.75,13.25],[10.34131237750732,5.744562646538029,5.449631621480024,5.421612021659069,7.125933808241013],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,false,false,false,true],"fillColor":"grey","fillOpacity":0.8},null,null,null,null,["#1, 8.8 days","#2, 0.8 days","#3, 0.7 days","#4, 0.7 days","#5, 2 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[40.75,48.75],"lng":[13.25,16.75]}},"evals":[],"jsHooks":[]}
+{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["Esri.WorldTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addPolylines","args":[[[[{"lng":[16.75,16.25,15.25,13.75,13.25],"lat":[48.75,47.75,45.25,42.25,40.75]}]]],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"black","weight":5,"opacity":0.7,"fill":false,"fillColor":"black","fillOpacity":0.2,"smoothFactor":1,"noClip":false},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addCircleMarkers","args":[[48.75,47.75,45.25,42.25,40.75],[16.75,16.25,15.25,13.75,13.25],[10.34131237750732,5.744562646538029,5.449631621480024,5.421612021659069,7.125933808241013],null,[1,1,1,1,1],{"interactive":true,"className":"","stroke":true,"color":"white","weight":2,"opacity":1,"fill":[true,false,false,false,true],"fillColor":["black","black","black","black","black"],"fillOpacity":0.8},null,null,null,null,["#1, 8.8 days","#2, 0.8 days","#3, 0.7 days","#4, 0.7 days","#5, 2 days"],{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[40.75,48.75],"lng":[13.25,16.75]}},"evals":[],"jsHooks":[]}
 ```

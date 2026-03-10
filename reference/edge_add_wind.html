@@ -29,7 +29,7 @@ Pressure/altitude: linear interpolation using the exact pressure values
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,7 +108,8 @@ is a GeoPressureR <code>tag</code> object.</p></dd>
 
 
 <dt id="arg-variable">variable<a class="anchor" aria-label="anchor" href="#arg-variable"></a></dt>
-<dd><p>list of the variables to extract from <a href="https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9" class="external-link">the ERA5 pressure level </a> using the <code>shortName</code> notation: <code>"u"</code>, <code>"v"</code>,  <code>"t"</code>, <code>"cc"</code>, <code>"r"</code>,
+<dd><p>list of the variables to extract from <a href="https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9" class="external-link">the ERA5 pressure level </a>
+using the <code>shortName</code> notation: <code>"u"</code>, <code>"v"</code>,  <code>"t"</code>, <code>"cc"</code>, <code>"r"</code>,
 <code>"w"</code>, <code>"ciwc"</code>, <code>"clwc"</code>, <code>"q"</code>, <code>"cswc"</code>, <code>"d"</code>, <code>"z"</code>, <code>"o3"</code>, <code>"pv"</code>, <code>"vo"</code>.</p></dd>
 
 
@@ -169,6 +170,20 @@ and columns:</p><ul><li><p><code>edge_id</code> edge index</p></li>
     <div class="dont-index"><p><a href="https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html" class="external-link">GeoPressureManual</a></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">with_dir</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"GeoPressureR"</span><span class="op">)</span>, <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">tag</span> <span class="op">&lt;-</span> <span class="fu"><a href="tag_create.html">tag_create</a></span><span class="op">(</span><span class="st">"18LX"</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="tag_label.html">tag_label</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="tag_set_map.html">tag_set_map</a></span><span class="op">(</span>extent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">23</span>, <span class="fl">0</span>, <span class="fl">50</span><span class="op">)</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="geopressure_map.html">geopressure_map</a></span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">graph</span> <span class="op">&lt;-</span> <span class="fu"><a href="graph_create.html">graph_create</a></span><span class="op">(</span><span class="va">tag</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">wind</span> <span class="op">&lt;-</span> <span class="fu">edge_add_wind</span><span class="op">(</span><span class="va">graph</span>, edge_s <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="va">s</span>, edge_t <span class="op">=</span> <span class="va">graph</span><span class="op">$</span><span class="va">t</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

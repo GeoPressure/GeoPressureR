@@ -13,7 +13,7 @@
 
     <a class="navbar-brand me-2" href="index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,18 +49,25 @@
 <p>If you want to make a bigger change, it’s a good idea to first file an issue and make sure someone from the team agrees that it’s needed. If you’ve found a bug, please file an issue that illustrates the bug with a minimal <a href="https://www.tidyverse.org/help/#reprex" class="external-link">reprex</a> (this will also help you write a unit test, if needed).</p>
 <div class="section level3">
 <h3 id="pull-request-process">Pull request process<a class="anchor" aria-label="anchor" href="#pull-request-process"></a></h3>
-<ul><li><p>Fork the package and clone onto your computer. If you haven’t done this before, we recommend using <code>usethis::create_from_github("Rafnuss/GeoPressureR", fork = TRUE)</code>.</p></li>
-<li><p>Install all development dependencies with <code>devtools::install_dev_deps()</code>, and then make sure the package passes R CMD check by running <code>devtools::check()</code>. If R CMD check doesn’t pass cleanly, it’s a good idea to ask for help before continuing.</p></li>
-<li><p>Create a Git branch for your pull request (PR). We recommend using <code>usethis::pr_init("brief-description-of-change")</code>.</p></li>
-<li><p>Make your changes, commit to git, and then create a PR by running <code>usethis::pr_push()</code>, and following the prompts in your browser. The title of your PR should briefly describe the change. The body of your PR should contain <code>Fixes #issue-number</code>.</p></li>
-<li><p>For user-facing changes, add a bullet to the top of <code>NEWS.md</code> (i.e. just below the first header). Follow the style described in <a href="https://style.tidyverse.org/news.html" class="external-link uri">https://style.tidyverse.org/news.html</a>.</p></li>
-</ul></div>
+<ol style="list-style-type: decimal"><li>Fork the package and clone it. If you haven’t done this before, we recommend <code>usethis::create_from_github("Rafnuss/GeoPressureR", fork = TRUE)</code>.</li>
+<li>Install development dependencies with <code>devtools::install_dev_deps()</code>.</li>
+<li>Ensure the package passes checks with <code>devtools::check()</code>. If it doesn’t pass cleanly, please ask for help before continuing.</li>
+<li>Create a Git branch for your PR (e.g., <code>usethis::pr_init("brief-description-of-change")</code>).</li>
+<li>Make your changes, commit, and create a PR (e.g., <code>usethis::pr_push()</code>).</li>
+<li>The PR title should briefly describe the change and the PR body should contain <code>Fixes #issue-number</code>.</li>
+<li>For user-facing changes, add a bullet at the top of <code>NEWS.md</code> (just below the first header). Follow the style described in <a href="https://style.tidyverse.org/news.html" class="external-link uri">https://style.tidyverse.org/news.html</a>.</li>
+</ol></div>
 <div class="section level3">
 <h3 id="code-style">Code style<a class="anchor" aria-label="anchor" href="#code-style"></a></h3>
-<ul><li><p>New code should follow the tidyverse <a href="https://style.tidyverse.org" class="external-link">style guide</a>. You can use the <a href="https://CRAN.R-project.org/package=styler" class="external-link">styler</a> package to apply these styles, but please don’t restyle code that has nothing to do with your PR.</p></li>
-<li><p>We use <a href="https://cran.r-project.org/package=roxygen2" class="external-link">roxygen2</a>, with <a href="https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html" class="external-link">Markdown syntax</a>, for documentation.</p></li>
-<li><p>We use <a href="https://cran.r-project.org/package=testthat" class="external-link">testthat</a> for unit tests. Contributions with test cases included are easier to accept.</p></li>
-</ul></div>
+<p>New code should follow the project conventions:</p>
+<ul><li>Base R only; do not introduce new dependencies without prior discussion.</li>
+<li>Prefer compact, vectorized code and avoid unnecessary intermediate objects.</li>
+<li>Use <code>cli</code> and <code>glue</code> for messages and string interpolation.</li>
+<li>Code is formatted with Posit <code>air</code> (the CI runs <code>air format . --check</code>). See <a href="https://github.com/posit-dev/air" class="external-link uri">https://github.com/posit-dev/air</a> for install and usage.</li>
+<li>Follow the jarl rules (linting standards used in CI): <a href="https://jarl.etiennebacher.com/rules" class="external-link uri">https://jarl.etiennebacher.com/rules</a>
+</li>
+</ul><p>We use <a href="https://cran.r-project.org/package=roxygen2" class="external-link">roxygen2</a>, with <a href="https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html" class="external-link">Markdown syntax</a>, for documentation. We use <a href="https://cran.r-project.org/package=testthat" class="external-link">testthat</a> for unit tests. Contributions with test cases included are easier to accept.</p>
+</div>
 </div>
 </div>
 

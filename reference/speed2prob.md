@@ -29,7 +29,6 @@ Probability values corresponding to the speed provided.
 Other movement:
 [`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
 [`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`graph_transition()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_transition.md),
 [`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md),
 [`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
 
@@ -44,7 +43,8 @@ prob <- speed2prob(
     method = "gamma",
     shape = 7,
     scale = 7,
-    low_speed_fix = low_speed_fix
+    low_speed_fix = low_speed_fix,
+    zero_speed_ratio = 0
   )
 )
 plot(speed, prob,
@@ -63,7 +63,8 @@ prob <- speed2prob(
     method = "power",
     bird = bird,
     power2prob = \(power) (1 / power)^3,
-    low_speed_fix = low_speed_fix
+    low_speed_fix = low_speed_fix,
+    zero_speed_ratio = 0
   )
 )
 plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")

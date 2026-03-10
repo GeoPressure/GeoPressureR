@@ -67,9 +67,5 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #> → Initialize automatically label using `tag_label_auto()`
 #> ✔ ./data/tag-label/18LX.csv written successfully.
 #> ✔ ./data/tag-label/18LX.csv written successfully.
-#> ── Short stationary periods (<6hr): ────────────────────────────────────────────
-#> ✔ All 5 stationary periods duration are above 6 hours.
-#> ── Short flights (<2hr): ───────────────────────────────────────────────────────
-#> ✔ All 4 flights duration are above 2 hours.
 #> ✔ ./data/tag-label/18LX.csv written successfully.
 ```

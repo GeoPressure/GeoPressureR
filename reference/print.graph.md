@@ -60,11 +60,11 @@ print(graph)
 #> Run `graph$param` to display all parameters
 #> 
 #> ── Stationary periods stap 
-#> stap_id | start               | end                 | known_lat | known_lon | include
-#> 1       | 2017-07-27 00:00:00 | 2017-08-04 19:47:30 | 48.9      | 17.05     | TRUE   
-#> 2       | 2017-08-04 23:17:30 | 2017-08-05 19:27:30 | NA        | NA        | TRUE   
+#> stap_id | start               | end                 | known_lat | known_lon | include | nb_sample
+#> 1       | 2017-07-27 00:00:00 | 2017-08-04 19:47:30 | 48.9      | 17.05     | TRUE    | 0        
+#> 2       | 2017-08-04 23:17:30 | 2017-08-05 19:27:30 | NA        | NA        | TRUE    | 20       
 #> ...
-#> 5       | 2017-08-08 00:12:30 | 2017-08-09 23:57:30 | NA        | NA        | TRUE   
+#> 5       | 2017-08-08 00:12:30 | 2017-08-09 23:57:30 | NA        | NA        | TRUE    | 48       
 #> Run `tag$stap` to see full stap table
 #> 
 #> ── Map 
@@ -73,9 +73,9 @@ print(graph)
 #> 
 #> ── Graph size 
 #> • 1 equipement node
-#> • 709 retrieval nodes
-#> • 3,912 nodes
-#> • 3,364,768 edges
+#> • 570 retrieval nodes
+#> • 3,377 nodes
+#> • 2,565,046 edges
 #> 
 #> ── Movement model 
 #> ! Windspeed not computed. Use `graph_add_wind()`

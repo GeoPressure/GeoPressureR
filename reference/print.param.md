@@ -38,7 +38,7 @@ print(param)
 #> 
 #> ── GeoPressureR `param` object for id: 18LX ────────────────────────────────────
 #> Note: All green texts are fields of `param` (i.e., `param$field`).
-#> • GeoPressureR_version: 3.4.6
+#> • GeoPressureR_version: 3.5.0
 #> 
 #> ── Sensors data `tag_create()` 
 #> • manufacturer:
@@ -75,6 +75,7 @@ print(param)
 #> • twl_offset:
 #> • twilight_file:
 #> • twl_calib_adjust: 1.4
+#> • fitted_location_duration: Inf
 #> • twl_llp: `function(n) log(n)/n`
 #> 
 #> ── Graph `graph_create()` 

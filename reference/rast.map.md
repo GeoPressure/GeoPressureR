@@ -43,6 +43,7 @@ object.
 ## See also
 
 Other map:
+[`map_add_mask_water()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_add_mask_water.md),
 [`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md),
 [`print.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.map.md)
 

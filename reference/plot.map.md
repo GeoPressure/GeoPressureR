@@ -30,7 +30,7 @@ plot(
   plot_leaflet = TRUE,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
-  palette = "auto",
+  palette = NULL,
   opacity = 0.8,
   legend = FALSE,
   fac_res_proj = 4,
@@ -42,10 +42,7 @@ plot(
 
 - x:
 
-  a
-  [`terra::SpatRaster()`](https://rspatial.github.io/terra/reference/SpatRaster-class.html)
-  or a `RasterLayer` object–see
-  [`raster::raster()`](https://rdrr.io/pkg/raster/man/raster.html)
+  a GeoPressureR `map` object
 
 - path:
 
@@ -53,7 +50,7 @@ plot(
 
 - thr_likelihood:
 
-  threshold of percentile (see details).
+  Threshold to display likelihood values.
 
 - plot_leaflet:
 
@@ -62,9 +59,8 @@ plot(
 
 - provider:
 
-  the name of the provider (see
-  <https://leaflet-extras.github.io/leaflet-providers/preview/> and
-  <https://github.com/leaflet-extras/leaflet-providers>)
+  tile provider name (see
+  [`leaflet::providers`](https://rstudio.github.io/leaflet/reference/providers.html)).
 
 - provider_options:
 
@@ -73,19 +69,15 @@ plot(
 
 - palette:
 
-  The colors or color function that values will be mapped to
+  color palette name or vector of colors.
 
 - opacity:
 
-  the base opacity of the raster, expressed from 0 to 1
+  opacity of the raster layer in leaflet.
 
 - legend:
 
-  logical or character. If not `FALSE` a legend is drawn. The character
-  value can be used to indicate where the legend is to be drawn. For
-  example "topright" or "bottomleft". Use `plg` for more refined
-  placement. Not supported for continuous legends (the default for
-  raster data)
+  logical to display the legend.
 
 - fac_res_proj:
 
@@ -97,11 +89,10 @@ plot(
 
 - ...:
 
-  named parameters to add to the options
-
-- map:
-
-  a GeoPressureR `map` object
+  additional parameters passed to
+  [`leaflet::addRasterImage()`](https://rstudio.github.io/leaflet/reference/addRasterImage.html)
+  or
+  [`terra::plot()`](https://rspatial.github.io/terra/reference/plot.html).
 
 ## Value
 
@@ -110,6 +101,7 @@ a plot or leaflet object.
 ## See also
 
 [`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md)
+[`plot.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot.tag.md)
 
 ## Examples
 

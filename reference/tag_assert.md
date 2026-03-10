@@ -16,14 +16,18 @@ tag_assert(tag, condition = "tag", type = "abort")
 
 - condition:
 
-  condition to assert `tag` for. One of `"tag"` (default), `"pressure"`,
-  `"light"`, `"acceleration"`, `"label"`, `"stap"`, `"setmap"`,
-  `"map_pressure"`, `"map_light"` `"map_pressure_mse"` and `"twilight"`
+  condition to assert `tag` for. One of `"tag"` (default), `"read"`,
+  `"pressure"`, `"light"`, `"acceleration"`, `"temperature_internal"`,
+  `"temperature_external"`, `"magnetic"`, `"label"`, `"stap"`,
+  `"setmap"`, `"map_pressure"`, `"map_pressure_mse"`,
+  `"map_pressure_mask"`, `"map_light"`, `"map_light_twl"`,
+  `"mask_water"`, `"map_magnetic"`, `"map_magnetic_intensity"`,
+  `"map_magnetic_inclination"`, `"twl_calib"`, and `"twilight"`.
 
 - type:
 
-  Message type to display. One of `"abort"` (default), `"warn"` or
-  `"inform"`
+  Message type to display. One of `"abort"` (default), `"warn"`,
+  `"inform"`, or `"logical"` (return TRUE/FALSE without messaging).
 
 ## Value
 
@@ -50,4 +54,7 @@ tag_assert(tag, "setmap", type = "warn")
 tag_assert(tag, "map_pressure", type = "inform")
 #> ✖ The pressure likelihood map has not yet been computed for `tag`.
 #> → Use `geopressure_map()` to compute the maps.
+
+tag_assert(tag, "setmap", type = "logical")
+#> [1] FALSE
 ```

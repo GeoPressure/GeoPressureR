@@ -22,40 +22,41 @@ help you write a unit test, if needed).
 
 ### Pull request process
 
-- Fork the package and clone onto your computer. If you haven’t done
-  this before, we recommend using
-  `usethis::create_from_github("Rafnuss/GeoPressureR", fork = TRUE)`.
-
-- Install all development dependencies with
-  `devtools::install_dev_deps()`, and then make sure the package passes
-  R CMD check by running `devtools::check()`. If R CMD check doesn’t
-  pass cleanly, it’s a good idea to ask for help before continuing.
-
-- Create a Git branch for your pull request (PR). We recommend using
-  `usethis::pr_init("brief-description-of-change")`.
-
-- Make your changes, commit to git, and then create a PR by running
-  `usethis::pr_push()`, and following the prompts in your browser. The
-  title of your PR should briefly describe the change. The body of your
-  PR should contain `Fixes #issue-number`.
-
-- For user-facing changes, add a bullet to the top of `NEWS.md`
-  (i.e. just below the first header). Follow the style described in
-  <https://style.tidyverse.org/news.html>.
+1.  Fork the package and clone it. If you haven’t done this before, we
+    recommend
+    `usethis::create_from_github("Rafnuss/GeoPressureR", fork = TRUE)`.
+2.  Install development dependencies with
+    `devtools::install_dev_deps()`.
+3.  Ensure the package passes checks with `devtools::check()`. If it
+    doesn’t pass cleanly, please ask for help before continuing.
+4.  Create a Git branch for your PR (e.g.,
+    `usethis::pr_init("brief-description-of-change")`).
+5.  Make your changes, commit, and create a PR (e.g.,
+    `usethis::pr_push()`).
+6.  The PR title should briefly describe the change and the PR body
+    should contain `Fixes #issue-number`.
+7.  For user-facing changes, add a bullet at the top of `NEWS.md` (just
+    below the first header). Follow the style described in
+    <https://style.tidyverse.org/news.html>.
 
 ### Code style
 
-- New code should follow the tidyverse [style
-  guide](https://style.tidyverse.org). You can use the
-  [styler](https://CRAN.R-project.org/package=styler) package to apply
-  these styles, but please don’t restyle code that has nothing to do
-  with your PR.
+New code should follow the project conventions:
 
-- We use [roxygen2](https://cran.r-project.org/package=roxygen2), with
-  [Markdown
-  syntax](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html),
-  for documentation.
+- Base R only; do not introduce new dependencies without prior
+  discussion.
+- Prefer compact, vectorized code and avoid unnecessary intermediate
+  objects.
+- Use `cli` and `glue` for messages and string interpolation.
+- Code is formatted with Posit `air` (the CI runs
+  `air format . --check`). See <https://github.com/posit-dev/air> for
+  install and usage.
+- Follow the jarl rules (linting standards used in CI):
+  <https://jarl.etiennebacher.com/rules>
 
-- We use [testthat](https://cran.r-project.org/package=testthat) for
-  unit tests. Contributions with test cases included are easier to
-  accept.
+We use [roxygen2](https://cran.r-project.org/package=roxygen2), with
+[Markdown
+syntax](https://cran.r-project.org/web/packages/roxygen2/vignettes/rd-formatting.html),
+for documentation. We use
+[testthat](https://cran.r-project.org/package=testthat) for unit tests.
+Contributions with test cases included are easier to accept.
