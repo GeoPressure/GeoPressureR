@@ -51,11 +51,8 @@ trainset_write <- function(
     cli::cli_bullets(c(
       "!" = "The directory {.file {dir_file}} does not exists."
     ))
-    res <- if (interactive()) {
-      utils::askYesNo("Do you want to create it?") # nocov
-    } else {
-      TRUE
-    }
+    # In non-interactive runs, honor options(askYesNo=...) when provided.
+    res <- if (interactive() || !is.null(getOption("askYesNo"))) utils::askYesNo("Do you want to create it?") else TRUE
     if (res) {
       dir.create(dir_file, recursive = TRUE)
     } else {
