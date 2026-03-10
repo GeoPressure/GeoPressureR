@@ -1,3 +1,4 @@
+# nocov start
 # Resolve launch.browser handler to the system browser.
 shiny_launch_browser <- function(launch_browser) {
   if (isTRUE(launch_browser)) {
@@ -66,3 +67,4 @@ shiny_run_app_bg <- function(
   }
   invisible(p)
 }
+# nocov end

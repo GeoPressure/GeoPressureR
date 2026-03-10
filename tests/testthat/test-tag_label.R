@@ -12,10 +12,21 @@ tag <- tag_create(
 )
 
 tag_classified <- tag_label_auto(tag)
-test_that("tag_label_auto() | default", {
+test_that("tag_label_auto() | default and edge cases", {
   expect_error(tag_label_auto("not a tag"))
   expect_true(c("label") %in% names(tag_classified$acceleration))
   expect_type(tag_classified$acceleration$label, "character")
+  expect_error(tag_label_auto(tag, min_duration = 0))
+
+  tag_zero <- tag
+  tag_zero$acceleration$value <- 0
+  expect_warning(tag_zero <- tag_label_auto(tag_zero), "All acceleration values are zero")
+  expect_true(all(tag_zero$acceleration$label == ""))
+
+  tag_no_acc <- tag
+  tag_no_acc$acceleration <- NULL
+  tag_no_acc <- tag_label_auto(tag_no_acc)
+  expect_true("label" %in% names(tag_no_acc$pressure))
 })
 
 
@@ -73,8 +84,22 @@ test_that("tag_label_read() | default", {
   # Test with different labelled file size
   expect_warning(
     tag_label_read(tag, file = "./data/tag-label/18LX-labeled-diffsize.csv"),
-    "*The labelization file of pressure is missing*"
+    "labelization file of pressure is missing"
   )
+
+  # Unknown pressure label
+  csv <- utils::read.csv("./data/tag-label/18LX-labeled.csv")
+  csv[["label"]][which(csv[["series"]] == "pressure")[1]] <- "unknown_label"
+  file_bad <- tempfile(fileext = ".csv")
+  utils::write.csv(csv, file_bad, row.names = FALSE)
+  expect_error(tag_label_read(tag, file = file_bad), "unknown label")
+
+  # Unknown acceleration label
+  csv <- utils::read.csv("./data/tag-label/18LX-labeled.csv")
+  csv[["label"]][which(csv[["series"]] == "acceleration")[1]] <- "unknown_label"
+  file_bad <- tempfile(fileext = ".csv")
+  utils::write.csv(csv, file_bad, row.names = FALSE)
+  expect_error(tag_label_read(tag, file = file_bad), "unknown label")
 })
 
 tag_labelled <- tag_label_stap(tag_labelled, quiet = TRUE)
@@ -120,25 +145,13 @@ test_that("tag_label_read() | no acceleration", {
 })
 
 
-tag_labelled <- tag_label_stap(tag_labelled, quiet = TRUE)
-test_that("tag_label_stap() | default", {
-  # Returned value is correct
-  expect_type(tag_labelled, "list")
-  expect_true(c("stap") %in% names(tag_labelled))
-  expect_type(tag_labelled$pressure$label, "character")
-  expect_type(tag_labelled$acceleration$label, "character")
-  expect_gt(nrow(tag_labelled$stap), 0)
-})
-
-
-test_that("tag_label_stap() | for elev", {
-  tag_elev <- tag_label_read(
-    tag,
-    file = "./data/tag-label/18LX-labeled-elev.csv"
+test_that("tag_label_stap() | wrong sensor datetime columns", {
+  tag_tmp <- tag_label_read(tag, file = "./data/tag-label/18LX-labeled.csv")
+  tag_tmp$magnetic <- data.frame(value = 1)
+  expect_error(
+    tag_label_stap(tag_tmp, quiet = TRUE),
+    "needs to have a column"
   )
-  expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
-  tag_label_stap <- tag_label_stap(tag_elev, quiet = TRUE)
-  expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
 })
 
 
@@ -179,7 +192,13 @@ test_that("tag_label_stap() | pressure longer than acc", {
 
 
 test_that("tag_label() | default", {
-  expect_no_error({
-    tag_labelled <- tag_label(tag, quiet = TRUE)
-  })
+  tag_labelled <- expect_no_error(tag_label(tag, quiet = TRUE))
+  expect_type(tag_labelled, "list")
+})
+
+test_that("tag_label_read() and tag_label_stap() | stop after tag_set_map", {
+  tag_sm <- tag_label(tag, quiet = TRUE)
+  tag_sm <- tag_set_map(tag_sm, extent = c(-16, 23, 0, 50))
+  expect_error(tag_label_read(tag_sm), "tag_set_map")
+  expect_error(tag_label_stap(tag_sm, quiet = TRUE), "tag_set_map")
 })

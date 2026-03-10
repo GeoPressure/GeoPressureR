@@ -65,6 +65,7 @@ geolightviz <- function(
   stap_dir <- file.path(getwd(), "data", "stap-label")
 
   # Run the app in a background process or in the current session.
+  # nocov start
   if (run_bg) {
     return(shiny_run_app_bg(
       system.file("geolightviz", package = "GeoPressureR"),
@@ -97,6 +98,7 @@ geolightviz <- function(
     ),
     launch_browser = launch_browser
   )
+  # nocov end
 }
 
 #' @noRd

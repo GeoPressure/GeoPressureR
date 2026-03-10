@@ -94,6 +94,7 @@ tag_label <- function(
     # Suggest to write the file
     file_default <- glue::glue("./data/tag-label/{tag$param$id}.csv")
     cli::cli_bullets(c("!" = "The label file {.file {file}} does not exist."))
+    # nocov start
     choices <- list(
       "1" = "No",
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
@@ -109,6 +110,7 @@ tag_label <- function(
     } else if (res == 3) {
       tag_label_write(tag, file_input, quiet = quiet)
     }
+    # nocov end
 
     # Stop the function
     cli::cli_warn(c(
@@ -121,6 +123,7 @@ tag_label <- function(
       cli::cli_bullets(c(
         "!" = "The tag_set_map has already been defined for {.var tag}."
       ))
+      # nocov start
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
         "2" = glue::glue(
@@ -147,6 +150,7 @@ tag_label <- function(
           quiet = TRUE
         )
       }
+      # nocov end
     }
 
     # If the file exist, read it

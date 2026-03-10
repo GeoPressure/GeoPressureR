@@ -107,6 +107,7 @@ trainset <- function(
 
   label_dir <- normalizePath(label_dir, mustWork = FALSE)
 
+  # nocov start
   if (run_bg) {
     return(shiny_run_app_bg(
       system.file("trainset", package = "GeoPressureR"),
@@ -135,6 +136,7 @@ trainset <- function(
   )
 
   return(invisible(tag))
+  # nocov end
 }
 
 # Convert a TRAINSET CSV file to a GeoPressureR tag
