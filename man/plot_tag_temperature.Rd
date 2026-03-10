@@ -4,13 +4,7 @@
 \alias{plot_tag_temperature}
 \title{Plot temperature data of a \code{tag}}
 \usage{
-plot_tag_temperature(
-  tag,
-  variable = "external",
-  plot_plotly = TRUE,
-  label_auto = TRUE,
-  min_duration = formals(tag_label_auto)$min_duration
-)
+plot_tag_temperature(tag, variable = "external", plot_plotly = TRUE)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
@@ -18,12 +12,6 @@ plot_tag_temperature(
 \item{variable}{temperature variable to plot \code{"external"} or \code{"internal"}}
 
 \item{plot_plotly}{logical to use \code{plotly}}
-
-\item{label_auto}{logical to compute and plot the flight label using \code{tag_label_auto()}. Only if
-labels are not already present on tag$temperature$label}
-
-\item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
-flight.}
 }
 \value{
 a plot or ggplotly object.

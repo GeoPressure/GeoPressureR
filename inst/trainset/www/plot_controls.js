@@ -3,6 +3,8 @@ $(document).ready(function () {
   window.trainsetKeyState = {
     ctrlOrMeta: false,
   };
+  // Last navigation source (used for debugging relayout storms)
+  window.trainsetLastNav = null;
 
   // Custom message handler to clear plotly selection
   Shiny.addCustomMessageHandler("clearPlotlySelection", function (plotId) {
@@ -14,6 +16,35 @@ $(document).ready(function () {
     // Track Ctrl/Cmd key state globally
     if (e.ctrlKey || e.metaKey) {
       window.trainsetKeyState.ctrlOrMeta = true;
+    }
+
+    // Numeric label shortcuts (0..9) when not typing in a field
+    var tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : "";
+    var isEditable =
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      (e.target && e.target.isContentEditable);
+    if (!isEditable && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      var digit = null;
+      if (e.which >= 48 && e.which <= 57) digit = e.which - 48;
+      if (e.which >= 96 && e.which <= 105) digit = e.which - 96;
+      if (digit !== null) {
+        var selectEl = document.getElementById("label_select");
+        var selectize = selectEl && selectEl.selectize ? selectEl.selectize : null;
+        var order =
+          selectize && selectize.order && selectize.order.length
+            ? selectize.order
+            : selectize
+            ? Object.keys(selectize.options)
+            : null;
+        var value = order && order.length > digit ? order[digit] : undefined;
+        if (selectize && value !== undefined) {
+          e.preventDefault();
+          selectize.setValue(value, true);
+          return;
+        }
+      }
     }
 
     var plot = document.getElementById("ts_plot");
@@ -29,6 +60,7 @@ $(document).ready(function () {
         if (e.which === 38) {
           // Up arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var newDuration = duration * 0.5; // Zoom in by 50%
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
@@ -40,6 +72,7 @@ $(document).ready(function () {
         else if (e.which === 40) {
           // Down arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var newDuration = duration * 2; // Zoom out by 100%
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
@@ -51,6 +84,7 @@ $(document).ready(function () {
         else if (e.which === 37) {
           // Left arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var panAmount = e.shiftKey ? duration : duration * 0.1;
           var newStart = new Date(start.getTime() - panAmount);
           var newEnd = new Date(end.getTime() - panAmount);
@@ -62,6 +96,7 @@ $(document).ready(function () {
         else if (e.which === 39) {
           // Right arrow
           e.preventDefault();
+          window.trainsetLastNav = "keyboard";
           var panAmount = e.shiftKey ? duration : duration * 0.1;
           var newStart = new Date(start.getTime() + panAmount);
           var newEnd = new Date(end.getTime() + panAmount);
@@ -83,6 +118,8 @@ $(document).ready(function () {
   // Custom mouse wheel handler for x-axis only zoom (unless over y-axis)
   $("#ts_plot").on("wheel", function (e) {
     e.preventDefault();
+    // Mark the source so the server can debug relayout storms.
+    window.trainsetLastNav = "wheel";
     var plot = document.getElementById("ts_plot");
     if (plot && plot.data) {
       var rect = plot.getBoundingClientRect();

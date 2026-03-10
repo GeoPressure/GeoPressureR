@@ -14,8 +14,11 @@
 #' that it is not possible to interpolate the first and last stationary period.
 #'
 #' @param tag a GeoPressureR `tag` object
-#' @inheritParams tag2map
-#' @inheritParams ind2path
+#' @param likelihood Field of the `tag` list containing the likelihood map (character). By default,
+#'   uses the product of `map_pressure` and `map_light` if available, otherwise the first available
+#'   likelihood map in the tag.
+#' @param use_known If `TRUE`, enforce known positions from `tag$stap` when building the path. Known
+#'   positions are approximated to the map resolution so they correspond to integer indices.
 #' @param interp the position of the stationary period shorter than `interp` will be replace by a
 #' linear average from other position accounting for flight duration (in days).
 #'
@@ -52,8 +55,8 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
 
   # find the index in the 2D grid
   ind <- rep(NA, length(map))
-  stap_id <- which(!sapply(map$data, is.null))
-  ind[stap_id] <- sapply(map[stap_id], which.max)
+  stap_id <- which(!vapply(map$data, is.null, logical(1)))
+  ind[stap_id] <- vapply(map[stap_id], which.max, integer(1))
 
   # Interpolation for short stationary period is only performed if interp>0
 
@@ -61,8 +64,7 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
     if (!is.numeric(interp)) {
       cli::cli_abort(c(
         x = "{.var interp} needs to be a numeric or {.val {FALSE}}.",
-        ">" = "Indicate the maximum duration of stationary periods for which the position is \\
-        interpolated"
+        ">" = "Indicate the maximum duration of stationary periods for which the position is interpolated"
       ))
     }
 
@@ -90,8 +92,7 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
         ))
       } else {
         cli::cli_warn(c(
-          "!" = "First and/or last modelled stationary periods ({.val {tag$stap$stap_id[fal]}}) \\
-         are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
+          "!" = "First and/or last modelled stationary periods ({.val {tag$stap$stap_id[fal]}}) are shorter than {.val {interp}} day{?s} but cannot be interpolated.",
           ">" = "They will not be interpolated."
         ))
       }
@@ -100,8 +101,11 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
     # Compute flight duration for all stap (even the non-included)
     flight <- stap2flight(tag$stap, include_stap_id = tag$stap$stap_id)
 
+    # Min flight to a small value (1min) so that interpolation can work on continous staps
+    flight_duration <- pmax(flight$duration, 1 / 60)
+
     # Cummulate the flight duration to get a proxy of the over distance covered
-    total_flight <- cumsum(as.numeric(c(0, flight$duration)))
+    total_flight <- cumsum(as.numeric(c(0, flight_duration)))
 
     # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
     # position
@@ -120,24 +124,32 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
       )$y
     )
 
-    # Move to the closest non-water position
-    # Find the index of lat-lon for all non-water position
-    mask_water_ind2 <- which(!tag$map_pressure$mask_water)
-    mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
-    mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
+    mask_water <- NULL
+    if (!is.null(tag$map_pressure$mask_water)) {
+      mask_water <- tag$map_pressure$mask_water
+    } else if (!is.null(tag$map_light$mask_water)) {
+      mask_water <- tag$map_light$mask_water
+    }
+    if (!is.null(mask_water)) {
+      # Move to the closest non-water position
+      # Find the index of lat-lon for all non-water position
+      mask_water_ind2 <- which(!mask_water)
+      mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
+      mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
 
-    for (i in seq_len(length(lat_ind))) {
-      if (
-        !is.na(lat_ind[i]) &&
-          !is.na(lon_ind[i]) &&
-          tag$map_pressure$mask_water[lat_ind[i], lon_ind[i]]
-      ) {
-        closest_ind2 <- which.min(
-          (mask_water_ind_lat - lat_ind[i])^2 +
-            (mask_water_ind_lon - lon_ind[i])^2
-        )
-        lat_ind[i] <- mask_water_ind_lat[closest_ind2]
-        lon_ind[i] <- mask_water_ind_lon[closest_ind2]
+      for (i in seq_len(length(lat_ind))) {
+        if (
+          !is.na(lat_ind[i]) &&
+            !is.na(lon_ind[i]) &&
+            mask_water[lat_ind[i], lon_ind[i]]
+        ) {
+          closest_ind2 <- which.min(
+            (mask_water_ind_lat - lat_ind[i])^2 +
+              (mask_water_ind_lon - lon_ind[i])^2
+          )
+          lat_ind[i] <- mask_water_ind_lat[closest_ind2]
+          lon_ind[i] <- mask_water_ind_lon[closest_ind2]
+        }
       }
     }
 

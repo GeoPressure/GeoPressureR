@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.4.6
+version: 3.5.0
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -131,7 +131,7 @@ references:
   institution:
     name: R Foundation for Statistical Computing
     address: Vienna, Austria
-  year: '2025'
+  year: '2026'
   version: '>= 4.1.0'
 - type: software
   title: cli
@@ -143,7 +143,7 @@ references:
   - family-names: Csárdi
     given-names: Gábor
     email: gabor@posit.co
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.cli
 - type: software
   title: config
@@ -155,22 +155,8 @@ references:
   - family-names: Allaire
     given-names: JJ
     email: jj@rstudio.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.config
-- type: software
-  title: ecmwfr
-  abstract: 'ecmwfr: Interface to ''ECMWF'' and ''CDS'' Data Web Services'
-  notes: Imports
-  url: https://github.com/bluegreen-labs/ecmwfr
-  repository: https://CRAN.R-project.org/package=ecmwfr
-  authors:
-  - family-names: Hufkens
-    given-names: Koen
-    email: koen.hufkens@gmail.com
-    orcid: https://orcid.org/0000-0002-5070-8109
-  year: '2025'
-  doi: 10.32614/CRAN.package.ecmwfr
-  version: '>= 2.0.0'
 - type: software
   title: EBImage
   abstract: 'EBImage: Image processing and analysis toolbox for R'
@@ -192,7 +178,7 @@ references:
     given-names: with contributions from Joseph
   - family-names: Marais
     given-names: Philip A.
-  year: '2025'
+  year: '2026'
   doi: 10.18129/B9.bioc.EBImage
 - type: software
   title: future
@@ -205,20 +191,21 @@ references:
     given-names: Henrik
     email: henrikb@braju.com
     orcid: https://orcid.org/0000-0002-7579-5165
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.future
 - type: software
-  title: geosphere
-  abstract: 'geosphere: Spherical Trigonometry'
+  title: future.apply
+  abstract: 'future.apply: Apply Function to Elements in Parallel using Futures'
   notes: Imports
-  url: https://github.com/rspatial/geosphere/issues/
-  repository: https://CRAN.R-project.org/package=geosphere
+  url: https://future.apply.futureverse.org
+  repository: https://CRAN.R-project.org/package=future.apply
   authors:
-  - family-names: Hijmans
-    given-names: Robert J.
-    email: r.hijmans@gmail.com
-  year: '2025'
-  doi: 10.32614/CRAN.package.geosphere
+  - family-names: Bengtsson
+    given-names: Henrik
+    email: henrikb@braju.com
+    orcid: https://orcid.org/0000-0002-7579-5165
+  year: '2026'
+  doi: 10.32614/CRAN.package.future.apply
 - type: software
   title: ggplot2
   abstract: 'ggplot2: Create Elegant Data Visualisations Using the Grammar of Graphics'
@@ -257,7 +244,7 @@ references:
     given-names: Teun
     name-particle: van den
     orcid: https://orcid.org/0000-0002-9335-7468
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.ggplot2
 - type: software
   title: glue
@@ -273,18 +260,8 @@ references:
     given-names: Jennifer
     email: jenny@posit.co
     orcid: https://orcid.org/0000-0002-6983-2759
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.glue
-- type: software
-  title: graphics
-  abstract: 'R: A Language and Environment for Statistical Computing'
-  notes: Imports
-  authors:
-  - name: R Core Team
-  institution:
-    name: R Foundation for Statistical Computing
-    address: Vienna, Austria
-  year: '2025'
 - type: software
   title: httr2
   abstract: 'httr2: Perform HTTP Requests and Process the Responses'
@@ -295,7 +272,7 @@ references:
   - family-names: Wickham
     given-names: Hadley
     email: hadley@posit.co
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.httr2
   version: '>= 1.0.0'
 - type: software
@@ -309,7 +286,7 @@ references:
     given-names: Jeroen
     email: jeroenooms@gmail.com
     orcid: https://orcid.org/0000-0002-4035-0289
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.jsonlite
 - type: software
   title: leaflet
@@ -334,7 +311,7 @@ references:
     given-names: Garrick
     email: garrick@posit.co
     orcid: https://orcid.org/0000-0002-7111-0077
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.leaflet
   version: '>= 2.2.0'
 - type: software
@@ -351,7 +328,7 @@ references:
     given-names: Hadley
     email: hadley@posit.co
     orcid: https://orcid.org/0000-0003-4757-117X
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.lifecycle
 - type: software
   title: Matrix
@@ -370,7 +347,7 @@ references:
   - family-names: Jagan
     given-names: Mikael
     orcid: https://orcid.org/0000-0002-3542-2938
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.Matrix
 - type: software
   title: methods
@@ -381,21 +358,7 @@ references:
   institution:
     name: R Foundation for Statistical Computing
     address: Vienna, Austria
-  year: '2025'
-- type: software
-  title: ncdf4
-  abstract: 'ncdf4: Interface to Unidata netCDF (Version 4 or Earlier) Format Data
-    Files'
-  notes: Imports
-  url: https://cirrus.ucsd.edu/~pierce/ncdf/
-  repository: https://CRAN.R-project.org/package=ncdf4
-  authors:
-  - family-names: Pierce
-    given-names: David
-    email: dpierce@ucsd.edu
-    orcid: https://orcid.org/0000-0002-2453-9030
-  year: '2025'
-  doi: 10.32614/CRAN.package.ncdf4
+  year: '2026'
 - type: software
   title: plotly
   abstract: 'plotly: Create Interactive Web Graphics via ''plotly.js'''
@@ -426,7 +389,7 @@ references:
   - family-names: Despouy
     given-names: Pedro
     email: pedro@plot.ly
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.plotly
 - type: software
   title: pracma
@@ -437,8 +400,21 @@ references:
   - family-names: Borchers
     given-names: Hans W.
     email: hwborchers@googlemail.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.pracma
+- type: software
+  title: progressr
+  abstract: 'progressr: An Inclusive, Unifying API for Progress Updates'
+  notes: Imports
+  url: https://progressr.futureverse.org
+  repository: https://CRAN.R-project.org/package=progressr
+  authors:
+  - family-names: Bengtsson
+    given-names: Henrik
+    email: henrikb@braju.com
+    orcid: https://orcid.org/0000-0002-7579-5165
+  year: '2026'
+  doi: 10.32614/CRAN.package.progressr
 - type: software
   title: RColorBrewer
   abstract: 'RColorBrewer: ColorBrewer Palettes'
@@ -448,7 +424,7 @@ references:
   - family-names: Neuwirth
     given-names: Erich
     email: erich.neuwirth@univie.ac.at
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.RColorBrewer
 - type: software
   title: stats
@@ -459,7 +435,7 @@ references:
   institution:
     name: R Foundation for Statistical Computing
     address: Vienna, Austria
-  year: '2025'
+  year: '2026'
 - type: software
   title: suntools
   abstract: 'suntools: Calculate Sun Position, Sunrise, Sunset, Solar Noon and Twilight'
@@ -473,7 +449,7 @@ references:
     orcid: https://orcid.org/0000-0003-2392-6140
   - family-names: Luque
     given-names: Sebastian
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.suntools
 - type: software
   title: terra
@@ -486,7 +462,13 @@ references:
     given-names: Robert J.
     email: r.hijmans@gmail.com
     orcid: https://orcid.org/0000-0001-5872-2872
-  year: '2025'
+  - family-names: Brown
+    given-names: Andrew
+    orcid: https://orcid.org/0000-0002-4565-533X
+  - family-names: Barbosa
+    given-names: Márcia
+    orcid: https://orcid.org/0000-0001-8972-7713
+  year: '2026'
   doi: 10.32614/CRAN.package.terra
 - type: software
   title: utils
@@ -497,7 +479,7 @@ references:
   institution:
     name: R Foundation for Statistical Computing
     address: Vienna, Austria
-  year: '2025'
+  year: '2026'
 - type: software
   title: callr
   abstract: 'callr: Call R from R'
@@ -511,7 +493,7 @@ references:
     orcid: https://orcid.org/0000-0001-7098-9676
   - family-names: Chang
     given-names: Winston
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.callr
 - type: software
   title: assertthat
@@ -522,7 +504,7 @@ references:
   - family-names: Wickham
     given-names: Hadley
     email: hadley@rstudio.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.assertthat
 - type: software
   title: BiocManager
@@ -539,7 +521,7 @@ references:
     given-names: Marcel
     email: marcel.ramos@sph.cuny.edu
     orcid: https://orcid.org/0000-0002-3242-0582
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.BiocManager
 - type: software
   title: covr
@@ -551,8 +533,22 @@ references:
   - family-names: Hester
     given-names: Jim
     email: james.f.hester@gmail.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.covr
+- type: software
+  title: ecmwfr
+  abstract: 'ecmwfr: Interface to ''ECMWF'' and ''CDS'' Data Web Services'
+  notes: Suggests
+  url: https://github.com/bluegreen-labs/ecmwfr
+  repository: https://CRAN.R-project.org/package=ecmwfr
+  authors:
+  - family-names: Hufkens
+    given-names: Koen
+    email: koen.hufkens@gmail.com
+    orcid: https://orcid.org/0000-0002-5070-8109
+  year: '2026'
+  doi: 10.32614/CRAN.package.ecmwfr
+  version: '>= 2.0.0'
 - type: software
   title: knitr
   abstract: 'knitr: A General-Purpose Package for Dynamic Report Generation in R'
@@ -564,7 +560,7 @@ references:
     given-names: Yihui
     email: xie@yihui.name
     orcid: https://orcid.org/0000-0003-0645-5666
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.knitr
 - type: software
   title: leaflet.extras
@@ -582,7 +578,7 @@ references:
   - family-names: Schloerke
     given-names: Barret
     email: barret@rstudio.com
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.leaflet.extras
 - type: software
   title: leaflet.providers
@@ -594,7 +590,7 @@ references:
   - family-names: Huang
     given-names: Leslie
     email: lesliehuang@nyu.edu
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.leaflet.providers
 - type: software
   title: maps
@@ -615,8 +611,38 @@ references:
     given-names: Alex
     email: alex.deckmyn@meteo.be
     orcid: https://orcid.org/0009-0002-2010-8310
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.maps
+- type: software
+  title: rnaturalearth
+  abstract: 'rnaturalearth: World Map Data from Natural Earth'
+  notes: Suggests
+  url: https://docs.ropensci.org/rnaturalearth/
+  repository: https://CRAN.R-project.org/package=rnaturalearth
+  authors:
+  - family-names: Massicotte
+    given-names: Philippe
+    email: pmassicotte@hotmail.com
+    orcid: https://orcid.org/0000-0002-5919-4116
+  - family-names: South
+    given-names: Andy
+    email: southandy@gmail.com
+  year: '2026'
+  doi: 10.32614/CRAN.package.rnaturalearth
+- type: software
+  title: ncdf4
+  abstract: 'ncdf4: Interface to Unidata netCDF (Version 4 or Earlier) Format Data
+    Files'
+  notes: Suggests
+  url: https://cirrus.ucsd.edu/~pierce/ncdf/
+  repository: https://CRAN.R-project.org/package=ncdf4
+  authors:
+  - family-names: Pierce
+    given-names: David
+    email: dpierce@ucsd.edu
+    orcid: https://orcid.org/0000-0002-2453-9030
+  year: '2026'
+  doi: 10.32614/CRAN.package.ncdf4
 - type: software
   title: readxl
   abstract: 'readxl: Read Excel Files'
@@ -632,7 +658,7 @@ references:
     given-names: Jennifer
     email: jenny@posit.co
     orcid: https://orcid.org/0000-0002-6983-2759
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.readxl
 - type: software
   title: shiny
@@ -659,6 +685,10 @@ references:
     given-names: Barret
     email: barret@posit.co
     orcid: https://orcid.org/0000-0001-9986-114X
+  - family-names: Aden-Buie
+    given-names: Garrick
+    email: garrick@adenbuie.com
+    orcid: https://orcid.org/0000-0002-7111-0077
   - family-names: Xie
     given-names: Yihui
     email: yihui@posit.co
@@ -671,7 +701,7 @@ references:
     given-names: Alan
   - family-names: Borges
     given-names: Barbara
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.shiny
 - type: software
   title: shinyjs
@@ -684,7 +714,7 @@ references:
     given-names: Dean
     email: daattali@gmail.com
     orcid: https://orcid.org/0000-0002-5645-3493
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.shinyjs
 - type: software
   title: shinyWidgets
@@ -700,7 +730,7 @@ references:
     given-names: Fanny
   - family-names: Granjon
     given-names: David
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.shinyWidgets
 - type: software
   title: testthat
@@ -712,7 +742,7 @@ references:
   - family-names: Wickham
     given-names: Hadley
     email: hadley@posit.co
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.testthat
   version: '>= 3.0.0'
 - type: software
@@ -738,6 +768,6 @@ references:
     email: hadley@posit.co
   - family-names: Chang
     given-names: Winston
-  year: '2025'
+  year: '2026'
   doi: 10.32614/CRAN.package.withr
 

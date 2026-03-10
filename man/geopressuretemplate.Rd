@@ -151,7 +151,7 @@ Each of these child functions can be called individually or automatically as par
 the \code{geopressuretemplate} workflow.
 }
 \examples{
-\dontrun{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 # Run the complete geopressuretemplate workflow
 geopressuretemplate("18LX")
 
@@ -164,8 +164,7 @@ tag <- geopressuretemplate_tag("18LX")
 geopressuretemplate_graph("18LX")
 # 3. Computation of the pressurepath
 geopressuretemplate_pressurepath("18LX")
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html}{GeoPressureManual }

@@ -8,13 +8,13 @@
   "codeRepository": "https://github.com/Rafnuss/GeoPressureR",
   "issueTracker": "https://github.com/Rafnuss/GeoPressureR/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "3.1.2",
+  "version": "3.5.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
     "url": "https://r-project.org"
   },
-  "runtimePlatform": "R version 4.3.1 (2023-06-16)",
+  "runtimePlatform": "R version 4.5.2 (2025-10-31)",
   "author": [
     {
       "@type": "Person",
@@ -31,6 +31,15 @@
       "@id": "https://orcid.org/0000-0002-0871-1507"
     }
   ],
+  "copyrightHolder": [
+    {
+      "@type": "Person",
+      "givenName": "Raphaël",
+      "familyName": "Nussbaumer",
+      "email": "rafnuss@gmail.com",
+      "@id": "https://orcid.org/0000-0002-8185-1020"
+    }
+  ],
   "maintainer": [
     {
       "@type": "Person",
@@ -41,6 +50,30 @@
     }
   ],
   "softwareSuggestions": [
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "callr",
+      "name": "callr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=callr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "assertthat",
+      "name": "assertthat",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=assertthat"
+    },
     {
       "@type": "SoftwareApplication",
       "identifier": "BiocManager",
@@ -55,6 +88,31 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "covr",
+      "name": "covr",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=covr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "ecmwfr",
+      "name": "ecmwfr",
+      "version": ">= 2.0.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=ecmwfr"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "knitr",
       "name": "knitr",
       "provider": {
@@ -64,6 +122,114 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=knitr"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "leaflet.extras",
+      "name": "leaflet.extras",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=leaflet.extras"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "leaflet.providers",
+      "name": "leaflet.providers",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=leaflet.providers"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "maps",
+      "name": "maps",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=maps"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "rnaturalearth",
+      "name": "rnaturalearth",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rnaturalearth"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "ncdf4",
+      "name": "ncdf4",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=ncdf4"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "readxl",
+      "name": "readxl",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=readxl"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "shiny",
+      "name": "shiny",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=shiny"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "shinyjs",
+      "name": "shinyjs",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=shinyjs"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "shinyWidgets",
+      "name": "shinyWidgets",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=shinyWidgets"
     },
     {
       "@type": "SoftwareApplication",
@@ -80,99 +246,15 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "leaflet.extras",
-      "name": "leaflet.extras",
+      "identifier": "withr",
+      "name": "withr",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=leaflet.extras"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "shinyjs",
-      "name": "shinyjs",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=shinyjs"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "shiny",
-      "name": "shiny",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=shiny"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "RColorBrewer",
-      "name": "RColorBrewer",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=RColorBrewer"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "readxl",
-      "name": "readxl",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=readxl"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "shinyWidgets",
-      "name": "shinyWidgets",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=shinyWidgets"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "covr",
-      "name": "covr",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=covr"
-    },
-    {
-      "@type": "SoftwareApplication",
-      "identifier": "maps",
-      "name": "maps",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=maps"
+      "sameAs": "https://CRAN.R-project.org/package=withr"
     }
   ],
   "softwareRequirements": {
@@ -184,17 +266,29 @@
     },
     "2": {
       "@type": "SoftwareApplication",
-      "identifier": "assertthat",
-      "name": "assertthat",
+      "identifier": "cli",
+      "name": "cli",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=assertthat"
+      "sameAs": "https://CRAN.R-project.org/package=cli"
     },
     "3": {
+      "@type": "SoftwareApplication",
+      "identifier": "config",
+      "name": "config",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=config"
+    },
+    "4": {
       "@type": "SoftwareApplication",
       "identifier": "EBImage",
       "name": "EBImage",
@@ -206,31 +300,7 @@
       },
       "sameAs": "https://bioconductor.org/packages/release/bioc/html/EBImage.html"
     },
-    "4": {
-      "@type": "SoftwareApplication",
-      "identifier": "cli",
-      "name": "cli",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=cli"
-    },
     "5": {
-      "@type": "SoftwareApplication",
-      "identifier": "ecmwfr",
-      "name": "ecmwfr",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=ecmwfr"
-    },
-    "6": {
       "@type": "SoftwareApplication",
       "identifier": "future",
       "name": "future",
@@ -242,17 +312,29 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=future"
     },
-    "7": {
+    "6": {
       "@type": "SoftwareApplication",
-      "identifier": "geosphere",
-      "name": "geosphere",
+      "identifier": "future.apply",
+      "name": "future.apply",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=geosphere"
+      "sameAs": "https://CRAN.R-project.org/package=future.apply"
+    },
+    "7": {
+      "@type": "SoftwareApplication",
+      "identifier": "ggplot2",
+      "name": "ggplot2",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=ggplot2"
     },
     "8": {
       "@type": "SoftwareApplication",
@@ -268,53 +350,18 @@
     },
     "9": {
       "@type": "SoftwareApplication",
-      "identifier": "ggplot2",
-      "name": "ggplot2",
+      "identifier": "httr2",
+      "name": "httr2",
+      "version": ">= 1.0.0",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=ggplot2"
+      "sameAs": "https://CRAN.R-project.org/package=httr2"
     },
     "10": {
-      "@type": "SoftwareApplication",
-      "identifier": "httr",
-      "name": "httr",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=httr"
-    },
-    "11": {
-      "@type": "SoftwareApplication",
-      "identifier": "leaflet",
-      "name": "leaflet",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=leaflet"
-    },
-    "12": {
-      "@type": "SoftwareApplication",
-      "identifier": "plotly",
-      "name": "plotly",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=plotly"
-    },
-    "13": {
       "@type": "SoftwareApplication",
       "identifier": "jsonlite",
       "name": "jsonlite",
@@ -326,7 +373,32 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=jsonlite"
     },
-    "14": {
+    "11": {
+      "@type": "SoftwareApplication",
+      "identifier": "leaflet",
+      "name": "leaflet",
+      "version": ">= 2.2.0",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=leaflet"
+    },
+    "12": {
+      "@type": "SoftwareApplication",
+      "identifier": "lifecycle",
+      "name": "lifecycle",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=lifecycle"
+    },
+    "13": {
       "@type": "SoftwareApplication",
       "identifier": "Matrix",
       "name": "Matrix",
@@ -338,24 +410,24 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=Matrix"
     },
-    "15": {
+    "14": {
       "@type": "SoftwareApplication",
       "identifier": "methods",
       "name": "methods"
     },
-    "16": {
+    "15": {
       "@type": "SoftwareApplication",
-      "identifier": "ncdf4",
-      "name": "ncdf4",
+      "identifier": "plotly",
+      "name": "plotly",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=ncdf4"
+      "sameAs": "https://CRAN.R-project.org/package=plotly"
     },
-    "17": {
+    "16": {
       "@type": "SoftwareApplication",
       "identifier": "pracma",
       "name": "pracma",
@@ -367,17 +439,29 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=pracma"
     },
-    "18": {
+    "17": {
       "@type": "SoftwareApplication",
-      "identifier": "readr",
-      "name": "readr",
+      "identifier": "progressr",
+      "name": "progressr",
       "provider": {
         "@id": "https://cran.r-project.org",
         "@type": "Organization",
         "name": "Comprehensive R Archive Network (CRAN)",
         "url": "https://cran.r-project.org"
       },
-      "sameAs": "https://CRAN.R-project.org/package=readr"
+      "sameAs": "https://CRAN.R-project.org/package=progressr"
+    },
+    "18": {
+      "@type": "SoftwareApplication",
+      "identifier": "RColorBrewer",
+      "name": "RColorBrewer",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=RColorBrewer"
     },
     "19": {
       "@type": "SoftwareApplication",
@@ -385,6 +469,18 @@
       "name": "stats"
     },
     "20": {
+      "@type": "SoftwareApplication",
+      "identifier": "suntools",
+      "name": "suntools",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=suntools"
+    },
+    "21": {
       "@type": "SoftwareApplication",
       "identifier": "terra",
       "name": "terra",
@@ -396,15 +492,40 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=terra"
     },
-    "21": {
+    "22": {
       "@type": "SoftwareApplication",
       "identifier": "utils",
       "name": "utils"
     },
     "SystemRequirements": null
   },
-  "fileSize": "7630.793KB",
+  "fileSize": "8323.508KB",
   "citation": [
+    {
+      "@type": "SoftwareSourceCode",
+      "datePublished": "2022",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Raphael",
+          "familyName": "Nussbaumer",
+          "email": "rafnuss@gmail.com",
+          "@id": "https://orcid.org/0000-0002-8185-1020"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Mathieu",
+          "familyName": "Gravey",
+          "email": "mathieu@mgravey.com",
+          "@id": "https://orcid.org/0000-0002-0871-1507"
+        }
+      ],
+      "name": "GeoPressureR: Global positioning by atmospheric pressure",
+      "identifier": "10.5281/zenodo.7754457",
+      "url": "https://github.com/Rafnuss/GeoPressureR",
+      "@id": "https://doi.org/10.5281/zenodo.7754457",
+      "sameAs": "https://doi.org/10.5281/zenodo.7754457"
+    },
     {
       "@type": "ScholarlyArticle",
       "datePublished": "2023",
@@ -427,7 +548,7 @@
           "@type": "Person",
           "givenName": "Martins",
           "familyName": "Briedis",
-          "email": "martins.briedis@vogelwarte.ch ",
+          "email": "martins.briedis@vogelwarte.ch",
           "@id": "https://orcid.org/0000-0002-9434-9056"
         },
         {
@@ -440,7 +561,6 @@
       ],
       "name": "Global positioning with animal-borne pressure sensors",
       "identifier": "10.1111/2041-210X.14043",
-      "url": "https://doi.org/10.1111/2041-210X.14043",
       "pagination": "1104-1117",
       "@id": "https://doi.org/10.1111/2041-210X.14043",
       "sameAs": "https://doi.org/10.1111/2041-210X.14043",
@@ -449,7 +569,10 @@
         "issueNumber": "4",
         "datePublished": "2023",
         "isPartOf": {
-          "@type": ["PublicationVolume", "Periodical"],
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
           "volumeNumber": "14",
           "name": "Methods in Ecology and Evolution"
         }
@@ -477,7 +600,7 @@
           "@type": "Person",
           "givenName": "Martins",
           "familyName": "Briedis",
-          "email": "martins.briedis@vogelwarte.ch ",
+          "email": "martins.briedis@vogelwarte.ch",
           "@id": "https://orcid.org/0000-0002-9434-9056"
         },
         {
@@ -496,8 +619,7 @@
       ],
       "name": "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
       "identifier": "10.1111/2041-210X.14082",
-      "url": "https://doi.org/10.1111/2041-210X.14082",
-      "pagination": "1--32",
+      "pagination": "1108-1129",
       "@id": "https://doi.org/10.1111/2041-210X.14082",
       "sameAs": "https://doi.org/10.1111/2041-210X.14082",
       "isPartOf": {
@@ -505,11 +627,39 @@
         "issueNumber": "4",
         "datePublished": "2023",
         "isPartOf": {
-          "@type": ["PublicationVolume", "Periodical"],
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
           "volumeNumber": "14",
           "name": "Methods in Ecology and Evolution"
         }
       }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "datePublished": "2024",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Raphael",
+          "familyName": "Nussbaumer",
+          "email": "rafnuss@gmail.com",
+          "@id": "https://orcid.org/0000-0002-8185-1020"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Améline",
+          "familyName": "Nussbaumer",
+          "email": "ameline.nussbaumer@gmail.com",
+          "@id": "https://orcid.org/0000-0003-1308-4154"
+        }
+      ],
+      "name": "GeoPressureManual: Learn how to use GeoPressureR with examples.",
+      "identifier": "10.5281/zenodo.10799355",
+      "url": "https://github.com/Rafnuss/GeoPressureManual",
+      "@id": "https://doi.org/10.5281/zenodo.10799355",
+      "sameAs": "https://doi.org/10.5281/zenodo.10799355"
     },
     {
       "@type": "SoftwareSourceCode",
@@ -531,12 +681,166 @@
         }
       ],
       "name": "GeoPressureR: Global positioning by atmospheric pressure",
-      "url": "https://github.com/Rafnuss/GeoPressureR"
+      "identifier": "10.5281/zenodo.7754457",
+      "url": "https://github.com/Rafnuss/GeoPressureR",
+      "@id": "https://doi.org/10.5281/zenodo.7754457",
+      "sameAs": "https://doi.org/10.5281/zenodo.7754457"
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "datePublished": "2023",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Raphael",
+          "familyName": "Nussbaumer",
+          "email": "rafnuss@gmail.com",
+          "@id": "https://orcid.org/0000-0002-8185-1020"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Mathieu",
+          "familyName": "Gravey",
+          "email": "mathieu@mgravey.com",
+          "@id": "https://orcid.org/0000-0002-0871-1507"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Martins",
+          "familyName": "Briedis",
+          "email": "martins.briedis@vogelwarte.ch",
+          "@id": "https://orcid.org/0000-0002-9434-9056"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Felix",
+          "familyName": "Liechti",
+          "email": "felix.liechti@vogelwarte.ch",
+          "@id": "https://orcid.org/0000-0001-9473-0837"
+        }
+      ],
+      "name": "Global positioning with animal-borne pressure sensors",
+      "identifier": "10.1111/2041-210X.14043",
+      "pagination": "1104-1117",
+      "@id": "https://doi.org/10.1111/2041-210X.14043",
+      "sameAs": "https://doi.org/10.1111/2041-210X.14043",
+      "isPartOf": {
+        "@type": "PublicationIssue",
+        "issueNumber": "4",
+        "datePublished": "2023",
+        "isPartOf": {
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
+          "volumeNumber": "14",
+          "name": "Methods in Ecology and Evolution"
+        }
+      }
+    },
+    {
+      "@type": "ScholarlyArticle",
+      "datePublished": "2023",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Raphael",
+          "familyName": "Nussbaumer",
+          "email": "rafnuss@gmail.com",
+          "@id": "https://orcid.org/0000-0002-8185-1020"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Mathieu",
+          "familyName": "Gravey",
+          "email": "mathieu@mgravey.com",
+          "@id": "https://orcid.org/0000-0002-0871-1507"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Martins",
+          "familyName": "Briedis",
+          "email": "martins.briedis@vogelwarte.ch",
+          "@id": "https://orcid.org/0000-0002-9434-9056"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Felix",
+          "familyName": "Liechti",
+          "email": "felix.liechti@vogelwarte.ch",
+          "@id": "https://orcid.org/0000-0001-9473-0837"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Daniel",
+          "familyName": "Sheldon",
+          "@id": "https://orcid.org/0000-0002-4257-2432"
+        }
+      ],
+      "name": "Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model",
+      "identifier": "10.1111/2041-210X.14082",
+      "pagination": "1108-1129",
+      "@id": "https://doi.org/10.1111/2041-210X.14082",
+      "sameAs": "https://doi.org/10.1111/2041-210X.14082",
+      "isPartOf": {
+        "@type": "PublicationIssue",
+        "issueNumber": "4",
+        "datePublished": "2023",
+        "isPartOf": {
+          "@type": [
+            "PublicationVolume",
+            "Periodical"
+          ],
+          "volumeNumber": "14",
+          "name": "Methods in Ecology and Evolution"
+        }
+      }
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "datePublished": "2024",
+      "author": [
+        {
+          "@type": "Person",
+          "givenName": "Raphael",
+          "familyName": "Nussbaumer",
+          "email": "rafnuss@gmail.com",
+          "@id": "https://orcid.org/0000-0002-8185-1020"
+        },
+        {
+          "@type": "Person",
+          "givenName": "Améline",
+          "familyName": "Nussbaumer",
+          "email": "ameline.nussbaumer@gmail.com",
+          "@id": "https://orcid.org/0000-0003-1308-4154"
+        }
+      ],
+      "name": "GeoPressureManual: Learn how to use GeoPressureR with examples.",
+      "identifier": "10.5281/zenodo.10799355",
+      "url": "https://github.com/Rafnuss/GeoPressureManual",
+      "@id": "https://doi.org/10.5281/zenodo.10799355",
+      "sameAs": "https://doi.org/10.5281/zenodo.10799355"
     }
   ],
-  "releaseNotes": "https://github.com/Rafnuss/GeoPressureR/blob/master/NEWS.md",
+  "releaseNotes": "https://github.com/Rafnuss/GeoPressureR/blob/main/NEWS.md",
   "readme": "https://github.com/Rafnuss/GeoPressureR/blob/master/README.md",
-  "contIntegration": ["https://github.com/Rafnuss/GeoPressureR/actions", "https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml", "https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master", "https://github.com/Rafnuss/GeoPressureR/actions/workflows/lint.yaml"],
-  "developmentStatus": "https://www.repostatus.org/#active",
-  "keywords": ["r", "era5", "datalogger", "bird", "migration", "windspeed", "pressure-sensor", "geolocator", "tracker"]
+  "contIntegration": [
+    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/R-CMD-check.yaml",
+    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml",
+    "https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master",
+    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yml",
+    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/format-check.yaml"
+  ],
+  "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#stable",
+  "keywords": [
+    "r",
+    "era5",
+    "datalogger",
+    "bird",
+    "migration",
+    "windspeed",
+    "pressure-sensor",
+    "geolocator",
+    "tracker"
+  ]
 }

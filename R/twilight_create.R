@@ -154,7 +154,7 @@ twilight_create_transform <- function(value) {
 twilight_create_guess_offset <- function(
   light,
   twl_thr = NULL,
-  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
+  twl_time_tolerance = 180
 ) {
   if (is.null(twl_thr)) {
     twl_thr <- min(light$value[light$value > 0], na.rm = TRUE)

@@ -39,3 +39,8 @@ Loads one or more objects from an interim \code{.RData} file created during the 
 This is a convenience function to quickly restore saved objects (e.g., \code{tag}, \code{graph},
 \code{path_most_likely}) for a given tag \code{id} or directly from a file path.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  load_interim("18LX", var = c("tag", "graph"))
+\dontshow{\}) # examplesIf}
+}

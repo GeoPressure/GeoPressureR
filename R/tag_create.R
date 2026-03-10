@@ -191,11 +191,7 @@ tag_create <- function(
     "lund",
     "dataframe"
   )
-  if (!any(manufacturer %in% manufacturer_possible)) {
-    cli::cli_abort(c(
-      "x" = "{.var manufacturer} needs to be one of {.val {manufacturer_possible}}"
-    ))
-  }
+  manufacturer <- match.arg(manufacturer, choices = manufacturer_possible)
 
   if (manufacturer == "datapackage") {
     tag <- tag_create_datapackage(
@@ -390,8 +386,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   missing_cols <- setdiff(col_name, names(df))
   if (length(missing_cols) > 0) {
     cli::cli_abort(
-      "The following columns are missing in {.file {sensor_path}}: \\
-                              {glue::glue_collapse(missing_cols, ', ')}"
+      "The following columns are missing in {.file {sensor_path}}: {glue::glue_collapse(missing_cols, ', ')}"
     )
   }
 
@@ -447,13 +442,10 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
       if (!quiet) {
         # Check irregular time
         if (length(unique(diff(tag[[sensor]]$date))) > 1) {
-          # nolint start
           dtime <- as.numeric(diff(tag[[sensor]]$date))
           cli::cli_warn(
-            "Irregular time spacing for {.field {sensor}}: \\
-                  {tag[[sensor]]$date[which(dtime != dtime[1])]}."
+            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(dtime != dtime[1])]}."
           )
-          # nolint end
         }
 
         if (nrow(tag[[sensor]]) == 0) {

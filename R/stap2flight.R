@@ -57,6 +57,7 @@ stap2flight <- function(
   assertthat::assert_that(assertthat::has_name(stap, "start"))
   assertthat::assert_that(assertthat::has_name(stap, "end"))
   assertthat::assert_that(all(stap$stap_id == seq_len(nrow(stap))))
+  format <- match.arg(format, choices = c("list", "df"))
   if (is.null(include_stap_id)) {
     if ("include" %in% names(stap)) {
       include_stap_id <- stap$stap_id[stap$include]
@@ -65,7 +66,6 @@ stap2flight <- function(
     }
   }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
-  assertthat::assert_that(format %in% c("list", "df"))
   assertthat::assert_that(is.logical(return_numeric))
 
   if (length(include_stap_id) == 1) {
@@ -96,9 +96,13 @@ stap2flight <- function(
   ]
 
   # create the list of flight per stationary period modelled
-  stap_flight_group <- sapply(flight_all$stap_s, function(s) {
-    sum(include_stap_id <= s)
-  })
+  stap_flight_group <- vapply(
+    flight_all$stap_s,
+    \(s) {
+      sum(include_stap_id <= s)
+    },
+    numeric(1)
+  )
   flight_list <- split(flight_all, include_stap_id[stap_flight_group])
 
   if (format == "list") {

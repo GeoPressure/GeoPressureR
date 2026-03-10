@@ -5,7 +5,8 @@
 #' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
-#' [Any variable available from the ERA5 pressure level](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9) can be downloaded.
+#' [Any variable available from the ERA5 pressure level](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
+#' can be downloaded.
 #'
 #' The flights are determined from the stationary periods classified `tag$stap`. It requests a
 #' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
@@ -30,7 +31,8 @@
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.
 #' @param variable list of variables to download from [the ERA5 pressure level
-#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9): `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`,
+#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9):
+#' `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`,
 #' `"fraction_of_cloud_cover"`, `"relative_humidity"`, `"vertical_velocity"`,
 #' `"specific_cloud_ice_water_content"`, `"specific_cloud_liquid_water_content"`,
 #' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
@@ -46,7 +48,8 @@
 #'
 #' @return The path of the downloaded (requested file) or the an R6 object with download/transfer
 #' information
-#'
+#' @examplesIf FALSE
+#'   tag_download_wind(tag)
 #' @family movement
 #' @seealso [`wf_request_batch()`
 #' ](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
@@ -66,6 +69,13 @@ tag_download_wind <- function(
   cds_token = lifecycle::deprecated(),
   ...
 ) {
+  if (!requireNamespace("ecmwfr", quietly = TRUE)) {
+    cli::cli_abort(c(
+      "x" = "Package {.pkg ecmwfr} is required for {.fun tag_download_wind}.",
+      "i" = "Install it with {.run install.packages('ecmwfr')}."
+    ))
+  }
+
   if (lifecycle::is_present(cds_token)) {
     lifecycle::deprecate_warn(
       "3.3.4",
@@ -112,25 +122,20 @@ tag_download_wind <- function(
   if (utils::tail(tag$stap$stap_id, 1) %in% include_stap_id) {
     include_stap_id <- utils::head(sort(include_stap_id), -1)
     cli::cli_warn(c(
-      "!" = "{.var include_stap_id} included the last stationary period for which no wind can be \\
-      computed.",
+      "!" = "{.var include_stap_id} included the last stationary period for which no wind can be computed.",
       ">" = "We removed this stationary period."
     ))
   }
 
   if (any(file.exists(file(include_stap_id, tag_id))) && !overwrite) {
-    # nolint start
     tmp <- file.exists(file(include_stap_id, tag_id))
     cli::cli_abort(c(
       "x" = "There are already ERA5 data file for stationary periods {.var {include_stap_id[tmp]}}",
       ">" = "Delete the corresponding file or use the argument {.code overwrite = TRUE}."
     ))
-    # nolint end
   }
 
-  # nolint start
   # see https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Levellistings
-  # nolint end
   possible_pressure <- c(
     1,
     2,

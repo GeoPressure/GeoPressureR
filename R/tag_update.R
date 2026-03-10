@@ -90,9 +90,7 @@ tag_update <- function(
   tmp <- known$stap_id[known$stap_id > 1]
   if (any(stap_new$stap_id[which(stap_new$old_stap_id == tmp)] != tmp)) {
     cli::cli_warn(c(
-      "x" = "Known position were defined at stationary period{?s} \\
-      {.val {as.character(tmp)}}, yet th{?is/ese} stationary period{?s} ha{?s/ve} \\
-      changed",
+      "x" = "Known position were defined at stationary period{?s} {.val {as.character(tmp)}}, yet th{?is/ese} stationary period{?s} ha{?s/ve} changed",
       ">" = "Provides {.var known} argument to {.fun tag_upate} or start again from the raw data"
     ))
   }
@@ -113,10 +111,8 @@ tag_update <- function(
   tmp <- include_stap_id %in% tag_new$stap$stap_id
   if (!all(tmp)) {
     cli::cli_abort(c(
-      "x" = "{.field include_stap_id} was specified for {.val {include_stap_id}}, but \\
-        {.val {include_stap_id[!tmp]}} is not available with the new label data.",
-      ">" = "Provides {.var include_stap_id} argument to {.fun tag_upate} or start again from the \\
-      raw data"
+      "x" = "{.field include_stap_id} was specified for {.val {include_stap_id}}, but {.val {include_stap_id[!tmp]}} is not available with the new label data.",
+      ">" = "Provides {.var include_stap_id} argument to {.fun tag_upate} or start again from the raw data"
     ))
   }
 
@@ -219,8 +215,7 @@ tag_update <- function(
         any(stap_new$stap_id != stap_new$old_stap_id)
     ) {
       cli::cli_warn(
-        "Light map {.code tag$map_light} was deleted as some stationary periods have \\
-                    changed."
+        "Light map {.code tag$map_light} was deleted as some stationary periods have changed."
       )
       tag_new$map_light <- NULL
       tag_new$twilight <- NULL

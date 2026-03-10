@@ -29,19 +29,34 @@
 #' Rstudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
+#' @param debug If `TRUE`, prints debug messages about plot refreshes (x-range changes and point
+#' counts) to the R console. Defaults to `FALSE`.
 #' @return A GeoPressureR `tag` object (with pressure and optionally acceleration data
 #' and an `id` in `tag$param$id`). If `run_bg = TRUE`, a background process object
 #' is returned invisibly, with the `tag` attached as an attribute `attr(p, "tag")`.
 #' The labeled data can be exported directly from the app interface.
 #'
+#' @examplesIf FALSE
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#' })
+#' trainset(tag, run_bg = FALSE, launch_browser = FALSE)
+#'
 #' @seealso [tag_label_read()], [tag_label_write()], [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/)
 #' @export
-trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
-  label_dir <- getwd()
-
+trainset <- function(
+  x,
+  launch_browser = TRUE,
+  run_bg = TRUE,
+  debug = FALSE
+) {
   if (inherits(x, "tag")) {
     tag <- x
+    if (!tag_assert(tag, "label", "logical")) {
+      tag <- tag_label_auto(tag)
+    }
+    label_dir <- "./data/tag-label"
   } else if (is.character(x) && length(x) == 1) {
     if (file.exists(x)) {
       # x is a path to a file that exists: decide based on extension
@@ -67,21 +82,10 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
     } else {
       # x is a character (id), try finding interim or label files
       id <- x
-      interim_file <- glue::glue("./data/interim/{id}.RData")
       labeled_file <- glue::glue("./data/tag-label/{id}-labeled.csv")
       unlabeled_file <- glue::glue("./data/tag-label/{id}.csv")
 
-      if (file.exists(interim_file)) {
-        tag <- load_interim(interim_file, var = "tag", envir = new.env())
-        interim_dir <- dirname(interim_file)
-        if (basename(interim_dir) == "interim") {
-          data_dir <- dirname(interim_dir)
-          candidate <- file.path(data_dir, "tag-label")
-          if (dir.exists(candidate)) {
-            label_dir <- candidate
-          }
-        }
-      } else if (file.exists(labeled_file)) {
+      if (file.exists(labeled_file)) {
         tag <- csv2tag(labeled_file, id = id)
         label_dir <- dirname(labeled_file)
       } else if (file.exists(unlabeled_file)) {
@@ -91,7 +95,6 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
         cli::cli_abort(c(
           "Cannot find data files for id {.val {id}}",
           "i" = "Looked for:",
-          "*" = "{.file {file.path(getwd(), interim_file)}}",
           "*" = "{.file {file.path(getwd(), labeled_file)}}",
           "*" = "{.file {file.path(getwd(), unlabeled_file)}}",
           "i" = "Please ensure the files exist or provide a valid file path"
@@ -101,51 +104,37 @@ trainset <- function(x, launch_browser = TRUE, run_bg = TRUE) {
   } else {
     cli::cli_abort("{.arg x} must be a {.cls tag} or a single character string (file path or id)")
   }
+
+  label_dir <- normalizePath(label_dir, mustWork = FALSE)
+
   if (run_bg) {
-    p <- callr::r_bg(
-      func = function(tag, label_dir) {
-        library(GeoPressureR)
-        shiny::shinyOptions(tag = tag, label_dir = label_dir)
-        shiny::runApp(system.file("trainset", package = "GeoPressureR"))
-      },
-      args = list(
-        tag = tag,
-        label_dir = label_dir
-      )
-    )
-
-    port <- NA
-    while (p$is_alive()) {
-      p$poll_io(1000) # wait up to 1s for new output
-      err <- p$read_error()
-      out <- p$read_output()
-      txt <- paste(err, out, sep = "\n")
-
-      if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
-        port <- sub(".*127\\.0\\.0\\.1:([0-9]+).*", "\\1", txt)
-        url <- glue::glue("http://127.0.0.1:{port}")
-        cli::cli_alert_success("Opening Trainset app at {.url {url}}")
-        utils::browseURL(url)
-        break
-      }
-    }
-    return(invisible(p))
-  } else {
-    if (launch_browser) {
-      launch_browser <- getOption("browser")
-    } else {
-      launch_browser <- getOption("shiny.launch.browser", interactive())
-    }
-    shiny::shinyOptions(tag = tag, label_dir = label_dir)
-
-    # Start the app
-    shiny::runApp(
+    return(shiny_run_app_bg(
       system.file("trainset", package = "GeoPressureR"),
-      launch.browser = launch_browser
-    )
-
-    return(invisible(tag))
+      shiny_opts = list(
+        tag = tag,
+        label_dir = label_dir,
+        trainset_debug = debug,
+        stop_on_session_end = FALSE
+      ),
+      launch_browser = launch_browser,
+      proc_option = "GeoPressureR.trainset_processes",
+      proc_id = tag$param$id,
+      app_label = "Trainset"
+    ))
   }
+
+  shiny_run_app_fg(
+    system.file("trainset", package = "GeoPressureR"),
+    shiny_opts = list(
+      tag = tag,
+      label_dir = label_dir,
+      trainset_debug = debug,
+      stop_on_session_end = TRUE
+    ),
+    launch_browser = launch_browser
+  )
+
+  return(invisible(tag))
 }
 
 # Convert a TRAINSET CSV file to a GeoPressureR tag
@@ -159,13 +148,19 @@ csv2tag <- function(file, id = NULL) {
     id <- sub("-labeled$", "", sub("\\..*$", "", basename(file)))
   }
 
+  pressure <- csv[csv$series == "pressure", ]
+  acceleration <- csv[csv$series == "acceleration", ]
+
   tag <- tag_create_dataframe(
     id,
-    pressure_file = csv[csv$series == "pressure", ],
-    acceleration_file = csv[csv$series == "acceleration", ],
+    pressure_file = if (nrow(pressure)) pressure else NULL,
+    acceleration_file = if (nrow(acceleration)) acceleration else NULL,
     quiet = TRUE
   )
 
-  tag <- tag_label_stap(tag, quiet = TRUE)
+  if (tag_assert(tag, "label", "logical")) {
+    tag <- tag_label_stap(tag, quiet = TRUE)
+  }
+
   tag
 }

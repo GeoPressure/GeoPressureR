@@ -11,7 +11,7 @@
   plot_leaflet = TRUE,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
-  palette = "auto",
+  palette = NULL,
   opacity = 0.8,
   legend = FALSE,
   fac_res_proj = 4,
@@ -19,35 +19,31 @@
 )
 }
 \arguments{
-\item{x}{a \code{\link[terra:SpatRaster-class]{terra::SpatRaster()}} or a \code{RasterLayer} object--see \code{\link[raster:raster]{raster::raster()}}}
+\item{x}{a GeoPressureR \code{map} object}
 
 \item{path}{a GeoPressureR \code{path} data.frame}
 
-\item{thr_likelihood}{threshold of percentile (see details).}
+\item{thr_likelihood}{Threshold to display likelihood values.}
 
 \item{plot_leaflet}{logical to use an interactive \code{leaflet} map instead of \code{terra::plot}}
 
-\item{provider}{the name of the provider (see
-\url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
-\url{https://github.com/leaflet-extras/leaflet-providers})}
+\item{provider}{tile provider name (see \code{leaflet::providers}).}
 
 \item{provider_options}{tile options. See leaflet::addProviderTiles() and
 leaflet::providerTileOptions()}
 
-\item{palette}{The colors or color function that values will be mapped to}
+\item{palette}{color palette name or vector of colors.}
 
-\item{opacity}{the base opacity of the raster, expressed from 0 to 1}
+\item{opacity}{opacity of the raster layer in leaflet.}
 
-\item{legend}{logical or character. If not \code{FALSE} a legend is drawn. The character value can be used to indicate where the legend is to be drawn. For example "topright" or "bottomleft". Use \code{plg} for more refined placement. Not supported for continuous legends (the default for raster data)}
+\item{legend}{logical to display the legend.}
 
 \item{fac_res_proj}{Factor of the resolution of the reprojection (see details above). A value of
 \code{1} will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
 the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
 the computational cost of the reprojection.}
 
-\item{...}{named parameters to add to the options}
-
-\item{map}{a GeoPressureR \code{map} object}
+\item{...}{additional parameters passed to \code{leaflet::addRasterImage()} or \code{terra::plot()}.}
 }
 \value{
 a plot or leaflet object.
@@ -91,6 +87,6 @@ plot(tag$map_pressure,
 
 }
 \seealso{
-\code{\link[=plot_path]{plot_path()}}
+\code{\link[=plot_path]{plot_path()}} \code{\link[=plot.tag]{plot.tag()}}
 }
 \concept{map plot_tag}

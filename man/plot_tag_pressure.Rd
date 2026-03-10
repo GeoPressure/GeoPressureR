@@ -4,12 +4,7 @@
 \alias{plot_tag_pressure}
 \title{Plot pressure data of a \code{tag}}
 \usage{
-plot_tag_pressure(
-  tag,
-  plot_plotly = TRUE,
-  warning_pressure_diff = 3,
-  warning_stap_length = 12
-)
+plot_tag_pressure(tag, plot_plotly = TRUE, warning_pressure_diff = 3)
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
@@ -17,8 +12,6 @@ plot_tag_pressure(
 \item{plot_plotly}{logical to use \code{plotly}.}
 
 \item{warning_pressure_diff}{Threshold of pressure hourly difference marking as warning (hPa).}
-
-\item{warning_stap_length}{Threshold number of pressure datapoints flagged as warning (hourly).}
 }
 \value{
 a plot or ggplotly object.

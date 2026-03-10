@@ -99,12 +99,12 @@ geopressuretemplate_graph <- function(
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
       # Need to have return otherwise this is not returning to main function
-      return(graph) # nolint
+      return(graph)
     }
   )
 
   # Store the graph parameters
-  param <- graph$param # nolint
+  param <- graph$param
 
   # Initialize a list to keep track of outputs to be saved
   save_list <- c("tag", "param")
@@ -116,7 +116,7 @@ geopressuretemplate_graph <- function(
         if (!quiet) {
           cli::cli_h2("Compute marginal map")
         }
-        marginal <- graph_marginal(graph, quiet = quiet) # nolint
+        marginal <- graph_marginal(graph, quiet = quiet)
         save_list <- c(save_list, "marginal")
       }
 
@@ -126,7 +126,7 @@ geopressuretemplate_graph <- function(
           cli::cli_h2("Compute most likely path")
         }
         path_most_likely <- graph_most_likely(graph, quiet = quiet)
-        edge_most_likely <- path2edge(path_most_likely, graph) # nolint
+        edge_most_likely <- path2edge(path_most_likely, graph)
         save_list <- c(save_list, "path_most_likely", "edge_most_likely")
       }
 
@@ -140,7 +140,7 @@ geopressuretemplate_graph <- function(
           nj = config$graph_simulation$nj,
           quiet = quiet
         )
-        edge_simulation <- path2edge(path_simulation, graph) # nolint
+        edge_simulation <- path2edge(path_simulation, graph)
         save_list <- c(save_list, "path_simulation", "edge_simulation")
       }
     },
@@ -151,7 +151,7 @@ geopressuretemplate_graph <- function(
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
       # Need to have return otherwise this is not returning to main function
-      return(graph) # nolint
+      return(graph)
     }
   )
 

@@ -7,10 +7,12 @@
 plot_path(
   path,
   plot_leaflet = TRUE,
+  map = NULL,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
   pad = 3,
-  ...
+  polyline = NULL,
+  circle = NULL
 )
 }
 \arguments{
@@ -19,19 +21,21 @@ plot_path(
 \item{plot_leaflet}{logical defining if the plot is an interactive \code{leaflet} map or a static
 basic plot.}
 
-\item{provider}{the name of the provider (see
-\url{https://leaflet-extras.github.io/leaflet-providers/preview/} and
-\url{https://github.com/leaflet-extras/leaflet-providers})}
+\item{map}{optional \code{map} object to plot the path on top of.}
+
+\item{provider}{tile provider name (see \code{leaflet::providers}).}
 
 \item{provider_options}{tile options. See leaflet::addProviderTiles() and
 leaflet::providerTileOptions()}
 
 \item{pad}{padding of the map in degree lat-lon (only for \code{plot_leaflet = FALSE}).}
 
-\item{...}{additional parameters for \code{plot_path_leaflet()}}
+\item{polyline}{list of parameters passed to \code{leaflet::addPolylines()}}
+
+\item{circle}{list of parameters passed to \code{leaflet::addCircleMarkers()}}
 }
 \value{
-modified map object
+A \code{leaflet} map when \code{plot_leaflet = TRUE}, otherwise a \code{ggplot2} object.
 }
 \description{
 This function plots a \code{path} data.frame. This function is used in \code{\link[=plot.map]{plot.map()}}.
@@ -39,19 +43,34 @@ This function plots a \code{path} data.frame. This function is used in \code{\li
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>
-    tag_label(quiet = TRUE) |>
-    tag_set_map(c(-16, 23, 0, 50), scale = 1)
+    tag_label(quiet = TRUE)
 })
-path <- ind2path(c(1652, 1603, 1755, 1708, 1607), tag)
+
+path <- data.frame(
+  stap_id = 1:4,
+  lon = c(17.05, 16.2, NA, 15.4),
+  lat = c(48.9, 47.8, NA, 46.5),
+  known_lon = c(17.05, NA, NA, NA),
+  known_lat = c(48.9, NA, NA, NA),
+  start = as.POSIXct(
+    c("2018-01-01", "2018-01-03", "2018-01-05", "2018-01-07"),
+    tz = "UTC"
+  ),
+  end = as.POSIXct(
+    c("2018-01-02", "2018-01-04", "2018-01-06", "2018-01-08"),
+    tz = "UTC"
+  )
+)
 
 plot_path(path)
+
+plot_path(path, plot_leaflet = FALSE)
 
 }
 \seealso{
 \code{\link[=plot.map]{plot.map()}}
 
 Other path: 
-\code{\link{ind2path}()},
 \code{\link{path2edge}()},
 \code{\link{path2elevation}()},
 \code{\link{path2twilight}()},

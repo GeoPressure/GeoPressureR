@@ -15,7 +15,6 @@
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
 #' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
 #'
-#'
 #' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
 #' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame.
@@ -28,7 +27,8 @@
 #' @return When `run_bg = FALSE`: The updated path visualized in the app. Can also be retrieved with
 #' `shiny::getShinyOption("path_geopressureviz")` after the app completes.
 #' When `run_bg = TRUE`: Returns the background process object.
-#'
+#' @examplesIf FALSE
+#'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
 #' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
 #' @export
@@ -106,24 +106,19 @@ geopressureviz <- function(
   }
 
   # Add possible map to display
-  maps_choices <- list(
-    "Pres. MSE" = "map_pressure_mse",
-    "Pres. mask" = "map_pressure_mask",
-    "Pressure" = "map_pressure",
-    "Light" = "map_light",
-    "Mag. incl." = "map_magnetic_inclination",
-    "Mag. int." = "map_magnetic_intensity",
-    "Magnetic" = "map_magnetic",
-    "Pres.&Light" = c("map_pressure", "map_light"),
-    "Marginal" = "map_marginal"
+  map_types <- map_type()
+  map_entries <- map_types[setdiff(names(map_types), c("unknown", "mask_water"))]
+  map_display <- vapply(map_entries, function(x) x$display, character(1))
+  map_needed <- lapply(map_entries, function(x) x$name)
+  available <- vapply(map_needed, function(x) all(x %in% names(tag)), logical(1))
+
+  map_display <- map_display[available]
+  map_needed <- map_needed[available]
+  map_type_key <- stats::setNames(names(map_entries)[available], map_display)
+  maps <- stats::setNames(
+    lapply(map_needed, function(likelihood) tag2map(tag, likelihood = likelihood)),
+    map_display
   )
-  maps_is_available <- sapply(maps_choices, \(x) all(x %in% names(tag)))
-
-  maps <- lapply(maps_choices[maps_is_available], \(likelihood) {
-    tag2map(tag, likelihood = likelihood)
-  })
-
-  names(maps) <- names(maps_choices[maps_is_available])
 
   # Set colour of each stationary period
   col <- rep(
@@ -174,68 +169,38 @@ geopressureviz <- function(
   file_wind <- NULL
 
   if (run_bg) {
-    p <- callr::r_bg(
-      func = function(tag, maps, pressurepath, path, file_wind) {
-        library(GeoPressureR)
-
-        # Set shiny options instead of global variables
-        shiny::shinyOptions(
-          tag = tag,
-          maps = maps,
-          pressurepath = pressurepath,
-          path = path,
-          file_wind = file_wind
-        )
-
-        shiny::runApp(system.file("geopressureviz", package = "GeoPressureR"))
-      },
-      args = list(
+    return(shiny_run_app_bg(
+      system.file("geopressureviz", package = "GeoPressureR"),
+      shiny_opts = list(
         tag = tag,
         maps = maps,
+        map_type_key = map_type_key,
         pressurepath = pressurepath,
         path = path,
-        file_wind = file_wind
-      )
-    )
+        file_wind = file_wind,
+        stop_on_session_end = FALSE
+      ),
+      launch_browser = launch_browser,
+      proc_option = "GeoPressureR.geopressureviz_processes",
+      proc_id = tag$param$id,
+      app_label = "GeoPressureViz"
+    ))
+  }
 
-    port <- NA
-    while (p$is_alive()) {
-      p$poll_io(1000) # wait up to 1s for new output
-      err <- p$read_error()
-      out <- p$read_output()
-      txt <- paste(err, out, sep = "\n")
-
-      if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
-        port <- sub(".*127\\.0\\.0\\.1:([0-9]+).*", "\\1", txt)
-        url <- glue::glue("http://127.0.0.1:{port}")
-        cli::cli_alert_success("Opening GeoPressureViz app at {.url {url}}")
-        utils::browseURL(url)
-        break
-      }
-    }
-    return(invisible(p))
-  } else {
-    # Set shiny options instead of global variables
-    shiny::shinyOptions(
+  shiny_run_app_fg(
+    system.file("geopressureviz", package = "GeoPressureR"),
+    shiny_opts = list(
       tag = tag,
       maps = maps,
+      map_type_key = map_type_key,
       pressurepath = pressurepath,
       path = path,
-      file_wind = file_wind
-    )
+      file_wind = file_wind,
+      stop_on_session_end = TRUE
+    ),
+    launch_browser = launch_browser
+  )
 
-    if (launch_browser) {
-      launch_browser <- getOption("browser")
-    } else {
-      launch_browser <- getOption("shiny.launch.browser", interactive())
-    }
-
-    # Start the app
-    shiny::runApp(
-      system.file("geopressureviz", package = "GeoPressureR"),
-      launch.browser = launch_browser
-    )
-    # Return the updated path from shiny options
-    return(invisible(shiny::getShinyOption("path_geopressureviz")))
-  }
+  # Return the updated path from shiny options
+  return(invisible(shiny::getShinyOption("path_geopressureviz")))
 }

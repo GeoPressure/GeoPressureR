@@ -21,8 +21,7 @@
 #' - `end`: start of the flight.
 #' - `duration`: duration of the flight.
 #' - `n`: number of flight.
-#' - `bearing`: Angle of the flight in degree (0° = North, 90° = East), computed with
-#' `geosphere::bearing()`.
+#' - `bearing`: Angle of the flight in degree (0° = North, 90° = East).
 #' - `gs`: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 #' (km/h) with `abs(gs)`, the W-E and S-N component of the flight with `Re(gs)` and `Im(gs)`, and
 #'  the angle/direction with `Arg(gs)`. If graph provided.
@@ -30,6 +29,8 @@
 #' `as = gs - ws` in complex number to keep the vectorial additive properties. If graph provided.
 #' @family path
 #' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
+#' @examplesIf FALSE
+#'   edge <- path2edge(path, tag)
 #' @export
 path2edge <- function(path, tag_graph) {
   assertthat::assert_that(is.data.frame(path))
@@ -60,12 +61,24 @@ path2edge <- function(path, tag_graph) {
   lat <- matrix(path$lat[path$stap_id %in% stap_id_included], nrow = nj)
   lon <- matrix(path$lon[path$stap_id %in% stap_id_included], nrow = nj)
 
-  ind_lat <- sapply(lat, \(l) which.min(abs(l - g$lat)))
-  ind_lon <- sapply(lon, \(l) which.min(abs(l - g$lon)))
+  ind_lat <- matrix(
+    vapply(c(lat), \(l) which.min(abs(l - g$lat)), integer(1)),
+    nrow = nj
+  )
+  ind_lon <- matrix(
+    vapply(c(lon), \(l) which.min(abs(l - g$lon)), integer(1)),
+    nrow = nj
+  )
 
-  ind2d <- matrix(ind_lat + (ind_lon - 1) * g$dim[1], nrow = nj)
+  ind2d <- ind_lat + (ind_lon - 1) * g$dim[1]
 
-  ind3d <- ind2d + t(replicate(nj, prod(g$dim) * (seq_len(ncol(ind2d)) - 1)))
+  ind3d <- ind2d +
+    matrix(
+      prod(g$dim) * (seq_len(ncol(ind2d)) - 1),
+      nrow = nj,
+      ncol = ncol(ind2d),
+      byrow = TRUE
+    )
 
   stap3d <- t(replicate(nj, stap_id_included))
 
@@ -87,14 +100,13 @@ path2edge <- function(path, tag_graph) {
     stap2flight(tag_graph$stap, include_stap_id = stap_id_included)
   )
 
-  edge$distance <- geosphere::distGeo(
+  edge$distance <- haversine_distance(
     cbind(edge$lon_s, edge$lat_s),
     cbind(edge$lon_t, edge$lat_t)
-  ) /
-    1000
+  )
 
   # Compute the bearing of the trajectory
-  edge$bearing <- geosphere::bearing(
+  edge$bearing <- haversine_bearing(
     cbind(edge$lon_s, edge$lat_s),
     cbind(edge$lon_t, edge$lat_t)
   )

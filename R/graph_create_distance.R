@@ -30,8 +30,6 @@
 #' - `graph_create_bearing()`: Vector of bearings in degrees
 #' - `graph_compute_chunk_size()`: Integer chunk size
 #' @noRd
-NULL
-
 graph_create_coord_calc <- function(from_coords, to_coords, calc_fun, ...) {
   n_coords <- nrow(from_coords)
 

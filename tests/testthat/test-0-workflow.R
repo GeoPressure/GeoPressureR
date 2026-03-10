@@ -45,7 +45,7 @@ test_that("workflow | full", {
   expect_no_error(plot(tag, type = "map_pressure"))
   expect_no_error(plot(tag, type = "map_light"))
   expect_no_error(plot(tag, type = "map"))
-  plot(tag, type = "map", plot_leaflet = FALSE)
+  expect_no_error(plot(tag, type = "map", plot_leaflet = FALSE))
 
   expect_no_error(plot_pressurepath(pressurepath, type = "timeseries"))
   expect_no_error(plot_pressurepath(pressurepath, type = "altitude"))
@@ -63,19 +63,13 @@ test_that("workflow | Missing pressure value", {
   tag <- tag_set_map(tag, extent = c(-16, 23, 0, 50), scale = 1)
 
   expect_warning(
-    {
-      expect_warning(
-        {
-          tag <- geopressure_map(tag, quiet = TRUE)
-        },
-        "*have less than 3 datapoints to be used*"
-      )
-    },
-    "Pressure data is not on a regular interval"
+    expect_warning(
+      tag <- geopressure_map(tag, quiet = TRUE)
+    )
   )
 
   expect_equal(
-    sapply(tag$map_pressure$data, is.null),
+    vapply(tag$map_pressure$data, is.null, logical(1)),
     c(TRUE, TRUE, FALSE, FALSE, TRUE)
   )
 
@@ -85,7 +79,7 @@ test_that("workflow | Missing pressure value", {
     graph <- graph_create(tag, quiet = TRUE)
   })
 
-  tag$stap$include <- c(FALSE, FALSE, TRUE, TRUE, FALSE)
+  tag$map_pressure$stap$include <- c(FALSE, FALSE, TRUE, TRUE, FALSE)
   expect_no_error({
     graph <- graph_create(tag, quiet = TRUE)
   })

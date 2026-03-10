@@ -31,6 +31,7 @@ default:
     # twl_offset: NULL # in hours
   geolight_map: # ?geolight_map()
     twl_calib_adjust: 1.4
+    # fitted_location_duration: 30 # in days
     twl_llp: !expr \(n) log(n)/n
   graph_create: # ?graph_create()
     thr_likelihood: 0.99
@@ -56,7 +57,6 @@ default:
     pressurepath: ["most_likely"] # "geopressureviz"
     nj: 10
 
-
 18LX:
   tag_create:
     crop_start: "2017-06-20"
@@ -70,7 +70,6 @@ default:
     scientific_name: "Acrocephalus arundinaceus"
   graph_set_movement:
     type: "gs"
-
 
 CB619:
   graph_set_movement:

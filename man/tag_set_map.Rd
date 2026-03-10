@@ -94,6 +94,8 @@ print(tag_custom)
 
 Other tag: 
 \code{\link{print.tag}()},
-\code{\link{tag_create}()}
+\code{\link{read_stap}()},
+\code{\link{tag_create}()},
+\code{\link{tag_stap_daily}()}
 }
 \concept{tag}

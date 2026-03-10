@@ -21,14 +21,14 @@ tag_create_migratetech <- function(
   if (!is.null(deg_path)) {
     assertthat::assert_that(grepl(
       "Migrate Technology",
-      readLines(deg_path, n = 1)
+      readLines(deg_path, n = 1),
+      fixed = TRUE
     ))
     line2 <- readLines(deg_path, n = 2)[[2]]
     v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
     if (v < 13) {
       cli::cli_abort(
-        "The deg file {.file {deg_path}} is not compatible. Line 2 should \\
-               contains {.val Type:x}, with x>=13."
+        "The deg file {.file {deg_path}} is not compatible. Line 2 should contains {.val Type:x}, with x>=13."
       )
     }
     # Retrieve full model number
@@ -43,8 +43,7 @@ tag_create_migratetech <- function(
     )
     if (drift > 30) {
       cli::cli_warn(c(
-        "!" = "The deg file {.file {deg_path}} is recording a drift of {format_minutes(drift)} \\
-      (line 16) which seems suspicious.",
+        "!" = "The deg file {.file {deg_path}} is recording a drift of {format_minutes(drift)} (line 16) which seems suspicious.",
         ">" = "Check for error (e.g. timezone)"
       ))
     }
@@ -113,8 +112,7 @@ tag_create_migratetech <- function(
 
     if (length(header_line) == 0) {
       cli::cli_abort(
-        "The light file {.file {light_path}} is not compatible. \\
-              Could not find {.val light(lux)} in the first 30 lines"
+        "The light file {.file {light_path}} is not compatible. Could not find {.val light(lux)} in the first 30 lines"
       )
     }
 
@@ -128,8 +126,7 @@ tag_create_migratetech <- function(
         drift <- abs(as.numeric(drift_match) / 60)
         if (drift > 5) {
           cli::cli_warn(c(
-            "!" = "The light file {.file {light_path}} is recording a drift of \\
-          {format_minutes(drift)} (line 16) which is higher than the resolution.",
+            "!" = "The light file {.file {light_path}} is recording a drift of {format_minutes(drift)} (line 16) which is higher than the resolution.",
             "i" = "Check for error (e.g. timezone)"
           ))
         }
@@ -142,8 +139,7 @@ tag_create_migratetech <- function(
 
     if (length(col) == 0) {
       cli::cli_abort(
-        "The light file {.file {light_path}} header does not contain \\
-              {.val light(lux)} column"
+        "The light file {.file {light_path}} header does not contain {.val light(lux)} column"
       )
     }
 

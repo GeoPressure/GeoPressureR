@@ -19,6 +19,16 @@
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
+#' @examplesIf FALSE
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE) |>
+#'     tag_label(quiet = TRUE) |>
+#'     tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
+#'     geopressure_map(quiet = TRUE)
+#' })
+#' graph <- graph_create(tag, quiet = TRUE)
+#' graph <- graph_add_wind(graph, pressure = tag$pressure, quiet = TRUE)
+#'
 #' @family graph
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
@@ -59,8 +69,8 @@ graph_add_wind <- function(
   edge_s <- arrayInd(graph$s[id], c(g$dim, nrow(graph$stap)))
   sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[, 3])))
   if (length(sta_pass) > 0) {
-    as <- abs(graph$gs - graph$ws) # nolint
-    edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap))) # nolint
+    as <- abs(graph$gs - graph$ws)
+    edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
     cli::cli_abort(c(
       x = "Using {.arg thr_as} of {thr_as} km/h,  there are not any nodes left for the stationary
       period: {.field {sta_pass}} with a minimum airspeed of

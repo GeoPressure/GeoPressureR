@@ -4,7 +4,7 @@
 \alias{trainset}
 \title{Start the GeoPressure Trainset shiny app}
 \usage{
-trainset(x, launch_browser = TRUE, run_bg = TRUE)
+trainset(x, launch_browser = TRUE, run_bg = TRUE, debug = FALSE)
 }
 \arguments{
 \item{x}{One of:
@@ -22,6 +22,9 @@ Rstudio.}
 
 \item{run_bg}{If true, the app runs in a background R session using the \code{callr} package. This
 allows you to continue using your R session while the app is running.}
+
+\item{debug}{If \code{TRUE}, prints debug messages about plot refreshes (x-range changes and point
+counts) to the R console. Defaults to \code{FALSE}.}
 }
 \value{
 A GeoPressureR \code{tag} object (with pressure and optionally acceleration data
@@ -49,6 +52,14 @@ The app features:
 
 Learn more about data labeling workflows in the \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual } or explore the
 \href{https://raphaelnussbaumer.com/GeoPressureR/}{GeoPressureR documentation}.
+}
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+})
+trainset(tag, run_bg = FALSE, launch_browser = FALSE)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=tag_label_read]{tag_label_read()}}, \code{\link[=tag_label_write]{tag_label_write()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual }

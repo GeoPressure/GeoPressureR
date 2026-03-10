@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 3.4.6
+Version: 3.5.0
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -17,22 +17,20 @@ Depends:
 Imports: 
     cli,
     config,
-    ecmwfr (>= 2.0.0),
     EBImage,
     future,
-    geosphere,
+    future.apply,
     ggplot2,
     glue,
-    graphics,
     httr2 (>= 1.0.0),
     jsonlite,
     leaflet (>= 2.2.0),
     lifecycle,
     Matrix,
     methods,
-    ncdf4,
     plotly,
     pracma,
+    progressr,
     RColorBrewer,
     stats,
     suntools,
@@ -43,10 +41,13 @@ Suggests:
     assertthat,
     BiocManager,
     covr,
+    ecmwfr (>= 2.0.0),
     knitr,
-    leaflet.extras,
     leaflet.providers,
     maps,
+    rnaturalearth,
+    rnaturalearthdata,
+    ncdf4,
     readxl,
     shiny,
     shinyjs,

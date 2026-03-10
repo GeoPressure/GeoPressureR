@@ -3,10 +3,14 @@
 #' This function check the condition of a `tag` object.
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param condition condition to assert `tag` for. One of `"tag"` (default), `"pressure"`,
-#' `"light"`, `"acceleration"`, `"label"`, `"stap"`, `"setmap"`, `"map_pressure"`, `"map_light"`
-#' `"map_pressure_mse"` and `"twilight"`
-#' @param type Message type to display. One of `"abort"` (default), `"warn"` or `"inform"`
+#' @param condition condition to assert `tag` for. One of `"tag"` (default), `"read"`,
+#' `"pressure"`, `"light"`, `"acceleration"`, `"temperature_internal"`,
+#' `"temperature_external"`, `"magnetic"`, `"label"`, `"stap"`, `"setmap"`,
+#' `"map_pressure"`, `"map_pressure_mse"`, `"map_pressure_mask"`, `"map_light"`,
+#' `"map_light_twl"`, `"mask_water"`, `"map_magnetic"`, `"map_magnetic_intensity"`,
+#' `"map_magnetic_inclination"`, `"twl_calib"`, and `"twilight"`.
+#' @param type Message type to display. One of `"abort"` (default), `"warn"`, `"inform"`,
+#' or `"logical"` (return TRUE/FALSE without messaging).
 #'
 #' @return logical indicating the `tag` object has the relevant element
 #'
@@ -23,16 +27,27 @@
 #'
 #' tag_assert(tag, "map_pressure", type = "inform")
 #'
+#' tag_assert(tag, "setmap", type = "logical")
+#'
 #' @export
 tag_assert <- function(tag, condition = "tag", type = "abort") {
+  if (identical(type, "")) {
+    type <- "logical"
+  }
+  type <- match.arg(type, choices = c("abort", "warn", "inform", "logical"))
   status <- tag_status(tag)
 
   if (condition == "tag") {
     msg <- c("x" = "tag is not a {.var tag} object.")
   } else {
     # For all other condition, first check if tag is indeed a tag
-    tag_assert(tag)
-    if (condition == "pressure") {
+    if (!inherits(tag, "tag")) {
+      msg <- c("x" = "tag is not a {.var tag} object.")
+    } else if (condition == "read") {
+      msg <- c(
+        "x" = "Sensors data not yet read. Use {.fun tag_create}."
+      )
+    } else if (condition == "pressure") {
       msg <- c(
         "x" = "The {.var tag} object does not have {.field pressure} data."
       )
@@ -43,6 +58,14 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
     } else if (condition == "acceleration") {
       msg <- c(
         "x" = "The {.var tag} object does not have {.field acceleration} data."
+      )
+    } else if (condition == "temperature_internal") {
+      msg <- c(
+        "x" = "The {.var tag} object does not have {.field temperature_internal} data."
+      )
+    } else if (condition == "temperature_external") {
+      msg <- c(
+        "x" = "The {.var tag} object does not have {.field temperature_external} data."
       )
     } else if (condition == "magnetic") {
       msg <- c(
@@ -60,8 +83,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
       )
     } else if (condition == "setmap") {
       msg <- c(
-        "x" = "The parameters for the geographical and stationary period have not been yet been \\
-      defined in {.var tag}.",
+        "x" = "The parameters for the geographical and stationary period have not been yet been defined in {.var tag}.",
         ">" = "Use {.fun tag_set_map} to define them."
       )
     } else if (condition == "map_pressure") {
@@ -74,6 +96,21 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
         "x" = "The pressure mean square error map has not yet been computed for {.var tag}.",
         ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
       )
+    } else if (condition == "map_pressure_mask") {
+      msg <- c(
+        "x" = "The pressure mask map has not yet been computed for {.var tag}.",
+        ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
+      )
+    } else if (condition == "twl_calib") {
+      msg <- c(
+        "x" = "The twilight calibration has not yet been computed for {.var tag}.",
+        ">" = "Use {.fun geolight_map_calibrate} to compute the twilight calibration stored in {.var tag$param$geolight_map$twl_calib}."
+      )
+    } else if (condition == "map_light_twl") {
+      msg <- c(
+        "x" = "The twilight likelihood map has not yet been computed for {.var tag}.",
+        ">" = "Use {.fun geolight_map_likelihood} to compute the maps."
+      )
     } else if (condition == "twilight") {
       msg <- c(
         "x" = "The twilight has not yet been computed for {.var tag}",
@@ -84,23 +121,41 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
         "x" = "The light likelihood map has not yet been computed for {.var tag}.",
         ">" = "Use {.fun geolight_map} to compute the maps."
       )
+    } else if (condition == "mask_water") {
+      msg <- c(
+        "x" = "The water mask map has not yet been computed for {.var tag}."
+      )
+    } else if (condition == "map_magnetic") {
+      msg <- c(
+        "x" = "The magnetic likelihood map has not yet been computed for {.var tag}."
+      )
+    } else if (condition == "map_magnetic_intensity") {
+      msg <- c(
+        "x" = "The magnetic intensity map has not yet been computed for {.var tag}."
+      )
+    } else if (condition == "map_magnetic_inclination") {
+      msg <- c(
+        "x" = "The magnetic inclination map has not yet been computed for {.var tag}."
+      )
     } else {
-      stop(glue::glue("condition {.var condition} is unknown"))
+      cli::cli_abort(c(
+        "x" = "Condition {.var {condition}} is unknown."
+      ))
     }
   }
 
   if (condition %in% status) {
     return(TRUE)
-  } else {
-    if (type == "inform") {
-      cli::cli_bullets(msg)
-    } else if (type == "warn") {
-      cli::cli_warn(msg)
-    } else if (type == "abort") {
-      cli::cli_abort(msg)
-    } else {
-      return(FALSE)
-    }
+  }
+
+  if (type == "logical") {
+    return(FALSE)
+  } else if (type == "inform") {
+    cli::cli_bullets(msg)
+  } else if (type == "warn") {
+    cli::cli_warn(msg)
+  } else if (type == "abort") {
+    cli::cli_abort(msg)
   }
 }
 
@@ -129,7 +184,10 @@ tag_status <- function(tag) {
   if (assertthat::has_name(tag, "magnetic")) {
     status <- append(status, c("read", "magnetic"))
   }
-  if (assertthat::has_name(tag$pressure, "label")) {
+  if (
+    (assertthat::has_name(tag, "pressure") && assertthat::has_name(tag$pressure, "label")) ||
+      (assertthat::has_name(tag, "acceleration") && assertthat::has_name(tag$acceleration, "label"))
+  ) {
     status <- append(status, "label")
   }
   if (
@@ -152,6 +210,18 @@ tag_status <- function(tag) {
   }
   if (assertthat::has_name(tag, "map_pressure_mask")) {
     status <- append(status, "map_pressure_mask")
+  }
+  if (assertthat::has_name(tag, "mask_water")) {
+    status <- append(status, "mask_water")
+  }
+  if (
+    assertthat::has_name(tag$param, "geolight_map") &&
+      assertthat::has_name(tag$param$geolight_map, "twl_calib")
+  ) {
+    status <- append(status, "twl_calib")
+  }
+  if (assertthat::has_name(tag, "map_light_twl")) {
+    status <- append(status, "map_light_twl")
   }
   if (assertthat::has_name(tag, "twilight")) {
     status <- append(status, "twilight")

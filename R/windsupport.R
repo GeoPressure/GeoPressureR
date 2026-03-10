@@ -30,7 +30,8 @@
 #' @param drift return drift instead of windsupport
 #'
 #' @return wind support as scalar value (same unit as `gs` and `ws`)
-#'
+#' @examplesIf FALSE
+#'   windsupport(windspeed = 5 + 2i, groundspeed = 10 + 0i)
 #' @export
 windsupport <- function(windspeed, groundspeed, drift = FALSE) {
   # Rename to shorter name

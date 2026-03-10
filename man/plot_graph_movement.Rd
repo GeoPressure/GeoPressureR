@@ -7,7 +7,7 @@
 plot_graph_movement(graph, speed = seq(0, 120), plot_plotly = FALSE)
 }
 \arguments{
-\item{graph}{a GeoPressureR \code{graph} object.}
+\item{graph}{a GeoPressureR \code{graph} object or a movement list (from \code{graph_set_movement}).}
 
 \item{speed}{Vector of speed value (km/h) used on the x-axis.}
 
@@ -19,11 +19,42 @@ a plot or ggplotly object.
 \description{
 This function display a plot of pressure time series recorded by a tag
 }
+\examples{
+movement_gamma <- list(
+  type = "gs",
+  method = "gamma",
+  shape = 7,
+  scale = 7,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+)
+plot_graph_movement(movement_gamma)
+
+movement_logis <- list(
+  type = "gs",
+  method = "logis",
+  scale = 7,
+  location = 40,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+)
+plot_graph_movement(movement_logis)
+
+bird <- bird_create("Example bird", mass = 0.1, wing_span = 0.4, wing_aspect = 7)
+movement_power <- list(
+  type = "as",
+  method = "power",
+  bird = bird,
+  power2prob = \(power) (1 / power)^3,
+  low_speed_fix = 15,
+  zero_speed_ratio = 1
+)
+plot_graph_movement(movement_power)
+}
 \seealso{
 Other movement: 
 \code{\link{bird_create}()},
 \code{\link{graph_set_movement}()},
-\code{\link{graph_transition}()},
 \code{\link{speed2prob}()},
 \code{\link{tag_download_wind}()}
 }

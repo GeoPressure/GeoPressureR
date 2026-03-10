@@ -4,12 +4,14 @@
 #' @param value column name to extract
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
+#' @examplesIf FALSE
+#'   mat <- ts2mat(tag$pressure)
 #' @export
 ts2mat <- function(
   ts,
   twl_offset = 0,
   value = "value",
-  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
+  twl_time_tolerance = 180
 ) {
   assertthat::assert_that(is.data.frame(ts))
   assertthat::assert_that(assertthat::has_name(ts, "date"))
@@ -21,7 +23,6 @@ ts2mat <- function(
   res_vec <- as.numeric(diff(ts$date), units = "secs")
   res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
-    # nolint start
     res_counts <- table(res_vec)
     res_summary <- paste(
       names(res_counts),
@@ -31,7 +32,6 @@ ts2mat <- function(
       sep = "",
       collapse = ", "
     )
-    # nolint end
     cli::cli_warn(c(
       x = "Temporal resolution of the time series data is not constant.",
       i = "Found resolutions: {res_summary}",

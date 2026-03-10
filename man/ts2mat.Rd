@@ -4,12 +4,7 @@
 \alias{ts2mat}
 \title{Format time series data frame into a matrix}
 \usage{
-ts2mat(
-  ts,
-  twl_offset = 0,
-  value = "value",
-  twl_time_tolerance = formals(twilight_create)$twl_time_tolerance
-)
+ts2mat(ts, twl_offset = 0, value = "value", twl_time_tolerance = 180)
 }
 \arguments{
 \item{ts}{data.frame of a \code{tag}, containing at least \code{date} and \code{value}.}
@@ -28,4 +23,9 @@ A data.frame with columns \code{date} and \code{value}.
 }
 \description{
 Format time series data frame into a matrix
+}
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  mat <- ts2mat(tag$pressure)
+\dontshow{\}) # examplesIf}
 }

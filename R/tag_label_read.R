@@ -24,9 +24,9 @@ tag_label_read <- function(
 ) {
   tag_assert(tag)
 
-  if (tag_assert(tag, "setmap", "")) {
+  if (tag_assert(tag, "setmap", "logical")) {
     cli::cli_abort(c(
-      "x" = "{.fun setmap} has already been run on this {.var tag}.",
+      "x" = "{.fun tag_set_map} has already been run on this {.var tag}.",
       ">" = "It is best practice to start from your raw data again using {.fun tag_create}."
     ))
   }
@@ -43,8 +43,7 @@ tag_label_read <- function(
   if (length(unique_label) > 0) {
     cli::cli_abort(c(
       x = "The pressure label file contains unknown label: {.val {unique_label}}",
-      i = "Correct the label file {.file {file}} to contains only \\
-      {.val {c('flight', 'discard', 'elev_*')}}"
+      i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
     ))
   }
 
@@ -73,8 +72,7 @@ tag_label_read <- function(
       if (length(unique_label) > 0) {
         cli::cli_abort(c(
           x = "The acceleration label file contains unknown label: {.val {unique_label}}",
-          i = "Correct the label file {.file {file}} to contains only \\
-          {.val {c('flight', 'discard', 'elev_*')}}"
+          i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
         ))
       }
     }

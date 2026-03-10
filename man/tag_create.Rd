@@ -194,6 +194,8 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 Other tag: 
 \code{\link{print.tag}()},
-\code{\link{tag_set_map}()}
+\code{\link{read_stap}()},
+\code{\link{tag_set_map}()},
+\code{\link{tag_stap_daily}()}
 }
 \concept{tag}

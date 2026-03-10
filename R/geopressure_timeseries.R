@@ -165,10 +165,7 @@ geopressure_timeseries <- function(
   # Check for change in position
   if (resp_data$distInter > 0) {
     cli::cli_bullets(c(
-      "!" = "Requested position is on water and will be move to the closet point \\
-      on shore \\
-      ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) \\
-      located {round(resp_data$distInter / 1000)} km away."
+      "!" = "Requested position is on water and will be move to the closet point on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) located {round(resp_data$distInter / 1000)} km away."
     ))
   }
 
@@ -200,7 +197,7 @@ geopressure_timeseries <- function(
     write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
-      i = "Check that the time range is none-empty. Log of your  JSON request: {.file {temp_file}}"
+      i = "Check that the time range is none-empty. Log of your JSON request: {.file {temp_file}}"
     ))
   }
 
@@ -220,8 +217,7 @@ geopressure_timeseries <- function(
   if (!is.null(pressure)) {
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
-        "The returned data.frame is had a different number of element than the requested\\
-        pressure."
+        "The returned data.frame is had a different number of element than the requested pressure."
       )
     }
 

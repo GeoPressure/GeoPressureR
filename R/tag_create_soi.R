@@ -44,8 +44,7 @@ tag_create_soi <- function(
           )))
           if (tag$param$drift > 30) {
             cli::cli_warn(c(
-              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of \\
-            {format_minutes(tag$param$drift)} which seems suspicious.",
+              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(tag$param$drift)} which seems suspicious.",
               ">" = "Check for error (e.g. timezone)"
             ))
           }

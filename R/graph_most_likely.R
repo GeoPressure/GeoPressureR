@@ -97,17 +97,14 @@ graph_most_likely <- function(graph, quiet = FALSE) {
   node_stap <- split(node, node$stap)
 
   # Compute number of nodes per stap
-  n_edge <- sapply(node_stap, nrow)
+  n_edge <- vapply(node_stap, nrow, integer(1))
 
   if (!quiet) {
     i_s <- 0
     cli::cli_progress_bar(
       "Compute most likely position for stationary period:",
-      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{length(node_stap)} \\
-      {cli::pb_bar} {cli::pb_percent} | \\
-      {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "{cli::col_green(cli::symbol$tick)} Compute most likely position for \\
-      stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_s}/{length(node_stap)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Compute most likely position for stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = sum(n_edge)
     )
@@ -122,14 +119,18 @@ graph_most_likely <- function(graph, quiet = FALSE) {
 
     # Find the value of the maximum possible transition for each target node and store it into
     # path_max
-    max_v <- sapply(split(node_i_s$p, node_i_s$t), max)
+    max_v <- vapply(split(node_i_s$p, node_i_s$t), max, numeric(1))
     max_t <- as.numeric(names(max_v))
     path_max[max_t] <- max_v
 
     # Find the source node of the maximum possible transition for each target node
-    max_s <- sapply(split(node_i_s, node_i_s$t), function(x) {
-      x$s[which.max(x$p)]
-    })
+    max_s <- vapply(
+      split(node_i_s, node_i_s$t),
+      function(x) {
+        x$s[which.max(x$p)]
+      },
+      integer(1)
+    )
     path_s[max_t] <- max_s
 
     if (!quiet) {

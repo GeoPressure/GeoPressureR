@@ -24,7 +24,10 @@
 #' plot_tag_pressure(tag)
 #'
 #' @export
-geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
+geopressure_map_preprocess <- function(
+  tag,
+  compute_known = FALSE
+) {
   tag_assert(tag, "label")
   stap <- tag$stap
   pressure <- tag$pressure
@@ -231,7 +234,14 @@ geopressure_map_preprocess <- function(tag, compute_known = FALSE) {
   assertthat::assert_that(all(pressure_clean$stapelev != ""))
 
   # Check number of datapoint per stationary period
-  stap <- stap[stap$include & is.na(stap$known_lat), ]
+  idx <- rep(TRUE, nrow(stap))
+  if ("include" %in% names(stap)) {
+    idx <- idx & stap$include
+  }
+  if ("known_lat" %in% names(stap)) {
+    idx <- idx & is.na(stap$known_lat)
+  }
+  stap <- stap[idx, ]
   stap <- merge(
     stap,
     as.data.frame(table(pressure_clean$stap_id)),

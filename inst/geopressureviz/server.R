@@ -1,15 +1,15 @@
-# nolint start
 server <- function(input, output, session) {
   # Update browser tab title with tag ID
-  updateTabsetPanel(session, inputId = NULL)
   session$sendCustomMessage(
     "updateTitle",
     glue::glue("GeoPressureViz - {tag$param$id}")
   )
 
-  session$onSessionEnded(function() {
-    stopApp()
-  })
+  if (isTRUE(shiny::getShinyOption("stop_on_session_end", TRUE))) {
+    session$onSessionEnded(function() {
+      stopApp()
+    })
+  }
 
   # Extract shorter name for variable
   stap <- tag$stap
@@ -55,37 +55,37 @@ server <- function(input, output, session) {
     return(ind)
   }
 
-  # Initialize future plan for async tasks (once per session)
-  if (isTRUE(future::nbrOfWorkers() <= 1)) {
-    try(
-      {
-        if (future::supportsMultisession()) future::plan(future::multisession)
-      },
-      silent = TRUE
-    )
-  }
-
-  observe({
-    # Store current path as path_geopressureviz in shiny options
-    shiny::shinyOptions(path_geopressureviz = reactVal$path)
-  })
-
   ## Reactive variable ----
 
   reactVal <- reactiveValues(
     path = path,
     edge = edge,
     pressurepath = pressurepath,
+    pressure_xmin = NULL,
+    pressure_xmax = NULL,
     isEdit = FALSE # if editing position
   )
 
+  shiny::observe({
+    # Store current path as path_geopressureviz in shiny options
+    shiny::shinyOptions(path_geopressureviz = reactVal$path)
+  })
+
   # return the map
-  map_display <- reactive({
+  map_display <- shiny::reactive({
     if (is.null(input$map_source)) {
       return(NA)
     }
     r <- rast.map(maps[[input$map_source]])
-    r_norm <- (r - terra::minmax(r)[1]) / diff(terra::minmax(r))
+    # Robust normalization across all layers. `terra::minmax()` returns per-layer ranges,
+    # and `diff(minmax)` is not "max-min" for multi-layer rasters.
+    r_min <- suppressWarnings(terra::global(r, "min", na.rm = TRUE)[1, 1])
+    r_max <- suppressWarnings(terra::global(r, "max", na.rm = TRUE)[1, 1])
+    if (!is.finite(r_min) || !is.finite(r_max) || r_max <= r_min) {
+      r_norm <- r
+    } else {
+      r_norm <- (r - r_min) / (r_max - r_min)
+    }
     terra::project(
       r_norm,
       "epsg:3857",
@@ -97,7 +97,7 @@ server <- function(input, output, session) {
     bindEvent(input$map_source)
 
   # list of the stap_id which are above the threashold of duration and included in the model
-  stap_id_include <- reactive({
+  stap_id_include <- shiny::reactive({
     min_dur_stap <- ifelse(
       is.na(input$min_dur_stap),
       0,
@@ -108,13 +108,13 @@ server <- function(input, output, session) {
     bindEvent(input$min_dur_stap)
 
   # Precompute flight durations for current included stap ids
-  flight_dur_reactive <- reactive({
+  flight_dur_reactive <- shiny::reactive({
     stap2flight(stap, stap_id_include())$duration
   }) |>
     bindEvent(stap_id_include())
 
   # index of the current stap_id in the stap_id_include (so not index in all stap_id, only the one to use)
-  idx <- reactive({
+  idx <- shiny::reactive({
     which(stap_id_include() == input$stap_id)
   }) |>
     bindEvent(input$stap_id)
@@ -135,8 +135,8 @@ server <- function(input, output, session) {
         position = c("topleft")
       )
   })
-  output$tag_id <- renderUI({
-    return(HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))
+  output$tag_id <- shiny::renderUI({
+    return(shiny::HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))
   })
 
   # Small helper to compute distance (km) and flight duration (hours) between two stap indices
@@ -161,7 +161,7 @@ server <- function(input, output, session) {
 
     label <- if (nextprev > 0) "Next flight" else "Previous flight"
 
-    return(HTML(
+    return(shiny::HTML(
       glue::glue("<b>{label}:</b><br>"),
       glue::glue(
         "{nb_fl} flights - {round(fl_dur, 1)} hrs<br>"
@@ -170,23 +170,51 @@ server <- function(input, output, session) {
     ))
   }
 
-  output$flight_prev_info <- renderUI({
-    req(input$stap_id)
+  output$flight_prev_info <- shiny::renderUI({
+    shiny::req(input$stap_id)
     if (idx() == 1) {
-      return(HTML(""))
+      return(shiny::HTML(""))
     }
     flight_info(idx(), -1)
   })
 
-  output$flight_next_info <- renderUI({
-    req(input$stap_id)
+  output$flight_next_info <- shiny::renderUI({
+    shiny::req(input$stap_id)
     if (idx() == length(stap_id_include())) {
-      return(HTML(""))
+      return(shiny::HTML(""))
     }
     flight_info(idx(), +1)
   })
 
   output$pressure_plot <- plotly::renderPlotly({
+    # Plotting too many discarded points makes Plotly very slow.
+    # We only cap discards for large displayed time windows; when zoomed in, keep them all.
+    max_discard_points <- 5000L
+    discard_cap_min_days <- 60
+
+    disc <- subset(pressure, label == "discard")
+
+    xmin <- isolate(reactVal$pressure_xmin)
+    xmax <- isolate(reactVal$pressure_xmax)
+    if (!is.null(xmin) && !is.null(xmax) && !anyNA(c(xmin, xmax))) {
+      disc <- disc[disc$date >= xmin & disc$date <= xmax, , drop = FALSE]
+    }
+
+    view_days <- NA_real_
+    if (!is.null(xmin) && !is.null(xmax) && !anyNA(c(xmin, xmax))) {
+      view_days <- as.numeric(difftime(xmax, xmin, units = "days"))
+    }
+
+    if (
+      is.finite(view_days) && view_days >= discard_cap_min_days && nrow(disc) > max_discard_points
+    ) {
+      keep <- unique(pmax.int(
+        1L,
+        pmin.int(nrow(disc), as.integer(round(seq(1, nrow(disc), length.out = max_discard_points))))
+      ))
+      disc <- disc[keep, , drop = FALSE]
+    }
+
     p <- ggplot2::ggplot() +
       ggplot2::geom_line(
         data = pressure,
@@ -194,35 +222,85 @@ server <- function(input, output, session) {
         colour = "grey"
       ) +
       ggplot2::geom_point(
-        data = subset(pressure, label == "discard"),
+        data = disc,
         ggplot2::aes(x = date, y = value),
         colour = "black"
       ) +
       ggplot2::theme_bw()
 
     if (nrow(reactVal$pressurepath) > 0) {
+      pp <- reactVal$pressurepath
+      group_var <- if ("stap_id" %in% names(pp)) {
+        "stap_id"
+      } else if ("stap_ref" %in% names(pp)) {
+        "stap_ref"
+      } else {
+        NULL
+      }
+
+      y_var <- if ("surface_pressure_norm" %in% names(pp)) {
+        "surface_pressure_norm"
+      } else if ("surface_pressure" %in% names(pp)) {
+        "surface_pressure"
+      } else {
+        NULL
+      }
+
+      has_linetype <- "linetype" %in% names(pp)
+
       p <- p +
         ggplot2::geom_line(
-          data = reactVal$pressurepath,
-          ggplot2::aes(
-            x = date,
-            y = surface_pressure_norm,
-            color = col,
-            group = stap_id,
-            linetype = linetype
-          )
+          data = pp,
+          mapping = if (!is.null(group_var) && !is.null(y_var) && isTRUE(has_linetype)) {
+            ggplot2::aes(
+              x = .data$date,
+              y = .data[[y_var]],
+              color = .data$col,
+              group = .data[[group_var]],
+              linetype = .data$linetype
+            )
+          } else if (!is.null(group_var) && !is.null(y_var)) {
+            ggplot2::aes(
+              x = .data$date,
+              y = .data[[y_var]],
+              color = .data$col,
+              group = .data[[group_var]]
+            )
+          } else if (!is.null(y_var)) {
+            ggplot2::aes(
+              x = .data$date,
+              y = .data[[y_var]],
+              color = .data$col
+            )
+          } else {
+            ggplot2::aes(
+              x = .data$date,
+              y = .data$value,
+              color = .data$col
+            )
+          }
         ) +
         ggplot2::scale_color_identity()
+    }
+
+    tooltip_vars <- if (
+      isTRUE(nrow(reactVal$pressurepath) > 0) && "linetype" %in% names(reactVal$pressurepath)
+    ) {
+      c("x", "y", "linetype")
+    } else {
+      c("x", "y")
     }
 
     plotly::ggplotly(
       p,
       dynamicTicks = TRUE,
       height = 300,
-      tooltip = c("x", "y", "linetype")
+      tooltip = tooltip_vars,
+      source = "pressure_plot"
     ) |>
       plotly::layout(
         showlegend = FALSE,
+        uirevision = "pressure-plot",
         yaxis = list(title = "Pressure [hPa]")
       ) |>
       plotly::config(
@@ -244,10 +322,51 @@ server <- function(input, output, session) {
       )
   })
 
+  # Track current pressure plot x-range so we can cap discards only for large windows.
+  shiny::observeEvent(plotly::event_data("plotly_relayout", source = "pressure_plot"), {
+    ev <- plotly::event_data("plotly_relayout", source = "pressure_plot")
+    if (is.null(ev)) {
+      return()
+    }
+
+    xmin <- NULL
+    xmax <- NULL
+    if (!is.null(ev[["xaxis.range[0]"]]) && !is.null(ev[["xaxis.range[1]"]])) {
+      xmin <- ev[["xaxis.range[0]"]]
+      xmax <- ev[["xaxis.range[1]"]]
+    } else if (!is.null(ev[["xaxis.range"]]) && length(ev[["xaxis.range"]]) >= 2) {
+      xmin <- ev[["xaxis.range"]][[1]]
+      xmax <- ev[["xaxis.range"]][[2]]
+    }
+
+    if (is.null(xmin) || is.null(xmax)) {
+      return()
+    }
+    xmin <- as.POSIXct(xmin, tz = "UTC")
+    xmax <- as.POSIXct(xmax, tz = "UTC")
+    if (anyNA(c(xmin, xmax))) {
+      return()
+    }
+
+    # De-dup updates to avoid re-render loops.
+    if (
+      !is.null(reactVal$pressure_xmin) &&
+        !is.null(reactVal$pressure_xmax) &&
+        !anyNA(c(reactVal$pressure_xmin, reactVal$pressure_xmax)) &&
+        isTRUE(all.equal(as.numeric(reactVal$pressure_xmin), as.numeric(xmin))) &&
+        isTRUE(all.equal(as.numeric(reactVal$pressure_xmax), as.numeric(xmax)))
+    ) {
+      return()
+    }
+
+    reactVal$pressure_xmin <- xmin
+    reactVal$pressure_xmax <- xmax
+  })
+
   ## ObserveEvents ----
   # Same order than the ui
 
-  observeEvent(input$full_track, {
+  shiny::observeEvent(input$full_track, {
     if (input$full_track) {
       shinyjs::hide(id = "stap_info_view", anim = TRUE)
       shinyjs::show(id = "track_info_view", anim = TRUE)
@@ -262,7 +381,7 @@ server <- function(input, output, session) {
     }
   })
 
-  observeEvent(input$min_dur_stap, {
+  shiny::observeEvent(input$min_dur_stap, {
     if (length(stap_id_include()) > 0) {
       choices <- as.list(stap_id_include())
       names(choices) <-
@@ -273,33 +392,33 @@ server <- function(input, output, session) {
       choices <- list()
     }
     session$onFlushed(function() {
-      updateSelectInput(session, "stap_id", choices = choices)
+      shiny::updateSelectInput(session, "stap_id", choices = choices)
     })
   })
 
-  observeEvent(input$previous_position, {
+  shiny::observeEvent(input$previous_position, {
     idx_new <- min(max(idx() - 1, 1), length(stap_id_include()))
-    updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    shiny::updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
   })
 
-  observeEvent(input$next_position, {
+  shiny::observeEvent(input$next_position, {
     idx_new <- min(max(idx() + 1, 1), length(stap_id_include()))
-    updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    shiny::updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
   })
 
-  observeEvent(input$edit_position, {
+  shiny::observeEvent(input$edit_position, {
     if (reactVal$isEdit) {
       reactVal$isEdit <- FALSE
-      updateActionButton(session, "edit_position", label = "Start editing")
+      shiny::updateActionButton(session, "edit_position", label = "Start editing")
       removeClass("edit_position", "primary")
     } else {
       reactVal$isEdit <- TRUE
-      updateActionButton(session, "edit_position", label = "Stop editing")
+      shiny::updateActionButton(session, "edit_position", label = "Stop editing")
       addClass("edit_position", "primary")
     }
   })
 
-  observeEvent(input$map_click, {
+  shiny::observeEvent(input$map_click, {
     click <- input$map_click
     if (is.null(click)) {
       return()
@@ -365,7 +484,7 @@ server <- function(input, output, session) {
   })
 
   # Map
-  observe({
+  shiny::observe({
     proxy <- leaflet::leafletProxy("map") |>
       leaflet::clearShapes() |>
       leaflet::clearImages() |>
@@ -408,13 +527,21 @@ server <- function(input, output, session) {
       # Track from
       map_stap_id <- map_display()[[as.numeric(input$stap_id)]]
       if (!is.null(map_stap_id)) {
+        key <- map_type_key[[input$map_source]]
+        spec <- GeoPressureR::map_type()[[key]]
+        if (is.null(spec)) {
+          spec <- GeoPressureR::map_type()[["unknown"]]
+        }
+        spec_dark <- spec[["dark"]]
+
         proxy <- proxy |>
           leaflet::addRasterImage(
             map_stap_id,
             opacity = 0.8,
             colors = leaflet::colorNumeric(
-              palette = "magma",
+              palette = spec_dark$palette,
               domain = NULL,
+              reverse = isTRUE(spec_dark$reverse),
               na.color = "#00000000",
               alpha = TRUE
             ),
@@ -426,14 +553,14 @@ server <- function(input, output, session) {
         leaflet::addPolylines(
           lng = path_model$lon,
           lat = path_model$lat,
-          opacity = .1,
+          opacity = 0.1,
           color = "#FFF",
           weight = 3
         ) |>
         leaflet::addCircles(
           lng = path_model$lon,
           lat = path_model$lat,
-          fillOpacity = .1,
+          fillOpacity = 0.1,
           fillColor = "#FFF",
           weight = 0,
           radius = stap_model$duration^(0.3) * 10
@@ -538,19 +665,49 @@ server <- function(input, output, session) {
   }) # |> bindEvent(input$stap_id)
 
   # Helper to post-process and merge pressure time series results
-  process_pressuretimeseries <- function(pressuretimeseries, stap_id) {
-    # Compute new linetype index
-    pressuretimeseries$linetype <- as.factor(ifelse(
-      any(reactVal$pressurepath$stap_id == stap_id),
-      max(as.numeric(reactVal$pressurepath$linetype[
-        reactVal$pressurepath$stap_id == stap_id
-      ])) +
-        1,
-      1
-    ))
-
+  process_pressuretimeseries <- function(pressuretimeseries, stap_idx, stap_id) {
+    # Keep `stap_id` as the identifier used in `pressure$stap_id` so grouping/normalization
+    # stays consistent with `geopressure_timeseries()` and existing `pressurepath` objects.
     pressuretimeseries$stap_ref <- stap_id
-    pressuretimeseries$col <- stap$col[stap$stap_id == stap_id][1]
+    pressuretimeseries$col <- stap$col[stap_idx]
+
+    # Ensure existing pressurepath has columns we rely on (older saved objects may not).
+    if (nrow(reactVal$pressurepath) > 0) {
+      if (!"stap_id" %in% names(reactVal$pressurepath)) {
+        reactVal$pressurepath$stap_id <- NA
+      }
+      if (!"stap_ref" %in% names(reactVal$pressurepath)) {
+        reactVal$pressurepath$stap_ref <- NA
+      }
+      if (!"linetype" %in% names(reactVal$pressurepath)) {
+        reactVal$pressurepath$linetype <- NA
+      }
+      if (!"col" %in% names(reactVal$pressurepath)) reactVal$pressurepath$col <- NA
+    }
+
+    stap_col <- if ("stap_id" %in% names(reactVal$pressurepath)) {
+      "stap_id"
+    } else if ("stap_ref" %in% names(reactVal$pressurepath)) {
+      "stap_ref"
+    } else {
+      NULL
+    }
+
+    has_prev <- !is.null(stap_col) &&
+      any(reactVal$pressurepath[[stap_col]] == stap_id, na.rm = TRUE)
+
+    prev_linetype_max <- 0
+    if (isTRUE(has_prev) && "linetype" %in% names(reactVal$pressurepath)) {
+      prev_vals <- suppressWarnings(as.numeric(reactVal$pressurepath$linetype[
+        reactVal$pressurepath[[stap_col]] == stap_id
+      ]))
+      prev_vals <- prev_vals[is.finite(prev_vals)]
+      if (length(prev_vals) > 0) {
+        prev_linetype_max <- max(prev_vals)
+      }
+    }
+
+    pressuretimeseries$linetype <- as.factor(if (isTRUE(has_prev)) prev_linetype_max + 1 else 1)
 
     if ("j" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$j <- reactVal$pressurepath$j[1]
@@ -558,26 +715,26 @@ server <- function(input, output, session) {
     if ("ind" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$ind <- NA
     }
-    if ("include" %in% names(reactVal$pressurepath)) {
+    if (!is.null(stap_col) && "include" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$include <- reactVal$pressurepath$include[
-        reactVal$pressurepath$stap_id == stap_id
+        reactVal$pressurepath[[stap_col]] == stap_id
       ][1]
     }
-    if ("known" %in% names(reactVal$pressurepath)) {
+    if (!is.null(stap_col) && "known" %in% names(reactVal$pressurepath)) {
       pressuretimeseries$known <- reactVal$pressurepath$known[
-        reactVal$pressurepath$stap_id == stap_id
+        reactVal$pressurepath[[stap_col]] == stap_id
       ][1]
     }
 
     # Update path with potentially corrected lat/lon
-    reactVal$path$lon[stap_id] <- pressuretimeseries$lon[1]
-    reactVal$path$lat[stap_id] <- pressuretimeseries$lat[1]
-    reactVal$path$ind[stap_id] <- latlon2ind(
+    reactVal$path$lon[stap_idx] <- pressuretimeseries$lon[1]
+    reactVal$path$lat[stap_idx] <- pressuretimeseries$lat[1]
+    reactVal$path$ind[stap_idx] <- latlon2ind(
       pressuretimeseries$lat[1],
       pressuretimeseries$lon[1]
     )
 
-    # Merge new series into reactive pressurepath, aligning columns
+    # Merge new series into shiny::reactive pressurepath, aligning columns
     if (nrow(reactVal$pressurepath) > 0) {
       missing_cols <- setdiff(
         names(reactVal$pressurepath),
@@ -595,66 +752,24 @@ server <- function(input, output, session) {
     }
 
     # Trigger UI refresh on selection
-    updateSelectInput(session, "stap_id", selected = 1)
-    updateSelectInput(session, "stap_id", selected = input$stap_id)
+    shiny::updateSelectInput(session, "stap_id", selected = 1)
+    shiny::updateSelectInput(session, "stap_id", selected = input$stap_id)
 
     invisible(NULL)
   }
 
-  observeEvent(input$query_position, {
-    # Prepare inputs outside of the async call to avoid capturing large/reactive objects
-    stap_idx <- as.numeric(input$stap_id)
-    stap_id <- stap$stap_id[stap_idx]
-    lat0 <- reactVal$path$lat[stap_id]
-    lon0 <- reactVal$path$lon[stap_id]
-    pres_df <- pressure[pressure$stap_id == stap_id, ]
-    # Prevent repeat clicks while running
-    try(shinyjs::disable("query_position"), silent = TRUE)
-
-    if (!requireNamespace("promises", quietly = TRUE)) {
-      # Fallback: synchronous execution if promises is unavailable
-      tryCatch(
-        {
-          pressuretimeseries <- geopressure_timeseries(
-            lat0,
-            lon0,
-            pressure = pres_df
-          )
-          process_pressuretimeseries(pressuretimeseries, stap_id)
-        },
-        error = function(e) {
-          cli::cli_alert_warning(c(
-            "!" = "Function {.fun geopressure_timeseries} did not work.",
-            "i" = conditionMessage(e)
-          ))
-        }
-      )
-      try(shinyjs::enable("query_position"), silent = TRUE)
-      return(invisible())
-    }
-
-    # Async path: run geopressure_timeseries in a background R session and return a promise
-    promises::future_promise({
-      geopressure_timeseries(lat0, lon0, pressure = pres_df)
-    }) |>
-      promises::then(function(pressuretimeseries) {
-        process_pressuretimeseries(pressuretimeseries, stap_id)
-        try(shinyjs::enable("query_position"), silent = TRUE)
-        invisible(NULL)
-      }) |>
-      promises::catch(function(e) {
-        cli::cli_alert_warning(c(
-          "!" = "Function {.fun geopressure_timeseries} did not work.",
-          "i" = conditionMessage(e)
-        ))
-        try(shinyjs::enable("query_position"), silent = TRUE)
-        invisible(NULL)
-      }) |>
-      invisible()
-  })
+  # Async query for "Query pressure" button
+  source("server_query_position.R", local = TRUE)
+  setup_query_position(
+    reactVal = reactVal,
+    stap = stap,
+    pressure = pressure,
+    process_pressuretimeseries = process_pressuretimeseries,
+    session = session
+  )
 
   # Export path functionality
-  observeEvent(input$export_path, {
+  shiny::observeEvent(input$export_path, {
     file <- glue::glue("./data/interim/{tag$param$id}.RData")
 
     # Create directory if it doesn't exist
@@ -686,7 +801,7 @@ server <- function(input, output, session) {
         TRUE
       },
       error = function(e) {
-        showNotification(
+        shiny::showNotification(
           paste("Failed to export path:", conditionMessage(e)),
           type = "error",
           duration = 5
@@ -696,7 +811,7 @@ server <- function(input, output, session) {
     )
 
     if (saved_ok) {
-      showNotification(
+      shiny::showNotification(
         paste("Path exported to", normalizePath(file)),
         type = "message",
         duration = 3
@@ -705,7 +820,7 @@ server <- function(input, output, session) {
   })
 
   # Pressure Graph
-  observe({
+  shiny::observe({
     if (!input$full_track) {
       stap_id <- stap$stap_id[as.numeric(input$stap_id)]
       pressure_val_stap_id <- pressure$value[pressure$stap_id == stap_id]
@@ -739,4 +854,3 @@ server <- function(input, output, session) {
     }
   })
 }
-# nolint end

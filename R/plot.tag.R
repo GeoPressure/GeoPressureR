@@ -20,8 +20,8 @@
 #' @param x a GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
 #' `"temperature"`, `"twilight"`, `"actogram"`, `"map"`, `"map_pressure"`, `"map_light"`,
-#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"mask_water"`. Map can be combined by providing a
-#' vector of type.
+#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"mask_water"`, `"temperature_external"`,
+#' `"temperature_internal"`. Map can be combined by providing a vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
 #'
@@ -70,63 +70,90 @@
 plot.tag <- function(x, type = NULL, ...) {
   tag <- x
 
+  is_map_type <- function(x) {
+    map_types <- grepl("^map_", x) | x == "map"
+    map_names <- unlist(lapply(map_type(), `[[`, "name"), use.names = FALSE)
+    map_types <- map_types | x %in% map_names
+    map_types
+  }
+
+  map_priority <- c(
+    "map_pressure",
+    "map_light",
+    "map_pressure_mse",
+    "map_pressure_mask",
+    "mask_water"
+  )
+  sensor_priority <- c(
+    "pressure",
+    "light",
+    "acceleration",
+    "temperature_external",
+    "temperature_internal",
+    "temperature"
+  )
+
+  dispatch <- list(
+    pressure = plot_tag_pressure,
+    acceleration = plot_tag_acceleration,
+    light = plot_tag_light,
+    temperature = plot_tag_temperature,
+    temperature_external = function(tag, ...) {
+      plot_tag_temperature(tag, variable = "external", ...)
+    },
+    temperature_internal = function(tag, ...) {
+      plot_tag_temperature(tag, variable = "internal", ...)
+    },
+    twilight = plot_tag_twilight,
+    actogram = plot_tag_actogram
+  )
+
   # Define default
   if (is.null(type)) {
     status <- tag_status(tag)
-    if ("map_pressure" %in% status) {
-      type <- "map"
-    } else if ("pressure" %in% status) {
-      type <- "pressure"
-    } else if ("light" %in% status) {
-      type <- "light"
-    } else if ("acceleration" %in% status) {
-      type <- "acceleration"
-    } else if ("temperature_external" %in% status) {
-      type <- "temperature_external"
+    if (all(c("map_pressure", "map_light") %in% status)) {
+      type <- c("map_pressure", "map_light")
+    } else if (any(is_map_type(status))) {
+      type <- map_priority[map_priority %in% status][1]
+      if (is.na(type)) {
+        type <- status[is_map_type(status)][1]
+      }
+    } else {
+      type <- sensor_priority[sensor_priority %in% status][1]
     }
   }
 
-  if (type == "pressure") {
-    plot_tag_pressure(tag, ...)
-  } else if (type == "acceleration") {
-    plot_tag_acceleration(tag, ...)
-  } else if (type == "light") {
-    plot_tag_light(tag, ...)
-  } else if (type == "temperature") {
-    plot_tag_temperature(tag, ...)
-  } else if (type == "twilight") {
-    plot_tag_twilight(tag, ...)
-  } else if (type == "actogram") {
-    plot_tag_actogram(tag, ...)
-  } else if (grepl("map", type)) {
-    # Define optimal color palette based on the type of variable shown
-
+  if (all(is_map_type(type))) {
     # Accept type="map" for default map determined by `tag2map` with likelihood = NA
-    if (type == "map") {
+    if (length(type) == 1 && type == "map") {
       type <- NULL
+    } else if (length(type) > 1 && "map" %in% type) {
+      type <- setdiff(type, "map")
     }
 
     # Retrieve the map
     map <- tag2map(tag, likelihood = type)
 
     # plot the map
-    plot.map(map, ...)
-  } else {
-    cli::cli_abort(c(
-      "x" = "The type {.val {type}} is not known",
-      ">" = "{.var type} should be one of {.val {c('pressure', 'acceleration', 'light', \\
-      'temperature', 'twilight', 'actogram', 'map', 'map_*')}}"
-    ))
+    return(plot.map(map, ...))
   }
-}
 
+  fn <- dispatch[[type]]
+  if (length(type) == 1 && !is.null(fn)) {
+    return(fn(tag, ...))
+  }
+
+  cli::cli_abort(c(
+    "x" = "The type {.val {type}} is not known",
+    ">" = "{.var type} should be one of {.val {c('map', 'map_*', names(dispatch))}}"
+  ))
+}
 #' Plot pressure data of a `tag`
 #'
 #' This function display a plot of pressure time series recorded by a tag
 #
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
-#' @param warning_stap_length Threshold number of pressure datapoints flagged as warning (hourly).
 #' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
 #'
 #' @return a plot or ggplotly object.
@@ -148,8 +175,7 @@ plot.tag <- function(x, type = NULL, ...) {
 plot_tag_pressure <- function(
   tag,
   plot_plotly = TRUE,
-  warning_pressure_diff = 3,
-  warning_stap_length = 12
+  warning_pressure_diff = 3
 ) {
   tag_assert(tag)
   p <- ggplot2::ggplot() +
@@ -164,48 +190,9 @@ plot_tag_pressure <- function(
 
   # Only if tag is labelled
   if ("label" %in% names(tag$pressure)) {
-    # compute the pressure at the hourly scale
+    # Compute hourly processed pressure and warning differences.
     pres <- geopressure_map_preprocess(tag)
-
-    # extract stap for convenience
-    stap <- tag$stap
-
-    # convert stapelev to factor for color
-    pres$stapelev <- factor(pres$stapelev)
-
-    # Compute number of datapoint per stationary period
-    pressure_length <- merge(
-      stap[stap$include & is.na(stap$known_lat), ],
-      data.frame(table(pres$stap_id)),
-      by.x = "stap_id",
-      by.y = "Var1",
-      all.x = TRUE
-    )
-    pressure_length$Freq[is.na(pressure_length$Freq)] <- 0
-
-    # Pressure difference
-    pres_diff <- data.frame(
-      value = abs(diff(pres$value)),
-      value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
-      date = utils::head(pres$date, -1) + diff(pres$date) / 2,
-      date_diff = as.numeric(diff(pres$date), units = "hours"),
-      same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
-      stap_id = (utils::tail(pres$stap_id, -1) +
-        utils::head(pres$stap_id, -1)) /
-        2
-    )
-    # Only keep the 1 hours difference
-    pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
-    # Only keep if belonging to the same stapelev
-    pres_diff <- pres_diff[pres_diff$same_stapelev, ]
-    # Remove diff overlapping between stationary periods/flight
-    pres_diff <- pres_diff[
-      (pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0,
-    ]
-    # Only keep difference which are above warning limit
-    pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
-    # Sort data.frame for displaying top 10 max
-    pres_diff <- pres_diff[order(pres_diff$value, decreasing = TRUE), ]
+    pres_diff <- pressure_diff_warning_data(tag, warning_pressure_diff)
 
     p <- p +
       ggplot2::geom_point(
@@ -226,11 +213,46 @@ plot_tag_pressure <- function(
       )
   }
 
-  if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
-  } else {
-    return(p)
-  }
+  plot_tag_finalize(p, plot_plotly)
+}
+
+#' Compute warning pressure differences at 1h intervals
+#'
+#' @param tag a GeoPressureR `tag` object with labels.
+#' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
+#' @noRd
+pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
+  assertthat::assert_that(is.numeric(warning_pressure_diff))
+  assertthat::assert_that(length(warning_pressure_diff) == 1)
+  assertthat::assert_that(!is.na(warning_pressure_diff))
+
+  # Compute the pressure at the hourly scale.
+  pres <- geopressure_map_preprocess(tag)
+
+  # Group by stationary period and elevation level.
+  pres$stapelev <- factor(pres$stapelev)
+
+  # Compute consecutive pressure differences.
+  pres_diff <- data.frame(
+    value = abs(diff(pres$value)),
+    value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
+    date = utils::head(pres$date, -1) + diff(pres$date) / 2,
+    date_diff = as.numeric(diff(pres$date), units = "hours"),
+    same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
+    stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
+  )
+
+  # Keep only valid 1-hour differences within a stationary period.
+  pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
+  pres_diff <- pres_diff[pres_diff$same_stapelev, ]
+  pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]
+
+  # Keep only differences above warning threshold and sort for display.
+  pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
+  pres_diff <- pres_diff[order(pres_diff$value, decreasing = TRUE), ]
+  rownames(pres_diff) <- NULL
+
+  pres_diff
 }
 
 #' Plot acceleration data of a `tag`
@@ -260,12 +282,15 @@ plot_tag_acceleration <- function(
   variable = "activity",
   plot_plotly = TRUE,
   label_auto = TRUE,
-  min_duration = formals(tag_label_auto)$min_duration
+  min_duration = 30
 ) {
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
 
-  assertthat::assert_that(variable %in% c("activity", "value", "pitch"))
+  variable <- match.arg(
+    variable,
+    choices = c("activity", "value", "pitch")
+  )
 
   if (variable == "activity") {
     variable <- "value"
@@ -299,11 +324,7 @@ plot_tag_acceleration <- function(
       )
   }
 
-  if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
-  } else {
-    return(p)
-  }
+  plot_tag_finalize(p, plot_plotly)
 }
 
 
@@ -349,7 +370,7 @@ plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
     twl$datetime <- twl$twilight
-    twl$twilight <- ifelse(twl$rise, "sunset", "sunrise")
+    twl$twilight <- ifelse(twl$rise, "sunrise", "sunset")
 
     p <- p +
       ggplot2::geom_vline(
@@ -361,11 +382,7 @@ plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
       )
   }
 
-  if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
-  } else {
-    return(p)
-  }
+  plot_tag_finalize(p, plot_plotly)
 }
 
 
@@ -376,10 +393,6 @@ plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
 #' @param tag a GeoPressureR `tag` object
 #' @param variable temperature variable to plot `"external"` or `"internal"`
 #' @param plot_plotly logical to use `plotly`
-#' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
-#' labels are not already present on tag$temperature$label
-#' @inheritParams tag_label_auto
-#'
 #' @return a plot or ggplotly object.
 #'
 #' @family plot_tag
@@ -394,21 +407,24 @@ plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
 plot_tag_temperature <- function(
   tag,
   variable = "external",
-  plot_plotly = TRUE,
-  label_auto = TRUE,
-  min_duration = formals(tag_label_auto)$min_duration
+  plot_plotly = TRUE
 ) {
   tag_assert(tag)
-  if (variable == "external" || variable == "temperature_external") {
+  variable <- match.arg(
+    variable,
+    choices = c("external", "internal", "temperature_external", "temperature_internal")
+  )
+  if (variable == "temperature_external") {
+    variable <- "external"
+  } else if (variable == "temperature_internal") {
+    variable <- "internal"
+  }
+  if (variable == "external") {
     assertthat::assert_that(assertthat::has_name(tag, "temperature_external"))
     temp <- tag$temperature_external
-  } else if (variable == "internal" || variable == "temperature_internal") {
+  } else {
     assertthat::assert_that(assertthat::has_name(tag, "temperature_internal"))
     temp <- tag$temperature_internal
-  } else {
-    cli::cli_abort(
-      "{.field variable} should be either {.val 'external'} or {.val 'internal'}"
-    )
   }
 
   p <- ggplot2::ggplot() +
@@ -421,11 +437,7 @@ plot_tag_temperature <- function(
     ggplot2::scale_y_continuous(name = variable) +
     ggplot2::theme(legend.position = "none")
 
-  if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
-  } else {
-    return(p)
-  }
+  plot_tag_finalize(p, plot_plotly)
 }
 
 #' Plot twilight data of a `tag`
@@ -469,13 +481,7 @@ plot_tag_twilight <- function(
 
   # Use by order of priority: (1) twl_offset provided in this function, (2)
   # tag$param$twilight_create$twl_offset, (3) guess from light data
-  if (is.null(twl_offset)) {
-    if ("twl_offset" %in% names(tag$param$twilight_create)) {
-      twl_offset <- tag$param$twilight_create$twl_offset
-    } else {
-      twl_offset <- twilight_create_guess_offset(light)
-    }
-  }
+  twl_offset <- resolve_twl_offset(tag, light, twl_offset)
 
   if ("twl_time_tolerance" %in% names(tag$param$twilight_create)) {
     twl_time_tolerance <- tag$param$twilight_create$twl_time_tolerance
@@ -490,25 +496,10 @@ plot_tag_twilight <- function(
     twl_time_tolerance = twl_time_tolerance
   )
 
-  # Convert to long format data.fram to be able to plot with ggplot
-  df <- as.data.frame(mat$value)
-  names(df) <- mat$day
-  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) +
-    as.numeric(substr(mat$time, 4, 5)) / 60
-  time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
-  df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
-  # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
-
-  df_long <- stats::reshape(
-    df,
-    direction = "long",
-    varying = list(utils::head(names(df), -1)),
-    v.names = "light",
-    idvar = "time",
-    timevar = "date",
-    times = utils::head(names(df), -1)
-  )
-  df_long$date <- as.Date(df_long$date)
+  # Convert to long format data.frame to be able to plot with ggplot
+  mat_long <- ts2mat_to_long(mat, value_name = "light")
+  df_long <- mat_long$data
+  mat_time_hour <- mat_long$mat_time_hour
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(
@@ -538,7 +529,7 @@ plot_tag_twilight <- function(
           data = twl,
           ggplot2::aes(x = .data$date, y = .data$time),
           colour = "yellow",
-          size = 2,
+          size = 4,
           shape = 16
         )
     } else {
@@ -554,7 +545,7 @@ plot_tag_twilight <- function(
               y = .data$time,
               colour = .data$stap_id
             ),
-            size = 2,
+            size = 6,
             shape = 16
           ) +
           ggplot2::scale_color_manual(
@@ -565,11 +556,11 @@ plot_tag_twilight <- function(
           ggplot2::geom_point(
             data = twl,
             ggplot2::aes(x = .data$date, y = .data$time, color = .data$rise),
-            size = 2,
+            size = 4,
             shape = 16
           ) +
           ggplot2::scale_color_manual(
-            values = c("TRUE" = "lightyellow", "FALSE" = "orange")
+            values = c("TRUE" = "yellow", "FALSE" = "orange")
           )
       }
     }
@@ -618,12 +609,8 @@ plot_tag_twilight <- function(
     ) +
     ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
 
-  if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
-  } else {
-    # Setting the breaks seems to mess up plotly
-    return(p)
-  }
+  # Setting the breaks seems to mess up plotly
+  plot_tag_finalize(p, plot_plotly, autorange = FALSE)
 }
 
 
@@ -653,13 +640,7 @@ plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
 
   # Use by order of priority: (1) twl_offset provided in this function, (2)
   # tag$param$twilight_create$twl_offset, (3) guess from light data
-  if (is.null(twl_offset)) {
-    if ("twl_offset" %in% names(tag$param$twilight_create)) {
-      twl_offset <- tag$param$twilight_create$twl_offset
-    } else {
-      twl_offset <- twilight_create_guess_offset(acc)
-    }
-  }
+  twl_offset <- resolve_twl_offset(tag, acc, twl_offset)
 
   # Compute the matrix representation of light
   mat <- ts2mat(acc, twl_offset = twl_offset)
@@ -670,37 +651,37 @@ plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
   }
 
   # Convert to long format data.frame to be able to plot with ggplot
-  df <- as.data.frame(mat$value)
-  names(df) <- mat$day
-  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) +
-    as.numeric(substr(mat$time, 4, 5)) / 60
-  time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
-  df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
-  # as.POSIXct(strptime(mat$time, "%H:%M")) # factor(mat$time, levels = mat$time)
-
-  df_long <- stats::reshape(
-    df,
-    direction = "long",
-    varying = list(utils::head(names(df), -1)),
-    v.names = "acceleration",
-    idvar = "time",
-    timevar = "date",
-    times = utils::head(names(df), -1)
-  )
-  df_long$date <- as.Date(df_long$date)
+  mat_long <- ts2mat_to_long(mat, value_name = "acceleration")
+  df_long <- mat_long$data
 
   # Make color scale
-  km <- stats::kmeans(acc$value[acc$value > 0], centers = 2)
-  acc_low_act <- acc$value[acc$value < mean(km$centers) & acc$value > 0]
-  x <- c(
-    0,
-    min(acc_low_act),
-    mean(acc_low_act),
-    max(acc_low_act),
-    mean(km$centers),
-    max(acc$value)
-  )
-  rng <- range(x, na.rm = TRUE)
+  pos_acc <- acc$value[acc$value > 0 & is.finite(acc$value)]
+  use_kmeans <- length(pos_acc) >= 2 && length(unique(pos_acc)) >= 2
+  if (use_kmeans) {
+    km <- stats::kmeans(pos_acc, centers = 2)
+    acc_low_act <- pos_acc[pos_acc < mean(km$centers)]
+    if (length(acc_low_act) == 0) {
+      acc_low_act <- pos_acc
+    }
+    x <- c(
+      0,
+      min(acc_low_act),
+      mean(acc_low_act),
+      max(acc_low_act),
+      mean(km$centers),
+      max(acc$value, na.rm = TRUE)
+    )
+    rng <- range(x, na.rm = TRUE)
+  } else {
+    rng <- range(acc$value, na.rm = TRUE)
+    if (!all(is.finite(rng))) {
+      rng <- c(0, 1)
+    }
+    if (diff(rng) == 0) {
+      rng <- c(rng[1], rng[1] + 1)
+    }
+    x <- seq(rng[1], rng[2], length.out = 6)
+  }
   val <- (x - rng[1]) / diff(rng)
 
   p <- ggplot2::ggplot() +
@@ -729,9 +710,64 @@ plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
       na.value = "grey"
     )
 
+  plot_tag_finalize(p, plot_plotly)
+}
+
+
+#' @noRd
+resolve_twl_offset <- function(tag, data, twl_offset) {
+  if (!is.null(twl_offset)) {
+    return(twl_offset)
+  }
+  if (
+    !is.null(tag$param) &&
+      "twilight_create" %in% names(tag$param) &&
+      "twl_offset" %in% names(tag$param$twilight_create)
+  ) {
+    return(tag$param$twilight_create$twl_offset)
+  }
+  twilight_create_guess_offset(data)
+}
+
+#' @noRd
+ts2mat_to_long <- function(mat, value_name) {
+  df <- as.data.frame(mat$value)
+  names(df) <- mat$day
+  mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) +
+    as.numeric(substr(mat$time, 4, 5)) / 60
+  time_hour <- mat_time_hour + 24 * (mat_time_hour < mat_time_hour[1])
+  df$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
+
+  df_long <- stats::reshape(
+    df,
+    direction = "long",
+    varying = list(utils::head(names(df), -1)),
+    v.names = value_name,
+    idvar = "time",
+    timevar = "date",
+    times = utils::head(names(df), -1)
+  )
+  df_long$date <- as.Date(df_long$date)
+
+  list(data = df_long, mat_time_hour = mat_time_hour)
+}
+
+#' @noRd
+plot_tag_finalize <- function(
+  p,
+  plot_plotly,
+  autorange = TRUE
+) {
   if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
-  } else {
+    p <- plotly::ggplotly(p, dynamicTicks = TRUE)
+    if (isFALSE(autorange)) {
+      p <- p |>
+        plotly::layout(
+          xaxis = list(autorange = FALSE),
+          yaxis = list(autorange = FALSE)
+        )
+    }
     return(p)
   }
+  p
 }

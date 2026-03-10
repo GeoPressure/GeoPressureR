@@ -14,16 +14,17 @@
 #' projection with a finer resolution. The argument `fac_res_proj` controls the relative change of
 #' resolution between the original map to the projected map.
 #'
-#' @param map a GeoPressureR `map` object
+#' @param x a GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
+#' @param thr_likelihood Threshold to display likelihood values.
+#' @param provider tile provider name (see `leaflet::providers`).
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
 #' leaflet::providerTileOptions()
-#' @inheritParams leaflet::addProviderTiles
-#' @inheritParams leaflet::colorNumeric
-#' @inheritParams leaflet::addRasterImage
-#' @inheritParams terra::plot
-#' @inheritParams graph_create
+#' @param palette color palette name or vector of colors.
+#' @param opacity opacity of the raster layer in leaflet.
+#' @param legend logical to display the legend.
+#' @param ... additional parameters passed to `leaflet::addRasterImage()` or `terra::plot()`.
 #' @param fac_res_proj Factor of the resolution of the reprojection (see details above). A value of
 #' `1` will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
 #' the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
@@ -55,7 +56,7 @@
 #' )
 #'
 #' @family map plot_tag
-#' @seealso [plot_path()]
+#' @seealso [plot_path()] [plot.tag()]
 #' @method plot map
 #' @export
 plot.map <- function(
@@ -65,7 +66,7 @@ plot.map <- function(
   plot_leaflet = TRUE,
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
-  palette = "auto",
+  palette = NULL,
   opacity = 0.8,
   legend = FALSE,
   fac_res_proj = 4,
@@ -73,58 +74,60 @@ plot.map <- function(
 ) {
   map <- x
 
+  assertthat::assert_that(inherits(map, "map"))
+
+  # Ensure water mask exists
+  mask_water <- if ("mask_water" %in% names(map)) map$mask_water else FALSE
+
   # Eliminate unlikely pixel, same as in the creation of graph
   map$data <- lapply(map$data, function(m) {
-    if (!is.null(m)) {
-      # Normalize
-      m <- m / sum(m, na.rm = TRUE)
-
-      # Find threshold of percentile
-      ms <- sort(m)
-      id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
-      thr_prob <- ms[id_prob_percentile + 1]
-
-      # Set to NA all value below this threshold
-      m[m < thr_prob] <- NA
+    if (is.null(m)) {
+      return(m)
     }
+
+    # Remove over water
+    m[mask_water] <- NA_real_
+
+    # Normalize
+    m <- m / sum(m, na.rm = TRUE)
+
+    # Find threshold of percentile
+    ms <- sort(m)
+    id_prob_percentile <- sum(cumsum(ms) < (1 - thr_likelihood))
+    thr_prob <- ms[id_prob_percentile + 1]
+
+    # Set to NA all value below this threshold
+    m[m < thr_prob] <- NA
     m
   })
 
   # Convert GeoPressureR map to terra rast object
   r <- rast.map(map)
 
+  if (is.character(palette) && length(palette) == 1 && palette == "auto") {
+    palette <- NULL
+  }
+
+  # Get palette (leaflet only)
+  if (is.null(palette)) {
+    map_types <- map_type()
+    spec <- map_types[[map$type]]
+    if (is.null(spec)) {
+      spec <- map_types[["unknown"]]
+    }
+    palette <- spec[["light"]]$palette
+    reverse <- isTRUE(spec[["light"]]$reverse)
+  } else {
+    reverse <- FALSE
+  }
+
   if (plot_leaflet) {
     grp <- glue::glue(
-      "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - \\
-                      {format(map$stap$end , format = '%d %b %H:%M')}"
+      "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}"
     )
 
     lmap <- leaflet::leaflet(height = 600) |>
       leaflet::addProviderTiles(provider = provider, options = provider_options)
-
-    if (palette == "auto") {
-      if ("pressure" == map$type) {
-        palette <- "GnBu"
-      } else if ("light" == map$type) {
-        palette <- "OrRd"
-      } else if ("magnetic" == map$type) {
-        palette <- "RdPu"
-      } else if ("pressure_mse" == map$type) {
-        palette <- "BuPu"
-      } else if ("pressure_mask" == map$type) {
-        palette <- "YlOrBr"
-      } else if ("magnetic_inclination" == map$type) {
-        palette <- "YlGnBu"
-      } else if ("magnetic_intensity" == map$type) {
-        palette <- "YlGn"
-      } else if ("mask_water" == map$type) {
-        palette <- "Greys"
-      } else if ("marginal" == map$type) {
-        palette <- "plasma"
-      } else {
-        palette <- "viridis"
-      }
-    }
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
@@ -159,6 +162,7 @@ plot.map <- function(
         colors = leaflet::colorNumeric(
           palette = palette,
           domain = NULL,
+          reverse = reverse,
           na.color = "#00000000",
           alpha = TRUE
         )
@@ -181,11 +185,11 @@ plot.map <- function(
 
     # path
     if (!is.null(path)) {
-      lmap <- plot_path_leaflet(lmap, path)
+      lmap <- plot_path(path, plot_leaflet = TRUE, map = lmap)
 
       for (i in seq_len(max(path$stap_id))) {
         path_stap_id <- path[path$stap_id == i, ]
-        if (!all(is.na(path_stap_id$lon))) {
+        if (!all(is.na(path_stap_id$lon)) && !all(is.na(path_stap_id$lat))) {
           lmap <- leaflet::addCircleMarkers(
             lmap,
             lng = path_stap_id$lon,
@@ -215,6 +219,40 @@ plot.map <- function(
 
     return(lmap)
   } else {
-    terra::plot(r[[map$stap$include]], legend = legend, ...)
+    cols <- palette_to_colors(palette, n = 256L, reverse = reverse)
+    terra::plot(r[[map$stap$include]], legend = legend, col = cols, ...)
   }
+}
+
+
+#' @noRd
+palette_to_colors <- function(palette, n = 256L, reverse = FALSE) {
+  n <- as.integer(n)
+  if (!is.finite(n) || n < 2) {
+    cols <- NULL
+  }
+  if (is.character(palette) && length(palette) == 1) {
+    pal_name <- palette
+    if (
+      requireNamespace("RColorBrewer", quietly = TRUE) &&
+        pal_name %in% rownames(RColorBrewer::brewer.pal.info)
+    ) {
+      max_n <- RColorBrewer::brewer.pal.info[pal_name, "maxcolors"]
+      base_cols <- RColorBrewer::brewer.pal(min(n, max_n), pal_name)
+      cols <- grDevices::colorRampPalette(base_cols)(n)
+    } else {
+      cols <- tryCatch(grDevices::hcl.colors(n, pal_name), error = function(e) NULL)
+    }
+  } else if (is.character(palette) && length(palette) >= 2) {
+    cols <- if (length(palette) == n) palette else grDevices::colorRampPalette(palette)(n)
+  }
+
+  if (is.null(cols) || !is.character(cols) || length(cols) < 2) {
+    cols <- grDevices::colorRampPalette(c("#132B43", "#56B1F7"))(n)
+  }
+
+  if (isTRUE(reverse)) {
+    cols <- rev(cols)
+  }
+  cols
 }

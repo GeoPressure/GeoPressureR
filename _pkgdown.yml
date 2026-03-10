@@ -34,6 +34,7 @@ reference:
     contents:
       - tag_create
       - tag_set_map
+      - tag_update
   - subtitle: Visualize tag
     desc: Print and plot a `tag` object.
     contents:
@@ -53,13 +54,13 @@ reference:
       - tag_label_write
       - tag_label_read
       - tag_label_stap
-      - trainset
   - subtitle: Tag utilities
     desc: Various utility functions related to a `tag` object.
     contents:
       - tag_assert
+      - read_stap
+      - tag_stap_daily
       - tag2path
-      - tag2map
   - title: GeoPressure
     desc: Core functions of the [GeoPressureAPI](https://github.com/Rafnuss/GeoPressureAPI).
   - subtitle: GeoPressure map
@@ -79,7 +80,14 @@ reference:
       - twilight_create
       - twilight_label_write
       - twilight_label_read
+      - geolight_solar
       - geolight_map
+      - geolight_map_calibrate
+      - geolight_map_likelihood
+      - geolight_map_aggregate
+      - geolight_fit_location
+      - plot_twl_calib
+      - plot_twl_calib_path
       - ts2mat
   - title: Graph
     desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.
@@ -89,7 +97,6 @@ reference:
     desc: Defining the movement model, optionally using wind data and bird morphology.
     contents:
       - graph_set_movement
-      - graph_transition
       - tag_download_wind
       - graph_add_wind
       - bird_create
@@ -116,12 +123,16 @@ reference:
       - plot.map
       - rast.map
       - map_expand
+      - map_add_mask_water
   - title: Path
     desc: Data.frame of positions defining a bird trajectory.
     contents:
-      - ind2path
       - path2edge
       - plot_path
+  - title: Sampling path
+    desc: Gibbs sampling from movement model.
+    contents:
+      - tag2path
   - title: Pressurepath
     desc: Data.frame of pressure time series along a path.
     contents:
@@ -137,6 +148,12 @@ reference:
       - geopressuretemplate_pressurepath
       - geopressuretemplate_config
       - load_interim
+  - title: Shiny Apps
+    desc: Web applications for labeling and visualizing data.
+    contents:
+      - geopressureviz
+      - geolightviz
+      - trainset
   - title: Param
     desc: List of parameters used in `tag` and `graph`.
     contents:
@@ -150,5 +167,4 @@ reference:
       - speed2bearing
       - windsupport
       - path2twilight
-      - geopressureviz
       - GeoPressureR

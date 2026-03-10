@@ -41,12 +41,22 @@ plot_pressurepath <- function(
 ) {
   assertthat::assert_that(is.data.frame(pressurepath))
 
+  type <- match.arg(
+    type,
+    choices = c("timeseries", "ts", "histogram", "hist", "altitude", "alt")
+  )
+  if (type == "ts") {
+    type <- "timeseries"
+  } else if (type == "hist") {
+    type <- "histogram"
+  } else if (type == "alt") {
+    type <- "altitude"
+  }
+
   if ("pressure_era5" %in% names(pressurepath)) {
     cli::cli_warn(c(
-      "!" = "{.var pressurepath} has been create with an old version of \\
-      {.pkg GeoPressureR} (<v3.2.0)",
-      ">" = "For optimal performance, we suggest to re-run \\
-      {.fun pressurepath_create}"
+      "!" = "{.var pressurepath} has been create with an old version of {.pkg GeoPressureR} (<v3.2.0)",
+      ">" = "For optimal performance, we suggest to re-run {.fun pressurepath_create}"
     ))
     pressurepath$surface_pressure <- pressurepath$pressure_era5
     pressurepath$surface_pressure_norm <- pressurepath$pressure_era5_norm
@@ -121,7 +131,7 @@ plot_pressurepath <- function(
 
   # knitr::kable(tag_era5, "simple")
 
-  if (type %in% c("timeseries", "ts")) {
+  if (type == "timeseries") {
     pp$warning <- (abs(pp$error) /
       sd[ifelse(pp$stap_id == round(pp$stap_id), 1, pp$stap_id)]) >=
       warning_std_thr
@@ -153,7 +163,7 @@ plot_pressurepath <- function(
       ggplot2::theme_bw() +
       ggplot2::scale_y_continuous(name = "Pressure (hPa)") +
       ggplot2::theme(legend.position = "none")
-  } else if (type %in% c("histogram", "hist")) {
+  } else if (type == "histogram") {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
     # Remove error for flight
@@ -181,12 +191,12 @@ plot_pressurepath <- function(
       ggplot2::geom_vline(
         ggplot2::aes(xintercept = .data$warning_m),
         linetype = "dashed",
-        colour = "red"
+        colour = "#E6550D"
       ) +
       ggplot2::geom_vline(
         ggplot2::aes(xintercept = .data$warning_p),
         linetype = "dashed",
-        colour = "red"
+        colour = "#E6550D"
       ) +
       ggplot2::facet_wrap(~stapelev, scale = "free_y", labeller = lab) +
       ggplot2::scale_x_continuous(
@@ -194,14 +204,14 @@ plot_pressurepath <- function(
       ) +
       ggplot2::scale_y_continuous(name = "Normalized histogram") +
       ggplot2::scale_fill_manual(
-        values = c("TRUE" = "red", "FALSE" = "black")
+        values = c("TRUE" = "#E6550D", "FALSE" = "black")
       ) +
       ggplot2::theme_bw() +
       ggplot2::theme(
         legend.position = "none",
         axis.text.y = ggplot2::element_blank()
       )
-  } else if (type %in% c("altitude", "alt")) {
+  } else if (type == "altitude") {
     pp_alt <- pressurepath
 
     # find flight

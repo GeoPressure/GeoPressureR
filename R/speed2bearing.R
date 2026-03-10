@@ -10,7 +10,8 @@
 #' @param positive logical to ensure the bearing is positive between 0-360 degree.
 #'
 #' @return bearing angle in degree
-#'
+#' @examplesIf FALSE
+#'   speed2bearing(complex(real = 10, imaginary = 5))
 #' @export
 speed2bearing <- function(
   speed,

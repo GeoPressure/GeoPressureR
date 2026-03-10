@@ -64,13 +64,11 @@
 #' @return A GeoPressureR `pressurepath` data.frame with columns:
 #' - `date` same as `pressure$date`
 #' - `stap_id` same as `pressure$stap_id`
+#' - `j` same as `path$j` (optional)
 #' - `pressure_tag` same as `pressure$value`
 #' - `label` same as `pressure$label`
-#' - `j` same as `path$j`
-#' - `lat` same as `path$lat`
-#' - `lon` same as `path$lon`
-#' - `include` same as `path$include`
-#' - `known` same as `path$known`
+#' - `lat` same as `path$lat`, interpolated linerarly during flight
+#' - `lon` same as `path$lon`, interpolated linerarly during flight
 #' - `altitude` altitude of the bird along the path (see detail)
 #' - `surface_pressure` pressure retrieved from ERA5.
 #' - `surface_pressure_norm` pressure retrieved from ERA5 normalized to the average of
@@ -124,19 +122,22 @@ pressurepath_create <- function(
   # Assert tag
   tag_assert(tag, "stap")
 
+  era5_dataset <- match.arg(
+    era5_dataset,
+    choices = c("single-levels", "land", "both")
+  )
+
   # Validate requested variables against the allowed set
-  unknown_vars <- setdiff(variable, pressurepath_variable)
+  unknown_vars <- setdiff(variable, c(pressurepath_variable, "altitude"))
   assertthat::assert_that(
     length(unknown_vars) == 0,
     msg = paste0(
       "Unknown variable(s): ",
       paste(unknown_vars, collapse = ", "),
       ". Allowed variables are: ",
-      paste(pressurepath_variable, collapse = ", ")
+      paste(c(pressurepath_variable, "altitude"), collapse = ", ")
     )
   )
-
-  assertthat::assert_that(era5_dataset %in% c("single-levels", "land", "both"))
 
   # Assert preprocess
   assertthat::assert_that(is.logical(preprocess))
@@ -181,7 +182,7 @@ pressurepath_create <- function(
   # Create pressurepath by combining pressure and path
   pressurepath <- merge(
     pressure_w_path,
-    path[!(names(path) %in% c("start", "end"))],
+    path[, intersect(c("stap_id", "lat", "lon", "j"), names(path)), drop = FALSE],
     by = "stap_id",
     all.x = TRUE
   )

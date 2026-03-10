@@ -103,9 +103,7 @@ path2elevation <- function(
   ]
   if (length(stap_id_not_considered) > 0) {
     cli::cli_warn(c(
-      "!" = "The position are not defined for stationary periods ({.val {stap_id_not_considered}})\\
-      . Because they are at the begining or end of the path, we are not able to interpolate\\
-      them and they will consequently not be considered in the computation of elevation."
+      "!" = "The position are not defined for stationary periods ({.val {stap_id_not_considered}}). Because they are at the begining or end of the path, we are not able to interpolate them and they will consequently not be considered in the computation of elevation."
     ))
   }
 

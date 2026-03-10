@@ -28,7 +28,8 @@ Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 \item{include_stap_id}{stationary period identifiers of the start of the flight to download.
 Default is to download all flights.}
 
-\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level }: \code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"},
+\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level }:
+\code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"},
 \code{"fraction_of_cloud_cover"}, \code{"relative_humidity"}, \code{"vertical_velocity"},
 \code{"specific_cloud_ice_water_content"}, \code{"specific_cloud_liquid_water_content"},
 \code{"specific_humidity"}, \code{"specific_rain_water_content"}, \code{"specific_snow_water_content"},
@@ -69,7 +70,8 @@ information
 This function downloads data associated to each flight from the \href{https://doi.org/10.24381/cds.bd0915c6}{ERA5 hourly pressure levels}
 with the \href{https://cds.climate.copernicus.eu/}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
 
-\href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level} can be downloaded.
+\href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level}
+can be downloaded.
 
 The flights are determined from the stationary periods classified \code{tag$stap}. It requests a
 single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
@@ -85,6 +87,11 @@ retrieve your API Token on \url{https://cds.climate.copernicus.eu/profile} and s
 
 More information \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html}{in the GeoPressureManual}.
 }
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+  tag_download_wind(tag)
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request_batch()} },
 \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual }
@@ -92,7 +99,6 @@ More information \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressu
 Other movement: 
 \code{\link{bird_create}()},
 \code{\link{graph_set_movement}()},
-\code{\link{graph_transition}()},
 \code{\link{plot_graph_movement}()},
 \code{\link{speed2prob}()}
 }

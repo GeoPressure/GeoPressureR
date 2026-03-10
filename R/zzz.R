@@ -9,7 +9,9 @@ NULL
 methods::setOldClass("map")
 
 #' @importFrom methods setMethod
-methods::setMethod(rast, "map", rast.map)
+if (methods::isGeneric("rast") && exists("rast.map", mode = "function")) {
+  methods::setMethod("rast", "map", rast.map)
+}
 
 #' @noRd
 format_minutes <- function(mins) {
@@ -25,4 +27,16 @@ format_minutes <- function(mins) {
     "{if (hours > 0 || days > 0 || years > 0) paste0(hours, 'h ') else ''}",
     "{minutes}min"
   )
+}
+
+#' @noRd
+.onLoad <- function(libname, pkgname) {
+  data_dir <- system.file("extdata/internal", package = pkgname)
+  pkg_env <- asNamespace(pkgname)
+  assign(
+    "pressurepath_variable",
+    readRDS(file.path(data_dir, "pressurepath_variable.rds")),
+    envir = pkg_env
+  )
+  assign("avonet", readRDS(file.path(data_dir, "avonet.rds")), envir = pkg_env)
 }

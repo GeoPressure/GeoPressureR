@@ -54,7 +54,6 @@ trainset_read <- function(
   missing_pres <- sum(is.na(id_match) & !is.na(df$value))
 
   if (missing_pres > 0) {
-    # nolint start
     not_needed <- nrow(csv) - nrow(df) + missing_pres
 
     series_name <- if (!is.null(series)) {
@@ -80,7 +79,6 @@ trainset_read <- function(
       i = msg,
       ">" = "We assumed no {.val discard} during the missing timesteps."
     ))
-    # nolint end
   }
 
   return(df)

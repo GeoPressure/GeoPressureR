@@ -54,7 +54,7 @@ to compute different twilights by setting depression angle value greater than 0 
 \examples{
 path <- data.frame(
   stap_id = c(1, 2, 3, 4, 5),
-  j = c(1L, 1L, 1L, 1L, 1L),
+  j = c(1, 1, 1, 1, 1),
   ind = c(1652L, 1603L, 1505L, 1609L, 1463L),
   lat = c(48.9, 47.5, 45.5, 41.5, 37.5),
   lon = c(17.05, 16.5, 14.5, 16.5, 13.5),
@@ -75,7 +75,6 @@ twl <- path2twilight(path)
 \href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://github.com/adokter/suntools}{suntools }
 
 Other path: 
-\code{\link{ind2path}()},
 \code{\link{path2edge}()},
 \code{\link{path2elevation}()},
 \code{\link{plot_path}()},

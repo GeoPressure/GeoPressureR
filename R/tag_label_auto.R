@@ -86,7 +86,7 @@ tag_label_auto <- function(
 
     # Search all activity with high activity and with a duration above
     # min_duration
-    tmp <- sapply(split(act_mig, act_id), unique) &
+    tmp <- vapply(split(act_mig, act_id), \(x) x[1], logical(1)) &
       table(act_id) * dt > min_duration
 
     is_flight <- as.vector(tmp[act_id])

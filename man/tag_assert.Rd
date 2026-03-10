@@ -9,11 +9,15 @@ tag_assert(tag, condition = "tag", type = "abort")
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{condition}{condition to assert \code{tag} for. One of \code{"tag"} (default), \code{"pressure"},
-\code{"light"}, \code{"acceleration"}, \code{"label"}, \code{"stap"}, \code{"setmap"}, \code{"map_pressure"}, \code{"map_light"}
-\code{"map_pressure_mse"} and \code{"twilight"}}
+\item{condition}{condition to assert \code{tag} for. One of \code{"tag"} (default), \code{"read"},
+\code{"pressure"}, \code{"light"}, \code{"acceleration"}, \code{"temperature_internal"},
+\code{"temperature_external"}, \code{"magnetic"}, \code{"label"}, \code{"stap"}, \code{"setmap"},
+\code{"map_pressure"}, \code{"map_pressure_mse"}, \code{"map_pressure_mask"}, \code{"map_light"},
+\code{"map_light_twl"}, \code{"mask_water"}, \code{"map_magnetic"}, \code{"map_magnetic_intensity"},
+\code{"map_magnetic_inclination"}, \code{"twl_calib"}, and \code{"twilight"}.}
 
-\item{type}{Message type to display. One of \code{"abort"} (default), \code{"warn"} or \code{"inform"}}
+\item{type}{Message type to display. One of \code{"abort"} (default), \code{"warn"}, \code{"inform"},
+or \code{"logical"} (return TRUE/FALSE without messaging).}
 }
 \value{
 logical indicating the \code{tag} object has the relevant element
@@ -33,5 +37,7 @@ tag_assert(tag, "stap")
 tag_assert(tag, "setmap", type = "warn")
 
 tag_assert(tag, "map_pressure", type = "inform")
+
+tag_assert(tag, "setmap", type = "logical")
 
 }

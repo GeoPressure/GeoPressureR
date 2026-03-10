@@ -11,7 +11,8 @@ graph_add_wind(graph, thr_as = Inf, variable = c("u", "v"), ...)
 
 \item{thr_as}{threshold of airspeed (km/h).}
 
-\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level } using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
+\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level }
+using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
 \code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
 
 \item{...}{
@@ -42,6 +43,18 @@ In addition, the graph can be further pruned based on a threshold of airspeed \c
 See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer (2023b)}
 for more technical details and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an
 illustration on how to use it.
+}
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE) |>
+    tag_label(quiet = TRUE) |>
+    tag_set_map(extent = c(-16, 23, 0, 50), scale = 1) |>
+    geopressure_map(quiet = TRUE)
+})
+graph <- graph_create(tag, quiet = TRUE)
+graph <- graph_add_wind(graph, pressure = tag$pressure, quiet = TRUE)
+\dontshow{\}) # examplesIf}
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel

@@ -8,6 +8,8 @@ tag_label(
   tag,
   file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv"),
   quiet = FALSE,
+  warning_flight_duration = lifecycle::deprecated(),
+  warning_stap_duration = lifecycle::deprecated(),
   ...
 )
 }
@@ -18,13 +20,11 @@ tag_label(
 
 \item{quiet}{logical to display message.}
 
-\item{...}{
-  Arguments passed on to \code{\link[=tag_label_stap]{tag_label_stap}}
-  \describe{
-    \item{\code{warning_flight_duration}}{Threshold of flight duration to display warning for (hours)}
-    \item{\code{warning_stap_duration}}{Threshold of stationary period duration to display warning for
-(hours)}
-  }}
+\item{warning_flight_duration}{lifecycle::deprecated()}
+
+\item{warning_stap_duration}{lifecycle::deprecated()}
+
+\item{...}{lifecycle::deprecated()}
 }
 \value{
 Same \code{tag} list with

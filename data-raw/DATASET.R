@@ -296,4 +296,6 @@ pressurepath_variable <- c(
   "vorticity_850hPa"
 )
 
-usethis::use_data(pressurepath_variable, avonet, overwrite = TRUE, internal = TRUE)
+dir.create("inst/extdata/internal", recursive = TRUE, showWarnings = FALSE)
+saveRDS(pressurepath_variable, "inst/extdata/internal/pressurepath_variable.rds")
+saveRDS(avonet, "inst/extdata/internal/avonet.rds")

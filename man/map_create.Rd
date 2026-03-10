@@ -19,10 +19,11 @@ scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Goog
 
 \item{stap}{a data.frame of stationary periods.}
 
-\item{id}{unique identifier of a tag.}
+\item{id}{tag identifier.}
 
-\item{type}{type of data one of \code{"unknown"},\code{"pressure"}, \code{"light"}, \code{"pressure_mse"},
-\code{"water_mask"}, \code{"pressure_mask"}, \code{"marginal"}. Allows for custom colour palette on plot.}
+\item{type}{map type used for default palettes in plots. One of:
+\code{"unknown"}, \code{"pressure"}, \code{"light"}, \code{"magnetic"}, \code{"pressure_mse"}, \code{"pressure_mask"},
+\code{"mask_water"}, \code{"magnetic_intensity"}, \code{"magnetic_inclination"}, \code{"marginal"}, \code{"twilight"}.}
 }
 \value{
 A GeoPressure \code{map} object
@@ -65,6 +66,7 @@ plot(map)
 }
 \seealso{
 Other map: 
+\code{\link{map_add_mask_water}()},
 \code{\link{print.map}()},
 \code{\link{rast.map}()}
 }
