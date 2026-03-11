@@ -196,6 +196,45 @@ test_that("tag_label() | default", {
   expect_type(tag_labelled, "list")
 })
 
+test_that("tag_label() | missing file and setmap branches", {
+  file_missing <- file.path(tempdir(), "gpr-tag-label", "18LX-labeled-missing.csv")
+  expect_no_warning(
+    out <- tag_label(tag, file = file_missing, quiet = TRUE)
+  )
+  expect_identical(out, tag)
+
+  dir_tmp <- tempfile("gpr-tag-label-")
+  dir.create(dir_tmp, recursive = TRUE)
+  on.exit(unlink(dir_tmp, recursive = TRUE), add = TRUE)
+  file_target <- file.path(dir_tmp, "18LX-labeled.csv")
+  file_input <- file.path(dir_tmp, "18LX.csv")
+  file.create(file_input)
+  expect_error(
+    tag_label(tag, file = file_target, quiet = TRUE),
+    "does not exist but"
+  )
+
+  tag_sm <- tag_label(tag, quiet = TRUE)
+  tag_sm <- tag_set_map(tag_sm, extent = c(-16, 23, 0, 50))
+  out <- tag_label(tag_sm, quiet = TRUE)
+  expect_identical(out, tag_sm)
+})
+
+test_that("tag_label() | deprecated arguments", {
+  expect_warning(
+    tag_label(tag, quiet = TRUE, warning_flight_duration = TRUE),
+    "deprecated"
+  )
+  expect_warning(
+    tag_label(tag, quiet = TRUE, warning_stap_duration = TRUE),
+    "deprecated"
+  )
+  expect_warning(
+    tag_label(tag, quiet = TRUE, foo = "bar"),
+    "Additional arguments are ignored"
+  )
+})
+
 test_that("tag_label_read() and tag_label_stap() | stop after tag_set_map", {
   tag_sm <- tag_label(tag, quiet = TRUE)
   tag_sm <- tag_set_map(tag_sm, extent = c(-16, 23, 0, 50))
