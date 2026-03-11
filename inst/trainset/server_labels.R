@@ -165,6 +165,7 @@ process_plotly_event <- function(event_info) {
     labels$acceleration,
     active_series = active_series_or_default()
   )
+  session$sendCustomMessage("clearPlotlySelection", "ts_plot")
 }
 
 shiny::observeEvent(input$plotly_selected_with_keys, {

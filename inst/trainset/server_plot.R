@@ -130,7 +130,7 @@ refresh_detail_traces <- function(xmin, xmax) {
 
   # Clear selection and update data + styling together to avoid a brief color mismatch flicker.
   plot_proxy |>
-    plotly::plotlyProxyInvoke("restyle", list(selectedpoints = NULL))
+    plotly::plotlyProxyInvoke("restyle", list(selectedpoints = list(NULL)))
 
   if (has_pressure) {
     restyle_xy(
@@ -398,7 +398,6 @@ output$ts_plot <- plotly::renderPlotly({
       modeBarButtonsToRemove = list(
         "zoomIn2d",
         "zoomOut2d",
-        "autoScale2d",
         "resetScale2d",
         "toImage",
         "hoverClosestCartesian",

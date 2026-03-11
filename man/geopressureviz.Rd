@@ -13,10 +13,20 @@ geopressureviz(
 )
 }
 \arguments{
-\item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
-unique identifier \code{id} with a \code{.Rdata} file located in \code{"./data/interim/{id}.RData"}.}
+\item{x}{One of:
+\itemize{
+\item a GeoPressureR \code{tag} object;
+\item a path to an existing \code{.RData}/\code{.rda} file;
+\item a tag id (character scalar), interpreted as \code{"./data/interim/{id}.RData"}.
+}}
 
-\item{path}{a GeoPressureR \code{path} or \code{pressurepath} data.frame.}
+\item{path}{Optional GeoPressureR \code{path} or \code{pressurepath} data.frame.
+If \code{NULL}, a path is resolved from available inputs in this order:
+\itemize{
+\item for file/id input (\code{x} character): \code{path_most_likely} (if present), then \code{pressurepath}
+(if present);
+\item otherwise fallback to \code{tag2path(tag, interp = 1)}.
+}}
 
 \item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrite the
 \code{path} or \code{pressurepath} contained in the \code{.Rdata} file.}
@@ -33,14 +43,14 @@ When \code{run_bg = FALSE}: The updated path visualized in the app. Can also be 
 When \code{run_bg = TRUE}: Returns the background process object.
 }
 \description{
-GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-as well as each step-by-step move. This app is particularly useful to check the correspondence
-between pressure map, light map and flight distance. You can edit the path and query pressure
-time series for individual stationary period to test manual what seems the optimal path.
+GeoPressureViz is an interactive app to inspect and manually edit migration paths together with
+the underlying map likelihoods and pressure time series by stationary period. It is useful to
+compare pressure-, light- and distance-based information before finalizing a path.
 }
 \details{
-GeoPressureViz can be started based on a \code{.Rdata} file containing at least \code{tag}, but also
-optionally \code{marginal} and/or \code{path} (\code{path_most_likely} is also accepted).
+The app can start from a \code{tag} object already in memory, or from an interim \code{.RData}/\code{.rda}
+file that contains at least \code{tag} (and optionally \code{marginal}, \code{path_most_likely},
+\code{pressurepath}, \code{pressurepath_most_likely}).
 
 You can retrieve the edited path from the return value of this function (when \code{run_bg = FALSE})
 or with \code{shiny::getShinyOption("path_geopressureviz")} after the app completes.

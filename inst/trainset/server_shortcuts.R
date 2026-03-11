@@ -52,6 +52,10 @@ shiny::observeEvent(input$shortcuts_help, {
             " / ",
             shiny::tags$kbd("\u2192"),
             ": pan by a full window width."
+          )),
+          shiny::tags$li(shiny::tagList(
+            shiny::tags$kbd("A"),
+            ": autoscale x/y axes."
           ))
         ),
         shiny::h4("Y-axis zoom"),
