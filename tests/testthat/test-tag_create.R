@@ -120,6 +120,20 @@ test_that("tag_create() | no acceleration", {
   expect_no_error(tag_label_stap(tag, quiet = TRUE))
 })
 
+test_that("tag_create() | BAS light-only 19006", {
+  tag <- tag_create(
+    id = "19006",
+    assert_pressure = FALSE,
+    quiet = TRUE
+  )
+
+  expect_true("light" %in% names(tag))
+  expect_gt(nrow(tag$light), 0)
+  expect_false("pressure" %in% names(tag))
+  expect_equal(tag$param$tag_create$manufacturer, "bas")
+  expect_match(tag$param$tag_create$light_file, "19006\\.lig$")
+})
+
 test_that("tag_create() | SOI magnetic-only 14DM", {
   tag <- tag_create(
     id = "14DM",

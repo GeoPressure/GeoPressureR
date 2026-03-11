@@ -47,7 +47,7 @@ tag_create_bas <- function(
   )
 
   # Add parameter information
-  tag$param$tag_create$light_file <- lig_file
+  tag$param$tag_create$light_file <- lig_path
   tag$param$tag_create$manufacturer <- "bas"
   tag$param$tag_create$directory <- directory
 
