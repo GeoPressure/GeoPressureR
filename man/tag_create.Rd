@@ -23,8 +23,8 @@ tag_create(
 \arguments{
 \item{id}{unique identifier of a tag.}
 
-\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"},
-\code{"datapackage"} or \code{"dataframe"}.}
+\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"} or
+\code{"dataframe"}.}
 
 \item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
 
@@ -78,22 +78,13 @@ sensor, it is an average over 32 measurements at 10Hz.
 \description{
 Create a GeoPressureR \code{tag} object from the data collected by a tracking device. The function
 can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
-well as according to the GeoLocator Data package standard and also accept manual data.frame as
-input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
-with \code{assert_pressure = FALSE}.
+well as BAS and PresTag formats, and also accepts manual data.frame input. Pressure data is
+required for the GeoPressureR workflow but can be allowed to be missing with
+\code{assert_pressure = FALSE}.
 }
 \details{
-The current implementation can read files from the following three sources:
+The current implementation can read files from the following sources:
 \itemize{
-\item \href{https://raphaelnussbaumer.com/GeoLocator-DP/}{GeoLocator Data Package (\code{gldp})}
-\itemize{
-\item \code{pressure_file = "pressure.csv"}(optional)
-\item \code{light_file = "light.csv"} (optional)
-\item \code{acceleration_file = "acceleration.csv"} (optional)
-\item \code{temperature_external_file = "temperature_external.csv"} (optional)
-\item \code{temperature_external_file = "temperature_external.csv"} (optional)
-\item \code{magnetic_file = "magnetic.csv"} (optional)
-}
 \item \href{https://www.vogelwarte.ch/en/research/bird-migration/geolocators/}{Swiss Ornithological Institute (\code{soi})}
 \itemize{
 \item \code{pressure_file = "*.pressure"}

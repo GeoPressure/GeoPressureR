@@ -3,19 +3,12 @@
 #' @description
 #' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
 #' can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
-#' well as according to the GeoLocator Data package standard and also accept manual data.frame as
-#' input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
-#' with `assert_pressure = FALSE`.
+#' well as BAS and PresTag formats, and also accepts manual data.frame input. Pressure data is
+#' required for the GeoPressureR workflow but can be allowed to be missing with
+#' `assert_pressure = FALSE`.
 #'
 #' @details
-#' The current implementation can read files from the following three sources:
-#' - [GeoLocator Data Package (`gldp`)](https://raphaelnussbaumer.com/GeoLocator-DP/)
-#'    - `pressure_file = "pressure.csv"`(optional)
-#'    - `light_file = "light.csv"` (optional)
-#'    - `acceleration_file = "acceleration.csv"` (optional)
-#'    - `temperature_external_file = "temperature_external.csv"` (optional)
-#'    - `temperature_external_file = "temperature_external.csv"` (optional)
-#'    - `magnetic_file = "magnetic.csv"` (optional)
+#' The current implementation can read files from the following sources:
 #' - [Swiss Ornithological Institute (`soi`)](https://www.vogelwarte.ch/en/research/bird-migration/geolocators/)
 #'    - `pressure_file = "*.pressure"`
 #'    - `light_file = "*.glf"` (optional)
@@ -61,8 +54,8 @@
 #' or post-retrieval data.
 #'
 #' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"`,
-#' `"datapackage"` or `"dataframe"`.
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
+#' `"dataframe"`.
 #' @param directory path of the directory where the tag files can be read.
 #' @param pressure_file name of the file with pressure data. Full pathname  or finishing
 #' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
@@ -161,9 +154,7 @@ tag_create <- function(
       manufacturer <- "dataframe"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      if (any(grepl("pressure\\.csv$|light\\.csv$", list.files(directory)))) {
-        manufacturer <- "datapackage"
-      } else if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
+      if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.(deg|lux)$", list.files(directory)))) {
         manufacturer <- "migratetech"
@@ -176,14 +167,13 @@ tag_create <- function(
           "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
         {.file {directory}}",
           ">" = "Check that this directory contains the file with pressure data (i.e., with
-        extension {.val .csv}, {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
+        extension {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
         ))
       }
     }
   }
   assertthat::assert_that(is.character(manufacturer))
   manufacturer_possible <- c(
-    "datapackage",
     "soi",
     "migratetech",
     "bas",
@@ -193,19 +183,7 @@ tag_create <- function(
   )
   manufacturer <- match.arg(manufacturer, choices = manufacturer_possible)
 
-  if (manufacturer == "datapackage") {
-    tag <- tag_create_datapackage(
-      id,
-      directory = directory,
-      pressure_file = pressure_file,
-      light_file = light_file,
-      acceleration_file = acceleration_file,
-      temperature_external_file = temperature_external_file,
-      temperature_internal_file = temperature_internal_file,
-      magnetic_file = magnetic_file,
-      quiet = quiet
-    )
-  } else if (manufacturer == "soi") {
+  if (manufacturer == "soi") {
     tag <- tag_create_soi(
       id,
       directory = directory,
