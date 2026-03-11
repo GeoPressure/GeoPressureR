@@ -148,6 +148,14 @@ tag_create <- function(
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
+  if (!is.null(crop_start) && !is.null(crop_end)) {
+    if (as.POSIXct(crop_start, tz = "UTC") >= as.POSIXct(crop_end, tz = "UTC")) {
+      cli::cli_abort(c(
+        "x" = "{.arg crop_start} must be strictly earlier than {.arg crop_end}.",
+        "i" = "Received {.arg crop_start} = {.val {crop_start}} and {.arg crop_end} = {.val {crop_end}}."
+      ))
+    }
+  }
 
   if (is.null(manufacturer)) {
     if (is.data.frame(pressure_file)) {
@@ -396,6 +404,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
 #' Crop sensor data.frame
 #' @noRd
 tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
+  has_data <- FALSE
   for (sensor in c(
     "pressure",
     "light",
@@ -416,6 +425,7 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
           tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
         ]
       }
+      has_data <- has_data || nrow(tag[[sensor]]) > 0
 
       if (!quiet) {
         # Check irregular time
@@ -434,6 +444,13 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
         }
       }
     }
+  }
+
+  if (( !is.null(crop_start) || !is.null(crop_end)) && !has_data) {
+    cli::cli_abort(c(
+      "x" = "No data left after cropping.",
+      "i" = "Check {.arg crop_start} and {.arg crop_end}."
+    ))
   }
 
   # Add parameter information

@@ -54,16 +54,27 @@ test_that("tag_create() | default", {
   ))))
   expect_warning(suppressMessages(tag_create(id = "18LX", light_file = "wrong_file")))
 
-  # Check crop - should generate warnings for empty datasets
-  expect_warning(expect_warning(expect_warning(expect_warning(
-    suppressMessages(
-      tag_create(
-        id = "18LX",
-        crop_start = "2019-06-20",
-        crop_end = "2018-05-02"
-      )
-    )
-  ))))
+  # Check crop: invalid range errors
+  expect_error(
+    tag_create(
+      id = "18LX",
+      crop_start = "2019-06-20",
+      crop_end = "2018-05-02",
+      quiet = TRUE
+    ),
+    "must be strictly earlier"
+  )
+
+  # Check crop: valid range but no remaining data errors
+  expect_error(
+    tag_create(
+      id = "18LX",
+      crop_start = "2019-06-20",
+      crop_end = "2019-06-21",
+      quiet = TRUE
+    ),
+    "No data left after cropping"
+  )
 })
 
 test_that("tag_create() | Migrate Technology", {
