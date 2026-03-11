@@ -151,7 +151,7 @@ csv2tag <- function(file, id = NULL) {
   pressure <- csv[csv$series == "pressure", ]
   acceleration <- csv[csv$series == "acceleration", ]
 
-  tag <- tag_create_dataframe(
+  tag <- tag_create_tabular(
     id,
     pressure_file = if (nrow(pressure)) pressure else NULL,
     acceleration_file = if (nrow(acceleration)) acceleration else NULL,

@@ -24,7 +24,7 @@ tag_create(
 \item{id}{unique identifier of a tag.}
 
 \item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"} or
-\code{"dataframe"}.}
+\code{"tabular"}.}
 
 \item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
 
@@ -32,25 +32,38 @@ tag_create(
 
 \item{directory}{path of the directory where the tag files can be read.}
 
-\item{pressure_file}{name of the file with pressure data. Full pathname  or finishing
-with extensions (e.g., \code{"*.pressure"}, \code{"*.deg"} or \code{"*_press.xlsx"}).}
+\item{pressure_file}{name of the file with pressure data. Full pathname or finishing with
+extensions (e.g., \code{"*.pressure"}, \code{"*.deg"} or \code{"*_press.xlsx"}). For
+\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
+CSV path with columns \code{datetime} and \code{value}.}
 
-\item{light_file}{name of the file with light data. Full pathname  or finishing
-with extensions (e.g., \code{"*.glf"}, \code{"*.lux"} or \code{"*_acc.xlsx"}).}
+\item{light_file}{name of the file with light data. Full pathname or finishing with extensions
+(e.g., \code{"*.glf"}, \code{"*.lux"} or \code{"*_acc.xlsx"}). For \code{manufacturer = "tabular"}, provide an
+in-memory table with columns \code{date} and \code{value}, or a CSV path with columns \code{datetime} and
+\code{value}.}
 
-\item{acceleration_file}{name of the file with acceleration data. Full pathname  or finishing
-with extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.xlsx"}).}
+\item{acceleration_file}{name of the file with acceleration data. Full pathname or finishing with
+extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.xlsx"}). For
+\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
+CSV path with columns \code{datetime} and \code{value}.}
 
-\item{temperature_external_file}{name of the file with temperature data. Full pathname  or
+\item{temperature_external_file}{name of the file with temperature data. Full pathname or
 finishing with extensions (e.g., \code{"*.temperature"}, \code{"*.airtemperature"} or \code{"*.deg"}). External
-or air temperature is generally for temperature sensor on directed outward from the bird.}
+or air temperature is generally for temperature sensor on directed outward from the bird. For
+\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
+CSV path with columns \code{datetime} and \code{value}.}
 
-\item{temperature_internal_file}{name of the file with temperature data . Full pathname  or
+\item{temperature_internal_file}{name of the file with temperature data . Full pathname or
 finishing with extensions (e.g., \code{"*.bodytemperature"}). Internal or body temperature is
-generally for temperature sensor on directed inward (between bird and tag).}
+generally for temperature sensor on directed inward (between bird and tag). For
+\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
+CSV path with columns \code{datetime} and \code{value}.}
 
-\item{magnetic_file}{name of the file with magnetic/accelerometer data. Full pathname  or
-finishing with extensions (e.g., \code{"*.magnetic"}).}
+\item{magnetic_file}{name of the file with magnetic/accelerometer data. Full pathname or
+finishing with extensions (e.g., \code{"*.magnetic"}). For \code{manufacturer = "tabular"}, provide an
+in-memory table with columns \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z},
+\code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}, or a CSV path with \code{datetime} plus
+these sensor columns.}
 
 \item{assert_pressure}{logical to check that the return tag has pressure data.}
 
@@ -78,7 +91,7 @@ sensor, it is an average over 32 measurements at 10Hz.
 \description{
 Create a GeoPressureR \code{tag} object from the data collected by a tracking device. The function
 can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
-well as BAS and PresTag formats, and also accepts manual data.frame input. Pressure data is
+well as BAS and PresTag formats, and also accepts manual tabular input. Pressure data is
 required for the GeoPressureR workflow but can be allowed to be missing with
 \code{assert_pressure = FALSE}.
 }
@@ -116,18 +129,19 @@ The current implementation can read files from the following sources:
 }
 }
 
-You can also enter the data manually (\code{manufacturer = "dataframe"}) by providing the data.frame:
+You can also enter tabular data manually (\code{manufacturer = "tabular"}) by providing, for each
+sensor argument, either an in-memory table (\code{data.frame} or tibble) or a CSV path:
 \itemize{
-\item \code{pressure_file}: data.frame with columns \code{date} and \code{value} in hPa.
-\item \code{light_file}: (optional) data.frame with columns \code{date} and \code{value}.
-\item \code{acceleration_file}: (optional) data.frame with columns \code{date} and \code{value}.
-\item \code{temperature_external_file}: (optional) data.frame with columns \code{date} and \code{value}.
-\item \code{temperature_internal_file}: (optional) data.frame with columns \code{date} and \code{value}.
-\item \code{magnetic_file}: (optional) data.frame with columns \code{date}, \code{magnetic_x}, \code{magnetic_y},
+\item \code{pressure_file}: columns \code{date} and \code{value} in hPa.
+\item \code{light_file}: (optional) columns \code{date} and \code{value}.
+\item \code{acceleration_file}: (optional) columns \code{date} and \code{value}.
+\item \code{temperature_external_file}: (optional) columns \code{date} and \code{value}.
+\item \code{temperature_internal_file}: (optional) columns \code{date} and \code{value}.
+\item \code{magnetic_file}: (optional) columns \code{date}, \code{magnetic_x}, \code{magnetic_y},
 \code{magnetic_z}, \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}.
 }
 
-You can still create a \code{tag} without pressure data using \code{assert_pressure = TRUE}. This \code{tag}
+You can still create a \code{tag} without pressure data using \code{assert_pressure = FALSE}. This \code{tag}
 won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
 
 By default \code{manufacturer = NULL}, the manufacturer is determined automatically from the content

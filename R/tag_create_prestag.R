@@ -36,24 +36,24 @@ tag_create_prestag <- function(
   timestamps <- as.POSIXct(data_raw$V1, origin = "1970-01-01", tz = "UTC")
 
   # Separate pressure and temperature
-  df <- utils::read.table(
+  sensor_data <- utils::read.table(
     text = data_raw$V2,
     sep = ":",
     col.names = c("sensor", "value")
   )
-  df$date <- timestamps
+  sensor_data$date <- timestamps
 
-  # df2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
+  # sensor_data2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
   #                  sep = ":", col.names = c("sensor", "value"))
-  # df2$date = timestamps[data_raw$V3!=""]
-  # df = rbind(df, df2)
+  # sensor_data2$date = timestamps[data_raw$V3!=""]
+  # sensor_data = rbind(sensor_data, sensor_data2)
 
   # Set to NA any negative value
-  df$value[df$value < 0] <- NA
+  sensor_data$value[sensor_data$value < 0] <- NA
 
   # Create sensor data.frame
-  tag$pressure <- df[df$sensor == "P", -which(names(df) == "sensor")]
-  tag$temperature <- df[df$sensor == "T", -which(names(df) == "sensor")]
+  tag$pressure <- sensor_data[sensor_data$sensor == "P", -which(names(sensor_data) == "sensor")]
+  tag$temperature <- sensor_data[sensor_data$sensor == "T", -which(names(sensor_data) == "sensor")]
 
   # Add parameter information
   tag$param$tag_create$pressure_file <- pressure_path

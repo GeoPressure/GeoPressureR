@@ -187,7 +187,8 @@ test_that("tag_label_stap() | pressure longer than acc", {
   expect_equal(nrow(tag_label_stap(tag2, quiet = TRUE)$stap), 4)
 
   tag2$pressure$label[50:60] <- "flight"
-  expect_warning(tag_label_stap(tag2, quiet = TRUE))
+  expect_no_warning(tag_label_stap(tag2, quiet = TRUE))
+  expect_warning(tag_label_stap(tag2, quiet = FALSE))
 })
 
 
@@ -198,9 +199,7 @@ test_that("tag_label() | default", {
 
 test_that("tag_label() | missing file and setmap branches", {
   file_missing <- file.path(tempdir(), "gpr-tag-label", "18LX-labeled-missing.csv")
-  expect_no_warning(
-    out <- tag_label(tag, file = file_missing, quiet = TRUE)
-  )
+  out <- expect_no_warning(tag_label(tag, file = file_missing, quiet = TRUE))
   expect_identical(out, tag)
 
   dir_tmp <- tempfile("gpr-tag-label-")

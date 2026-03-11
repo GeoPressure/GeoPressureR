@@ -166,7 +166,7 @@ test_that("tag_create() | SOI magnetic-only 14DM", {
   expect_true(all(c("left", "backward", "down") == tag$param$mag_axis))
 })
 
-test_that("tag_create_dataframe() | full input and pressure bounds warning", {
+test_that("tag_create() | tabular full input and pressure bounds warning", {
   d <- as.POSIXct(c("2017-06-20 00:00:00", "2017-06-20 01:00:00"), tz = "UTC")
   pressure <- data.frame(date = d, value = c(1000, 1200))
   light <- data.frame(date = d, value = c(1, 2))
@@ -186,7 +186,7 @@ test_that("tag_create_dataframe() | full input and pressure bounds warning", {
   expect_warning(
     tag <- tag_create(
       id = "dummy_df",
-      manufacturer = "dataframe",
+      manufacturer = "tabular",
       pressure_file = pressure,
       light_file = light,
       acceleration_file = acceleration,
@@ -210,8 +210,43 @@ test_that("tag_create_dataframe() | full input and pressure bounds warning", {
       names(tag)
   ))
   expect_false("temperature" %in% names(tag))
-  expect_equal(tag$param$tag_create$manufacturer, "df")
-  expect_equal(tag$param$tag_create$directory, "(not used)")
+  expect_equal(tag$param$tag_create$manufacturer, "tabular")
+})
+
+test_that("tag_create() | tabular csv and in-memory input", {
+  dt <- as.POSIXct(
+    c("2017-06-20 00:00:00", "2017-06-20 01:00:00"),
+    tz = "UTC"
+  )
+  csv <- data.frame(
+    datetime = format(dt, "%Y-%m-%dT%H:%M"),
+    value = c(1000, 1001)
+  )
+  file_pressure <- tempfile(fileext = ".csv")
+  utils::write.csv(csv, file_pressure, row.names = FALSE)
+
+  tag <- tag_create(
+    id = "dummy_tab",
+    manufacturer = "tabular",
+    pressure_file = file_pressure,
+    quiet = TRUE
+  )
+  expect_true("pressure" %in% names(tag))
+  expect_equal(tag$param$tag_create$pressure_file, file_pressure)
+
+  pressure_table <- data.frame(
+    date = dt,
+    value = c(1000, 1001)
+  )
+  tag_in_memory <- tag_create(
+    id = "dummy_tab2",
+    manufacturer = "tabular",
+    pressure_file = pressure_table,
+    quiet = TRUE
+  )
+  expect_true("pressure" %in% names(tag_in_memory))
+  expect_equal(tag_in_memory$param$tag_create$manufacturer, "tabular")
+  expect_equal(tag_in_memory$param$tag_create$pressure_file, "in_memory")
 })
 
 test_that("tag_create_soi() | airtemperature fallback and optional sensors", {
