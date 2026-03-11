@@ -78,7 +78,7 @@ tag_create_dataframe <- function(
       attr(temperature_external_file$date, "tzone"),
       "UTC"
     ))
-    tag$temperature <- temperature_external_file
+    tag$temperature_external <- temperature_external_file
     tag$param$tag_create$temperature_external_file <- "df"
   }
 
