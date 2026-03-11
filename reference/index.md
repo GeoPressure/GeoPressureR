@@ -15,11 +15,6 @@ Core functions related to a `tag` object.
   Configure the spatial and temporal parameters of the `map` of a `tag`
   object
 
-- [`tag_update()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_update.md)
-  **\[deprecated\]** :
-
-  Update a `tag` object
-
 ### Visualize tag
 
 Print and plot a `tag` object.
@@ -325,7 +320,7 @@ Web applications for labeling and visualizing data.
 - [`geolightviz()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolightviz.md)
   : Start the GeoLightViz shiny app
 - [`trainset()`](https://raphaelnussbaumer.com/GeoPressureR/reference/trainset.md)
-  **\[experimental\]** : Start the GeoPressure Trainset shiny app
+  : Start the GeoPressure Trainset shiny app
 
 ## Param
 

@@ -2,10 +2,10 @@
 
 Create a GeoPressureR `tag` object from the data collected by a tracking
 device. The function can read data formatted according to three
-manufacturers SOI, Migratetech or Lund CAnMove, as well as according to
-the GeoLocator Data package standard and also accept manual data.frame
-as input. Pressure data is required for the GeoPressureR workflow but
-can be allowed to be missing with `assert_pressure = FALSE`.
+manufacturers SOI, Migratetech or Lund CAnMove, as well as BAS and
+PresTag formats, and also accepts manual tabular input. Pressure data is
+required for the GeoPressureR workflow but can be allowed to be missing
+with `assert_pressure = FALSE`.
 
 ## Usage
 
@@ -36,7 +36,7 @@ tag_create(
 - manufacturer:
 
   One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`,
-  `"prestag"`, `"datapackage"` or `"dataframe"`.
+  `"prestag"` or `"tabular"`.
 
 - crop_start:
 
@@ -53,37 +53,51 @@ tag_create(
 - pressure_file:
 
   name of the file with pressure data. Full pathname or finishing with
-  extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
+  extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`). For
+  `manufacturer = "tabular"`, provide an in-memory table with columns
+  `date` and `value`, or a CSV path with columns `datetime` and `value`.
 
 - light_file:
 
   name of the file with light data. Full pathname or finishing with
-  extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`).
+  extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`). For
+  `manufacturer = "tabular"`, provide an in-memory table with columns
+  `date` and `value`, or a CSV path with columns `datetime` and `value`.
 
 - acceleration_file:
 
   name of the file with acceleration data. Full pathname or finishing
   with extensions (e.g., `"*.acceleration"`, `"*.deg"` or
-  `"*_acc.xlsx"`).
+  `"*_acc.xlsx"`). For `manufacturer = "tabular"`, provide an in-memory
+  table with columns `date` and `value`, or a CSV path with columns
+  `datetime` and `value`.
 
 - temperature_external_file:
 
   name of the file with temperature data. Full pathname or finishing
   with extensions (e.g., `"*.temperature"`, `"*.airtemperature"` or
   `"*.deg"`). External or air temperature is generally for temperature
-  sensor on directed outward from the bird.
+  sensor on directed outward from the bird. For
+  `manufacturer = "tabular"`, provide an in-memory table with columns
+  `date` and `value`, or a CSV path with columns `datetime` and `value`.
 
 - temperature_internal_file:
 
   name of the file with temperature data . Full pathname or finishing
   with extensions (e.g., `"*.bodytemperature"`). Internal or body
   temperature is generally for temperature sensor on directed inward
-  (between bird and tag).
+  (between bird and tag). For `manufacturer = "tabular"`, provide an
+  in-memory table with columns `date` and `value`, or a CSV path with
+  columns `datetime` and `value`.
 
 - magnetic_file:
 
   name of the file with magnetic/accelerometer data. Full pathname or
-  finishing with extensions (e.g., `"*.magnetic"`).
+  finishing with extensions (e.g., `"*.magnetic"`). For
+  `manufacturer = "tabular"`, provide an in-memory table with columns
+  `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`, `acceleration_x`,
+  `acceleration_y` and `acceleration_z`, or a CSV path with `datetime`
+  plus these sensor columns.
 
 - assert_pressure:
 
@@ -125,23 +139,7 @@ a GeoPressureR `tag` object containing
 
 ## Details
 
-The current implementation can read files from the following three
-sources:
-
-- [GeoLocator Data Package
-  (`gldp`)](https://raphaelnussbaumer.com/GeoLocator-DP/)
-
-  - `pressure_file = "pressure.csv"`(optional)
-
-  - `light_file = "light.csv"` (optional)
-
-  - `acceleration_file = "acceleration.csv"` (optional)
-
-  - `temperature_external_file = "temperature_external.csv"` (optional)
-
-  - `temperature_external_file = "temperature_external.csv"` (optional)
-
-  - `magnetic_file = "magnetic.csv"` (optional)
+The current implementation can read files from the following sources:
 
 - [Swiss Ornithological Institute
   (`soi`)](https://www.vogelwarte.ch/en/research/bird-migration/geolocators/)
@@ -185,28 +183,26 @@ sources:
 
   - `pressure_file = "*.txt"`
 
-You can also enter the data manually (`manufacturer = "dataframe"`) by
-providing the data.frame:
+You can also enter tabular data manually (`manufacturer = "tabular"`) by
+providing, for each sensor argument, either an in-memory table
+(`data.frame` or tibble) or a CSV path:
 
-- `pressure_file`: data.frame with columns `date` and `value` in hPa.
+- `pressure_file`: columns `date` and `value` in hPa.
 
-- `light_file`: (optional) data.frame with columns `date` and `value`.
+- `light_file`: (optional) columns `date` and `value`.
 
-- `acceleration_file`: (optional) data.frame with columns `date` and
-  `value`.
+- `acceleration_file`: (optional) columns `date` and `value`.
 
-- `temperature_external_file`: (optional) data.frame with columns `date`
-  and `value`.
+- `temperature_external_file`: (optional) columns `date` and `value`.
 
-- `temperature_internal_file`: (optional) data.frame with columns `date`
-  and `value`.
+- `temperature_internal_file`: (optional) columns `date` and `value`.
 
-- `magnetic_file`: (optional) data.frame with columns `date`,
-  `magnetic_x`, `magnetic_y`, `magnetic_z`, `acceleration_x`,
-  `acceleration_y` and `acceleration_z`.
+- `magnetic_file`: (optional) columns `date`, `magnetic_x`,
+  `magnetic_y`, `magnetic_z`, `acceleration_x`, `acceleration_y` and
+  `acceleration_z`.
 
 You can still create a `tag` without pressure data using
-`assert_pressure = TRUE`. This `tag` won't be able to run the
+`assert_pressure = FALSE`. This `tag` won't be able to run the
 traditional GeoPressureR workflow, but you can still do some analysis.
 
 By default `manufacturer = NULL`, the manufacturer is determined
@@ -335,11 +331,11 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>  $ param   :List of 3
 #>   ..$ id                  : chr "xxx"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 5 0
+#>   .. ..$ : int [1:3] 3 5 1
 #>   ..$ tag_create          :List of 3
-#>   .. ..$ pressure_file: chr "df"
-#>   .. ..$ manufacturer : chr "df"
-#>   .. ..$ directory    : chr "(not used)"
+#>   .. ..$ pressure_file: chr "in_memory"
+#>   .. ..$ manufacturer : chr "tabular"
+#>   .. ..$ directory    : 'glue' chr "./data/raw-tag/xxx"
 #>   ..- attr(*, "class")= chr "param"
 #>  $ pressure:'data.frame':    4 obs. of  2 variables:
 #>   ..$ date : POSIXct[1:4], format: "2017-06-20 00:00:00" "2017-06-20 01:00:00" ...

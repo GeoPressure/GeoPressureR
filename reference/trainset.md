@@ -1,6 +1,10 @@
 # Start the GeoPressure Trainset shiny app
 
-**\[experimental\]**
+GeoPressure Trainset is a shiny app designed to help you manually label
+pressure and acceleration data for training machine learning models.
+This interactive app allows you to visualize time series data, select
+data points or regions, and assign behavioral labels (e.g., "flight",
+"discard", or custom elevation labels) to create training datasets.
 
 ## Usage
 
@@ -51,12 +55,6 @@ attribute `attr(p, "tag")`. The labeled data can be exported directly
 from the app interface.
 
 ## Details
-
-GeoPressure Trainset is a shiny app designed to help you manually label
-pressure and acceleration data for training machine learning models.
-This interactive app allows you to visualize time series data, select
-data points or regions, and assign behavioral labels (e.g., "flight",
-"discard", or custom elevation labels) to create training datasets.
 
 The app features:
 

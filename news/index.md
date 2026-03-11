@@ -260,10 +260,7 @@ centred around these themes:
   [\#67](https://github.com/Rafnuss/GeoPressureR/issues/67)
   [\#73](https://github.com/Rafnuss/GeoPressureR/issues/73)
   [\#83](https://github.com/Rafnuss/GeoPressureR/issues/83)
-- Create
-  [`tag_update()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_update.md)
-  and
-  [`pressurepath_update()`](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_update.md)
+- Create `tag_update()` and `pressurepath_update()`
 - Review the structure of a path and edges.
 
 ### Minor
