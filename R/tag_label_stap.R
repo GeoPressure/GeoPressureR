@@ -36,8 +36,7 @@ tag_label_stap <- function(
   tag,
   quiet = FALSE,
   warning_flight_duration = lifecycle::deprecated(),
-  warning_stap_duration = lifecycle::deprecated(),
-  ...
+  warning_stap_duration = lifecycle::deprecated()
 ) {
   if (lifecycle::is_present(warning_flight_duration)) {
     lifecycle::deprecate_warn(
@@ -49,13 +48,6 @@ tag_label_stap <- function(
     lifecycle::deprecate_warn(
       "3.5.0",
       "tag_label_stap(warning_stap_duration)"
-    )
-  }
-  if (length(list(...)) > 0) {
-    lifecycle::deprecate_warn(
-      "3.5.0",
-      "tag_label_stap(...)",
-      details = "Additional arguments are ignored."
     )
   }
   if (tag_assert(tag, "setmap", "logical")) {
