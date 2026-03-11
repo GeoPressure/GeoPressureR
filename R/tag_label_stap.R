@@ -90,14 +90,16 @@ tag_label_stap <- function(
         sensor <- sensor[order(sensor$date), ]
       }
       if ("flight" %in% tag$pressure$label[!out]) {
-        cli::cli_warn(c(
-          "!" = "The label {.val flight} is detected on {.field pressure} while
+        if (!quiet) {
+          cli::cli_warn(c(
+            "!" = "The label {.val flight} is detected on {.field pressure} while
         {.field acceleration} is also present.",
-          "i" = "The stationary periods will be estimated from {.field acceleration} data and the
+            "i" = "The stationary periods will be estimated from {.field acceleration} data and the
         {.val flight} label from pressure will be ignored. ",
-          ">" = "It is best practise to remove {.val flight} label in {.field pressure} data when
+            ">" = "It is best practise to remove {.val flight} label in {.field pressure} data when
         {.field acceleration} is available."
-        ))
+          ))
+        }
       }
     }
   } else {
