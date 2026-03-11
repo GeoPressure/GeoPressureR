@@ -61,7 +61,6 @@ make_shiny_test_data <- local({
 })
 
 test_that("trainset starts in background and stays responsive", {
-  skip_on_cran()
   d <- make_shiny_test_data()
   expect_bg_app_starts(
     function() trainset(d$tag_labelled, run_bg = TRUE, launch_browser = FALSE),
@@ -70,7 +69,6 @@ test_that("trainset starts in background and stays responsive", {
 })
 
 test_that("geolightviz starts in background and stays responsive", {
-  skip_on_cran()
   d <- make_shiny_test_data()
   expect_bg_app_starts(
     function() geolightviz(d$tag_twilight, run_bg = TRUE, launch_browser = FALSE),
@@ -79,7 +77,6 @@ test_that("geolightviz starts in background and stays responsive", {
 })
 
 test_that("geopressureviz starts in background and stays responsive", {
-  skip_on_cran()
   d <- make_shiny_test_data()
   expect_bg_app_starts(
     function() geopressureviz(d$tag_map, run_bg = TRUE, launch_browser = FALSE),
