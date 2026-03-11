@@ -33,14 +33,12 @@ is returned invisibly, with the \code{tag} attached as an attribute \code{attr(p
 The labeled data can be exported directly from the app interface.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
-}
-\details{
 GeoPressure Trainset is a shiny app designed to help you manually label pressure and
 acceleration data for training machine learning models. This interactive app allows you to
 visualize time series data, select data points or regions, and assign behavioral labels
 (e.g., "flight", "discard", or custom elevation labels) to create training datasets.
-
+}
+\details{
 The app features:
 \itemize{
 \item Interactive plotly visualization of pressure and acceleration time series

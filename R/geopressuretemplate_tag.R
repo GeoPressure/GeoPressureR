@@ -17,7 +17,12 @@ geopressuretemplate_tag <- function(
     cli::cli_bullets(c(
       "!" = "The directory {.file {dir_file}} does not exists."
     ))
-    res <- utils::askYesNo("Do you want to create it?")
+    # Use interactive prompt only in interactive sessions.
+    res <- if (interactive()) {
+      utils::askYesNo("Do you want to create it?")
+    } else {
+      TRUE
+    }
     if (res) {
       dir.create(dir_file, recursive = TRUE)
     } else {

@@ -93,16 +93,24 @@ tag_label <- function(
 
     # Suggest to write the file
     file_default <- glue::glue("./data/tag-label/{tag$param$id}.csv")
-    cli::cli_bullets(c("!" = "The label file {.file {file}} does not exist."))
+    if (!quiet) {
+      cli::cli_bullets(c("!" = "The label file {.file {file}} does not exist."))
+    }
     choices <- list(
       "1" = "No",
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
       "3" = glue::glue("Yes, in `{file_input}` (in input file directory)")
     )
-    res <- as.numeric(names(utils::select.list(
-      choices,
-      title = "Do you want to create it?"
-    )))
+    res <- if (interactive() && !quiet) {
+      # nocov start
+      as.numeric(names(utils::select.list(
+        choices,
+        title = "Do you want to create it?"
+      )))
+      # nocov end
+    } else {
+      1
+    }
 
     if (res == 2) {
       tag_label_write(tag, file_default, quiet = quiet)
@@ -111,28 +119,38 @@ tag_label <- function(
     }
 
     # Stop the function
-    cli::cli_warn(c(
-      ">" = "Return the original {.var tag} unmodified."
-    ))
+    if (!quiet) {
+      cli::cli_warn(c(
+        ">" = "Return the original {.var tag} unmodified."
+      ))
+    }
     return(tag)
   } else {
     # Check if label has already been tag_set_map
     if (tag_assert(tag, "setmap", "logical")) {
-      cli::cli_bullets(c(
-        "!" = "The tag_set_map has already been defined for {.var tag}."
-      ))
+      if (!quiet) {
+        cli::cli_bullets(c(
+          "!" = "The tag_set_map has already been defined for {.var tag}."
+        ))
+      }
       choices <- list(
         "1" = glue::glue("No, return the original `tag`"),
         "2" = glue::glue(
           "Yes, read the new label, but start `tag` from scratch"
         )
       )
-      res <- as.numeric(names(
-        utils::select.list(
-          choices,
-          title = "How to you want to proceed with the new label file?"
-        )
-      ))
+      res <- if (interactive() && !quiet) {
+        # nocov start
+        as.numeric(names(
+          utils::select.list(
+            choices,
+            title = "How to you want to proceed with the new label file?"
+          )
+        ))
+        # nocov end
+      } else {
+        1
+      }
 
       if (res == 1) {
         return(tag)

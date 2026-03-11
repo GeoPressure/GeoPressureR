@@ -168,6 +168,7 @@ geopressureviz <- function(
   # }
   file_wind <- NULL
 
+  # nocov start
   if (run_bg) {
     return(shiny_run_app_bg(
       system.file("geopressureviz", package = "GeoPressureR"),
@@ -203,4 +204,5 @@ geopressureviz <- function(
 
   # Return the updated path from shiny options
   return(invisible(shiny::getShinyOption("path_geopressureviz")))
+  # nocov end
 }

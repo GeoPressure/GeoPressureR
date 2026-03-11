@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.5.0
+version: 3.5.1
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -563,24 +563,6 @@ references:
   year: '2026'
   doi: 10.32614/CRAN.package.knitr
 - type: software
-  title: leaflet.extras
-  abstract: 'leaflet.extras: Extra Functionality for ''leaflet'' Package'
-  notes: Suggests
-  url: https://trafficonese.github.io/leaflet.extras/
-  repository: https://CRAN.R-project.org/package=leaflet.extras
-  authors:
-  - family-names: Gatscha
-    given-names: Sebastian
-    email: sebastian_gatscha@gmx.at
-  - family-names: Karambelkar
-    given-names: Bhaskar
-    email: bhaskarvk@gmail.com
-  - family-names: Schloerke
-    given-names: Barret
-    email: barret@rstudio.com
-  year: '2026'
-  doi: 10.32614/CRAN.package.leaflet.extras
-- type: software
   title: leaflet.providers
   abstract: 'leaflet.providers: Leaflet Providers'
   notes: Suggests
@@ -629,6 +611,26 @@ references:
     email: southandy@gmail.com
   year: '2026'
   doi: 10.32614/CRAN.package.rnaturalearth
+- type: software
+  title: rnaturalearthdata
+  abstract: 'rnaturalearthdata: World Vector Map Data from Natural Earth Used in ''rnaturalearth'''
+  notes: Suggests
+  url: https://docs.ropensci.org/rnaturalearthdata/
+  repository: https://CRAN.R-project.org/package=rnaturalearthdata
+  authors:
+  - family-names: South
+    given-names: Andy
+    email: southandy@gmail.com
+    orcid: https://orcid.org/0000-0003-4051-6135
+  - family-names: Michael
+    given-names: Schramm
+    email: mpschramm@gmail.com
+  - family-names: Massicotte
+    given-names: Philippe
+    email: pmassicotte@hotmail.com
+    orcid: https://orcid.org/0000-0002-5919-4116
+  year: '2026'
+  doi: 10.32614/CRAN.package.rnaturalearthdata
 - type: software
   title: ncdf4
   abstract: 'ncdf4: Interface to Unidata netCDF (Version 4 or Earlier) Format Data

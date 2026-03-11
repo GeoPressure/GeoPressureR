@@ -182,9 +182,13 @@ tag_set_map <- function(
             "!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different tag_set_map parameters."
           )
         )
-        res <- utils::askYesNo(
-          "Do you want to overwrite the parameters and delete the likelihood maps?"
-        )
+        res <- if (interactive()) {
+          utils::askYesNo(
+            "Do you want to overwrite the parameters and delete the likelihood maps?"
+          ) # nocov
+        } else {
+          FALSE
+        }
         if (res) {
           # If yes, remove existing likelihood map and carry on the overwrite of parameter
           tag$map_pressure <- NULL

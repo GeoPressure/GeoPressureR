@@ -10,7 +10,7 @@ methods::setOldClass("map")
 
 #' @importFrom methods setMethod
 if (methods::isGeneric("rast") && exists("rast.map", mode = "function")) {
-  methods::setMethod("rast", "map", rast.map)
+  try(methods::setMethod("rast", "map", rast.map), silent = TRUE)
 }
 
 #' @noRd

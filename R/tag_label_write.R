@@ -61,10 +61,12 @@ tag_label_write <- function(
   if (assertthat::has_name(tag, "acceleration")) {
     if (!assertthat::has_name(tag$acceleration, "label")) {
       tag <- tag_label_auto(tag)
-      cli::cli_bullets(c(
-        "i" = "No acceleration label data.",
-        ">" = "Initialize acceleration label with default {.fn tag_label_auto}"
-      ))
+      if (!quiet) {
+        cli::cli_bullets(c(
+          "i" = "No acceleration label data.",
+          ">" = "Initialize acceleration label with default {.fn tag_label_auto}"
+        ))
+      }
     }
     tag$acceleration$series <- "acceleration"
     df <- rbind(df[common_column], tag$acceleration[common_column])

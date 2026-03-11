@@ -36,8 +36,7 @@ tag_label_stap <- function(
   tag,
   quiet = FALSE,
   warning_flight_duration = lifecycle::deprecated(),
-  warning_stap_duration = lifecycle::deprecated(),
-  ...
+  warning_stap_duration = lifecycle::deprecated()
 ) {
   if (lifecycle::is_present(warning_flight_duration)) {
     lifecycle::deprecate_warn(
@@ -49,13 +48,6 @@ tag_label_stap <- function(
     lifecycle::deprecate_warn(
       "3.5.0",
       "tag_label_stap(warning_stap_duration)"
-    )
-  }
-  if (length(list(...)) > 0) {
-    lifecycle::deprecate_warn(
-      "3.5.0",
-      "tag_label_stap(...)",
-      details = "Additional arguments are ignored."
     )
   }
   if (tag_assert(tag, "setmap", "logical")) {
@@ -90,14 +82,16 @@ tag_label_stap <- function(
         sensor <- sensor[order(sensor$date), ]
       }
       if ("flight" %in% tag$pressure$label[!out]) {
-        cli::cli_warn(c(
-          "!" = "The label {.val flight} is detected on {.field pressure} while
+        if (!quiet) {
+          cli::cli_warn(c(
+            "!" = "The label {.val flight} is detected on {.field pressure} while
         {.field acceleration} is also present.",
-          "i" = "The stationary periods will be estimated from {.field acceleration} data and the
+            "i" = "The stationary periods will be estimated from {.field acceleration} data and the
         {.val flight} label from pressure will be ignored. ",
-          ">" = "It is best practise to remove {.val flight} label in {.field pressure} data when
+            ">" = "It is best practise to remove {.val flight} label in {.field pressure} data when
         {.field acceleration} is available."
-        ))
+          ))
+        }
       }
     }
   } else {

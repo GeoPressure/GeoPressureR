@@ -1,7 +1,5 @@
 #' Start the GeoPressure Trainset shiny app
 #'
-#' `r lifecycle::badge("experimental")`
-#'
 #' GeoPressure Trainset is a shiny app designed to help you manually label pressure and
 #' acceleration data for training machine learning models. This interactive app allows you to
 #' visualize time series data, select data points or regions, and assign behavioral labels
@@ -107,6 +105,7 @@ trainset <- function(
 
   label_dir <- normalizePath(label_dir, mustWork = FALSE)
 
+  # nocov start
   if (run_bg) {
     return(shiny_run_app_bg(
       system.file("trainset", package = "GeoPressureR"),
@@ -135,6 +134,7 @@ trainset <- function(
   )
 
   return(invisible(tag))
+  # nocov end
 }
 
 # Convert a TRAINSET CSV file to a GeoPressureR tag
@@ -151,7 +151,7 @@ csv2tag <- function(file, id = NULL) {
   pressure <- csv[csv$series == "pressure", ]
   acceleration <- csv[csv$series == "acceleration", ]
 
-  tag <- tag_create_dataframe(
+  tag <- tag_create_tabular(
     id,
     pressure_file = if (nrow(pressure)) pressure else NULL,
     acceleration_file = if (nrow(acceleration)) acceleration else NULL,

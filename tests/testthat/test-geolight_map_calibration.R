@@ -54,19 +54,19 @@ assert_twl_calib <- function(tag) {
 
 test_that("geolight_map_calibrate() with known locations", {
   tag <- make_tag_for_calib(with_known = TRUE)
-  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = Inf))
+  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = Inf, quiet = TRUE))
   assert_twl_calib(tag)
 })
 
 test_that("geolight_map_calibrate() with fixed locations", {
   tag <- make_tag_for_calib(with_known = FALSE)
-  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = 0))
+  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = 0, quiet = TRUE))
   assert_twl_calib(tag)
 })
 
 test_that("geolight_map_calibrate() with combined known and fixed", {
   tag <- make_tag_for_calib(with_known = TRUE)
-  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = 0))
+  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = 0, quiet = TRUE))
   assert_twl_calib(tag)
   expect_true(1 %in% tag$param$geolight_map$twl_calib$calib_stap$stap_id)
 })
@@ -74,14 +74,14 @@ test_that("geolight_map_calibrate() with combined known and fixed", {
 test_that("geolight_map_calibrate() with no calibration locations", {
   tag <- make_tag_for_calib(with_known = FALSE)
   expect_error(
-    geolight_map_calibrate(tag, fitted_location_duration = Inf),
+    geolight_map_calibrate(tag, fitted_location_duration = Inf, quiet = TRUE),
     "There are no calibration locations"
   )
 })
 
 test_that("plot_twl_calib() and plot_twl_calib_path() return ggplot", {
   tag <- make_tag_for_calib(with_known = TRUE)
-  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = Inf))
+  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = Inf, quiet = TRUE))
   path <- tag$stap[, c("stap_id", "start", "end")]
   path$lon <- ifelse(is.na(tag$stap$known_lon), 0, tag$stap$known_lon)
   path$lat <- ifelse(is.na(tag$stap$known_lat), 0, tag$stap$known_lat)

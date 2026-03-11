@@ -3,19 +3,12 @@
 #' @description
 #' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
 #' can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
-#' well as according to the GeoLocator Data package standard and also accept manual data.frame as
-#' input. Pressure data is required for the GeoPressureR workflow but can be allowed to be missing
-#' with `assert_pressure = FALSE`.
+#' well as BAS and PresTag formats, and also accepts manual tabular input. Pressure data is
+#' required for the GeoPressureR workflow but can be allowed to be missing with
+#' `assert_pressure = FALSE`.
 #'
 #' @details
-#' The current implementation can read files from the following three sources:
-#' - [GeoLocator Data Package (`gldp`)](https://raphaelnussbaumer.com/GeoLocator-DP/)
-#'    - `pressure_file = "pressure.csv"`(optional)
-#'    - `light_file = "light.csv"` (optional)
-#'    - `acceleration_file = "acceleration.csv"` (optional)
-#'    - `temperature_external_file = "temperature_external.csv"` (optional)
-#'    - `temperature_external_file = "temperature_external.csv"` (optional)
-#'    - `magnetic_file = "magnetic.csv"` (optional)
+#' The current implementation can read files from the following sources:
 #' - [Swiss Ornithological Institute (`soi`)](https://www.vogelwarte.ch/en/research/bird-migration/geolocators/)
 #'    - `pressure_file = "*.pressure"`
 #'    - `light_file = "*.glf"` (optional)
@@ -37,16 +30,17 @@
 #' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
 #'    - `pressure_file = "*.txt"`
 #'
-#' You can also enter the data manually (`manufacturer = "dataframe"`) by providing the data.frame:
-#'   - `pressure_file`: data.frame with columns `date` and `value` in hPa.
-#'   - `light_file`: (optional) data.frame with columns `date` and `value`.
-#'   - `acceleration_file`: (optional) data.frame with columns `date` and `value`.
-#'   - `temperature_external_file`: (optional) data.frame with columns `date` and `value`.
-#'   - `temperature_internal_file`: (optional) data.frame with columns `date` and `value`.
-#'   - `magnetic_file`: (optional) data.frame with columns `date`, `magnetic_x`, `magnetic_y`,
+#' You can also enter tabular data manually (`manufacturer = "tabular"`) by providing, for each
+#' sensor argument, either an in-memory table (`data.frame` or tibble) or a CSV path:
+#'   - `pressure_file`: columns `date` and `value` in hPa.
+#'   - `light_file`: (optional) columns `date` and `value`.
+#'   - `acceleration_file`: (optional) columns `date` and `value`.
+#'   - `temperature_external_file`: (optional) columns `date` and `value`.
+#'   - `temperature_internal_file`: (optional) columns `date` and `value`.
+#'   - `magnetic_file`: (optional) columns `date`, `magnetic_x`, `magnetic_y`,
 #'    `magnetic_z`, `acceleration_x`, `acceleration_y` and `acceleration_z`.
 #'
-#' You can still create a `tag` without pressure data using `assert_pressure = TRUE`. This `tag`
+#' You can still create a `tag` without pressure data using `assert_pressure = FALSE`. This `tag`
 #' won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
 #'
 #' By default `manufacturer = NULL`, the manufacturer is determined automatically from the content
@@ -61,23 +55,36 @@
 #' or post-retrieval data.
 #'
 #' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"`,
-#' `"datapackage"` or `"dataframe"`.
+#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
+#' `"tabular"`.
 #' @param directory path of the directory where the tag files can be read.
-#' @param pressure_file name of the file with pressure data. Full pathname  or finishing
-#' with extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`).
-#' @param light_file name of the file with light data. Full pathname  or finishing
-#' with extensions (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`).
-#' @param acceleration_file name of the file with acceleration data. Full pathname  or finishing
-#' with extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`).
-#' @param temperature_external_file name of the file with temperature data. Full pathname  or
+#' @param pressure_file name of the file with pressure data. Full pathname or finishing with
+#' extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`). For
+#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
+#' CSV path with columns `datetime` and `value`.
+#' @param light_file name of the file with light data. Full pathname or finishing with extensions
+#' (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`). For `manufacturer = "tabular"`, provide an
+#' in-memory table with columns `date` and `value`, or a CSV path with columns `datetime` and
+#' `value`.
+#' @param acceleration_file name of the file with acceleration data. Full pathname or finishing with
+#' extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`). For
+#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
+#' CSV path with columns `datetime` and `value`.
+#' @param temperature_external_file name of the file with temperature data. Full pathname or
 #' finishing with extensions (e.g., `"*.temperature"`, `"*.airtemperature"` or `"*.deg"`). External
-#' or air temperature is generally for temperature sensor on directed outward from the bird.
-#' @param temperature_internal_file name of the file with temperature data . Full pathname  or
+#' or air temperature is generally for temperature sensor on directed outward from the bird. For
+#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
+#' CSV path with columns `datetime` and `value`.
+#' @param temperature_internal_file name of the file with temperature data . Full pathname or
 #' finishing with extensions (e.g., `"*.bodytemperature"`). Internal or body temperature is
-#' generally for temperature sensor on directed inward (between bird and tag).
-#' @param magnetic_file name of the file with magnetic/accelerometer data. Full pathname  or
-#' finishing with extensions (e.g., `"*.magnetic"`).
+#' generally for temperature sensor on directed inward (between bird and tag). For
+#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
+#' CSV path with columns `datetime` and `value`.
+#' @param magnetic_file name of the file with magnetic/accelerometer data. Full pathname or
+#' finishing with extensions (e.g., `"*.magnetic"`). For `manufacturer = "tabular"`, provide an
+#' in-memory table with columns `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`,
+#' `acceleration_x`, `acceleration_y` and `acceleration_z`, or a CSV path with `datetime` plus
+#' these sensor columns.
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).
 #' @param quiet logical to hide messages about the progress.
@@ -155,15 +162,21 @@ tag_create <- function(
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
+  if (!is.null(crop_start) && !is.null(crop_end)) {
+    if (as.POSIXct(crop_start, tz = "UTC") >= as.POSIXct(crop_end, tz = "UTC")) {
+      cli::cli_abort(c(
+        "x" = "{.arg crop_start} must be strictly earlier than {.arg crop_end}.",
+        "i" = "Received {.arg crop_start} = {.val {crop_start}} and {.arg crop_end} = {.val {crop_end}}."
+      ))
+    }
+  }
 
   if (is.null(manufacturer)) {
     if (is.data.frame(pressure_file)) {
-      manufacturer <- "dataframe"
+      manufacturer <- "tabular"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      if (any(grepl("pressure\\.csv$|light\\.csv$", list.files(directory)))) {
-        manufacturer <- "datapackage"
-      } else if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
+      if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.(deg|lux)$", list.files(directory)))) {
         manufacturer <- "migratetech"
@@ -176,36 +189,23 @@ tag_create <- function(
           "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
         {.file {directory}}",
           ">" = "Check that this directory contains the file with pressure data (i.e., with
-        extension {.val .csv}, {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
+        extension {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
         ))
       }
     }
   }
   assertthat::assert_that(is.character(manufacturer))
   manufacturer_possible <- c(
-    "datapackage",
     "soi",
     "migratetech",
     "bas",
     "prestag",
     "lund",
-    "dataframe"
+    "tabular"
   )
   manufacturer <- match.arg(manufacturer, choices = manufacturer_possible)
 
-  if (manufacturer == "datapackage") {
-    tag <- tag_create_datapackage(
-      id,
-      directory = directory,
-      pressure_file = pressure_file,
-      light_file = light_file,
-      acceleration_file = acceleration_file,
-      temperature_external_file = temperature_external_file,
-      temperature_internal_file = temperature_internal_file,
-      magnetic_file = magnetic_file,
-      quiet = quiet
-    )
-  } else if (manufacturer == "soi") {
+  if (manufacturer == "soi") {
     tag <- tag_create_soi(
       id,
       directory = directory,
@@ -247,8 +247,8 @@ tag_create <- function(
       pressure_file = pressure_file,
       quiet = quiet
     )
-  } else if (manufacturer == "dataframe") {
-    tag <- tag_create_dataframe(
+  } else if (manufacturer == "tabular") {
+    tag <- tag_create_tabular(
       id,
       pressure_file = pressure_file,
       light_file = light_file,
@@ -351,7 +351,7 @@ tag_create_dto <- function(
   # Remove Invalid byte: FD from migratech
   data_raw <- data_raw[!data_raw[, 1] == "Invalid", ]
 
-  df <- data.frame(
+  sensor_data <- data.frame(
     date = as.POSIXct(strptime(
       paste(data_raw[, 1], data_raw[, 2]),
       tz = "UTC",
@@ -361,12 +361,12 @@ tag_create_dto <- function(
 
   for (i in seq_along(col)) {
     name <- if (i == 1) "value" else paste0("value", i)
-    df[[name]] <- as.numeric(data_raw[[col[i]]])
+    sensor_data[[name]] <- as.numeric(data_raw[[col[i]]])
   }
 
-  if (anyNA(df$value)) {
+  if (anyNA(sensor_data$value)) {
     cli::cli_abort(c(
-      x = "Invalid data in {.file {sensor_path)} at line(s): {skip + which(is.na(df$value))}",
+      x = "Invalid data in {.file {sensor_path)} at line(s): {skip + which(is.na(sensor_data$value))}",
       i = "Check and fix the corresponding lines"
     ))
   }
@@ -374,50 +374,13 @@ tag_create_dto <- function(
   if (!quiet) {
     cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
   }
-  return(df)
+  return(sensor_data)
 }
-
-#' Read data file with a CSV format
-#' @noRd
-tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
-  df <- utils::read.csv(sensor_path)
-
-  # Check if all specified columns are present
-  missing_cols <- setdiff(col_name, names(df))
-  if (length(missing_cols) > 0) {
-    cli::cli_abort(
-      "The following columns are missing in {.file {sensor_path}}: {glue::glue_collapse(missing_cols, ', ')}"
-    )
-  }
-
-  # Rename column datetime to date and convert to posixct
-  names(df)[names(df) == "datetime"] <- "date"
-  df$date <- as.POSIXct(df$date, format = "%Y-%m-%dT%H:%M", tz = "UTC")
-  if (anyNA(df$date)) {
-    df$date <- as.POSIXct(strptime(
-      df$date,
-      format = "%Y-%m-%dT%H:%M:%OS",
-      tz = "UTC"
-    ))
-  }
-  if (anyNA(df$date)) {
-    cli::cli_abort(c(
-      x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(df$date))}",
-      i = "Check and fix the corresponding lines"
-    ))
-  }
-
-  if (!quiet) {
-    cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
-  }
-
-  return(df)
-}
-
 
 #' Crop sensor data.frame
 #' @noRd
 tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
+  has_data <- FALSE
   for (sensor in c(
     "pressure",
     "light",
@@ -438,6 +401,7 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
           tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
         ]
       }
+      has_data <- has_data || nrow(tag[[sensor]]) > 0
 
       if (!quiet) {
         # Check irregular time
@@ -456,6 +420,13 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
         }
       }
     }
+  }
+
+  if ((!is.null(crop_start) || !is.null(crop_end)) && !has_data) {
+    cli::cli_abort(c(
+      "x" = "No data left after cropping.",
+      "i" = "Check {.arg crop_start} and {.arg crop_end}."
+    ))
   }
 
   # Add parameter information

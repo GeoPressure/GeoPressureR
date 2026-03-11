@@ -32,7 +32,7 @@ load_interim <- function(
   assertthat::assert_that(is.character(x), length(x) == 1)
 
   ext <- tolower(tools::file_ext(x))
-  if (nzchar(ext) && ext %in% c("rdata", "rda") && file.exists(x)) {
+  if (nzchar(ext) && ext %in% c("rdata", "rda")) {
     # Explicit RData/RDA file path
     file <- x
   } else {
