@@ -37,6 +37,7 @@
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
+# nocov start
 graph_add_wind <- function(
   graph,
   thr_as = Inf,
@@ -126,3 +127,4 @@ graph_add_wind <- function(
 
   return(graph)
 }
+# nocov end

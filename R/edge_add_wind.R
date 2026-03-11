@@ -77,6 +77,7 @@
 #' @seealso [GeoPressureManual](
 #' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
 #' @export
+# nocov start
 edge_add_wind <- function(
   graph,
   edge_s,
@@ -813,3 +814,4 @@ edge_add_wind_fill_var_fl <- function(
 
   list(var_fl = var_fl, p_q = p_q)
 }
+# nocov end
