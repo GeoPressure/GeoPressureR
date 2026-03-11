@@ -61,6 +61,4 @@ test_that("plot_path() handles missing stap_id", {
 
   p <- expect_no_error(plot_path(path, plot_leaflet = FALSE))
   expect_s3_class(p, "ggplot")
-
-  skip("Leaflet path requires stap_id for grouping.")
 })

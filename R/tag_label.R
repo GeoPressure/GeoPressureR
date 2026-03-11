@@ -101,7 +101,7 @@ tag_label <- function(
       "2" = glue::glue("Yes, in `{file_default}` (default)"),
       "3" = glue::glue("Yes, in `{file_input}` (in input file directory)")
     )
-    res <- if (interactive()) {
+    res <- if (interactive() && !quiet) {
       # nocov start
       as.numeric(names(utils::select.list(
         choices,
@@ -139,7 +139,7 @@ tag_label <- function(
           "Yes, read the new label, but start `tag` from scratch"
         )
       )
-      res <- if (interactive()) {
+      res <- if (interactive() && !quiet) {
         # nocov start
         as.numeric(names(
           utils::select.list(
