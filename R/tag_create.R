@@ -96,11 +96,12 @@
 #' - `light` (optional) same structure as pressure
 #' - `temperature_external` (optional) same structure as pressure
 #' - `temperature_internal` (optional) same structure as pressure
-#' - `acceleration` (optional) data.frame with columns: `date`, `value`, `act` and `pit`.
+#' - `acceleration` (optional) data.frame with columns: `date`, `value` and optionally
+#'   `mean_acceleration_z`.
 #'    - `value` is the activity computed as the sum of the difference in acceleration on the z-axis
 #'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
-#'    - `pitch` is the relative position of the bird’s body relative to the z axis. In the SOI
-#'    sensor, it is an average over 32 measurements at 10Hz.
+#'    - `mean_acceleration_z` is the mean acceleration on the z axis. In the SOI sensor, it is an
+#'    average over 32 measurements at 10Hz.
 #' - `magnetic` (optional) data.frame with columns: `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`
 #'    , `acceleration_x`, `acceleration_y` and `acceleration_z`
 #'

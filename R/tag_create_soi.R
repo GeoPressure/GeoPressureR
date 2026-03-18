@@ -102,7 +102,7 @@ tag_create_soi <- function(
       col = c(4, 3),
       quiet = quiet
     )
-    names(tag$acceleration) <- c("date", "value", "pitch")
+    names(tag$acceleration) <- c("date", "value", "mean_acceleration_z")
   }
 
   # Read External temperature

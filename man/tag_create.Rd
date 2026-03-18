@@ -77,11 +77,12 @@ a GeoPressureR \code{tag} object containing
 \item \code{light} (optional) same structure as pressure
 \item \code{temperature_external} (optional) same structure as pressure
 \item \code{temperature_internal} (optional) same structure as pressure
-\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value}, \code{act} and \code{pit}.
+\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value} and optionally
+\code{mean_acceleration_z}.
 \itemize{
 \item \code{value} is the activity computed as the sum of the difference in acceleration on the z-axis
 (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
-\item \code{pitch} is the relative position of the bird’s body relative to the z axis. In the SOI
+\item \code{mean_acceleration_z} is the mean acceleration on the z axis. In the SOI
 sensor, it is an average over 32 measurements at 10Hz.
 }
 \item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}

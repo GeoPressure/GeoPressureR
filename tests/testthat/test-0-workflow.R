@@ -21,12 +21,19 @@ test_that("workflow | full", {
   expect_no_error(plot(tag, type = "light"))
   expect_no_error(plot(tag, type = "light", plot_plotly = FALSE))
   expect_no_error(plot(tag, type = "acceleration"))
-  expect_no_error(plot(tag, type = "acceleration", variable = "pitch"))
+  expect_no_error(plot(tag, type = "acceleration", variable = "mean_acceleration_z"))
+  expect_error(plot(tag, type = "acceleration", variable = "pitch"), "deprecated")
+  tag_legacy <- tag
+  tag_legacy$acceleration <- tag_legacy$acceleration[c("date", "value")]
+  expect_error(
+    plot(tag_legacy, type = "acceleration", variable = "mean_acceleration_z"),
+    "mean_acceleration_z"
+  )
   expect_no_error(plot(tag, type = "acceleration", plot_plotly = FALSE))
   expect_no_error(plot(
     tag,
     type = "acceleration",
-    variable = "pitch",
+    variable = "mean_acceleration_z",
     plot_plotly = FALSE
   ))
   expect_no_error(plot(tag, type = "twilight"))
