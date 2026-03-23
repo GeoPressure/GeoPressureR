@@ -1,3 +1,20 @@
+# GeoPressureR v3.5.2
+
+## Main
+
+- [Improve geopressureviz design and interaction flow](https://github.com/GeoPressure/GeoPressureR/commit/a70faf9e)
+- [Rename `pitch` to `mean_acceleration_z`](https://github.com/GeoPressure/GeoPressureR/commit/5ae5ca52)
+- [Update GeoPressureR and GeoPressureManual URLs to `geopressure.org` and migrate repository links to `GeoPressure/*`](https://github.com/GeoPressure/GeoPressureR/commit/de31471a)
+
+## Minor
+
+- [Move order of `preslight`](https://github.com/GeoPressure/GeoPressureR/commit/8b50e88b)
+- [Update branch name in codecov link](https://github.com/GeoPressure/GeoPressureR/commit/3409e901)
+- [Add pre-commit hook for codemeta synchronization](https://github.com/GeoPressure/GeoPressureR/commit/b7d5b9c4)
+- [Exclude `.githooks` from package build and refine AGENTS guidance](https://github.com/GeoPressure/GeoPressureR/commit/901ceb5d)
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.5.1...v3.5.2>
+
 # GeoPressureR v3.5.1
 
 ## Tests and Coverage
