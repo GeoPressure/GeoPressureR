@@ -15,7 +15,7 @@ on all sensors data.frame with tag_label_stap()
 
 
 If the label file does not exist, the function will suggest to create it with
-tag_label_write() and use tag_label_auto() if acceleration data exists."><meta property="og:image" content="https://raphaelnussbaumer.com/GeoPressureR/logo.png"><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
+tag_label_write() and use tag_label_auto() if acceleration data exists."><meta property="og:image" content="https://geopressure.org/GeoPressureR/logo.png"><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -29,7 +29,7 @@ tag_label_write() and use tag_label_auto() if acceleration data exists."><meta p
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,7 +41,7 @@ tag_label_write() and use tag_label_auto() if acceleration data exists."><meta p
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/GeoPressure/GeoPressureR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -50,7 +50,7 @@ tag_label_write() and use tag_label_auto() if acceleration data exists."><meta p
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Label a <code>tag</code> object</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.5.1/R/tag_label.R" class="external-link"><code>R/tag_label.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/GeoPressure/GeoPressureR/blob/main/R/tag_label.R" class="external-link"><code>R/tag_label.R</code></a></small>
       <div class="d-none name"><code>tag_label.Rd</code></div>
     </div>
 
@@ -117,7 +117,7 @@ grouped by elevation layer (<code>elev_*</code>)</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><a href="https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html" class="external-link">GeoPressureManual </a></p>
+    <div class="dont-index"><p><a href="https://geopressure.org/GeoPressureManual/labelling-tracks.html" class="external-link">GeoPressureManual </a></p>
 <p>Other tag_label:
 <code><a href="tag_label_auto.html">tag_label_auto()</a></code>,
 <code><a href="tag_label_read.html">tag_label_read()</a></code>,
@@ -185,7 +185,7 @@ grouped by elevation layer (<code>elev_*</code>)</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ param               :List of 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id                  : chr "18LX"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 5 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ : int [1:3] 3 5 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ tag_create          :List of 6</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ pressure_file            : chr "./data/raw-tag/18LX/18LX_20180725.pressure"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ light_file               : chr "./data/raw-tag/18LX/18LX_20180725.glf"</span>
@@ -206,11 +206,11 @@ grouped by elevation layer (<code>elev_*</code>)</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : num [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ acceleration        :'data.frame':	4032 obs. of  5 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date   : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value  : num [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pitch  : num [1:4032] 26 27 27 28 28 28 28 27 28 27 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label  : chr [1:4032] "" "" "" "" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date               : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value              : num [1:4032] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ mean_acceleration_z: num [1:4032] 26 27 27 28 28 28 28 27 28 27 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ label              : chr [1:4032] "" "" "" "" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ stap_id            : num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ temperature_external:'data.frame':	2448 obs. of  2 variables:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ date : POSIXct[1:2448], format: "2017-06-20 00:00:00" "2017-06-20 00:30:00" ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ value: num [1:2448] 32 32 32 32 32 33 33 32 33 32 ...</span>

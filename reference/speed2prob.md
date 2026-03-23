@@ -27,10 +27,10 @@ Probability values corresponding to the speed provided.
 ## See also
 
 Other movement:
-[`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md),
-[`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
+[`bird_create()`](https://geopressure.org/GeoPressureR/reference/bird_create.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`plot_graph_movement()`](https://geopressure.org/GeoPressureR/reference/plot_graph_movement.md),
+[`tag_download_wind()`](https://geopressure.org/GeoPressureR/reference/tag_download_wind.md)
 
 ## Examples
 

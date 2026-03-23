@@ -17,7 +17,7 @@ geopressure_map_likelihood() converts the mismatch maps into a likelihood map.
 
 See below for details. For more background on the method behind these functions, please refer to
 Nussbaumer et al. (2023a; doi:10.1111/2041-210X.14043
-)."><meta property="og:image" content="https://raphaelnussbaumer.com/GeoPressureR/logo.png"><!-- dependencies from examples --><script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet"><script src="libs/leaflet-1.3.1/leaflet.js"></script><link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet"><script src="libs/proj4-2.6.2/proj4.min.js"></script><script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script><link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet"><script src="libs/leaflet-binding-2.2.3/leaflet.js"></script><script src="libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script><script src="libs/leaflet-providers-plugin-2.2.3/leaflet-providers-plugin.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
+)."><meta property="og:image" content="https://geopressure.org/GeoPressureR/logo.png"><!-- dependencies from examples --><script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="libs/leaflet-1.3.1/leaflet.css" rel="stylesheet"><script src="libs/leaflet-1.3.1/leaflet.js"></script><link href="libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet"><script src="libs/proj4-2.6.2/proj4.min.js"></script><script src="libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script><link href="libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet"><script src="libs/leaflet-binding-2.2.3/leaflet.js"></script><script src="libs/leaflet-providers-3.0.0/leaflet-providers.js"></script><script src="libs/leaflet-providers-plugin-2.2.3/leaflet-providers-plugin.js"></script><!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
@@ -31,7 +31,7 @@ Nussbaumer et al. (2023a; doi:10.1111/2041-210X.14043
 
     <a class="navbar-brand me-2" href="../index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,7 +43,7 @@ Nussbaumer et al. (2023a; doi:10.1111/2041-210X.14043
 <li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/GeoPressure/GeoPressureR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -52,7 +52,7 @@ Nussbaumer et al. (2023a; doi:10.1111/2041-210X.14043
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Compute likelihood map from pressure data</h1>
-      <small class="dont-index">Source: <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.5.1/R/geopressure_map.R" class="external-link"><code>R/geopressure_map.R</code></a>, <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.5.1/R/geopressure_map_likelihood.R" class="external-link"><code>R/geopressure_map_likelihood.R</code></a>, <a href="https://github.com/Rafnuss/GeoPressureR/blob/v3.5.1/R/geopressure_map_mismatch.R" class="external-link"><code>R/geopressure_map_mismatch.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/GeoPressure/GeoPressureR/blob/main/R/geopressure_map.R" class="external-link"><code>R/geopressure_map.R</code></a>, <a href="https://github.com/GeoPressure/GeoPressureR/blob/main/R/geopressure_map_likelihood.R" class="external-link"><code>R/geopressure_map_likelihood.R</code></a>, <a href="https://github.com/GeoPressure/GeoPressureR/blob/main/R/geopressure_map_mismatch.R" class="external-link"><code>R/geopressure_map_mismatch.R</code></a></small>
       <div class="d-none name"><code>geopressure_map.Rd</code></div>
     </div>
 
@@ -139,7 +139,7 @@ considered not possible.</p></dd>
 <dt id="arg-log-linear-pooling-weight">log_linear_pooling_weight<a class="anchor" aria-label="anchor" href="#arg-log-linear-pooling-weight"></a></dt>
 <dd><p>weighting function of the log-linear pooling, taking the number
 of samples of the stationary periods used and returning the weight of the aggregation. See
-<a href="https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html" class="external-link">GeoPressureManual | Probability aggregation </a> for more details.</p></dd>
+<a href="https://geopressure.org/GeoPressureManual/probability-aggregation.html" class="external-link">GeoPressureManual | Probability aggregation </a> for more details.</p></dd>
 
 
 <dt id="arg-timeout">timeout<a class="anchor" aria-label="anchor" href="#arg-timeout"></a></dt>
@@ -205,7 +205,7 @@ position.</p>
 
 
 <p><code>geopressure_map_mismatch()</code> computes the mismatch maps on Google Earth Engine via the map
-entry point of the <a href="https://github.com/Rafnuss/GeoPressureAPI" class="external-link">GeoPressure API</a>.
+entry point of the <a href="https://github.com/GeoPressure/GeoPressureAPI" class="external-link">GeoPressure API</a>.
 This consists of the following steps:</p><ol><li><p><strong>Pre-process pressure</strong>: the pressure measurements are first smoothed and downscaled to a
 1-hour resolution in order to match ERA-5 resolution (see <code><a href="geopressure_map_preprocess.html">geopressure_map_preprocess()</a></code>).</p></li>
 <li><p><strong>Generate requests</strong>: Send a single request to the GeoPressureAPI to generate the Google
@@ -226,7 +226,7 @@ The altitude value of the geolocator pressure time series is computed with the b
 accounting for the temporal variation of pressure (surface-pressure) and temperature
 (2m-temperature) based on ERA5 data. The min and max ground elevation of each pixel is computed
 from SRTM-90. This map is only returned if <code>keep_mask</code> is <code>TRUE</code>.</p></li>
-</ol><p>For more details, read the <a href="https://github.com/Rafnuss/GeoPressureAPI" class="external-link">GeoPressure API documentation </a>.</p>
+</ol><p>For more details, read the <a href="https://github.com/GeoPressure/GeoPressureAPI" class="external-link">GeoPressure API documentation </a>.</p>
     </div>
     <div class="section level2">
     <h2 id="elevation-levels">Elevation levels<a class="anchor" aria-label="anchor" href="#elevation-levels"></a></h2>
@@ -236,7 +236,7 @@ from SRTM-90. This map is only returned if <code>keep_mask</code> is <code>TRUE<
 <p>It is possible to indicate different elevation levels when the bird was spending time at
 locations with different elevations within a general area (~10km), and thus within the same
 stationary period. This can be done by using <code>tag$label="elev_x"</code> for all measurements of the
-same elevation level <em>x</em>. See more information on the labelling of elevation levels in <a href="https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period" class="external-link">the corresponding section in the GeoPressureManual</a>.</p>
+same elevation level <em>x</em>. See more information on the labelling of elevation levels in <a href="https://geopressure.org/GeoPressureManual/labelling-tracks.html#elevation-period" class="external-link">the corresponding section in the GeoPressureManual</a>.</p>
 <p>Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
 The mismatch maps of all elevation levels belonging to the same stationary periods are combined
 (as a weighted average) to result in a single mismatch map per stationary period.</p>
@@ -254,7 +254,7 @@ by <code>geopressure_map_mismatch()</code> into a likelihood map with,</p>
 (<code>thr_mask</code>).</p>
 <p>Because the auto-correlation of the time series is not accounted for in this equation, we use a
 log-linear pooling weight of \(w=\log(n)/n\) by default, where \(n\) is the number of samples
-in the time series (i.e., data points used to compute the MSE). See <a href="https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html" class="external-link">GeoPressureManual | Probability aggregation </a> for details.</p>
+in the time series (i.e., data points used to compute the MSE). See <a href="https://geopressure.org/GeoPressureManual/probability-aggregation.html" class="external-link">GeoPressureManual | Probability aggregation </a> for details.</p>
 <p><strong>Important Note</strong>: Since GeoPressure v3.1.0, the threshold of the mask is happening directly
 on the GEE server (i.e., during <code>geopressure_map_mismatch()</code>). This allows to compute the MSE
 only for pixels which are within the threshold, thus reducing the computational cost
@@ -269,7 +269,7 @@ Global Positioning with Animal‐borne Pressure Sensors. <em>Methods in Ecology 
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><a href="https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps" class="external-link">GeoPressureManual</a></p></div>
+    <div class="dont-index"><p><a href="https://geopressure.org/GeoPressureManual/pressure-map.html#compute-pressure-maps" class="external-link">GeoPressureManual</a></p></div>
     </div>
 
     <div class="section level2">

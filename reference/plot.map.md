@@ -3,7 +3,7 @@
 This function plots a GeoPressureR `map` object.
 
 You can plot on top of the `map` a `path`, this uses the
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md)
+[`plot_path()`](https://geopressure.org/GeoPressureR/reference/plot_path.md)
 function.
 
 Our maps are defined in lat-lon (i.e., EPSG:4326), but the display of
@@ -100,8 +100,8 @@ a plot or leaflet object.
 
 ## See also
 
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md)
-[`plot.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot.tag.md)
+[`plot_path()`](https://geopressure.org/GeoPressureR/reference/plot_path.md)
+[`plot.tag()`](https://geopressure.org/GeoPressureR/reference/plot.tag.md)
 
 ## Examples
 

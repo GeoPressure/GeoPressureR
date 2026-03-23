@@ -6,7 +6,7 @@ algorithm](https://en.wikipedia.org/wiki/Forward%E2%80%93backward_algorithm).
 For more details, see [section 2.3.2 of Nussbaumer et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0012-title)
 and the
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-2-marginal-probability-map).
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-2-marginal-probability-map).
 
 ## Usage
 
@@ -19,7 +19,7 @@ graph_marginal(graph, quiet = FALSE)
 - graph:
 
   a GeoPressureR `graph` with defined movement model
-  [`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md).
+  [`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md).
 
 - quiet:
 
@@ -40,15 +40,15 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-2-marginal-probability-map)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-2-marginal-probability-map)
 
 Other graph:
-[`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
-[`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md),
-[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
-[`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
+[`graph_add_wind()`](https://geopressure.org/GeoPressureR/reference/graph_add_wind.md),
+[`graph_create()`](https://geopressure.org/GeoPressureR/reference/graph_create.md),
+[`graph_most_likely()`](https://geopressure.org/GeoPressureR/reference/graph_most_likely.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`graph_simulation()`](https://geopressure.org/GeoPressureR/reference/graph_simulation.md),
+[`print.graph()`](https://geopressure.org/GeoPressureR/reference/print.graph.md)
 
 ## Examples
 
@@ -75,10 +75,10 @@ graph <- graph_set_movement(graph)
 # Compute marginal
 marginal <- graph_marginal(graph)
 #> ℹ Compute movement model
-#> ✔ Compute movement model [895ms]
+#> ✔ Compute movement model [1.3s]
 #> 
 #> ℹ Compute marginal
-#> ✔ Compute marginal [202ms]
+#> ✔ Compute marginal [146ms]
 #> 
 #> ✔ All done
 

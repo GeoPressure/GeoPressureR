@@ -28,7 +28,7 @@ tag_stap_daily(
   optional `stap` data.frame with columns `start` and `end`, a CSV path
   with those columns (POSIXct-compatible strings), or a GeoPressureR
   `tag` passed to
-  [`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md).
+  [`read_stap()`](https://geopressure.org/GeoPressureR/reference/read_stap.md).
 
 - twl_grouping:
 
@@ -53,10 +53,10 @@ come from the provided `stap0` input.
 ## See also
 
 Other tag:
-[`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
-[`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md),
-[`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md),
-[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md)
+[`print.tag()`](https://geopressure.org/GeoPressureR/reference/print.tag.md),
+[`read_stap()`](https://geopressure.org/GeoPressureR/reference/read_stap.md),
+[`tag_create()`](https://geopressure.org/GeoPressureR/reference/tag_create.md),
+[`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md)
 
 ## Examples
 

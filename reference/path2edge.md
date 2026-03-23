@@ -58,20 +58,20 @@ Data.frame of the edge containing:
   angle/direction with `Arg(gs)`. If graph provided.
 
 - `ws`: if computed with
-  [`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
+  [`graph_add_wind()`](https://geopressure.org/GeoPressureR/reference/graph_add_wind.md),
   same value as `gs`. Airspeed is computed with `as = gs - ws` in
   complex number to keep the vectorial additive properties. If graph
   provided.
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
 
 Other path:
-[`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
-[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
-[`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+[`path2elevation()`](https://geopressure.org/GeoPressureR/reference/path2elevation.md),
+[`path2twilight()`](https://geopressure.org/GeoPressureR/reference/path2twilight.md),
+[`plot_path()`](https://geopressure.org/GeoPressureR/reference/plot_path.md),
+[`tag2path()`](https://geopressure.org/GeoPressureR/reference/tag2path.md)
 
 ## Examples
 

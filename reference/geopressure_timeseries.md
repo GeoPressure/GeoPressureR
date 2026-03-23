@@ -20,7 +20,7 @@ the ground level elevation, temperature at 2m, and ground level pressure
 of ERA5, \\L_b\\ is the standard temperature lapse rate, \\R\\ is the
 universal gas constant, \\g\\ is the gravity constant and \\M\\ is the
 molar mass of air. See more information at [the GeoPressureAPI
-documentation](https://github.com/Rafnuss/GeoPressureAPI).
+documentation](https://github.com/GeoPressure/GeoPressureAPI).
 
 To be able to compare the temporal variation of the retrieved pressure
 of ERA5 \\P\_{ERA}\\ to the geolocator pressure \\P\_{gl}\\, the
@@ -104,8 +104,8 @@ Ecology and Evolution*, 14, 1118–1129
 ## See also
 
 Other pressurepath:
-[`plot_pressurepath()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_pressurepath.md),
-[`pressurepath_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/pressurepath_create.md)
+[`plot_pressurepath()`](https://geopressure.org/GeoPressureR/reference/plot_pressurepath.md),
+[`pressurepath_create()`](https://geopressure.org/GeoPressureR/reference/pressurepath_create.md)
 
 ## Examples
 

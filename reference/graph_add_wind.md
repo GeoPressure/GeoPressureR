@@ -10,7 +10,7 @@ airspeed `thr_as`.
 See section [2.2.4 in Nussbaumer
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 for more technical details and the
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 for an illustration on how to use it.
 
 ## Usage
@@ -40,7 +40,7 @@ graph_add_wind(graph, thr_as = Inf, variable = c("u", "v"), ...)
 - ...:
 
   Arguments passed on to
-  [`edge_add_wind`](https://raphaelnussbaumer.com/GeoPressureR/reference/edge_add_wind.md)
+  [`edge_add_wind`](https://geopressure.org/GeoPressureR/reference/edge_add_wind.md)
 
   `pressure`
 
@@ -86,15 +86,15 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 
 Other graph:
-[`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md),
-[`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md),
-[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
-[`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
+[`graph_create()`](https://geopressure.org/GeoPressureR/reference/graph_create.md),
+[`graph_marginal()`](https://geopressure.org/GeoPressureR/reference/graph_marginal.md),
+[`graph_most_likely()`](https://geopressure.org/GeoPressureR/reference/graph_most_likely.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`graph_simulation()`](https://geopressure.org/GeoPressureR/reference/graph_simulation.md),
+[`print.graph()`](https://geopressure.org/GeoPressureR/reference/print.graph.md)
 
 ## Examples
 

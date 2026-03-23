@@ -30,10 +30,10 @@ a plot or ggplotly object.
 ## See also
 
 Other movement:
-[`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md),
-[`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
+[`bird_create()`](https://geopressure.org/GeoPressureR/reference/bird_create.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`speed2prob()`](https://geopressure.org/GeoPressureR/reference/speed2prob.md),
+[`tag_download_wind()`](https://geopressure.org/GeoPressureR/reference/tag_download_wind.md)
 
 ## Examples
 

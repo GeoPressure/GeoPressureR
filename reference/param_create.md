@@ -35,7 +35,7 @@ A GeoPressureR `param` list
 ## See also
 
 Other param:
-[`print.param()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.param.md)
+[`print.param()`](https://geopressure.org/GeoPressureR/reference/print.param.md)
 
 ## Examples
 
@@ -45,7 +45,7 @@ print(param)
 #> 
 #> ── GeoPressureR `param` object for id: 18LX ────────────────────────────────────
 #> Note: All green texts are fields of `param` (i.e., `param$field`).
-#> • GeoPressureR_version: 3.5.1
+#> • GeoPressureR_version: 3.5.2
 #> 
 #> ── Sensors data `tag_create()` 
 #> • manufacturer:

@@ -6,7 +6,7 @@ creation `tag` object, the construction of the likelihood maps (pressure
 and/or light), the creation of the graph model construction, and,
 finally, the estimation of the trajectory products and the pressure path
 computation. Read the [Workflow chapter in the
-GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html)
+GeoPressureManual](https://geopressure.org/GeoPressureManual/geopressuretemplate-workflow.html)
 for more information.
 
 ## Usage
@@ -106,19 +106,19 @@ step:
   the `tag` object. It also generates light and pressure likelihood
   maps:
 
-1.  [`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md):
+1.  [`tag_create()`](https://geopressure.org/GeoPressureR/reference/tag_create.md):
     Initializes the tag object.
 
-2.  [`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md):
+2.  [`tag_label()`](https://geopressure.org/GeoPressureR/reference/tag_label.md):
     Adds labels.
 
-3.  [`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md):
+3.  [`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md):
     Sets the spatial and temporal parameters.
 
 4.  If `"map_pressure"` is in the
     `config$geopressuretemplate$likelihood`:
 
-    - [`geopressure_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.md):
+    - [`geopressure_map()`](https://geopressure.org/GeoPressureR/reference/geopressure_map.md):
       Computes the pressure likelihood.
 
 5.  If `"map_light"` is in the `config$geopressuretemplate$likelihood`:
@@ -131,35 +131,35 @@ step:
   specified. Outputs such as marginal distributions, most likely paths,
   and simulation paths can be computed.
 
-1.  [`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md):
+1.  [`graph_create()`](https://geopressure.org/GeoPressureR/reference/graph_create.md):
     Creates the graph based on tag.
 
 2.  If `config$graph_set_movement$type == "gs"` (i.e., no wind):
 
-    - [`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md):
+    - [`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md):
       Sets the movement model without wind.
 
 3.  If `config$graph_set_movement$type == "as"` (i.e., with wind):
 
-    - [`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md):
+    - [`graph_add_wind()`](https://geopressure.org/GeoPressureR/reference/graph_add_wind.md):
       Adds wind data to the graph.
 
-    - [`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md):
+    - [`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md):
       Sets the movement model with wind.
 
 4.  If `"marginal"` is in `config$geopressuretemplate$outputs`:
 
-    - [`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md):
+    - [`graph_marginal()`](https://geopressure.org/GeoPressureR/reference/graph_marginal.md):
       Computes the marginal distribution map.
 
 5.  If `"most_likely"` is in `config$geopressuretemplate$outputs`:
 
-    - [`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md):
+    - [`graph_most_likely()`](https://geopressure.org/GeoPressureR/reference/graph_most_likely.md):
       Computes the most likely path based on the movement model.
 
 6.  If `"simulation"` is in `config$geopressuretemplate$outputs`:
 
-    - [`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md):
+    - [`graph_simulation()`](https://geopressure.org/GeoPressureR/reference/graph_simulation.md):
       Runs simulations to model multiple possible paths.
 
 7.  [`save()`](https://rdrr.io/r/base/save.html): Saves the computed
@@ -182,7 +182,7 @@ automatically as part of the `geopressuretemplate` workflow.
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/geopressuretemplate-workflow.html)
 
 ## Examples
 

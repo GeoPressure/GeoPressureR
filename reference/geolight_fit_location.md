@@ -65,12 +65,12 @@ A `path` data.frame derived from `tag$stap` with added columns: `lon`,
 ## See also
 
 Other geolight:
-[`geolight_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md),
-[`geolight_solar()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_solar.md),
-[`plot_twl_calib()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_twl_calib.md),
-[`twilight_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_create.md),
-[`twilight_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_read.md),
-[`twilight_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_write.md)
+[`geolight_map()`](https://geopressure.org/GeoPressureR/reference/geolight_map.md),
+[`geolight_solar()`](https://geopressure.org/GeoPressureR/reference/geolight_solar.md),
+[`plot_twl_calib()`](https://geopressure.org/GeoPressureR/reference/plot_twl_calib.md),
+[`twilight_create()`](https://geopressure.org/GeoPressureR/reference/twilight_create.md),
+[`twilight_label_read()`](https://geopressure.org/GeoPressureR/reference/twilight_label_read.md),
+[`twilight_label_write()`](https://geopressure.org/GeoPressureR/reference/twilight_label_write.md)
 
 ## Examples
 

@@ -26,7 +26,7 @@ keychain with:
 ` ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX") `
 
 More information [in the
-GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html).
+GeoPressureManual](https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html).
 
 ## Usage
 
@@ -139,13 +139,13 @@ download/transfer information
 
 [`wf_request_batch()`](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html)
 ,
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 
 Other movement:
-[`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md),
-[`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md)
+[`bird_create()`](https://geopressure.org/GeoPressureR/reference/bird_create.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`plot_graph_movement()`](https://geopressure.org/GeoPressureR/reference/plot_graph_movement.md),
+[`speed2prob()`](https://geopressure.org/GeoPressureR/reference/speed2prob.md)
 
 ## Examples
 

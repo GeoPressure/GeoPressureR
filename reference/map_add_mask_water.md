@@ -42,9 +42,9 @@ The coastline data is rasterized to match the map's grid (defined by
 ## See also
 
 Other map:
-[`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md),
-[`print.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.map.md),
-[`rast.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/rast.map.md)
+[`map_create()`](https://geopressure.org/GeoPressureR/reference/map_create.md),
+[`print.map()`](https://geopressure.org/GeoPressureR/reference/print.map.md),
+[`rast.map()`](https://geopressure.org/GeoPressureR/reference/rast.map.md)
 
 ## Examples
 

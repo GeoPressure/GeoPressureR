@@ -5,7 +5,7 @@ value in a likelihood map.
 
 Note that this path is the most likely, considering only the observation
 model and ignoring the movement model. Prefer to use
-[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md)
+[`graph_most_likely()`](https://geopressure.org/GeoPressureR/reference/graph_most_likely.md)
 for the most realistic path accounting for flight duration.
 
 `interp` can be used to interpolate unrealistic position from short
@@ -61,10 +61,10 @@ A path data.frame
 ## See also
 
 Other path:
-[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
-[`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
-[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md)
+[`path2edge()`](https://geopressure.org/GeoPressureR/reference/path2edge.md),
+[`path2elevation()`](https://geopressure.org/GeoPressureR/reference/path2elevation.md),
+[`path2twilight()`](https://geopressure.org/GeoPressureR/reference/path2twilight.md),
+[`plot_path()`](https://geopressure.org/GeoPressureR/reference/plot_path.md)
 
 ## Examples
 

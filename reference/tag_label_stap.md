@@ -3,7 +3,7 @@
 This function computes the stationary periods from the pressure and/or
 acceleration label data. In most case, this function should be run
 directly after
-[`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md)
+[`tag_label_read()`](https://geopressure.org/GeoPressureR/reference/tag_label_read.md)
 in order to update `tag` to correspond to the new label file.
 
 A stationary period is a period during which the bird is considered
@@ -53,13 +53,13 @@ tag_label_stap(
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#compute-stationary-periods)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#compute-stationary-periods)
 
 Other tag_label:
-[`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md),
-[`tag_label_auto()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_auto.md),
-[`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md),
-[`tag_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_write.md)
+[`tag_label()`](https://geopressure.org/GeoPressureR/reference/tag_label.md),
+[`tag_label_auto()`](https://geopressure.org/GeoPressureR/reference/tag_label_auto.md),
+[`tag_label_read()`](https://geopressure.org/GeoPressureR/reference/tag_label_read.md),
+[`tag_label_write()`](https://geopressure.org/GeoPressureR/reference/tag_label_write.md)
 
 ## Examples
 
@@ -78,7 +78,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>  $ param               :List of 4
 #>   ..$ id                  : chr "18LX"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 5 1
+#>   .. ..$ : int [1:3] 3 5 2
 #>   ..$ tag_create          :List of 6
 #>   .. ..$ pressure_file            : chr "./data/raw-tag/18LX/18LX_20180725.pressure"
 #>   .. ..$ light_file               : chr "./data/raw-tag/18LX/18LX_20180725.glf"
@@ -99,11 +99,11 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>   ..$ value  : num [1:4032] 0 0 0 0 0 0 0 0 0 0 ...
 #>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...
 #>  $ acceleration        :'data.frame':    4032 obs. of  5 variables:
-#>   ..$ date   : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...
-#>   ..$ value  : num [1:4032] 0 0 0 0 0 0 0 0 0 0 ...
-#>   ..$ pitch  : num [1:4032] 26 27 27 28 28 28 28 27 28 27 ...
-#>   ..$ label  : chr [1:4032] "" "" "" "" ...
-#>   ..$ stap_id: num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...
+#>   ..$ date               : POSIXct[1:4032], format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...
+#>   ..$ value              : num [1:4032] 0 0 0 0 0 0 0 0 0 0 ...
+#>   ..$ mean_acceleration_z: num [1:4032] 26 27 27 28 28 28 28 27 28 27 ...
+#>   ..$ label              : chr [1:4032] "" "" "" "" ...
+#>   ..$ stap_id            : num [1:4032] 1 1 1 1 1 1 1 1 1 1 ...
 #>  $ temperature_external:'data.frame':    2448 obs. of  2 variables:
 #>   ..$ date : POSIXct[1:2448], format: "2017-06-20 00:00:00" "2017-06-20 00:30:00" ...
 #>   ..$ value: num [1:2448] 32 32 32 32 32 33 33 32 33 32 ...

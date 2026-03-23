@@ -26,9 +26,9 @@ print(x, ...)
 ## See also
 
 Other map:
-[`map_add_mask_water()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_add_mask_water.md),
-[`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md),
-[`rast.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/rast.map.md)
+[`map_add_mask_water()`](https://geopressure.org/GeoPressureR/reference/map_add_mask_water.md),
+[`map_create()`](https://geopressure.org/GeoPressureR/reference/map_create.md),
+[`rast.map()`](https://geopressure.org/GeoPressureR/reference/rast.map.md)
 
 ## Examples
 

@@ -85,12 +85,12 @@ Meeus, J. (1998). *Astronomical Algorithms*. Willmann-Bell.
 ## See also
 
 Other geolight:
-[`geolight_fit_location()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_fit_location.md),
-[`geolight_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.md),
-[`plot_twl_calib()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_twl_calib.md),
-[`twilight_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_create.md),
-[`twilight_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_read.md),
-[`twilight_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_label_write.md)
+[`geolight_fit_location()`](https://geopressure.org/GeoPressureR/reference/geolight_fit_location.md),
+[`geolight_map()`](https://geopressure.org/GeoPressureR/reference/geolight_map.md),
+[`plot_twl_calib()`](https://geopressure.org/GeoPressureR/reference/plot_twl_calib.md),
+[`twilight_create()`](https://geopressure.org/GeoPressureR/reference/twilight_create.md),
+[`twilight_label_read()`](https://geopressure.org/GeoPressureR/reference/twilight_label_read.md),
+[`twilight_label_write()`](https://geopressure.org/GeoPressureR/reference/twilight_label_write.md)
 
 ## Examples
 

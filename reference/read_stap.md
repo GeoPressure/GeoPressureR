@@ -30,10 +30,10 @@ A data.frame containing at least the required columns, sorted by
 ## See also
 
 Other tag:
-[`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
-[`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md),
-[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md),
-[`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
+[`print.tag()`](https://geopressure.org/GeoPressureR/reference/print.tag.md),
+[`tag_create()`](https://geopressure.org/GeoPressureR/reference/tag_create.md),
+[`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md),
+[`tag_stap_daily()`](https://geopressure.org/GeoPressureR/reference/tag_stap_daily.md)
 
 ## Examples
 

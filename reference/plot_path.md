@@ -1,7 +1,7 @@
 # Plot a `path`
 
 This function plots a `path` data.frame. This function is used in
-[`plot.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot.map.md).
+[`plot.map()`](https://geopressure.org/GeoPressureR/reference/plot.map.md).
 
 ## Usage
 
@@ -65,13 +65,13 @@ object.
 
 ## See also
 
-[`plot.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot.map.md)
+[`plot.map()`](https://geopressure.org/GeoPressureR/reference/plot.map.md)
 
 Other path:
-[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
-[`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
-[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
-[`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+[`path2edge()`](https://geopressure.org/GeoPressureR/reference/path2edge.md),
+[`path2elevation()`](https://geopressure.org/GeoPressureR/reference/path2elevation.md),
+[`path2twilight()`](https://geopressure.org/GeoPressureR/reference/path2twilight.md),
+[`tag2path()`](https://geopressure.org/GeoPressureR/reference/tag2path.md)
 
 ## Examples
 

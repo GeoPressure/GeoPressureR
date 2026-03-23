@@ -38,13 +38,13 @@ The file pathname is return invisibly
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file)
 
 Other tag_label:
-[`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md),
-[`tag_label_auto()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_auto.md),
-[`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md),
-[`tag_label_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_stap.md)
+[`tag_label()`](https://geopressure.org/GeoPressureR/reference/tag_label.md),
+[`tag_label_auto()`](https://geopressure.org/GeoPressureR/reference/tag_label_auto.md),
+[`tag_label_read()`](https://geopressure.org/GeoPressureR/reference/tag_label_read.md),
+[`tag_label_stap()`](https://geopressure.org/GeoPressureR/reference/tag_label_stap.md)
 
 ## Examples
 

@@ -35,7 +35,7 @@ path2elevation(
 
   spatial resolution of the SRTM to use to query the elevation. `scale`
   is defined as the number of pixels per 1° latitude-longitude (see
-  [`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md)
+  [`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md)
   for details). Native resolution of SRTM is 30m.
 
 - sampling_scale:
@@ -69,10 +69,10 @@ A data.frame containing
 ## See also
 
 Other path:
-[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
-[`path2twilight()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2twilight.md),
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
-[`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+[`path2edge()`](https://geopressure.org/GeoPressureR/reference/path2edge.md),
+[`path2twilight()`](https://geopressure.org/GeoPressureR/reference/path2twilight.md),
+[`plot_path()`](https://geopressure.org/GeoPressureR/reference/plot_path.md),
+[`tag2path()`](https://geopressure.org/GeoPressureR/reference/tag2path.md)
 
 ## Examples
 

@@ -19,7 +19,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Global Positioning by Atmospheric Pressure">
 <meta name="description" content="R package to determine the position and trajectory of a bird based on light-weight data-logger measuring at lease atmospheric pressure.">
 <meta property="og:description" content="R package to determine the position and trajectory of a bird based on light-weight data-logger measuring at lease atmospheric pressure.">
-<meta property="og:image" content="https://raphaelnussbaumer.com/GeoPressureR/logo.png">
+<meta property="og:image" content="https://geopressure.org/GeoPressureR/logo.png">
 <!-- Global site tag (gtag.js) - Google Analytics --><script async src="https://www.googletagmanager.com/gtag/js?id=G-M5FY4BPHTB"></script><script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -36,7 +36,7 @@
 
     <a class="navbar-brand me-2" href="index.html">GeoPressureR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.5.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Rafnuss/GeoPressureR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/GeoPressure/GeoPressureR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -74,37 +74,37 @@
 <p>The best way to install the GeoPressureR package is through Github</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"Rafnuss/GeoPressureR"</span><span class="op">)</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"GeoPressure/GeoPressureR"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Development version:</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"Rafnuss/GeoPressureR@dev"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"GeoPressure/GeoPressureR@dev"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="learn-how-to-use-geopressurer">Learn how to use GeoPressureR<a class="anchor" aria-label="anchor" href="#learn-how-to-use-geopressurer"></a>
 </h2>
-<p>The <a href="https://raphaelnussbaumer.com/GeoPressureManual/" class="external-link">GeoPressureManual</a> is a great place to start learning about how to use GeoPressureR.</p>
+<p>The <a href="https://geopressure.org/GeoPressureManual/" class="external-link">GeoPressureManual</a> is a great place to start learning about how to use GeoPressureR.</p>
 <p>Using the examples, this user guide takes you through each step of the analysis in detail.</p>
 <p align="center">
-<a href="https://raphaelnussbaumer.com/GeoPressureManual/" class="external-link"><img src="https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a>
+<a href="https://geopressure.org/GeoPressureManual/" class="external-link"><img src="https://github.com/GeoPressure/GeoPressureManual/raw/main/assets/cover.png" style="margin: 0 1rem 0 1rem;box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);" align="center" width="250" height="328"></a>
 </p>
 </div>
 <div class="section level2">
 <h2 id="start-your-own-analysis">Start your own analysis<a class="anchor" aria-label="anchor" href="#start-your-own-analysis"></a>
 </h2>
-<p>Once you are familiar with the workflow of the method and want to start your own study, we suggest you use <a href="https://github.com/Rafnuss/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>, a <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository" class="external-link">github template repository</a> which provides a standard code structure for your analysis.</p>
+<p>Once you are familiar with the workflow of the method and want to start your own study, we suggest you use <a href="https://github.com/GeoPressure/GeoPressureTemplate" class="external-link">GeoPressureTemplate</a>, a <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository" class="external-link">github template repository</a> which provides a standard code structure for your analysis.</p>
 <p>Using this standardized code structure you will help you on many aspect: code sharing and troubleshooting, data archiving, work reproducibility.</p>
 </div>
 <div class="section level2">
 <h2 id="cheatsheet">Cheatsheet<a class="anchor" aria-label="anchor" href="#cheatsheet"></a>
 </h2>
-<p><a href="https://github.com/Rafnuss/GeoPressureR/raw/master/man/figures/cheatsheet.pdf" target="_blank" class="external-link"> <img src="reference/figures/cheatsheet-01.png" width="350"><img src="reference/figures/cheatsheet-02.png" width="350"></a></p>
+<p><a href="https://github.com/GeoPressure/GeoPressureR/raw/master/man/figures/cheatsheet.pdf" target="_blank" class="external-link"> <img src="reference/figures/cheatsheet-01.png" width="350"><img src="reference/figures/cheatsheet-02.png" width="350"></a></p>
 </div>
 <div class="section level2">
 <h2 id="how-to-cite">How to cite?<a class="anchor" aria-label="anchor" href="#how-to-cite"></a>
 </h2>
 <p>Make sure to cite the correct reference (R package, papers of the underlying methods and/or user manual) according to your use:</p>
 <blockquote>
-<p>Nussbaumer, R., &amp; Gravey, M. (2022). <em>GeoPressureR: Global positioning by atmospheric pressure.</em> Zenodo. <a href="https://doi.org/10.5281/zenodo.7754457" class="external-link uri">https://doi.org/10.5281/zenodo.7754457</a>. Available at: <a href="https://github.com/Rafnuss/GeoPressureR" class="external-link uri">https://github.com/Rafnuss/GeoPressureR</a></p>
+<p>Nussbaumer, R., &amp; Gravey, M. (2022). <em>GeoPressureR: Global positioning by atmospheric pressure.</em> Zenodo. <a href="https://doi.org/10.5281/zenodo.7754457" class="external-link uri">https://doi.org/10.5281/zenodo.7754457</a>. Available at: <a href="https://github.com/GeoPressure/GeoPressureR" class="external-link uri">https://github.com/GeoPressure/GeoPressureR</a></p>
 </blockquote>
 <blockquote>
 <p>Nussbaumer, R., Gravey, M., Briedis, M., &amp; Liechti, F. (2023). Global positioning with animal-borne pressure sensors. <em>Methods in Ecology and Evolution, 14</em>(4), 1104–1117. <a href="https://doi.org/10.1111/2041-210X.14043" class="external-link uri">https://doi.org/10.1111/2041-210X.14043</a></p>
@@ -113,7 +113,7 @@
 <p>Nussbaumer, R., Gravey, M., Briedis, M., Liechti, F., &amp; Sheldon, D. (2023). Reconstructing bird trajectories from pressure and wind data using a highly optimised hidden Markov model. <em>Methods in Ecology and Evolution, 14</em>(4), 1–32. <a href="https://doi.org/10.1111/2041-210X.14082" class="external-link uri">https://doi.org/10.1111/2041-210X.14082</a></p>
 </blockquote>
 <blockquote>
-<p>Nussbaumer, R., &amp; Nussbaumer, A. (2024). <em>GeoPressureManual: Learn how to use GeoPressureR with examples.</em> Zenodo. <a href="https://doi.org/10.5281/zenodo.10799355" class="external-link uri">https://doi.org/10.5281/zenodo.10799355</a>. Available at: <a href="https://github.com/Rafnuss/GeoPressureManual" class="external-link uri">https://github.com/Rafnuss/GeoPressureManual</a></p>
+<p>Nussbaumer, R., &amp; Nussbaumer, A. (2024). <em>GeoPressureManual: Learn how to use GeoPressureR with examples.</em> Zenodo. <a href="https://doi.org/10.5281/zenodo.10799355" class="external-link uri">https://doi.org/10.5281/zenodo.10799355</a>. Available at: <a href="https://github.com/GeoPressure/GeoPressureManual" class="external-link uri">https://github.com/GeoPressure/GeoPressureManual</a></p>
 </blockquote>
 <p>Get citation information in R with <code>citation("GeoPressureR")</code>.</p>
 </div>

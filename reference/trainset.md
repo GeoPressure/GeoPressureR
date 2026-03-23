@@ -70,15 +70,15 @@ The app features:
 - Export functionality to save labeled data as CSV files
 
 Learn more about data labeling workflows in the
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/) or
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/) or
 explore the [GeoPressureR
-documentation](https://raphaelnussbaumer.com/GeoPressureR/).
+documentation](https://geopressure.org/GeoPressureR/).
 
 ## See also
 
-[`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md),
-[`tag_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_write.md),
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/)
+[`tag_label_read()`](https://geopressure.org/GeoPressureR/reference/tag_label_read.md),
+[`tag_label_write()`](https://geopressure.org/GeoPressureR/reference/tag_label_write.md),
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/)
 
 ## Examples
 

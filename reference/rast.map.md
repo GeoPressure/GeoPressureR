@@ -43,9 +43,9 @@ object.
 ## See also
 
 Other map:
-[`map_add_mask_water()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_add_mask_water.md),
-[`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md),
-[`print.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.map.md)
+[`map_add_mask_water()`](https://geopressure.org/GeoPressureR/reference/map_add_mask_water.md),
+[`map_create()`](https://geopressure.org/GeoPressureR/reference/map_create.md),
+[`print.map()`](https://geopressure.org/GeoPressureR/reference/print.map.md)
 
 ## Examples
 

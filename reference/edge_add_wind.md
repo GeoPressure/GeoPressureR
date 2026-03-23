@@ -149,7 +149,7 @@ per time step and edge, and columns:
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 
 ## Examples
 

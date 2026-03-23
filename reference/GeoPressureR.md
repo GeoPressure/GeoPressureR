@@ -17,11 +17,11 @@ acceleration and windspeed data into a trajectory model of the bird.
 
 Useful links:
 
-- <https://github.com/Rafnuss/GeoPressureR>
+- <https://github.com/GeoPressure/GeoPressureR>
 
-- <https://raphaelnussbaumer.com/GeoPressureR/>
+- <https://geopressure.org/GeoPressureR/>
 
-- Report bugs at <https://github.com/Rafnuss/GeoPressureR/issues>
+- Report bugs at <https://github.com/GeoPressure/GeoPressureR/issues>
 
 ## Author
 

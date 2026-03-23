@@ -13,7 +13,7 @@ ground speed lower than `thr_gs` (in km/h).
 For more details and illustration, see [section 2.2 of Nussbaumer et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0004-title)
 and the
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#create-the-graph)
 
 ## Usage
 
@@ -109,15 +109,15 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#create-the-graph)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#create-the-graph)
 
 Other graph:
-[`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
-[`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md),
-[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
-[`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
+[`graph_add_wind()`](https://geopressure.org/GeoPressureR/reference/graph_add_wind.md),
+[`graph_marginal()`](https://geopressure.org/GeoPressureR/reference/graph_marginal.md),
+[`graph_most_likely()`](https://geopressure.org/GeoPressureR/reference/graph_most_likely.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`graph_simulation()`](https://geopressure.org/GeoPressureR/reference/graph_simulation.md),
+[`print.graph()`](https://geopressure.org/GeoPressureR/reference/print.graph.md)
 
 ## Examples
 

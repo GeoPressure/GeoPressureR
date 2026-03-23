@@ -26,10 +26,10 @@ print(x, ...)
 ## See also
 
 Other tag:
-[`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md),
-[`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md),
-[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md),
-[`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
+[`read_stap()`](https://geopressure.org/GeoPressureR/reference/read_stap.md),
+[`tag_create()`](https://geopressure.org/GeoPressureR/reference/tag_create.md),
+[`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md),
+[`tag_stap_daily()`](https://geopressure.org/GeoPressureR/reference/tag_stap_daily.md)
 
 ## Examples
 

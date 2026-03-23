@@ -37,14 +37,14 @@ path2twilight(path, date = NULL, solar_dep = 0, return_long = TRUE)
 
   logical defining the format of the data.frame returned. If `TRUE`,
   returns the long format identical to
-  [`twilight_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_create.md).
+  [`twilight_create()`](https://geopressure.org/GeoPressureR/reference/twilight_create.md).
   If `FALSE`, return the sunrise and sunset as different column, making
   the data.frame the same size as `date`.
 
 ## Value
 
 if `return_long == TRUE`, a `twilight` data.frame (same as
-[`twilight_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/twilight_create.md))
+[`twilight_create()`](https://geopressure.org/GeoPressureR/reference/twilight_create.md))
 with columns:
 
 - `date` same as input `date`
@@ -76,14 +76,14 @@ with columns:
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/light-map.html)
 , [suntools](https://github.com/adokter/suntools)
 
 Other path:
-[`path2edge()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2edge.md),
-[`path2elevation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/path2elevation.md),
-[`plot_path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_path.md),
-[`tag2path()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag2path.md)
+[`path2edge()`](https://geopressure.org/GeoPressureR/reference/path2edge.md),
+[`path2elevation()`](https://geopressure.org/GeoPressureR/reference/path2elevation.md),
+[`plot_path()`](https://geopressure.org/GeoPressureR/reference/plot_path.md),
+[`tag2path()`](https://geopressure.org/GeoPressureR/reference/tag2path.md)
 
 ## Examples
 

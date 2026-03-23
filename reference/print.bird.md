@@ -26,7 +26,7 @@ print(x, ...)
 ## See also
 
 Other bird:
-[`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md)
+[`bird_create()`](https://geopressure.org/GeoPressureR/reference/bird_create.md)
 
 ## Examples
 

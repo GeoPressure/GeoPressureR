@@ -56,9 +56,9 @@ A GeoPressure `map` object
 ## See also
 
 Other map:
-[`map_add_mask_water()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_add_mask_water.md),
-[`print.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.map.md),
-[`rast.map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/rast.map.md)
+[`map_add_mask_water()`](https://geopressure.org/GeoPressureR/reference/map_add_mask_water.md),
+[`print.map()`](https://geopressure.org/GeoPressureR/reference/print.map.md),
+[`rast.map()`](https://geopressure.org/GeoPressureR/reference/rast.map.md)
 
 ## Examples
 

@@ -6,7 +6,7 @@ the graph structure. For more details, see [section 2.3.1 of Nussbaumer
 et al.
 (2023b)](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0011-title)
 and the
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path).
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-1-most-likely-path).
 
 ## Usage
 
@@ -55,15 +55,15 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-1-most-likely-path)
 
 Other graph:
-[`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
-[`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md),
-[`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md),
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
-[`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
+[`graph_add_wind()`](https://geopressure.org/GeoPressureR/reference/graph_add_wind.md),
+[`graph_create()`](https://geopressure.org/GeoPressureR/reference/graph_create.md),
+[`graph_marginal()`](https://geopressure.org/GeoPressureR/reference/graph_marginal.md),
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`graph_simulation()`](https://geopressure.org/GeoPressureR/reference/graph_simulation.md),
+[`print.graph()`](https://geopressure.org/GeoPressureR/reference/print.graph.md)
 
 ## Examples
 

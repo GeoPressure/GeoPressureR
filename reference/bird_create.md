@@ -61,13 +61,13 @@ area.
 ## See also
 
 Other bird:
-[`print.bird()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.bird.md)
+[`print.bird()`](https://geopressure.org/GeoPressureR/reference/print.bird.md)
 
 Other movement:
-[`graph_set_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_set_movement.md),
-[`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md),
-[`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md),
-[`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
+[`graph_set_movement()`](https://geopressure.org/GeoPressureR/reference/graph_set_movement.md),
+[`plot_graph_movement()`](https://geopressure.org/GeoPressureR/reference/plot_graph_movement.md),
+[`speed2prob()`](https://geopressure.org/GeoPressureR/reference/speed2prob.md),
+[`tag_download_wind()`](https://geopressure.org/GeoPressureR/reference/tag_download_wind.md)
 
 ## Examples
 

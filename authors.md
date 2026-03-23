@@ -10,19 +10,19 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/Rafnuss/GeoPressureR/blob/v3.5.1/inst/CITATION)
+[`inst/CITATION`](https://github.com/GeoPressure/GeoPressureR/blob/main/inst/CITATION)
 
 Nussbaumer R, Gravey M (2022). *GeoPressureR: Global positioning by
 atmospheric pressure*.
 [doi:10.5281/zenodo.7754457](https://doi.org/10.5281/zenodo.7754457),
-<https://github.com/Rafnuss/GeoPressureR>.
+<https://github.com/GeoPressure/GeoPressureR>.
 
     @Manual{,
       title = {GeoPressureR: Global positioning by atmospheric pressure},
       author = {Raphael Nussbaumer and Mathieu Gravey},
       year = {2022},
       doi = {10.5281/zenodo.7754457},
-      url = {https://github.com/Rafnuss/GeoPressureR},
+      url = {https://github.com/GeoPressure/GeoPressureR},
     }
 
 Nussbaumer R, Gravey M, Briedis M, Liechti F (2023). “Global positioning
@@ -61,27 +61,27 @@ Evolution*, **14**(4), 1108-1129.
 Nussbaumer R, Nussbaumer A (2024). *GeoPressureManual: Learn how to use
 GeoPressureR with examples.*.
 [doi:10.5281/zenodo.10799355](https://doi.org/10.5281/zenodo.10799355),
-<https://github.com/Rafnuss/GeoPressureManual>.
+<https://github.com/GeoPressure/GeoPressureManual>.
 
     @Manual{,
       title = {GeoPressureManual: Learn how to use GeoPressureR with examples.},
       author = {Raphael Nussbaumer and Améline Nussbaumer},
       year = {2024},
       doi = {10.5281/zenodo.10799355},
-      url = {https://github.com/Rafnuss/GeoPressureManual},
+      url = {https://github.com/GeoPressure/GeoPressureManual},
     }
 
 Nussbaumer R, Gravey M (2022). *GeoPressureR: Global positioning by
 atmospheric pressure*.
 [doi:10.5281/zenodo.7754457](https://doi.org/10.5281/zenodo.7754457),
-<https://github.com/Rafnuss/GeoPressureR>.
+<https://github.com/GeoPressure/GeoPressureR>.
 
     @Manual{,
       title = {GeoPressureR: Global positioning by atmospheric pressure},
       author = {Raphael Nussbaumer and Mathieu Gravey},
       year = {2022},
       doi = {10.5281/zenodo.7754457},
-      url = {https://github.com/Rafnuss/GeoPressureR},
+      url = {https://github.com/GeoPressure/GeoPressureR},
     }
 
 Nussbaumer R, Gravey M, Briedis M, Liechti F (2023). “Global positioning
@@ -120,12 +120,12 @@ Evolution*, **14**(4), 1108-1129.
 Nussbaumer R, Nussbaumer A (2024). *GeoPressureManual: Learn how to use
 GeoPressureR with examples.*.
 [doi:10.5281/zenodo.10799355](https://doi.org/10.5281/zenodo.10799355),
-<https://github.com/Rafnuss/GeoPressureManual>.
+<https://github.com/GeoPressure/GeoPressureManual>.
 
     @Manual{,
       title = {GeoPressureManual: Learn how to use GeoPressureR with examples.},
       author = {Raphael Nussbaumer and Améline Nussbaumer},
       year = {2024},
       doi = {10.5281/zenodo.10799355},
-      url = {https://github.com/Rafnuss/GeoPressureManual},
+      url = {https://github.com/GeoPressure/GeoPressureManual},
     }

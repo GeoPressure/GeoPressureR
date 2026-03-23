@@ -20,7 +20,7 @@ By default, no likelihood map will be computed for these stationary
 periods and the trajectory model will be more constrained, saving
 significant computational time. You can change this using the
 `compute_known` parameter in
-[`geopressure_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map.md).
+[`geopressure_map()`](https://geopressure.org/GeoPressureR/reference/geopressure_map.md).
 
 ## Usage
 
@@ -90,13 +90,13 @@ A GeoPressureR `tag` object with:
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map)
 
 Other tag:
-[`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
-[`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md),
-[`tag_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_create.md),
-[`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
+[`print.tag()`](https://geopressure.org/GeoPressureR/reference/print.tag.md),
+[`read_stap()`](https://geopressure.org/GeoPressureR/reference/read_stap.md),
+[`tag_create()`](https://geopressure.org/GeoPressureR/reference/tag_create.md),
+[`tag_stap_daily()`](https://geopressure.org/GeoPressureR/reference/tag_stap_daily.md)
 
 ## Examples
 

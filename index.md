@@ -12,29 +12,28 @@ The best way to install the GeoPressureR package is through Github
 
 ``` r
 # install.packages("pak")
-pak::pkg_install("Rafnuss/GeoPressureR")
+pak::pkg_install("GeoPressure/GeoPressureR")
 
 # Development version:
-pak::pkg_install("Rafnuss/GeoPressureR@dev")
+pak::pkg_install("GeoPressure/GeoPressureR@dev")
 ```
 
 ## Learn how to use GeoPressureR
 
-The
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/) is
-a great place to start learning about how to use GeoPressureR.
+The [GeoPressureManual](https://geopressure.org/GeoPressureManual/) is a
+great place to start learning about how to use GeoPressureR.
 
 Using the examples, this user guide takes you through each step of the
 analysis in detail.
 
-[![](https://github.com/Rafnuss/GeoPressureManual/raw/main/assets/cover.png)](https://raphaelnussbaumer.com/GeoPressureManual/)
+[![](https://github.com/GeoPressure/GeoPressureManual/raw/main/assets/cover.png)](https://geopressure.org/GeoPressureManual/)
 
 ## Start your own analysis
 
 Once you are familiar with the workflow of the method and want to start
 your own study, we suggest you use
-[GeoPressureTemplate](https://github.com/Rafnuss/GeoPressureTemplate), a
-[github template
+[GeoPressureTemplate](https://github.com/GeoPressure/GeoPressureTemplate),
+a [github template
 repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository)
 which provides a standard code structure for your analysis.
 
@@ -43,7 +42,7 @@ code sharing and troubleshooting, data archiving, work reproducibility.
 
 ## Cheatsheet
 
-[![](reference/figures/cheatsheet-01.png)![](reference/figures/cheatsheet-02.png)](https://github.com/Rafnuss/GeoPressureR/raw/master/man/figures/cheatsheet.pdf)
+[![](reference/figures/cheatsheet-01.png)![](reference/figures/cheatsheet-02.png)](https://github.com/GeoPressure/GeoPressureR/raw/master/man/figures/cheatsheet.pdf)
 
 ## How to cite?
 
@@ -53,7 +52,7 @@ underlying methods and/or user manual) according to your use:
 > Nussbaumer, R., & Gravey, M. (2022). *GeoPressureR: Global positioning
 > by atmospheric pressure.* Zenodo.
 > <https://doi.org/10.5281/zenodo.7754457>. Available at:
-> <https://github.com/Rafnuss/GeoPressureR>
+> <https://github.com/GeoPressure/GeoPressureR>
 
 > Nussbaumer, R., Gravey, M., Briedis, M., & Liechti, F. (2023). Global
 > positioning with animal-borne pressure sensors. *Methods in Ecology
@@ -68,6 +67,6 @@ underlying methods and/or user manual) according to your use:
 > Nussbaumer, R., & Nussbaumer, A. (2024). *GeoPressureManual: Learn how
 > to use GeoPressureR with examples.* Zenodo.
 > <https://doi.org/10.5281/zenodo.10799355>. Available at:
-> <https://github.com/Rafnuss/GeoPressureManual>
+> <https://github.com/GeoPressure/GeoPressureManual>
 
 Get citation information in R with `citation("GeoPressureR")`.

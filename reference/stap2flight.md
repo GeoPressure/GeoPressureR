@@ -33,7 +33,7 @@ stap2flight(
 - stap:
 
   a stationary period data.frame (see
-  [`tag_label_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_stap.md)).
+  [`tag_label_stap()`](https://geopressure.org/GeoPressureR/reference/tag_label_stap.md)).
 
 - include_stap_id:
 

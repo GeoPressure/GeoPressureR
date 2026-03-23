@@ -90,7 +90,7 @@ geopressure_map_mismatch(
   weighting function of the log-linear pooling, taking the number of
   samples of the stationary periods used and returning the weight of the
   aggregation. See [GeoPressureManual \| Probability
-  aggregation](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html)
+  aggregation](https://geopressure.org/GeoPressureManual/probability-aggregation.html)
   for more details.
 
 - timeout:
@@ -142,7 +142,7 @@ geopressure_map_mismatch(
 Returns the same GeoPressureR `tag` object including the GeoPressureR
 `map` object `tag$map_pressure` containing the likelihood map of each
 stationary period. See
-[`map_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/map_create.md)
+[`map_create()`](https://geopressure.org/GeoPressureR/reference/map_create.md)
 for details. If `keep_mask` and `keep_mse` are each true, `tag` also
 includes the `tag$map_pressure_mse` and `tag$map_pressure_mask` maps, as
 well as `tag$stap$nb_sample`, indicating the number of datapoints used
@@ -153,7 +153,7 @@ to compute the MSE.
 A map will only be computed for the stationary periods included in
 `tag$stap$include` and without a known position `tag$stap$known_l**` as
 defined by
-[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md).
+[`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md).
 At known stationary periods, the likelihood map is a map of `0`s with a
 single `1` at the pixel closest to the known position.
 
@@ -161,13 +161,13 @@ single `1` at the pixel closest to the known position.
 
 `geopressure_map_mismatch()` computes the mismatch maps on Google Earth
 Engine via the map entry point of the [GeoPressure
-API](https://github.com/Rafnuss/GeoPressureAPI). This consists of the
-following steps:
+API](https://github.com/GeoPressure/GeoPressureAPI). This consists of
+the following steps:
 
 1.  **Pre-process pressure**: the pressure measurements are first
     smoothed and downscaled to a 1-hour resolution in order to match
     ERA-5 resolution (see
-    [`geopressure_map_preprocess()`](https://raphaelnussbaumer.com/GeoPressureR/reference/geopressure_map_preprocess.md)).
+    [`geopressure_map_preprocess()`](https://geopressure.org/GeoPressureR/reference/geopressure_map_preprocess.md)).
 
 2.  **Generate requests**: Send a single request to the GeoPressureAPI
     to generate the Google Earth Engine (GEE) URLs, one for each
@@ -202,7 +202,7 @@ The following two maps are returned for each stationary period:
     from SRTM-90. This map is only returned if `keep_mask` is `TRUE`.
 
 For more details, read the [GeoPressure API
-documentation](https://github.com/Rafnuss/GeoPressureAPI) .
+documentation](https://github.com/GeoPressure/GeoPressureAPI) .
 
 ## Elevation levels
 
@@ -212,7 +212,7 @@ area (~10km), and thus within the same stationary period. This can be
 done by using `tag$label="elev_x"` for all measurements of the same
 elevation level *x*. See more information on the labelling of elevation
 levels in [the corresponding section in the
-GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period).
+GeoPressureManual](https://geopressure.org/GeoPressureManual/labelling-tracks.html#elevation-period).
 
 Behind the scene, each of these elevation levels produces a new request
 on the GeoPressureAPI. The mismatch maps of all elevation levels
@@ -237,7 +237,7 @@ this equation, we use a log-linear pooling weight of \\w=\log(n)/n\\ by
 default, where \\n\\ is the number of samples in the time series (i.e.,
 data points used to compute the MSE). See [GeoPressureManual \|
 Probability
-aggregation](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html)
+aggregation](https://geopressure.org/GeoPressureManual/probability-aggregation.html)
 for details.
 
 **Important Note**: Since GeoPressure v3.1.0, the threshold of the mask
@@ -255,7 +255,7 @@ Ecology and Evolution*, 14, 1118–1129
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/pressure-map.html#compute-pressure-maps)
 
 ## Examples
 

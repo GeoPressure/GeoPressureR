@@ -2,7 +2,7 @@
 
 Configure the movement model of a `graph` by defining the value of the
 parameters needed to build the transition `graph_transition()` through
-[`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md).
+[`speed2prob()`](https://geopressure.org/GeoPressureR/reference/speed2prob.md).
 
 Three methods are currently implemented with two parametric function
 `"gamma"` and `"logis"` suitable when wind data is not available and are
@@ -63,7 +63,7 @@ graph_set_movement(
   A GeoPressureR `bird` object containing the basic morphological traits
   necessary: mass, wing span, wing aspect ratio, and body frontal area.
   See
-  [`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md).
+  [`bird_create()`](https://geopressure.org/GeoPressureR/reference/bird_create.md).
 
 - power2prob:
 
@@ -100,18 +100,18 @@ Ecology and Evolution*, 14, 1118–1129
 ## See also
 
 Other graph:
-[`graph_add_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_add_wind.md),
-[`graph_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_create.md),
-[`graph_marginal()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_marginal.md),
-[`graph_most_likely()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_most_likely.md),
-[`graph_simulation()`](https://raphaelnussbaumer.com/GeoPressureR/reference/graph_simulation.md),
-[`print.graph()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.graph.md)
+[`graph_add_wind()`](https://geopressure.org/GeoPressureR/reference/graph_add_wind.md),
+[`graph_create()`](https://geopressure.org/GeoPressureR/reference/graph_create.md),
+[`graph_marginal()`](https://geopressure.org/GeoPressureR/reference/graph_marginal.md),
+[`graph_most_likely()`](https://geopressure.org/GeoPressureR/reference/graph_most_likely.md),
+[`graph_simulation()`](https://geopressure.org/GeoPressureR/reference/graph_simulation.md),
+[`print.graph()`](https://geopressure.org/GeoPressureR/reference/print.graph.md)
 
 Other movement:
-[`bird_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/bird_create.md),
-[`plot_graph_movement()`](https://raphaelnussbaumer.com/GeoPressureR/reference/plot_graph_movement.md),
-[`speed2prob()`](https://raphaelnussbaumer.com/GeoPressureR/reference/speed2prob.md),
-[`tag_download_wind()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_download_wind.md)
+[`bird_create()`](https://geopressure.org/GeoPressureR/reference/bird_create.md),
+[`plot_graph_movement()`](https://geopressure.org/GeoPressureR/reference/plot_graph_movement.md),
+[`speed2prob()`](https://geopressure.org/GeoPressureR/reference/speed2prob.md),
+[`tag_download_wind()`](https://geopressure.org/GeoPressureR/reference/tag_download_wind.md)
 
 ## Examples
 

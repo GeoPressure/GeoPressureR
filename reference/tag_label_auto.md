@@ -67,13 +67,13 @@ high-activity period is detected.
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#with-or-without-acceleration-data)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/labelling-tracks.html#with-or-without-acceleration-data)
 
 Other tag_label:
-[`tag_label()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label.md),
-[`tag_label_read()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_read.md),
-[`tag_label_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_stap.md),
-[`tag_label_write()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_label_write.md)
+[`tag_label()`](https://geopressure.org/GeoPressureR/reference/tag_label.md),
+[`tag_label_read()`](https://geopressure.org/GeoPressureR/reference/tag_label_read.md),
+[`tag_label_stap()`](https://geopressure.org/GeoPressureR/reference/tag_label_stap.md),
+[`tag_label_write()`](https://geopressure.org/GeoPressureR/reference/tag_label_write.md)
 
 ## Examples
 
@@ -85,8 +85,8 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   str(tag$acceleration)
 })
 #> 'data.frame':    4032 obs. of  4 variables:
-#>  $ date : POSIXct, format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...
-#>  $ value: num  0 0 0 0 0 0 0 0 0 0 ...
-#>  $ pitch: num  26 27 27 28 28 28 28 27 28 27 ...
-#>  $ label: chr  "" "" "" "" ...
+#>  $ date               : POSIXct, format: "2017-07-27 00:00:00" "2017-07-27 00:05:00" ...
+#>  $ value              : num  0 0 0 0 0 0 0 0 0 0 ...
+#>  $ mean_acceleration_z: num  26 27 27 28 28 28 28 27 28 27 ...
+#>  $ label              : chr  "" "" "" "" ...
 ```

@@ -112,7 +112,7 @@ tag_create(
 a GeoPressureR `tag` object containing
 
 - `param` parameter object (see
-  [`param_create()`](https://raphaelnussbaumer.com/GeoPressureR/reference/param_create.md))
+  [`param_create()`](https://geopressure.org/GeoPressureR/reference/param_create.md))
 
 - `pressure` data.frame with columns: `date` and `value`
 
@@ -122,16 +122,15 @@ a GeoPressureR `tag` object containing
 
 - `temperature_internal` (optional) same structure as pressure
 
-- `acceleration` (optional) data.frame with columns: `date`, `value`,
-  `act` and `pit`.
+- `acceleration` (optional) data.frame with columns: `date`, `value` and
+  optionally `mean_acceleration_z`.
 
   - `value` is the activity computed as the sum of the difference in
     acceleration on the z-axis (i.e. jiggle). In the SOI sensor, it is
     summarised from 32 measurements at 10Hz
 
-  - `pitch` is the relative position of the bird’s body relative to the
-    z axis. In the SOI sensor, it is an average over 32 measurements at
-    10Hz.
+  - `mean_acceleration_z` is the mean acceleration on the z axis. In the
+    SOI sensor, it is an average over 32 measurements at 10Hz.
 
 - `magnetic` (optional) data.frame with columns: `date`, `magnetic_x`,
   `magnetic_y`, `magnetic_z` , `acceleration_x`, `acceleration_y` and
@@ -212,21 +211,21 @@ regex expression (e.g., `"*.pressure"` matches any file ending with
 `pressure`).
 
 Please create [an issue on
-Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you have
-data in a format that is not yet supported.
+Github](https://github.com/GeoPressure/GeoPressureR/issues/new) if you
+have data in a format that is not yet supported.
 
 This function can be used to crop the data at specific date, for
 instance to remove pre-equipment or post-retrieval data.
 
 ## See also
 
-[GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag)
+[GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#create-tag)
 
 Other tag:
-[`print.tag()`](https://raphaelnussbaumer.com/GeoPressureR/reference/print.tag.md),
-[`read_stap()`](https://raphaelnussbaumer.com/GeoPressureR/reference/read_stap.md),
-[`tag_set_map()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_set_map.md),
-[`tag_stap_daily()`](https://raphaelnussbaumer.com/GeoPressureR/reference/tag_stap_daily.md)
+[`print.tag()`](https://geopressure.org/GeoPressureR/reference/print.tag.md),
+[`read_stap()`](https://geopressure.org/GeoPressureR/reference/read_stap.md),
+[`tag_set_map()`](https://geopressure.org/GeoPressureR/reference/tag_set_map.md),
+[`tag_stap_daily()`](https://geopressure.org/GeoPressureR/reference/tag_stap_daily.md)
 
 ## Examples
 
@@ -331,7 +330,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #>  $ param   :List of 3
 #>   ..$ id                  : chr "xxx"
 #>   ..$ GeoPressureR_version:Classes 'package_version', 'numeric_version'  hidden list of 1
-#>   .. ..$ : int [1:3] 3 5 1
+#>   .. ..$ : int [1:3] 3 5 2
 #>   ..$ tag_create          :List of 3
 #>   .. ..$ pressure_file: chr "in_memory"
 #>   .. ..$ manufacturer : chr "tabular"

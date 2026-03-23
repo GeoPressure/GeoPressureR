@@ -7,11 +7,11 @@ light-weight data-logger measuring at lease atmospheric pressure.
 
 Useful links:
 
-- <https://github.com/Rafnuss/GeoPressureR>
+- <https://github.com/GeoPressure/GeoPressureR>
 
-- <https://raphaelnussbaumer.com/GeoPressureR/>
+- <https://geopressure.org/GeoPressureR/>
 
-- Report bugs at <https://github.com/Rafnuss/GeoPressureR/issues>
+- Report bugs at <https://github.com/GeoPressure/GeoPressureR/issues>
 
 ## Author
 
