@@ -449,12 +449,20 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(input$previous_position, {
     idx_new <- min(max(idx() - 1, 1), length(stap_id_include()))
-    shiny::updateSelectizeInput(session, "stap_id", selected = as.character(stap_id_include()[idx_new]))
+    shiny::updateSelectizeInput(
+      session,
+      "stap_id",
+      selected = as.character(stap_id_include()[idx_new])
+    )
   })
 
   shiny::observeEvent(input$next_position, {
     idx_new <- min(max(idx() + 1, 1), length(stap_id_include()))
-    shiny::updateSelectizeInput(session, "stap_id", selected = as.character(stap_id_include()[idx_new]))
+    shiny::updateSelectizeInput(
+      session,
+      "stap_id",
+      selected = as.character(stap_id_include()[idx_new])
+    )
   })
 
   shiny::observeEvent(input$edit_position, {
