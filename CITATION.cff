@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.5.1
+version: 3.5.2.9000
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -35,9 +35,9 @@ preferred-citation:
     orcid: https://orcid.org/0000-0002-0871-1507
   year: '2022'
   doi: 10.5281/zenodo.7754457
-  url: https://github.com/Rafnuss/GeoPressureR
-repository-code: https://github.com/Rafnuss/GeoPressureR
-url: https://raphaelnussbaumer.com/GeoPressureR/
+  url: https://github.com/GeoPressure/GeoPressureR
+repository-code: https://github.com/GeoPressure/GeoPressureR
+url: https://geopressure.org/GeoPressureR/
 contact:
 - family-names: Nussbaumer
   given-names: Raphaël
@@ -51,7 +51,6 @@ keywords:
 - migration
 - pressure-sensor
 - r
-- tracker
 - windspeed
 references:
 - type: article
@@ -121,7 +120,7 @@ references:
     orcid: https://orcid.org/0000-0003-1308-4154
   year: '2024'
   doi: 10.5281/zenodo.10799355
-  url: https://github.com/Rafnuss/GeoPressureManual
+  url: https://github.com/GeoPressure/GeoPressureManual
 - type: software
   title: 'R: A Language and Environment for Statistical Computing'
   notes: Depends

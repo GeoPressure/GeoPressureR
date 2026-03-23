@@ -30,7 +30,7 @@
 #'   str(tag$stap)
 #' })
 #' @family tag_label
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#compute-stationary-periods)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#compute-stationary-periods)
 #' @export
 tag_label_stap <- function(
   tag,

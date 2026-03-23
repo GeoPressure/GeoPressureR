@@ -14,7 +14,7 @@ ui <- shiny::fluidPage(
     ),
     shiny::tags$link(
       rel = "shortcut icon",
-      href = "https://raphaelnussbaumer.com/GeoPressureR/favicon-16x16.png"
+      href = "https://geopressure.org/GeoPressureR/favicon-16x16.png"
     ),
     shiny::tags$script(src = "plot_controls.js"),
     shiny::tags$script(src = "plotly_events.js"),

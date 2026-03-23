@@ -110,6 +110,6 @@ wind <- edge_add_wind(graph, edge_s = graph$s, edge_t = graph$t, quiet = TRUE)
 }
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 }
 \concept{edge}

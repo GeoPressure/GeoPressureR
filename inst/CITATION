@@ -22,7 +22,7 @@ citations <- c(
     ),
     year = "2022",
     doi = "10.5281/zenodo.7754457",
-    url = "https://github.com/Rafnuss/GeoPressureR"
+    url = "https://github.com/GeoPressure/GeoPressureR"
   ),
   bibentry(
     bibtype = "Article",
@@ -120,7 +120,7 @@ citations <- c(
     ),
     year = "2024",
     doi = "10.5281/zenodo.10799355",
-    url = "https://github.com/Rafnuss/GeoPressureManual"
+    url = "https://github.com/GeoPressure/GeoPressureManual"
   )
 )
 

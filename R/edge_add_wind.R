@@ -75,7 +75,7 @@
 #' }
 #' @family edge
 #' @seealso [GeoPressureManual](
-#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+#' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 # nocov start
 edge_add_wind <- function(

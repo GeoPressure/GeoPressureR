@@ -95,7 +95,7 @@ shiny::observeEvent(input$shortcuts_help, {
         shiny::tags$p(
           "For detailed labelling instructions, see the ",
           shiny::tags$a(
-            href = "https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html",
+            href = "https://geopressure.org/GeoPressureManual/labelling-tracks.html",
             target = "_blank",
             "GeoPressure Manual: labelling tracks"
           ),

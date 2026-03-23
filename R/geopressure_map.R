@@ -22,7 +22,7 @@
 #' @section Mismatch map with GeoPressureAPI:
 #'
 #' `geopressure_map_mismatch()` computes the mismatch maps on Google Earth Engine via the map
-#' entry point of the [GeoPressure API](https://github.com/Rafnuss/GeoPressureAPI).
+#' entry point of the [GeoPressure API](https://github.com/GeoPressure/GeoPressureAPI).
 #' This consists of the following steps:
 #'
 #' 1. **Pre-process pressure**: the pressure measurements are first smoothed and downscaled to a
@@ -50,7 +50,7 @@
 #' from SRTM-90. This map is only returned if `keep_mask` is `TRUE`.
 #'
 #' For more details, read the [GeoPressure API documentation
-#' ](https://github.com/Rafnuss/GeoPressureAPI).
+#' ](https://github.com/GeoPressure/GeoPressureAPI).
 #'
 #' @section Elevation levels:
 #'
@@ -59,7 +59,7 @@
 #' stationary period. This can be done by using `tag$label="elev_x"` for all measurements of the
 #' same elevation level *x*. See more information on the labelling of elevation levels in [the
 #' corresponding section in the GeoPressureManual](
-#' https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period).
+#' https://geopressure.org/GeoPressureManual/labelling-tracks.html#elevation-period).
 #'
 #' Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
 #' The mismatch maps of all elevation levels belonging to the same stationary periods are combined
@@ -80,7 +80,7 @@
 #' log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
 #' in the time series (i.e., data points used to compute the MSE). See [GeoPressureManual |
 #' Probability aggregation
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html) for details.
+#' ](https://geopressure.org/GeoPressureManual/probability-aggregation.html) for details.
 #'
 #' **Important Note**: Since GeoPressure v3.1.0, the threshold of the mask is happening directly
 #' on the GEE server (i.e., during `geopressure_map_mismatch()`). This allows to compute the MSE
@@ -100,7 +100,7 @@
 #' @param log_linear_pooling_weight weighting function of the log-linear pooling, taking the number
 #' of samples of the stationary periods used and returning the weight of the aggregation. See
 #' [GeoPressureManual | Probability aggregation
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html) for more details.
+#' ](https://geopressure.org/GeoPressureManual/probability-aggregation.html) for more details.
 #' @param keep_mask logical defining if the mask map is returned in `tag`.
 #' @param keep_mse logical defining if the MSE map is returned in `tag`.
 #' @param timeout duration before the code is interrupted both for the request on
@@ -153,7 +153,7 @@
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
 #' 1118–1129 \doi{10.1111/2041-210X.14043}.}
 #' @family geopressure_map
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/pressure-map.html#compute-pressure-maps)
 #' @export
 geopressure_map <- function(
   tag,

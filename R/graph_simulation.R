@@ -5,7 +5,7 @@
 #' backward sampling algorithm. For more
 #' details, see [section 2.3.3 of Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0013-title)
-#' and the [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-3-simulated-paths).
+#' and the [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-3-simulated-paths).
 #'
 #' @param graph a graph object.
 #' @param nj Number of simulations.
@@ -46,7 +46,7 @@
 #'
 #' plot_path(path_simulation, plot_leaflet = FALSE)
 #'
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-3-simulated-paths)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-3-simulated-paths)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129

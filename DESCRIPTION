@@ -9,9 +9,9 @@ Authors@R: c(
   )
 Description: R package to determine the position and trajectory of a bird based on light-weight data-logger measuring at lease atmospheric pressure.
 License: GPL (>= 3)
-URL: https://github.com/Rafnuss/GeoPressureR,
-    https://raphaelnussbaumer.com/GeoPressureR/
-BugReports: https://github.com/Rafnuss/GeoPressureR/issues
+URL: https://github.com/GeoPressure/GeoPressureR,
+    https://geopressure.org/GeoPressureR/
+BugReports: https://github.com/GeoPressure/GeoPressureR/issues
 Depends: 
     R (>= 4.1.0)
 Imports: 

@@ -45,7 +45,7 @@ edges can be useful to extract flight information specific to a path.
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html#extract-flight-information}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html#extract-flight-information}{GeoPressureManual}
 
 Other path: 
 \code{\link{path2elevation}()},

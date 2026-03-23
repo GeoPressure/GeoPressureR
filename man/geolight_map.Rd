@@ -65,7 +65,7 @@ The function performs the following steps:
 \item Perform a calibration on the known stationary period. See below for details
 \item Compute a likelihood map for each twilight using the calibration.
 \item Combine the likelihood maps of all twilights belonging to the same stationary periods with a
-log-linear pooling. See \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation}
+log-linear pooling. See \href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation}
 for more information on probability aggregation using log-linear pooling.
 }
 }

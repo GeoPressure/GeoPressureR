@@ -46,8 +46,7 @@ When \code{run_bg = TRUE}: Returns the background process object.
 GeoPressureViz is an interactive app to inspect and manually edit migration paths together with
 the underlying map likelihoods and pressure time series by stationary period. It is useful to
 compare pressure-, light- and distance-based information before finalizing a path.
-}
-\details{
+
 The app can start from a \code{tag} object already in memory, or from an interim \code{.RData}/\code{.rda}
 file that contains at least \code{tag} (and optionally \code{marginal}, \code{path_most_likely},
 \code{pressurepath}, \code{pressurepath_most_likely}).
@@ -55,8 +54,7 @@ file that contains at least \code{tag} (and optionally \code{marginal}, \code{pa
 You can retrieve the edited path from the return value of this function (when \code{run_bg = FALSE})
 or with \code{shiny::getShinyOption("path_geopressureviz")} after the app completes.
 
-Learn more about GeoPressureViz in the \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual } or with
-this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed Warbler (18LX)}.
+Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -64,5 +62,5 @@ this \href{https://rafnuss.shinyapps.io/GeoPressureViz/}{demo of the Great Reed 
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html}{GeoPressureManual }
+\href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }
 }

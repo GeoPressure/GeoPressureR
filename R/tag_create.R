@@ -48,7 +48,7 @@
 #' extension using a regex expression (e.g., `"*.pressure"` matches any file ending with
 #' `pressure`).
 #'
-#' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you
+#' Please create [an issue on Github](https://github.com/GeoPressure/GeoPressureR/issues/new) if you
 #' have data in a format that is not yet supported.
 #'
 #' This function can be used to crop the data at specific date, for instance to remove pre-equipment
@@ -144,7 +144,7 @@
 #' })
 #'
 #' @family tag
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#create-tag)
 #' @export
 tag_create <- function(
   id,

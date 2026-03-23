@@ -9,7 +9,7 @@ ui <- shiny::bootstrapPage(
   shiny::tags$head(
     shiny::tags$link(
       rel = "shortcut icon",
-      href = "https://raphaelnussbaumer.com/GeoPressureR/favicon-16x16.png"
+      href = "https://geopressure.org/GeoPressureR/favicon-16x16.png"
     ),
     shiny::tags$link(
       href = "https://fonts.googleapis.com/css?family=Oswald",

@@ -14,7 +14,7 @@
 #' or with `shiny::getShinyOption("path_geopressureviz")` after the app completes.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html).
+#' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
 #'
 #' @param x One of:
 #' * a GeoPressureR `tag` object;
@@ -37,7 +37,7 @@
 #' @examplesIf FALSE
 #'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
+#' ](https://geopressure.org/GeoPressureManual/geopressureviz.html)
 #' @export
 geopressureviz <- function(
   x,

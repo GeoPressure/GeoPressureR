@@ -63,7 +63,7 @@ considered not possible.}
 
 \item{log_linear_pooling_weight}{weighting function of the log-linear pooling, taking the number
 of samples of the stationary periods used and returning the weight of the aggregation. See
-\href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
+\href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for more details.}
 
 \item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
@@ -118,7 +118,7 @@ position.
 
 
 \code{geopressure_map_mismatch()} computes the mismatch maps on Google Earth Engine via the map
-entry point of the \href{https://github.com/Rafnuss/GeoPressureAPI}{GeoPressure API}.
+entry point of the \href{https://github.com/GeoPressure/GeoPressureAPI}{GeoPressure API}.
 This consists of the following steps:
 \enumerate{
 \item \strong{Pre-process pressure}: the pressure measurements are first smoothed and downscaled to a
@@ -147,7 +147,7 @@ accounting for the temporal variation of pressure (surface-pressure) and tempera
 from SRTM-90. This map is only returned if \code{keep_mask} is \code{TRUE}.
 }
 
-For more details, read the \href{https://github.com/Rafnuss/GeoPressureAPI}{GeoPressure API documentation }.
+For more details, read the \href{https://github.com/GeoPressure/GeoPressureAPI}{GeoPressure API documentation }.
 }
 
 \section{Elevation levels}{
@@ -156,7 +156,7 @@ For more details, read the \href{https://github.com/Rafnuss/GeoPressureAPI}{GeoP
 It is possible to indicate different elevation levels when the bird was spending time at
 locations with different elevations within a general area (~10km), and thus within the same
 stationary period. This can be done by using \code{tag$label="elev_x"} for all measurements of the
-same elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
+same elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://geopressure.org/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
 
 Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
 The mismatch maps of all elevation levels belonging to the same stationary periods are combined
@@ -177,7 +177,7 @@ where \eqn{\sigma} is the standard deviation (\code{sd}) of pressure and \eqn{T}
 
 Because the auto-correlation of the time series is not accounted for in this equation, we use a
 log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
-in the time series (i.e., data points used to compute the MSE). See \href{https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for details.
+in the time series (i.e., data points used to compute the MSE). See \href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for details.
 
 \strong{Important Note}: Since GeoPressure v3.1.0, the threshold of the mask is happening directly
 on the GEE server (i.e., during \code{geopressure_map_mismatch()}). This allows to compute the MSE
@@ -221,6 +221,6 @@ Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecolog
 1118–1129 \doi{10.1111/2041-210X.14043}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#compute-pressure-maps}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/pressure-map.html#compute-pressure-maps}{GeoPressureManual}
 }
 \concept{geopressure_map}

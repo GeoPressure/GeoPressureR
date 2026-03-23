@@ -23,7 +23,7 @@
 #' }
 #'
 #' More information [in the GeoPressureManual](
-#' https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html).
+#' https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html).
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood will be computed.
@@ -54,7 +54,7 @@
 #' @seealso [`wf_request_batch()`
 #' ](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
 #' [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+#' ](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 tag_download_wind <- function(
   tag,

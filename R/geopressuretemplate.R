@@ -6,7 +6,7 @@
 #' the likelihood maps (pressure and/or light), the creation of the graph model construction, and,
 #' finally, the estimation of the trajectory products and the pressure path computation. Read the
 #' [Workflow chapter in the GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html) for more
+#' ](https://geopressure.org/GeoPressureManual/geopressuretemplate-workflow.html) for more
 #' information.
 #'
 #' @details
@@ -91,7 +91,7 @@
 #'
 #' @family geopressuretemplate
 #' @seealso [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-workflow.html)
+#' ](https://geopressure.org/GeoPressureManual/geopressuretemplate-workflow.html)
 #' @export
 geopressuretemplate <- function(
   id,
