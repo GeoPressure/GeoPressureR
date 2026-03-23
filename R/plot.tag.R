@@ -260,7 +260,8 @@ pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
 #' This function display a plot of acceleration time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
-#' @param variable type of acceleration variable to plot `"activity"` (or `"value"`) or `"pitch"`
+#' @param variable type of acceleration variable to plot `"activity"` (or `"value"`) or
+#' `"mean_acceleration_z"`
 #' @param plot_plotly logical to use `plotly`
 #' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
 #' labels are not already present on tag$acceleration$label
@@ -287,13 +288,29 @@ plot_tag_acceleration <- function(
   tag_assert(tag)
   assertthat::assert_that(assertthat::has_name(tag, "acceleration"))
 
+  if (variable == "pitch") {
+    cli::cli_abort(c(
+      "x" = "{.arg variable = \"pitch\"} has been deprecated.",
+      ">" = "Use {.arg variable = \"mean_acceleration_z\"}."
+    ))
+  }
+
   variable <- match.arg(
     variable,
-    choices = c("activity", "value", "pitch")
+    choices = c("activity", "value", "mean_acceleration_z")
   )
 
   if (variable == "activity") {
     variable <- "value"
+  }
+  if (
+    variable == "mean_acceleration_z" &&
+      !assertthat::has_name(tag$acceleration, "mean_acceleration_z")
+  ) {
+    cli::cli_abort(c(
+      "x" = "The acceleration column {.field mean_acceleration_z} is missing in {.field tag$acceleration}.",
+      "i" = "Use {.arg variable = \"value\"} or include {.field mean_acceleration_z} in your acceleration data."
+    ))
   }
 
   # If not label, use default auto_label

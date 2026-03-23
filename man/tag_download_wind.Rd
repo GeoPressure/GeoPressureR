@@ -85,7 +85,7 @@ retrieve your API Token on \url{https://cds.climate.copernicus.eu/profile} and s
   ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
 }
 
-More information \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressuretemplate-wind.html}{in the GeoPressureManual}.
+More information \href{https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html}{in the GeoPressureManual}.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -94,7 +94,7 @@ More information \href{https://raphaelnussbaumer.com/GeoPressureManual/geopressu
 }
 \seealso{
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request_batch()} },
-\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual }
+\href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual }
 
 Other movement: 
 \code{\link{bird_create}()},

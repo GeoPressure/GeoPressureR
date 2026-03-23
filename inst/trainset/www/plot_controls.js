@@ -8,7 +8,10 @@ $(document).ready(function () {
 
   // Custom message handler to clear plotly selection
   Shiny.addCustomMessageHandler("clearPlotlySelection", function (plotId) {
-    Plotly.restyle(plotId, { selectedpoints: [null] });
+    var plot = typeof plotId === "string" ? document.getElementById(plotId) : plotId;
+    if (!plot) return;
+    Plotly.restyle(plot, { selectedpoints: [null] });
+    Plotly.relayout(plot, { selections: [] });
   });
 
   // Keyboard shortcuts
@@ -49,6 +52,17 @@ $(document).ready(function () {
 
     var plot = document.getElementById("ts_plot");
     if (plot && plot.data) {
+      if (e.key && e.key.toLowerCase() === "a" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        window.trainsetLastNav = "keyboard";
+        Plotly.relayout("ts_plot", {
+          "xaxis.autorange": true,
+          "yaxis.autorange": true,
+          "yaxis2.autorange": true,
+        });
+        return;
+      }
+
       var currentRange = plot.layout.xaxis.range;
       if (currentRange) {
         var start = new Date(currentRange[0]);

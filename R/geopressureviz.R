@@ -1,23 +1,30 @@
 #' Start the GeoPressureViz shiny app
 #'
-#' GeoPressureViz is a shiny app designed to help you visualize the overall trajectory of the bird
-#' as well as each step-by-step move. This app is particularly useful to check the correspondence
-#' between pressure map, light map and flight distance. You can edit the path and query pressure
-#' time series for individual stationary period to test manual what seems the optimal path.
+#' @description
 #'
-#' GeoPressureViz can be started based on a `.Rdata` file containing at least `tag`, but also
-#' optionally `marginal` and/or `path` (`path_most_likely` is also accepted).
+#' GeoPressureViz is an interactive app to inspect and manually edit migration paths together with
+#' the underlying map likelihoods and pressure time series by stationary period. It is useful to
+#' compare pressure-, light- and distance-based information before finalizing a path.
+#'
+#' The app can start from a `tag` object already in memory, or from an interim `.RData`/`.rda`
+#' file that contains at least `tag` (and optionally `marginal`, `path_most_likely`,
+#' `pressurepath`, `pressurepath_most_likely`).
 #'
 #' You can retrieve the edited path from the return value of this function (when `run_bg = FALSE`)
 #' or with `shiny::getShinyOption("path_geopressureviz")` after the app completes.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html) or with
-#' this [demo of the Great Reed Warbler (18LX)](https://rafnuss.shinyapps.io/GeoPressureViz/).
+#' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
 #'
-#' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
-#' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
-#' @param path a GeoPressureR `path` or `pressurepath` data.frame.
+#' @param x One of:
+#' * a GeoPressureR `tag` object;
+#' * a path to an existing `.RData`/`.rda` file;
+#' * a tag id (character scalar), interpreted as `"./data/interim/{id}.RData"`.
+#' @param path Optional GeoPressureR `path` or `pressurepath` data.frame.
+#' If `NULL`, a path is resolved from available inputs in this order:
+#' * for file/id input (`x` character): `path_most_likely` (if present), then `pressurepath`
+#' (if present);
+#' * otherwise fallback to `tag2path(tag, interp = 1)`.
 #' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
 #' `path` or `pressurepath` contained in the `.Rdata` file.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
@@ -30,7 +37,7 @@
 #' @examplesIf FALSE
 #'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/geopressureviz.html)
+#' ](https://geopressure.org/GeoPressureManual/geopressureviz.html)
 #' @export
 geopressureviz <- function(
   x,

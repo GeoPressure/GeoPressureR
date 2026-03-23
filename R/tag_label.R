@@ -47,7 +47,7 @@
 #'
 #' @family tag_label
 #' @seealso [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html)
+#' ](https://geopressure.org/GeoPressureManual/labelling-tracks.html)
 #' @export
 tag_label <- function(
   tag,

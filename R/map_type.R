@@ -3,12 +3,6 @@ NULL
 
 .MAP_TYPE <- local({
   list(
-    preslight = list(
-      light = list(palette = "viridis"),
-      dark = list(palette = "viridis"),
-      name = c("map_pressure", "map_light"),
-      display = "Pres.&Light"
-    ),
     pressure = list(
       light = list(palette = "GnBu"),
       dark = list(palette = "magma"),
@@ -20,6 +14,12 @@ NULL
       dark = list(palette = "inferno"),
       name = "map_light",
       display = "Light"
+    ),
+    preslight = list(
+      light = list(palette = "viridis"),
+      dark = list(palette = "viridis"),
+      name = c("map_pressure", "map_light"),
+      display = "Pres.&Light"
     ),
     magnetic = list(
       light = list(palette = "RdPu"),

@@ -77,12 +77,13 @@ a GeoPressureR \code{tag} object containing
 \item \code{light} (optional) same structure as pressure
 \item \code{temperature_external} (optional) same structure as pressure
 \item \code{temperature_internal} (optional) same structure as pressure
-\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value}, \code{act} and \code{pit}.
+\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value} and optionally
+\code{mean_acceleration_z}.
 \itemize{
 \item \code{value} is the activity computed as the sum of the difference in acceleration on the z-axis
 (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
-\item \code{pitch} is the relative position of the bird’s body relative to the z axis. In the SOI
-sensor, it is an average over 32 measurements at 10Hz.
+\item \code{mean_acceleration_z} is the mean acceleration on the z axis. In the SOI sensor, it is an
+average over 32 measurements at 10Hz.
 }
 \item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}
 , \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}
@@ -149,7 +150,7 @@ of the \code{directory}. You can also specify manually the file with a full path
 extension using a regex expression (e.g., \code{"*.pressure"} matches any file ending with
 \code{pressure}).
 
-Please create \href{https://github.com/Rafnuss/GeoPressureR/issues/new}{an issue on Github} if you
+Please create \href{https://github.com/GeoPressure/GeoPressureR/issues/new}{an issue on Github} if you
 have data in a format that is not yet supported.
 
 This function can be used to crop the data at specific date, for instance to remove pre-equipment
@@ -195,7 +196,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/tag-object.html#create-tag}{GeoPressureManual}
 
 Other tag: 
 \code{\link{print.tag}()},

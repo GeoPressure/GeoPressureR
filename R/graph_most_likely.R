@@ -5,7 +5,7 @@
 #' https://en.wikipedia.org/wiki/Viterbi_algorithm) on the graph structure. For more
 #' details, see [section 2.3.1 of Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0011-title)
-#' and the [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path).
+#' and the [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-1-most-likely-path).
 #'
 #' @param graph a graph object.
 #' @param quiet logical to hide messages about the progress.
@@ -45,7 +45,7 @@
 #'
 #' plot_path(path_most_likely)
 #'
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-1-most-likely-path)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-1-most-likely-path)
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, Felix Liechti, and Daniel
 #' Sheldon. 2023. Reconstructing bird trajectories from pressure and wind data using a highly
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129

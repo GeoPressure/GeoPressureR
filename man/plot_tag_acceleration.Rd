@@ -15,7 +15,8 @@ plot_tag_acceleration(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object}
 
-\item{variable}{type of acceleration variable to plot \code{"activity"} (or \code{"value"}) or \code{"pitch"}}
+\item{variable}{type of acceleration variable to plot \code{"activity"} (or \code{"value"}) or
+\code{"mean_acceleration_z"}}
 
 \item{plot_plotly}{logical to use \code{plotly}}
 

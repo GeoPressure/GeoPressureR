@@ -1,4 +1,4 @@
-url: https://raphaelnussbaumer.com/GeoPressureR/
+url: https://geopressure.org/GeoPressureR/
 template:
   bootstrap: 5
   math-rendering: katex
@@ -61,7 +61,7 @@ reference:
       - tag_stap_daily
       - tag2path
   - title: GeoPressure
-    desc: Core functions of the [GeoPressureAPI](https://github.com/Rafnuss/GeoPressureAPI).
+    desc: Core functions of the [GeoPressureAPI](https://github.com/GeoPressure/GeoPressureAPI).
   - subtitle: GeoPressure map
     desc: Geopositioning based on pressure data.
     contents:

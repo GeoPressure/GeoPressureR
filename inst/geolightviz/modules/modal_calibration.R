@@ -31,7 +31,7 @@ modal_calibration_ui <- function(id) {
         " argument of ",
         shiny::tags$a(
           shiny::tags$code("geolight_map()"),
-          href = "https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.html#arg-twl-calib-adjust",
+          href = "https://geopressure.org/GeoPressureR/reference/geolight_map.html#arg-twl-calib-adjust",
           target = "_blank"
         ),
       ),
@@ -70,13 +70,13 @@ modal_calibration_ui <- function(id) {
         "The second parameter controlling the likelihood map is how twilight likelihood maps are aggregated over stationary periods. Since twilight errors are typically correlated over time, we use a log-linear pooling function. See more information in the ",
         shiny::tags$a(
           "Probability Aggregation chapter of the GeoPressureManual",
-          href = "https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html#log-linear-pooling-w-lognn",
+          href = "https://geopressure.org/GeoPressureManual/probability-aggregation.html#log-linear-pooling-w-lognn",
           target = "_blank"
         ),
         " and ",
         shiny::tags$a(
           shiny::tags$code("geolight_map()"),
-          href = "https://raphaelnussbaumer.com/GeoPressureR/reference/geolight_map.html#arg-twl-llp",
+          href = "https://geopressure.org/GeoPressureR/reference/geolight_map.html#arg-twl-llp",
           target = "_blank"
         ),
         "."

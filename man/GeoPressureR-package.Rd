@@ -12,9 +12,9 @@ R package to determine the position and trajectory of a bird based on light-weig
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/Rafnuss/GeoPressureR}
-  \item \url{https://raphaelnussbaumer.com/GeoPressureR/}
-  \item Report bugs at \url{https://github.com/Rafnuss/GeoPressureR/issues}
+  \item \url{https://github.com/GeoPressure/GeoPressureR}
+  \item \url{https://geopressure.org/GeoPressureR/}
+  \item Report bugs at \url{https://github.com/GeoPressure/GeoPressureR/issues}
 }
 
 }

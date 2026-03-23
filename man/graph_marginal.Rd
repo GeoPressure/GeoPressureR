@@ -18,7 +18,7 @@ include within \code{tag}.
 \description{
 Compute the marginal probability map from a graph. The computation uses the \href{https://en.wikipedia.org/wiki/Forward\%E2\%80\%93backward_algorithm}{forward backward algorithm}. For more
 details, see \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0012-title}{section 2.3.2 of Nussbaumer et al. (2023b)}
-and the \href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-2-marginal-probability-map}{GeoPressureManual}.
+and the \href{https://geopressure.org/GeoPressureManual/trajectory.html#product-2-marginal-probability-map}{GeoPressureManual}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -53,7 +53,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \doi{10.1111/2041-210X.14082}.}
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/trajectory.html#product-2-marginal-probability-map}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/trajectory.html#product-2-marginal-probability-map}{GeoPressureManual}
 
 Other graph: 
 \code{\link{graph_add_wind}()},

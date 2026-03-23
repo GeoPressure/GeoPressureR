@@ -75,7 +75,7 @@ apply_plot_styling <- function(
   styles <- get_plot_styles(active_series, label_pres, label_acc, acc_has_lines = acc_has_lines)
 
   plot_proxy |>
-    plotly::plotlyProxyInvoke("restyle", list(selectedpoints = NULL))
+    plotly::plotlyProxyInvoke("restyle", list(selectedpoints = list(NULL)))
 
   if (has_pressure) {
     plot_proxy |>

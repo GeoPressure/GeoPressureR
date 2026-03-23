@@ -52,6 +52,10 @@ shiny::observeEvent(input$shortcuts_help, {
             " / ",
             shiny::tags$kbd("\u2192"),
             ": pan by a full window width."
+          )),
+          shiny::tags$li(shiny::tagList(
+            shiny::tags$kbd("A"),
+            ": autoscale x/y axes."
           ))
         ),
         shiny::h4("Y-axis zoom"),
@@ -91,7 +95,7 @@ shiny::observeEvent(input$shortcuts_help, {
         shiny::tags$p(
           "For detailed labelling instructions, see the ",
           shiny::tags$a(
-            href = "https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html",
+            href = "https://geopressure.org/GeoPressureManual/labelling-tracks.html",
             target = "_blank",
             "GeoPressure Manual: labelling tracks"
           ),

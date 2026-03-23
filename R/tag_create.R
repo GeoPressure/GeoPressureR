@@ -48,7 +48,7 @@
 #' extension using a regex expression (e.g., `"*.pressure"` matches any file ending with
 #' `pressure`).
 #'
-#' Please create [an issue on Github](https://github.com/Rafnuss/GeoPressureR/issues/new) if you
+#' Please create [an issue on Github](https://github.com/GeoPressure/GeoPressureR/issues/new) if you
 #' have data in a format that is not yet supported.
 #'
 #' This function can be used to crop the data at specific date, for instance to remove pre-equipment
@@ -96,11 +96,12 @@
 #' - `light` (optional) same structure as pressure
 #' - `temperature_external` (optional) same structure as pressure
 #' - `temperature_internal` (optional) same structure as pressure
-#' - `acceleration` (optional) data.frame with columns: `date`, `value`, `act` and `pit`.
+#' - `acceleration` (optional) data.frame with columns: `date`, `value` and optionally
+#'   `mean_acceleration_z`.
 #'    - `value` is the activity computed as the sum of the difference in acceleration on the z-axis
 #'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
-#'    - `pitch` is the relative position of the bird’s body relative to the z axis. In the SOI
-#'    sensor, it is an average over 32 measurements at 10Hz.
+#'    - `mean_acceleration_z` is the mean acceleration on the z axis. In the SOI sensor, it is an
+#'    average over 32 measurements at 10Hz.
 #' - `magnetic` (optional) data.frame with columns: `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`
 #'    , `acceleration_x`, `acceleration_y` and `acceleration_z`
 #'
@@ -143,7 +144,7 @@
 #' })
 #'
 #' @family tag
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#create-tag)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#create-tag)
 #' @export
 tag_create <- function(
   id,

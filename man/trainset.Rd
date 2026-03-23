@@ -48,8 +48,8 @@ The app features:
 \item Export functionality to save labeled data as CSV files
 }
 
-Learn more about data labeling workflows in the \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual } or explore the
-\href{https://raphaelnussbaumer.com/GeoPressureR/}{GeoPressureR documentation}.
+Learn more about data labeling workflows in the \href{https://geopressure.org/GeoPressureManual/}{GeoPressureManual } or explore the
+\href{https://geopressure.org/GeoPressureR/}{GeoPressureR documentation}.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -60,5 +60,5 @@ trainset(tag, run_bg = FALSE, launch_browser = FALSE)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=tag_label_read]{tag_label_read()}}, \code{\link[=tag_label_write]{tag_label_write()}}, \href{https://raphaelnussbaumer.com/GeoPressureManual/}{GeoPressureManual }
+\code{\link[=tag_label_read]{tag_label_read()}}, \code{\link[=tag_label_write]{tag_label_write()}}, \href{https://geopressure.org/GeoPressureManual/}{GeoPressureManual }
 }

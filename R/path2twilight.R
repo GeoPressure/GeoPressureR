@@ -57,7 +57,7 @@
 #'
 #' @family path
 #' @seealso [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [suntools
+#' ](https://geopressure.org/GeoPressureManual/light-map.html), [suntools
 #' ](https://github.com/adokter/suntools)
 #' @export
 path2twilight <- function(

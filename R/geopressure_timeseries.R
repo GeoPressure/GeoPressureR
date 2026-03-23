@@ -19,7 +19,7 @@
 #' elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
 #' temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
 #' and  \eqn{M} is the molar mass of air. See more information at
-#' [the GeoPressureAPI documentation](https://github.com/Rafnuss/GeoPressureAPI).
+#' [the GeoPressureAPI documentation](https://github.com/GeoPressure/GeoPressureAPI).
 #'
 #' To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
 #' the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with

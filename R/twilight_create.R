@@ -34,7 +34,7 @@
 #'
 #' @family geolight
 #' @seealso [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
+#' ](https://geopressure.org/GeoPressureManual/light-map.html), [`TwGeos::findTwilights()`](
 #' https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html)
 #' @export
 twilight_create <- function(

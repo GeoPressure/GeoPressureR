@@ -72,7 +72,7 @@ twl <- path2twilight(path)
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://github.com/adokter/suntools}{suntools }
+\href{https://geopressure.org/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://github.com/adokter/suntools}{suntools }
 
 Other path: 
 \code{\link{path2edge}()},

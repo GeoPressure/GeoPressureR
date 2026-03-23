@@ -54,7 +54,7 @@ plot(tag, type = "twilight")
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}
+\href{https://geopressure.org/GeoPressureManual/light-map.html}{GeoPressureManual }, \href{https://rdrr.io/github/slisovski/TwGeos/man/findTwilights.html}{\code{TwGeos::findTwilights()}}
 
 Other geolight: 
 \code{\link{geolight_fit_location}()},

@@ -58,7 +58,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/labelling-tracks.html#with-or-without-acceleration-data}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/labelling-tracks.html#with-or-without-acceleration-data}{GeoPressureManual}
 
 Other tag_label: 
 \code{\link{tag_label}()},

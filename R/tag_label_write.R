@@ -30,7 +30,7 @@
 #' })
 #'
 #' @family tag_label
-#' @seealso [GeoPressureManual](https://raphaelnussbaumer.com/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file)
+#' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file)
 #' @export
 tag_label_write <- function(
   tag,

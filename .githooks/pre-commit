@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+set -e
+
+# Regenerate codemeta when DESCRIPTION is staged.
+if git diff --cached --name-only | grep -q '^DESCRIPTION$'; then
+  if ! command -v Rscript >/dev/null 2>&1; then
+    echo "pre-commit: Rscript not found; cannot update codemeta.json" >&2
+    exit 1
+  fi
+
+  Rscript -e 'if (!requireNamespace("codemetar", quietly = TRUE)) stop("Install `codemetar` to auto-sync codemeta.json from DESCRIPTION."); codemetar::write_codemeta()'
+  git add codemeta.json
+  echo "pre-commit: updated codemeta.json from DESCRIPTION"
+fi

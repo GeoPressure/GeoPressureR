@@ -9,7 +9,7 @@
 #' See section [2.2.4 in Nussbaumer (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 #' for more technical details and the [GeoPressureManual](
-#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html) for an
+#' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html) for an
 #' illustration on how to use it.
 #'
 #' @param graph a GeoPressureR graph object.
@@ -35,7 +35,7 @@
 #' optimized hidden Markov model. *Methods in Ecology and Evolution*, 14, 1118–1129
 #' \doi{10.1111/2041-210X.14082}.}
 #' @seealso [GeoPressureManual](
-#' https://raphaelnussbaumer.com/GeoPressureManual/trajectory-with-wind.html)
+#' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html)
 #' @export
 # nocov start
 graph_add_wind <- function(

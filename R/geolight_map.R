@@ -8,7 +8,7 @@
 #' 2. Compute a likelihood map for each twilight using the calibration.
 #' 3. Combine the likelihood maps of all twilights belonging to the same stationary periods with a
 #' log-linear pooling. See [GeoPressureManual | Probability aggregation](
-#' https://raphaelnussbaumer.com/GeoPressureManual/probability-aggregation.html)
+#' https://geopressure.org/GeoPressureManual/probability-aggregation.html)
 #' for more information on probability aggregation using log-linear pooling.
 #'
 #' # Calibration

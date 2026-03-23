@@ -4,11 +4,11 @@
   "identifier": "GeoPressureR",
   "description": "R package to determine the position and trajectory of a bird based on light-weight data-logger measuring at lease atmospheric pressure.",
   "name": "GeoPressureR: Global Positioning by Atmospheric Pressure",
-  "relatedLink": "https://raphaelnussbaumer.com/GeoPressureR/",
-  "codeRepository": "https://github.com/Rafnuss/GeoPressureR",
-  "issueTracker": "https://github.com/Rafnuss/GeoPressureR/issues",
+  "relatedLink": "https://geopressure.org/GeoPressureR/",
+  "codeRepository": "https://github.com/GeoPressure/GeoPressureR",
+  "issueTracker": "https://github.com/GeoPressure/GeoPressureR/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "3.5.0",
+  "version": "3.5.2",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -125,18 +125,6 @@
     },
     {
       "@type": "SoftwareApplication",
-      "identifier": "leaflet.extras",
-      "name": "leaflet.extras",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=leaflet.extras"
-    },
-    {
-      "@type": "SoftwareApplication",
       "identifier": "leaflet.providers",
       "name": "leaflet.providers",
       "provider": {
@@ -170,6 +158,18 @@
         "url": "https://cran.r-project.org"
       },
       "sameAs": "https://CRAN.R-project.org/package=rnaturalearth"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "identifier": "rnaturalearthdata",
+      "name": "rnaturalearthdata",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=rnaturalearthdata"
     },
     {
       "@type": "SoftwareApplication",
@@ -499,7 +499,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "8323.508KB",
+  "fileSize": "8367.31KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
@@ -522,7 +522,7 @@
       ],
       "name": "GeoPressureR: Global positioning by atmospheric pressure",
       "identifier": "10.5281/zenodo.7754457",
-      "url": "https://github.com/Rafnuss/GeoPressureR",
+      "url": "https://github.com/GeoPressure/GeoPressureR",
       "@id": "https://doi.org/10.5281/zenodo.7754457",
       "sameAs": "https://doi.org/10.5281/zenodo.7754457"
     },
@@ -569,10 +569,7 @@
         "issueNumber": "4",
         "datePublished": "2023",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "volumeNumber": "14",
           "name": "Methods in Ecology and Evolution"
         }
@@ -627,10 +624,7 @@
         "issueNumber": "4",
         "datePublished": "2023",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "volumeNumber": "14",
           "name": "Methods in Ecology and Evolution"
         }
@@ -657,7 +651,7 @@
       ],
       "name": "GeoPressureManual: Learn how to use GeoPressureR with examples.",
       "identifier": "10.5281/zenodo.10799355",
-      "url": "https://github.com/Rafnuss/GeoPressureManual",
+      "url": "https://github.com/GeoPressure/GeoPressureManual",
       "@id": "https://doi.org/10.5281/zenodo.10799355",
       "sameAs": "https://doi.org/10.5281/zenodo.10799355"
     },
@@ -682,7 +676,7 @@
       ],
       "name": "GeoPressureR: Global positioning by atmospheric pressure",
       "identifier": "10.5281/zenodo.7754457",
-      "url": "https://github.com/Rafnuss/GeoPressureR",
+      "url": "https://github.com/GeoPressure/GeoPressureR",
       "@id": "https://doi.org/10.5281/zenodo.7754457",
       "sameAs": "https://doi.org/10.5281/zenodo.7754457"
     },
@@ -729,10 +723,7 @@
         "issueNumber": "4",
         "datePublished": "2023",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "volumeNumber": "14",
           "name": "Methods in Ecology and Evolution"
         }
@@ -787,10 +778,7 @@
         "issueNumber": "4",
         "datePublished": "2023",
         "isPartOf": {
-          "@type": [
-            "PublicationVolume",
-            "Periodical"
-          ],
+          "@type": ["PublicationVolume", "Periodical"],
           "volumeNumber": "14",
           "name": "Methods in Ecology and Evolution"
         }
@@ -817,30 +805,14 @@
       ],
       "name": "GeoPressureManual: Learn how to use GeoPressureR with examples.",
       "identifier": "10.5281/zenodo.10799355",
-      "url": "https://github.com/Rafnuss/GeoPressureManual",
+      "url": "https://github.com/GeoPressure/GeoPressureManual",
       "@id": "https://doi.org/10.5281/zenodo.10799355",
       "sameAs": "https://doi.org/10.5281/zenodo.10799355"
     }
   ],
-  "releaseNotes": "https://github.com/Rafnuss/GeoPressureR/blob/main/NEWS.md",
-  "readme": "https://github.com/Rafnuss/GeoPressureR/blob/master/README.md",
-  "contIntegration": [
-    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/R-CMD-check.yaml",
-    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/pkgdown.yaml",
-    "https://app.codecov.io/gh/Rafnuss/GeoPressureR?branch=master",
-    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/jarl-check.yml",
-    "https://github.com/Rafnuss/GeoPressureR/actions/workflows/format-check.yaml"
-  ],
+  "releaseNotes": "https://github.com/GeoPressure/GeoPressureR/blob/main/NEWS.md",
+  "readme": "https://github.com/GeoPressure/GeoPressureR/blob/main/README.md",
+  "contIntegration": ["https://github.com/GeoPressure/GeoPressureR/actions/workflows/R-CMD-check.yaml", "https://github.com/GeoPressure/GeoPressureR/actions/workflows/pkgdown.yaml", "https://app.codecov.io/gh/GeoPressure/GeoPressureR?branch=main", "https://github.com/GeoPressure/GeoPressureR/actions/workflows/jarl-check.yml", "https://github.com/GeoPressure/GeoPressureR/actions/workflows/format-check.yaml"],
   "developmentStatus": "https://lifecycle.r-lib.org/articles/stages.html#stable",
-  "keywords": [
-    "r",
-    "era5",
-    "datalogger",
-    "bird",
-    "migration",
-    "windspeed",
-    "pressure-sensor",
-    "geolocator",
-    "tracker"
-  ]
+  "keywords": ["r", "era5", "datalogger", "bird", "migration", "windspeed", "pressure-sensor", "geolocator"]
 }

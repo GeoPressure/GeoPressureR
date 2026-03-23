@@ -90,7 +90,7 @@ print(tag_custom)
 
 }
 \seealso{
-\href{https://raphaelnussbaumer.com/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map}{GeoPressureManual}
+\href{https://geopressure.org/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map}{GeoPressureManual}
 
 Other tag: 
 \code{\link{print.tag}()},

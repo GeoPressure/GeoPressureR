@@ -13,8 +13,8 @@
 #' - Export functionality to save labeled data as CSV files
 #'
 #' Learn more about data labeling workflows in the [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/) or explore the
-#' [GeoPressureR documentation](https://raphaelnussbaumer.com/GeoPressureR/).
+#' ](https://geopressure.org/GeoPressureManual/) or explore the
+#' [GeoPressureR documentation](https://geopressure.org/GeoPressureR/).
 #'
 #' @param x One of:
 #' * a GeoPressureR `tag` object,
@@ -41,7 +41,7 @@
 #' trainset(tag, run_bg = FALSE, launch_browser = FALSE)
 #'
 #' @seealso [tag_label_read()], [tag_label_write()], [GeoPressureManual
-#' ](https://raphaelnussbaumer.com/GeoPressureManual/)
+#' ](https://geopressure.org/GeoPressureManual/)
 #' @export
 trainset <- function(
   x,

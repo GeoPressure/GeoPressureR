@@ -153,21 +153,73 @@ server <- function(input, output, session) {
 
     fl_dur <- flight_dur_reactive()[min(idx, idx + nextprev)]
 
-    speed_txt <- if (!is.na(fl_dur) && fl_dur > 0) {
-      paste0(round(dist_km / fl_dur), "km/h")
+    flights_val <- nb_fl
+    flights_unit <- if (nb_fl > 1) "flights" else "flight"
+    duration_val <- round(fl_dur, 1)
+    duration_unit <- "hrs"
+    distance_val <- round(dist_km)
+    distance_unit <- "km"
+    speed_val <- if (!is.na(fl_dur) && fl_dur > 0) {
+      round(dist_km / fl_dur)
     } else {
       "—"
     }
+    speed_unit <- if (identical(speed_val, "—")) "" else "km/h"
 
     label <- if (nextprev > 0) "Next flight" else "Previous flight"
+    dot_col <- stap$col[nextnext_id]
+    if (is.null(dot_col) || is.na(dot_col) || dot_col == "") {
+      dot_col <- "#999999"
+    }
 
-    return(shiny::HTML(
-      glue::glue("<b>{label}:</b><br>"),
-      glue::glue(
-        "{nb_fl} flights - {round(fl_dur, 1)} hrs<br>"
+    shiny::div(
+      class = "gpv-flight-card",
+      style = glue::glue("border-color:{dot_col};"),
+      shiny::div(
+        class = "gpv-flight-title",
+        shiny::span(class = "gpv-color-dot", style = glue::glue("background-color:{dot_col};")),
+        shiny::tags$span(label)
       ),
-      glue::glue("{round(dist_km)} km - {speed_txt}")
-    ))
+      shiny::div(
+        class = "gpv-flight-metrics",
+        shiny::div(
+          class = "gpv-flight-metric",
+          shiny::tags$i(class = "bi bi-airplane"),
+          shiny::tags$span(
+            class = "gpv-flight-metric-main",
+            shiny::tags$span(class = "gpv-flight-metric-value", flights_val),
+            shiny::tags$span(class = "gpv-flight-metric-unit", flights_unit)
+          )
+        ),
+        shiny::div(
+          class = "gpv-flight-metric",
+          shiny::tags$i(class = "bi bi-hourglass-split"),
+          shiny::tags$span(
+            class = "gpv-flight-metric-main",
+            shiny::tags$span(class = "gpv-flight-metric-value", duration_val),
+            shiny::tags$span(class = "gpv-flight-metric-unit", duration_unit)
+          )
+        ),
+        shiny::div(
+          class = "gpv-flight-metric",
+          shiny::tags$i(class = "bi bi-signpost-2"),
+          shiny::tags$span(
+            class = "gpv-flight-metric-main",
+            shiny::tags$span(class = "gpv-flight-metric-value", distance_val),
+            shiny::tags$span(class = "gpv-flight-metric-unit", distance_unit)
+          )
+        ),
+        shiny::div(
+          class = "gpv-flight-metric",
+          shiny::tags$i(class = "bi bi-speedometer2"),
+          shiny::tags$span(
+            class = "gpv-flight-metric-main",
+            shiny::tags$span(class = "gpv-flight-metric-value", speed_val),
+            shiny::tags$span(class = "gpv-flight-metric-unit", speed_unit)
+          )
+        )
+      )
+    )
   }
 
   output$flight_prev_info <- shiny::renderUI({
@@ -383,27 +435,34 @@ server <- function(input, output, session) {
 
   shiny::observeEvent(input$min_dur_stap, {
     if (length(stap_id_include()) > 0) {
-      choices <- as.list(stap_id_include())
-      names(choices) <-
-        glue::glue(
-          "#{stap_id_include()} ({round(stap$duration[stap_id_include()], 1)} d.)"
-        )
+      choices <- as.character(stap_id_include())
+      names(choices) <- glue::glue(
+        "#{stap_id_include()} ({round(stap$duration[stap_id_include()], 1)} d.)"
+      )
     } else {
-      choices <- list()
+      choices <- character()
     }
     session$onFlushed(function() {
-      shiny::updateSelectInput(session, "stap_id", choices = choices)
+      shiny::updateSelectizeInput(session, "stap_id", choices = choices)
     })
   })
 
   shiny::observeEvent(input$previous_position, {
     idx_new <- min(max(idx() - 1, 1), length(stap_id_include()))
-    shiny::updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    shiny::updateSelectizeInput(
+      session,
+      "stap_id",
+      selected = as.character(stap_id_include()[idx_new])
+    )
   })
 
   shiny::observeEvent(input$next_position, {
     idx_new <- min(max(idx() + 1, 1), length(stap_id_include()))
-    shiny::updateSelectInput(session, "stap_id", selected = stap_id_include()[idx_new])
+    shiny::updateSelectizeInput(
+      session,
+      "stap_id",
+      selected = as.character(stap_id_include()[idx_new])
+    )
   })
 
   shiny::observeEvent(input$edit_position, {
@@ -752,8 +811,8 @@ server <- function(input, output, session) {
     }
 
     # Trigger UI refresh on selection
-    shiny::updateSelectInput(session, "stap_id", selected = 1)
-    shiny::updateSelectInput(session, "stap_id", selected = input$stap_id)
+    shiny::updateSelectizeInput(session, "stap_id", selected = "1")
+    shiny::updateSelectizeInput(session, "stap_id", selected = input$stap_id)
 
     invisible(NULL)
   }
@@ -768,56 +827,19 @@ server <- function(input, output, session) {
     session = session
   )
 
-  # Export path functionality
-  shiny::observeEvent(input$export_path, {
-    file <- glue::glue("./data/interim/{tag$param$id}.RData")
-
-    # Create directory if it doesn't exist
-    dir.create(dirname(file), recursive = TRUE, showWarnings = FALSE)
-
-    # Rename to the correct name
-    path_geopressureviz <- reactVal$path
-
-    saved_ok <- tryCatch(
-      {
-        if (file.exists(file)) {
-          # Load existing file into a dedicated env and add path_geopressureviz
-          env <- new.env(parent = emptyenv())
-          save_list <- load(file, envir = env)
-          env$path_geopressureviz <- path_geopressureviz
-          save_list <- unique(c(save_list, "path_geopressureviz"))
-          save(
-            list = save_list,
-            envir = env,
-            file = file
-          )
-        } else {
-          # Create new file with just path_geopressureviz
-          save(
-            path_geopressureviz,
-            file = file
-          )
-        }
-        TRUE
-      },
-      error = function(e) {
-        shiny::showNotification(
-          paste("Failed to export path:", conditionMessage(e)),
-          type = "error",
-          duration = 5
-        )
-        FALSE
-      }
-    )
-
-    if (saved_ok) {
-      shiny::showNotification(
-        paste("Path exported to", normalizePath(file)),
-        type = "message",
-        duration = 3
+  # Export current path as CSV (browser save dialog)
+  output$export_path <- shiny::downloadHandler(
+    filename = function() {
+      glue::glue("{tag$param$id}-path-geopressureviz.csv")
+    },
+    content = function(file) {
+      utils::write.csv(
+        reactVal$path,
+        file = file,
+        row.names = FALSE
       )
     }
-  })
+  )
 
   # Pressure Graph
   shiny::observe({
