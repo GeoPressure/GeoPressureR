@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7754457.svg)](https://doi.org/10.5281/zenodo.7754457)
 [![R-CMD-check](https://github.com/GeoPressure/GeoPressureR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/GeoPressure/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/pkgdown.yaml)
-[![Codecov test coverage](https://codecov.io/gh/GeoPressure/GeoPressureR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/GeoPressure/GeoPressureR?branch=main)
+[![Codecov test coverage](https://codecov.io/gh/GeoPressure/GeoPressureR/graph/badge.svg)](https://app.codecov.io/gh/GeoPressure/GeoPressureR)
 [![lint](https://github.com/GeoPressure/GeoPressureR/actions/workflows/jarl-check.yml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/jarl-check.yml)
 [![format](https://github.com/GeoPressure/GeoPressureR/actions/workflows/format-check.yaml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/format-check.yaml)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)

@@ -9,7 +9,7 @@
 [![R-CMD-check](https://github.com/GeoPressure/GeoPressureR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/GeoPressure/GeoPressureR/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/pkgdown.yaml)
 [![Codecov test
-coverage](https://codecov.io/gh/GeoPressure/GeoPressureR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/GeoPressure/GeoPressureR?branch=main)
+coverage](https://codecov.io/gh/GeoPressure/GeoPressureR/graph/badge.svg)](https://app.codecov.io/gh/GeoPressure/GeoPressureR)
 [![lint](https://github.com/GeoPressure/GeoPressureR/actions/workflows/jarl-check.yml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/jarl-check.yml)
 [![format](https://github.com/GeoPressure/GeoPressureR/actions/workflows/format-check.yaml/badge.svg)](https://github.com/GeoPressure/GeoPressureR/actions/workflows/format-check.yaml)
 [![Lifecycle:
