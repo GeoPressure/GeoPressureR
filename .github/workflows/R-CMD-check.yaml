@@ -20,16 +20,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
-          - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
+          - { os: macos-latest, r: "release" }
+          - { os: windows-latest, r: "release" }
+          - { os: ubuntu-latest, r: "release" }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 

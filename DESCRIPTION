@@ -15,6 +15,7 @@ BugReports: https://github.com/GeoPressure/GeoPressureR/issues
 Depends: 
     R (>= 4.1.0)
 Imports: 
+    assertthat,
     cli,
     config,
     EBImage,
@@ -38,7 +39,6 @@ Imports:
     utils
 Suggests: 
     callr,
-    assertthat,
     BiocManager,
     covr,
     ecmwfr (>= 2.0.0),
