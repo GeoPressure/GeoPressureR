@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/GeoPressure/GeoPressureR/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/GeoPressure/GeoPressureR/blob/v3.5.2/inst/CITATION)
 
 Nussbaumer R, Gravey M (2022). *GeoPressureR: Global positioning by
 atmospheric pressure*.

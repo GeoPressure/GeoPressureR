@@ -75,10 +75,10 @@ graph <- graph_set_movement(graph)
 # Compute marginal
 marginal <- graph_marginal(graph)
 #> ℹ Compute movement model
-#> ✔ Compute movement model [903ms]
+#> ✔ Compute movement model [1.2s]
 #> 
 #> ℹ Compute marginal
-#> ✔ Compute marginal [208ms]
+#> ✔ Compute marginal [142ms]
 #> 
 #> ✔ All done
 
