@@ -3,9 +3,8 @@
 #' Reads a CSV file defining coarse stationary periods (`stap0`) or validates a data.frame,
 #' including date parsing, ordering, and overlap checks.
 #'
-#' @param x a GeoPressureR `tag` object, a `stap` data.frame, or a CSV path.
-#' If a `tag` is provided, the default file path is
-#' `./data/stap-label/{tag$param$id}.csv`.
+#' @param x a `stap` data.frame, a CSV path, or a tag `id` (character scalar). If `x` is a tag
+#' `id`, the default file path is `./data/stap-label/{id}.csv`.
 #' @param required_cols character vector of required columns (default: `c("start", "end")`).
 #'
 #' @return A data.frame containing at least the required columns, sorted by `start`.
@@ -27,14 +26,17 @@ read_stap <- function(x, required_cols = c("start", "end")) {
   stap_df <- NULL
   file_path <- NULL
 
-  if (inherits(x, "tag")) {
-    file_path <- glue::glue("./data/stap-label/{x$param$id}.csv")
-  } else if (is.character(x)) {
-    file_path <- x
-  } else if (is.data.frame(x)) {
+  if (is.data.frame(x)) {
     stap_df <- x
+  } else if (is.character(x) && length(x) == 1) {
+    ext <- tolower(tools::file_ext(x))
+    if (file.exists(x) || ext == "csv" || grepl("[/\\\\]", x)) {
+      file_path <- x
+    } else {
+      file_path <- glue::glue("./data/stap-label/{x}.csv")
+    }
   } else {
-    cli::cli_abort("{.var stap} must be a data.frame, a CSV path, or a GeoPressureR tag.")
+    cli::cli_abort("{.arg x} must be a data.frame or a single character string (CSV path or id).")
   }
 
   if (is.null(stap_df)) {
