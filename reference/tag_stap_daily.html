@@ -69,12 +69,14 @@ intervals are kept as-is and the remaining gaps are filled using twilight midpoi
 
 <dt id="arg-stap-">stap0<a class="anchor" aria-label="anchor" href="#arg-stap-"></a></dt>
 <dd><p>optional <code>stap</code> data.frame with columns <code>start</code> and <code>end</code>, a CSV path with those
-columns (POSIXct-compatible strings), or a GeoPressureR <code>tag</code> passed to <code><a href="read_stap.html">read_stap()</a></code>.</p></dd>
+columns (POSIXct-compatible strings), or a tag <code>id</code> resolved by <code><a href="read_stap.html">read_stap()</a></code>.</p></dd>
 
 
 <dt id="arg-twl-grouping">twl_grouping<a class="anchor" aria-label="anchor" href="#arg-twl-grouping"></a></dt>
-<dd><p>Which twilight pairs define a boundary: <code>"night"</code> (sunset to sunrise,
-default) or <code>"day"</code> (sunrise to sunset).</p></dd>
+<dd><p>Which period is assumed to be when the bird is moving: <code>"night"</code>
+(default) assumes the bird is moving during the night, so sunrise-to-sunset twilights are
+combined into the same stationary period, while <code>"day"</code> assumes the bird is moving during the
+day, so sunset-to-sunrise twilights are combined into the same stationary period.</p></dd>
 
 
 <dt id="arg-max-twl-gap-hours">max_twl_gap_hours<a class="anchor" aria-label="anchor" href="#arg-max-twl-gap-hours"></a></dt>
@@ -89,7 +91,9 @@ erroring, indicating missing twilights.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Updated <code>tag</code> with a twilight-based <code>stap</code> and optional <code>stap0</code>. The <code>stap</code> includes a
-logical column <code>stap0</code> set to <code>TRUE</code> when intervals come from the provided <code>stap0</code> input.</p>
+logical column <code>stap0</code> set to <code>TRUE</code> when intervals come from the provided <code>stap0</code> input.
+If <code>stap0</code> includes <code>known_lat</code> or <code>known_lon</code>, those columns are kept on matching
+<code>stap</code> rows.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
