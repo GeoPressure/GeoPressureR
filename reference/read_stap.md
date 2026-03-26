@@ -14,9 +14,9 @@ read_stap(x, required_cols = c("start", "end"))
 
 - x:
 
-  a `stap` data.frame, a CSV path, or a tag `id` (character scalar). If
-  `x` is a tag `id`, the default file path is
-  `./data/stap-label/{id}.csv`.
+  a GeoPressureR `tag` object, a `stap` data.frame, or a CSV path. If a
+  `tag` is provided, the default file path is
+  `./data/stap-label/{tag$param$id}.csv`.
 
 - required_cols:
 

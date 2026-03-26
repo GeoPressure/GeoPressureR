@@ -26,18 +26,14 @@ tag_stap_daily(
 - stap0:
 
   optional `stap` data.frame with columns `start` and `end`, a CSV path
-  with those columns (POSIXct-compatible strings), or a tag `id`
-  resolved by
+  with those columns (POSIXct-compatible strings), or a GeoPressureR
+  `tag` passed to
   [`read_stap()`](https://geopressure.org/GeoPressureR/reference/read_stap.md).
 
 - twl_grouping:
 
-  Which period is assumed to be when the bird is moving: `"night"`
-  (default) assumes the bird is moving during the night, so
-  sunrise-to-sunset twilights are combined into the same stationary
-  period, while `"day"` assumes the bird is moving during the day, so
-  sunset-to-sunrise twilights are combined into the same stationary
-  period.
+  Which twilight pairs define a boundary: `"night"` (sunset to sunrise,
+  default) or `"day"` (sunrise to sunset).
 
 - max_twl_gap_hours:
 
@@ -52,8 +48,7 @@ tag_stap_daily(
 
 Updated `tag` with a twilight-based `stap` and optional `stap0`. The
 `stap` includes a logical column `stap0` set to `TRUE` when intervals
-come from the provided `stap0` input. If `stap0` includes `known_lat` or
-`known_lon`, those columns are kept on matching `stap` rows.
+come from the provided `stap0` input.
 
 ## See also
 
