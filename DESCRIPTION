@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 3.5.2
+Version: 3.5.3.9000
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-8185-1020")),
