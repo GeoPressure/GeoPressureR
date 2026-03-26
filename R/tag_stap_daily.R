@@ -7,9 +7,11 @@
 #'
 #' @param tag a GeoPressureR `tag` object with `twilight`.
 #' @param stap0 optional `stap` data.frame with columns `start` and `end`, a CSV path with those
-#' columns (POSIXct-compatible strings), or a GeoPressureR `tag` passed to `read_stap()`.
-#' @param twl_grouping Which twilight pairs define a boundary: `"night"` (sunset to sunrise,
-#' default) or `"day"` (sunrise to sunset).
+#' columns (POSIXct-compatible strings), or a tag `id` resolved by `read_stap()`.
+#' @param twl_grouping Which period is assumed to be when the bird is moving: `"night"`
+#' (default) assumes the bird is moving during the night, so sunrise-to-sunset twilights are
+#' combined into the same stationary period, while `"day"` assumes the bird is moving during the
+#' day, so sunset-to-sunrise twilights are combined into the same stationary period.
 #' @param max_twl_gap_hours maximum allowed gap between consecutive twilights (in hours) before
 #' erroring, indicating missing twilights.
 #' @param quiet logical to hide messages.
@@ -94,6 +96,16 @@ tag_stap_daily <- function(
   # Integrate stap0 if provided
   stap0_df <- NULL
   if (!is.null(stap0)) {
+    if (is.list(stap0) && !is.data.frame(stap0)) {
+      stap0$known_lon <- as.numeric(lapply(stap0$known_lon, function(x) {
+        if (is.null(x)) NA else x
+      }))
+      stap0$known_lat <- as.numeric(lapply(stap0$known_lat, function(x) {
+        if (is.null(x)) NA else x
+      }))
+      stap0 <- as.data.frame(stap0)
+    }
+
     stap0_df <- read_stap(stap0)
     keep <- rep(TRUE, length(boundaries))
     for (i in seq_len(nrow(stap0_df))) {
@@ -125,6 +137,12 @@ tag_stap_daily <- function(
       cli::cli_abort("{.var stap0} intervals do not align with twilight boundaries.")
     }
     stap$stap0 <- key %in% key0
+    known_cols <- intersect(c("known_lat", "known_lon"), names(stap0_df))
+    if (length(known_cols) > 0) {
+      idx <- match(key0, key)
+      stap[known_cols] <- NA_real_
+      stap[idx, known_cols] <- stap0_df[known_cols]
+    }
   }
 
   # Assign stap to tag

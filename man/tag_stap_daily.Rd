@@ -16,10 +16,12 @@ tag_stap_daily(
 \item{tag}{a GeoPressureR \code{tag} object with \code{twilight}.}
 
 \item{stap0}{optional \code{stap} data.frame with columns \code{start} and \code{end}, a CSV path with those
-columns (POSIXct-compatible strings), or a GeoPressureR \code{tag} passed to \code{read_stap()}.}
+columns (POSIXct-compatible strings), or a tag \code{id} resolved by \code{read_stap()}.}
 
-\item{twl_grouping}{Which twilight pairs define a boundary: \code{"night"} (sunset to sunrise,
-default) or \code{"day"} (sunrise to sunset).}
+\item{twl_grouping}{Which period is assumed to be when the bird is moving: \code{"night"}
+(default) assumes the bird is moving during the night, so sunrise-to-sunset twilights are
+combined into the same stationary period, while \code{"day"} assumes the bird is moving during the
+day, so sunset-to-sunrise twilights are combined into the same stationary period.}
 
 \item{max_twl_gap_hours}{maximum allowed gap between consecutive twilights (in hours) before
 erroring, indicating missing twilights.}
@@ -29,6 +31,8 @@ erroring, indicating missing twilights.}
 \value{
 Updated \code{tag} with a twilight-based \code{stap} and optional \code{stap0}. The \code{stap} includes a
 logical column \code{stap0} set to \code{TRUE} when intervals come from the provided \code{stap0} input.
+If \code{stap0} includes \code{known_lat} or \code{known_lon}, those columns are kept on matching
+\code{stap} rows.
 }
 \description{
 Build a \code{stap} table using midpoints between consecutive twilight pairs so the period lengths
