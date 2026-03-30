@@ -119,7 +119,7 @@ test_that("tag_label_stap() | for elev", {
     file = "./data/tag-label/18LX-labeled-elev.csv"
   )
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
-  tag_label_stap <- tag_label_stap(tag_elev, quiet = TRUE)
+  tag_elev <- tag_label_stap(tag_elev, quiet = TRUE)
   expect_true(all(c("elev_1", "elev_2") %in% unique(tag_elev$pressure$label)))
 })
 
