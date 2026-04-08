@@ -31,8 +31,6 @@ erroring, indicating missing twilights.}
 \value{
 Updated \code{tag} with a twilight-based \code{stap} and optional \code{stap0}. The \code{stap} includes a
 logical column \code{stap0} set to \code{TRUE} when intervals come from the provided \code{stap0} input.
-If \code{stap0} includes \code{known_lat} or \code{known_lon}, those columns are kept on matching
-\code{stap} rows.
 }
 \description{
 Build a \code{stap} table using midpoints between consecutive twilight pairs so the period lengths

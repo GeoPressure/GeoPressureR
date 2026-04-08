@@ -8,7 +8,7 @@ read_stap(x, required_cols = c("start", "end"))
 }
 \arguments{
 \item{x}{a \code{stap} data.frame, a CSV path, or a tag \code{id} (character scalar). If \code{x} is a tag
-\code{id}, the default file path is \code{./data/stap-label/\{id\}.csv}.}
+\code{id}, the default file path is \verb{./data/stap-label/\{id\}.csv}.}
 
 \item{required_cols}{character vector of required columns (default: \code{c("start", "end")}).}
 }
