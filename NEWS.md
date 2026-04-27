@@ -1,3 +1,20 @@
+# GeoPressureR v3.5.3
+
+## Main
+
+- [Fix major issue with era5_dataset default set incorrectly to "both"](https://github.com/GeoPressure/GeoPressureR/pull/160/commits/b4da448459af9e909dedf943a32b31817682e313)
+- [Fix error in barometric equation](https://github.com/GeoPressure/GeoPressureR/pull/160/changes/f9b0d12ef7e0a2100864a79f9049572958afbbb4)
+- [Handle list stap0; preserve known_lat/lon](https://github.com/GeoPressure/GeoPressureR/pull/160/changes/0c8c0e88bada21684851e2ec81d14524520b34e7)
+
+## Minor
+- [Improve read_stap input handling and docs ](https://github.com/GeoPressure/GeoPressureR/pull/160/changes/e2629305ca64b88b6f14ee2de2742bdf91fa0df9)
+- Improve `geopressure_map()` debugging by writing request bodies and full HTTP traces to temp log files.
+- Improve `geopressure_map()` download failures error message.
+- [Strengthen `era5_dataset` documentation to warn that `"both"` is slower and can trigger memory failures on long stationary periods.](https://github.com/GeoPressure/GeoPressureR/pull/160/commits/c2f356a72aa1f89bcfc47de34326f97f13568f6b)
+- Fix the `.Rbuildignore` trailing newline warning during package build.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.5.2...v3.5.3>
+
 # GeoPressureR v3.5.2
 
 ## Main

@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.5.2
+version: 3.5.3
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -132,6 +132,17 @@ references:
     address: Vienna, Austria
   year: '2026'
   version: '>= 4.1.0'
+- type: software
+  title: assertthat
+  abstract: 'assertthat: Easy Pre and Post Assertions'
+  notes: Imports
+  repository: https://CRAN.R-project.org/package=assertthat
+  authors:
+  - family-names: Wickham
+    given-names: Hadley
+    email: hadley@rstudio.com
+  year: '2026'
+  doi: 10.32614/CRAN.package.assertthat
 - type: software
   title: cli
   abstract: 'cli: Helpers for Developing Command Line Interfaces'
@@ -494,17 +505,6 @@ references:
     given-names: Winston
   year: '2026'
   doi: 10.32614/CRAN.package.callr
-- type: software
-  title: assertthat
-  abstract: 'assertthat: Easy Pre and Post Assertions'
-  notes: Suggests
-  repository: https://CRAN.R-project.org/package=assertthat
-  authors:
-  - family-names: Wickham
-    given-names: Hadley
-    email: hadley@rstudio.com
-  year: '2026'
-  doi: 10.32614/CRAN.package.assertthat
 - type: software
   title: BiocManager
   abstract: 'BiocManager: Access the Bioconductor Project Package Repository'
