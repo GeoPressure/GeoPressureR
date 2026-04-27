@@ -155,6 +155,12 @@ the \code{geopressuretemplate} workflow.
 # Run the complete geopressuretemplate workflow
 geopressuretemplate("18LX")
 
+# Overwrite parameters passed through ...
+geopressuretemplate("18LX",
+  tag_set_map = list(scale = 2),
+  geopressure_map = list(max_sample = 100, margin = 20)
+)
+
 # Or run step-by-step
 # you can check that all the parameters are correctly set in the config file
 geopressuretemplate_config(id)
