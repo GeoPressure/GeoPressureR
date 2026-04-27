@@ -99,7 +99,7 @@ geopressuretemplate_tag <- function(
     tag <- do.call(
       geopressure_map,
       c(
-        list(tag = tag, quiet = quiet, debug = FALSE),
+        list(tag = tag, quiet = quiet),
         config$geopressure_map
       )
     )
