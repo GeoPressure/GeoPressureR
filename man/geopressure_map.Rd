@@ -73,9 +73,10 @@ number of workers to the number of \code{stapelev} to query.}
 
 \item{era5_dataset}{select the dataset to use: \code{"single-levels"} for ERA5 hourly data on single
 levels (\doi{10.24381/cds.adbb2d47}), \code{"land"} for ERA5-Land hourly data
-(\doi{10.24381/cds.e2161bac}) or \code{"both"} to use land where available and single-levels
-otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
-single one makes the query faster.}
+(\doi{10.24381/cds.e2161bac}), or \code{"both"} to use \code{"land"} where available and
+\code{"single-levels"} otherwise (i.e. over water). \code{"land"} has greater precision but is not
+available on water. \code{"both"} is slower and can cause memory failures for long stationary periods
+(e.g. several months), so prefer a single dataset when possible.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 

@@ -53,9 +53,10 @@
 #' sunrise and sunset. If `NULL`, does not compute sunrise sunset.
 #' @param era5_dataset select the dataset to use: `"single-levels"` for ERA5 hourly data on single
 #' levels (\doi{10.24381/cds.adbb2d47}), `"land"` for ERA5-Land hourly data
-#' (\doi{10.24381/cds.e2161bac}) or `"both"` to use land where available and single-levels
-#' otherwise (i.e. over water). LAND has greater precision but is not available on water. Using a
-#' single one makes the query faster.
+#' (\doi{10.24381/cds.e2161bac}), or `"both"` to use `"land"` where available and
+#' `"single-levels"` otherwise (i.e. over water). `"land"` has greater precision but is not
+#' available on water. `"both"` is slower and can cause memory failures for long stationary periods
+#' (e.g. several months), so prefer a single dataset when possible.
 #' @param preprocess logical to pre-process pressure data with `geopressure_map_preprocess()`.
 #' @param quiet logical to hide messages about the progress
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99.
