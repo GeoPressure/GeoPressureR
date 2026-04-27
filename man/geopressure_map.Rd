@@ -16,7 +16,7 @@ geopressure_map(
   log_linear_pooling_weight = function(n) log(n)/n,
   timeout = 300,
   workers = "auto",
-  era5_dataset = "both",
+  era5_dataset = "land",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,

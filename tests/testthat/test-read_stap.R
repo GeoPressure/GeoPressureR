@@ -19,7 +19,7 @@ test_that("read_stap() | data.frame and file path", {
   expect_equal(nrow(out), 2)
 })
 
-test_that("read_stap() | tag input and overlap error", {
+test_that("read_stap() | tag id input and overlap error", {
   withr::local_dir(tempdir())
   dir.create("./data/stap-label", recursive = TRUE, showWarnings = FALSE)
 
@@ -32,8 +32,7 @@ test_that("read_stap() | tag input and overlap error", {
     "./data/stap-label/test.csv",
     row.names = FALSE
   )
-  tag <- structure(list(param = list(id = "test")), class = "tag")
-  out <- read_stap(tag)
+  out <- read_stap("test")
   expect_equal(nrow(out), 2)
 
   expect_error(

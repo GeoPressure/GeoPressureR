@@ -109,12 +109,15 @@ geopressure_map_mismatch <- function(
 
   # Perform the request and convert the response to json
   if (debug) {
-    resp_json <- capture_debug_output({
-      resp <- httr2::req_perform(req)
-      resp_json <- httr2::resp_body_json(resp)
-      print(resp_json)
-      resp_json
-    }, trace_file)
+    resp_json <- capture_debug_output(
+      {
+        resp <- httr2::req_perform(req)
+        resp_json <- httr2::resp_body_json(resp)
+        print(resp_json)
+        resp_json
+      },
+      trace_file
+    )
   } else {
     resp <- httr2::req_perform(req)
     resp_json <- httr2::resp_body_json(resp)
@@ -173,8 +176,14 @@ geopressure_map_mismatch <- function(
           print(error_body)
         }
         c(
-          "x" = glue::glue("Error while computing/downloading the GeoTIFF for stapelev {label_i} (stap {stap_i})."),
-          ">" = if (nzchar(error_body)) error_body else glue::glue("HTTP {httr2::resp_status(resp)}."),
+          "x" = glue::glue(
+            "Error while computing/downloading the GeoTIFF for stapelev {label_i} (stap {stap_i})."
+          ),
+          ">" = if (nzchar(error_body)) {
+            error_body
+          } else {
+            glue::glue("HTTP {httr2::resp_status(resp)}.")
+          },
           "i" = if (debug) {
             glue::glue("Failing URL: {url_i}\nHTTP trace file: {trace_file_i}")
           } else {
