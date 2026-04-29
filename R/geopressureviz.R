@@ -175,6 +175,15 @@ geopressureviz <- function(
   # }
   file_wind <- NULL
 
+  deps <- c("shiny", "shinyjs", "shinyWidgets")
+  deps_missing <- deps[!vapply(deps, requireNamespace, logical(1), quietly = TRUE)]
+  if (length(deps_missing)) {
+    cli::cli_alert_info(
+      "Installing missing GeoPressureViz package{?s}: {.pkg {deps_missing}}"
+    )
+    utils::install.packages(deps_missing)
+  }
+
   # nocov start
   if (run_bg) {
     return(shiny_run_app_bg(
