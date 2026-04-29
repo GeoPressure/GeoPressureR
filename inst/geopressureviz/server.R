@@ -827,7 +827,34 @@ server <- function(input, output, session) {
     session = session
   )
 
-  # Export current path as CSV (browser save dialog)
+  shiny::observeEvent(input$save_path, {
+    target_file <- glue::glue("./data/interim/{tag$param$id}-path-geopressureviz.csv")
+
+    tryCatch(
+      {
+        dir.create("./data/interim", recursive = TRUE, showWarnings = FALSE)
+        utils::write.csv(
+          reactVal$path,
+          file = target_file,
+          row.names = FALSE
+        )
+        shiny::showNotification(
+          glue::glue("Path saved to {target_file}"),
+          duration = 5,
+          type = "message"
+        )
+      },
+      error = function(e) {
+        shiny::showNotification(
+          glue::glue("Save failed: {e$message}. Using manual download instead."),
+          duration = 10,
+          type = "warning"
+        )
+        shinyjs::click("export_path")
+      }
+    )
+  })
+
   output$export_path <- shiny::downloadHandler(
     filename = function() {
       glue::glue("{tag$param$id}-path-geopressureviz.csv")
