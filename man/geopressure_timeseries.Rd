@@ -56,8 +56,8 @@ between \code{start_time} and \code{end_time} or the same as \code{pressure$date
 If you supply the \code{pressure} of the geolocator \eqn{P_{gl}}, the function will
 additionally return the altitude of the geolocator above sea level \eqn{z_{gl}} using the
 barometric equation,
-\deqn{ z_{{gl}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left( \frac{P_{gl}}{P_{ERA5}(x)}
-\right)^{\frac{RL_b}{g M}-1},}
+\deqn{ z_{{gl}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left[\left(
+\frac{P_{gl}}{P_{ERA5}(x)}\right)^{-\frac{R L_b}{g M}}-1\right],}
 where \eqn{z_{ERA}}, \eqn{T_{ERA}}, and \eqn{P_{ERA}} respectively correspond to the ground level
 elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
 temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant

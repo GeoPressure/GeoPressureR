@@ -34,6 +34,17 @@ geopressure_map_mismatch <- function(
   if (!quiet) {
     cli::cli_progress_step("Pre-process pressure data")
   }
+
+  capture_debug_output <- function(expr, trace_file) {
+    con <- file(trace_file, open = "wt")
+    sink(con)
+    on.exit({
+      sink()
+      close(con)
+    })
+    force(expr)
+  }
+
   # Prepare data
   pres <- geopressure_map_preprocess(tag, compute_known = compute_known)
 
@@ -56,7 +67,9 @@ geopressure_map_mismatch <- function(
   if (debug) {
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
     write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
-    cli::cli_text("Body request file: {.file {temp_file}}")
+    cli::cli_alert_info("Debug body request file: {.file {temp_file}}")
+    trace_file <- tempfile("log_geopressure_map_http_", fileext = ".log")
+    cli::cli_alert_info("Debug HTTP trace file: {.file {trace_file}}")
   }
 
   if (!quiet) {
@@ -77,7 +90,11 @@ geopressure_map_mismatch <- function(
       c(
         "x" = "Error with your request on https://glp.mgravey.com/GeoPressure/v2/map/.",
         ">" = httr2::resp_body_json(resp)$errorMessage,
-        "i" = "Please try again with `debug=TRUE`"
+        "i" = if (debug) {
+          glue::glue("Body request file: {temp_file}\nHTTP trace file: {trace_file}")
+        } else {
+          "Please try again with `debug=TRUE`"
+        }
       )
     })
 
@@ -91,11 +108,19 @@ geopressure_map_mismatch <- function(
   }
 
   # Perform the request and convert the response to json
-  resp <- httr2::req_perform(req)
-  resp_json <- httr2::resp_body_json(resp)
-
   if (debug) {
-    print(resp_json)
+    resp_json <- capture_debug_output(
+      {
+        resp <- httr2::req_perform(req)
+        resp_json <- httr2::resp_body_json(resp)
+        print(resp_json)
+        resp_json
+      },
+      trace_file
+    )
+  } else {
+    resp <- httr2::req_perform(req)
+    resp_json <- httr2::resp_body_json(resp)
   }
 
   # Get urls
@@ -135,9 +160,37 @@ geopressure_map_mismatch <- function(
     future::plan(future::sequential)
   }
 
-  download_geotiff <- function(url_i, timeout, debug, progress = NULL) {
+  download_geotiff <- function(i, urls, labels, timeout, debug, progress = NULL) {
+    url_i <- urls[[i]]
+    label_i <- labels[[i]]
+    stap_i <- as.numeric(sub("\\|.*", "", label_i))
+    trace_file_i <- tempfile(
+      glue::glue("log_geopressure_map_http_{gsub('[^[:alnum:]_]+', '_', label_i)}_"),
+      fileext = ".log"
+    )
     req_i <- httr2::request(url_i) |>
-      httr2::req_timeout(timeout)
+      httr2::req_timeout(timeout) |>
+      httr2::req_error(body = function(resp) {
+        error_body <- trimws(httr2::resp_body_string(resp))
+        if (debug) {
+          print(error_body)
+        }
+        c(
+          "x" = glue::glue(
+            "Error while computing/downloading the GeoTIFF for stapelev {label_i} (stap {stap_i})."
+          ),
+          ">" = if (nzchar(error_body)) {
+            error_body
+          } else {
+            glue::glue("HTTP {httr2::resp_status(resp)}.")
+          },
+          "i" = if (debug) {
+            glue::glue("Failing URL: {url_i}\nHTTP trace file: {trace_file_i}")
+          } else {
+            glue::glue("Failing URL: {url_i}")
+          }
+        )
+      })
 
     if (debug) {
       req_i <- httr2::req_verbose(
@@ -149,7 +202,11 @@ geopressure_map_mismatch <- function(
     }
 
     file <- tempfile(fileext = ".geotiff")
-    httr2::req_perform(req_i, path = file)
+    if (debug) {
+      capture_debug_output(httr2::req_perform(req_i, path = file), trace_file_i)
+    } else {
+      httr2::req_perform(req_i, path = file)
+    }
     if (!is.null(progress)) {
       progress()
     }
@@ -157,8 +214,10 @@ geopressure_map_mismatch <- function(
   }
 
   future_args <- list(
-    X = urls,
+    X = seq_along(urls),
     FUN = download_geotiff,
+    urls = urls,
+    labels = labels,
     timeout = timeout,
     debug = debug
   )

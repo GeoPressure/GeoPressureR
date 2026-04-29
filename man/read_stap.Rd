@@ -7,9 +7,8 @@
 read_stap(x, required_cols = c("start", "end"))
 }
 \arguments{
-\item{x}{a GeoPressureR \code{tag} object, a \code{stap} data.frame, or a CSV path.
-If a \code{tag} is provided, the default file path is
-\verb{./data/stap-label/\{tag$param$id\}.csv}.}
+\item{x}{a \code{stap} data.frame, a CSV path, or a tag \code{id} (character scalar). If \code{x} is a tag
+\code{id}, the default file path is \verb{./data/stap-label/\{id\}.csv}.}
 
 \item{required_cols}{character vector of required columns (default: \code{c("start", "end")}).}
 }

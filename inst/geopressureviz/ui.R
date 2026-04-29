@@ -141,10 +141,19 @@ ui <- shiny::bootstrapPage(
             width = "90px"
           )
         ),
-        shiny::downloadButton(
-          "export_path",
-          "Export current path (CSV)",
-          style = "background-color: #28a745; color: white; width: 100%;"
+        shiny::tagList(
+          shiny::actionButton(
+            "save_path",
+            "Save",
+            style = "background-color: #28a745; color: white; width: 100%;"
+          ),
+          shinyjs::hidden(
+            shiny::downloadButton(
+              "export_path",
+              "Download",
+              style = "width: 100%;"
+            )
+          )
         )
       ),
       shiny::div(

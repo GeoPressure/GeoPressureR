@@ -10,8 +10,15 @@
 #' file that contains at least `tag` (and optionally `marginal`, `path_most_likely`,
 #' `pressurepath`, `pressurepath_most_likely`).
 #'
-#' You can retrieve the edited path from the return value of this function (when `run_bg = FALSE`)
-#' or with `shiny::getShinyOption("path_geopressureviz")` after the app completes.
+#' When `run_bg = FALSE`, the app stores the current edited path in the Shiny option
+#' `path_geopressureviz` and returns it invisibly when the app closes. You can capture it from the
+#' return value of this function or retrieve it afterwards in the same R session with
+#' `shiny::getShinyOption("path_geopressureviz")`.
+#'
+#' When `run_bg = TRUE`, the function returns the background process object instead of the edited
+#' path.
+#'
+#' The app `Save` button writes the current path to `./data/interim/{id}-path-geopressureviz.csv`.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
@@ -31,9 +38,12 @@
 #' Rstudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
-#' @return When `run_bg = FALSE`: The updated path visualized in the app. Can also be retrieved with
-#' `shiny::getShinyOption("path_geopressureviz")` after the app completes.
-#' When `run_bg = TRUE`: Returns the background process object.
+#' @return When `run_bg = FALSE`: The edited path, returned invisibly when the app closes. During
+#' the app session, the current path is also stored in the Shiny option
+#' `shiny::getShinyOption("path_geopressureviz")`, which can be read afterwards in the same R
+#' session.
+#' When `run_bg = TRUE`: The background process object. In this case the edited path is not
+#' returned to the calling console session.
 #' @examplesIf FALSE
 #'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
@@ -174,6 +184,15 @@ geopressureviz <- function(
   #   file_wind <- \(stap_id) glue::glue("{geopressure_wd}{file(stap_id)}")
   # }
   file_wind <- NULL
+
+  deps <- c("shiny", "shinyjs", "shinyWidgets")
+  deps_missing <- deps[!vapply(deps, requireNamespace, logical(1), quietly = TRUE)]
+  if (length(deps_missing)) {
+    cli::cli_alert_info(
+      "Installing missing GeoPressureViz package{?s}: {.pkg {deps_missing}}"
+    )
+    utils::install.packages(deps_missing)
+  }
 
   # nocov start
   if (run_bg) {
