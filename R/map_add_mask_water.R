@@ -81,6 +81,26 @@ map_add_mask_water <- function(map, ne_scale = "medium") {
 #'
 #' @return Logical matrix where TRUE = water, FALSE = land
 #'
+#' @examplesIf FALSE
+#' # View the water mask around Caribbean islands
+#' extent <- c(-86, -58, 10, 28)
+#' scale <- 5
+#' mask <- mask_water(extent, scale)
+#' g <- map_expand(extent, scale)
+#' land <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
+#'
+#' image(
+#'   g$lon,
+#'   rev(g$lat),
+#'   t(mask[nrow(mask):1, ]),
+#'   col = c("#d8c589", "#2f7fb8"),
+#'   xlab = "Longitude",
+#'   ylab = "Latitude",
+#'   main = glue::glue("scale = ", scale),
+#'   asp = 1,
+#'   useRaster = TRUE
+#' )
+#' terra::plot(terra::vect(land), add = TRUE, border = "black", col = NA, lwd = 0.5)
 #' @noRd
 mask_water <- function(extent, scale, ne_scale = "medium") {
   # Validate inputs using map_expand (it will check extent and scale)
