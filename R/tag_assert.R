@@ -159,7 +159,16 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
   }
 }
 
-#' @noRd
+#' Get tag processing status
+#'
+#' Internal helper used by GeoPressure companion packages.
+#'
+#' @param tag a GeoPressureR `tag` object.
+#'
+#' @return Character vector of status labels.
+#'
+#' @keywords internal
+#' @export
 tag_status <- function(tag) {
   if (!inherits(tag, "tag")) {
     return(c())
