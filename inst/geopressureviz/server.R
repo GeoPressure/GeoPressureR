@@ -20,14 +20,15 @@ server <- function(input, output, session) {
   } else {
     edge <- path2edge(path, tag)
 
-    uv <- edge_add_wind(
+    wind <- edge_add_wind(
       tag,
       edge_s = edge$s,
       edge_t = edge$t,
-      return_averaged_variable = TRUE,
       file = file_wind
     )
-    edge$ws <- (uv[, 1] + 1i * uv[, 2]) / 1000 * 60 * 60
+    uv <- stats::aggregate(wind$val * wind$w, wind[c("edge_id", "var")], sum)
+    uv <- stats::reshape(uv, idvar = "edge_id", timevar = "var", direction = "wide")
+    edge$ws <- (uv$x.u + 1i * uv$x.v) * 3.6
   }
 
   # Compute resolution of projection
