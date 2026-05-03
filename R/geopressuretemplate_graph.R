@@ -3,14 +3,57 @@
 #' @export
 geopressuretemplate_graph <- function(
   id,
-  config = config::get(config = id),
+  config = NULL,
   quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
+  file = NULL,
   ...
 ) {
-  save_list <- load(file)
+  inputs <- geopressuretemplate_normalize_inputs(
+    id = id,
+    config = config,
+    config_missing = missing(config),
+    file = file,
+    file_missing = missing(file)
+  )
 
-  tag <- get("tag")
+  if (inputs$scalar) {
+    return(invisible(geopressuretemplate_graph_scalar(
+      id = inputs$id[[1]],
+      config = inputs$config[[1]],
+      quiet = quiet,
+      file = inputs$file[[1]],
+      ...
+    )))
+  }
+
+  if (!quiet) {
+    cli::cli_h1("Running geopressuretemplate_graph for {.val {length(inputs$id)}} tags")
+  }
+
+  out <- unlist(
+    lapply(seq_along(inputs$id), function(i) {
+      geopressuretemplate_graph_scalar(
+        id = inputs$id[[i]],
+        config = inputs$config[[i]],
+        quiet = quiet,
+        file = inputs$file[[i]],
+        ...
+      )
+    }),
+    use.names = FALSE
+  )
+  names(out) <- inputs$id
+
+  invisible(out)
+}
+
+#' @noRd
+geopressuretemplate_graph_scalar <- function(id, config, quiet, file, ...) {
+  file_env <- new.env(parent = emptyenv())
+  load(file, envir = file_env)
+  tag <- get("tag", envir = file_env, inherits = FALSE)
+  rm(file_env)
+  gc()
 
   if (tag$param$id != id) {
     cli::cli_abort(c(
@@ -48,6 +91,7 @@ geopressuretemplate_graph <- function(
       config$graph_create
     )
   )
+  gc()
 
   # Set the movement model based on the configuration
   tryCatch(
@@ -162,5 +206,5 @@ geopressuretemplate_graph <- function(
   )
 
   # Return the file path invisibly
-  invisible(file)
+  file
 }

@@ -55,25 +55,40 @@
 #' Each of these child functions can be called individually or automatically as part of
 #' the `geopressuretemplate` workflow.
 #'
-#' @param id unique identifier of a tag.
-#' @param config configuration object specifying workflow parameters, which is loaded by default
-#' using `config::get(config = id)`.
+#' @param id unique identifier of a tag. For the workflow functions, this can also be a character
+#' vector of tag identifiers. For `geopressuretemplate_status()`, if `NULL`, all tag identifiers
+#' found in `config.yml` and `data/interim` are reported.
+#' @param config configuration object specifying workflow parameters. If omitted, each tag uses
+#' `config::get(config = id_i)`. For vector `id`, supply a list of configuration objects with the
+#' same length as `id`.
 #' @param quiet Logical. If `TRUE`, suppresses informational messages during execution. The default
 #' value is `FALSE`.
 #' @param file A file path to save the intermediate results (e.g., tag, graph, and pressure paths).
-#' Default is `./data/interim/{id}.RData`.
+#' If omitted, each tag uses `./data/interim/{id}.RData`. For vector `id`, supply a character
+#' vector of file paths with the same length as `id`.
 #' @param assert_tag Logical. If `TRUE`, check that the config is compatible for the creation of
 #' a tag. The default value is `TRUE`.
 #' @param assert_graph Logical. If `TRUE`, check that the config is compatible for the creation of
 #' a graph. The default value is `TRUE`. Set to `FALSE` only if you don't want to create a graph
 #' model
+#' @param config_file Path to the `config.yml` file used by `geopressuretemplate_status()`.
 #' @param ... Additional parameters to overwrite default or config values. Always prefer to modify
 #' `config.yml` if possible.
 #'
 #'
 #' @return
-#' The function returns nothing. Instead, it saves the processed outputs (tag, graph,
-#' pressure paths, etc.) to the specified `file`.
+#' `geopressuretemplate()`, `geopressuretemplate_graph()` and
+#' `geopressuretemplate_pressurepath()` return the saved `file` path invisibly for scalar `id`, or
+#' a named character vector of saved file paths for vector `id`.
+#'
+#' `geopressuretemplate_tag()` returns the created `tag` invisibly for scalar `id`, or a named list
+#' of `tag` objects for vector `id`.
+#'
+#' `geopressuretemplate_config()` returns a single configuration object.
+#'
+#' `geopressuretemplate_status()` returns a `data.frame` with one row per tag and columns
+#' describing the requested workflow, available interim artifacts, missing artifacts, and next
+#' suggested workflow step.
 #'
 #' @examplesIf FALSE
 #' # Run the complete geopressuretemplate workflow
@@ -101,27 +116,62 @@
 #' @export
 geopressuretemplate <- function(
   id,
-  config = config::get(config = id),
+  config = NULL,
   quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
+  file = NULL,
   ...
 ) {
+  inputs <- geopressuretemplate_normalize_inputs(
+    id = id,
+    config = config,
+    config_missing = missing(config),
+    file = file,
+    file_missing = missing(file)
+  )
+
+  if (inputs$scalar) {
+    return(invisible(geopressuretemplate_scalar(
+      id = inputs$id[[1]],
+      config = inputs$config[[1]],
+      quiet = quiet,
+      file = inputs$file[[1]],
+      show_heading = TRUE,
+      ...
+    )))
+  }
+
   if (!quiet) {
+    cli::cli_h1("Running geopressuretemplate for {.val {length(inputs$id)}} tags")
+  }
+
+  out <- unlist(
+    lapply(seq_along(inputs$id), function(i) {
+      if (!quiet) {
+        cli::cli_h2("Run geopressuretemplate for {.field {inputs$id[[i]]}}")
+      }
+      geopressuretemplate_scalar(
+        id = inputs$id[[i]],
+        config = inputs$config[[i]],
+        quiet = quiet,
+        file = inputs$file[[i]],
+        show_heading = FALSE,
+        ...
+      )
+    }),
+    use.names = FALSE
+  )
+  names(out) <- inputs$id
+
+  invisible(out)
+}
+
+#' @noRd
+geopressuretemplate_scalar <- function(id, config, quiet, file, show_heading = TRUE, ...) {
+  if (!quiet && show_heading) {
     cli::cli_h1("Running geopressuretemplate for {id}")
   }
 
-  # Create the tag
-  geopressuretemplate_tag(
-    id = id,
-    config = config,
-    quiet = quiet,
-    saveit = FALSE,
-    file = file,
-    ...
-  )
-
-  # Create and process the graph using the computed or loaded tag
-  geopressuretemplate_graph(
+  geopressuretemplate_tag_scalar(
     id = id,
     config = config,
     quiet = quiet,
@@ -129,7 +179,7 @@ geopressuretemplate <- function(
     ...
   )
 
-  geopressuretemplate_pressurepath(
+  geopressuretemplate_graph_scalar(
     id = id,
     config = config,
     quiet = quiet,
@@ -137,5 +187,59 @@ geopressuretemplate <- function(
     ...
   )
 
-  invisible(file)
+  geopressuretemplate_pressurepath_scalar(
+    id = id,
+    config = config,
+    quiet = quiet,
+    file = file,
+    ...
+  )
+
+  file
+}
+
+#' @noRd
+geopressuretemplate_normalize_inputs <- function(
+  id,
+  config,
+  config_missing,
+  file,
+  file_missing
+) {
+  if (!is.character(id) || length(id) == 0 || any(is.na(id))) {
+    cli::cli_abort("{.arg id} must be a non-missing character vector.")
+  }
+
+  scalar <- length(id) == 1
+
+  config_out <- if (config_missing) {
+    lapply(id, function(id_i) config::get(config = id_i))
+  } else if (scalar) {
+    list(config)
+  } else {
+    if (!is.list(config) || length(config) != length(id)) {
+      cli::cli_abort(
+        "For vector {.arg id}, {.arg config} must be a list with the same length as {.arg id}."
+      )
+    }
+    config
+  }
+
+  file_out <- if (file_missing) {
+    glue::glue("./data/interim/{id}.RData")
+  } else {
+    if (!is.character(file) || length(file) != length(id)) {
+      cli::cli_abort(
+        "For vector {.arg id}, {.arg file} must be a character vector with the same length as {.arg id}."
+      )
+    }
+    file
+  }
+
+  list(
+    id = id,
+    config = unname(config_out),
+    file = unname(file_out),
+    scalar = scalar
+  )
 }

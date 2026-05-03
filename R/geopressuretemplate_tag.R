@@ -3,11 +3,49 @@
 #' @export
 geopressuretemplate_tag <- function(
   id,
-  config = config::get(config = id),
+  config = NULL,
   quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
+  file = NULL,
   ...
 ) {
+  inputs <- geopressuretemplate_normalize_inputs(
+    id = id,
+    config = config,
+    config_missing = missing(config),
+    file = file,
+    file_missing = missing(file)
+  )
+
+  if (inputs$scalar) {
+    return(invisible(geopressuretemplate_tag_scalar(
+      id = inputs$id[[1]],
+      config = inputs$config[[1]],
+      quiet = quiet,
+      file = inputs$file[[1]],
+      ...
+    )))
+  }
+
+  if (!quiet) {
+    cli::cli_h1("Running geopressuretemplate_tag for {.val {length(inputs$id)}} tags")
+  }
+
+  out <- lapply(seq_along(inputs$id), function(i) {
+    geopressuretemplate_tag_scalar(
+      id = inputs$id[[i]],
+      config = inputs$config[[i]],
+      quiet = quiet,
+      file = inputs$file[[i]],
+      ...
+    )
+  })
+  names(out) <- inputs$id
+
+  invisible(out)
+}
+
+#' @noRd
+geopressuretemplate_tag_scalar <- function(id, config, quiet, file, ...) {
   # Create the config file
   config <- geopressuretemplate_config(id, config = config, ...)
 
@@ -115,5 +153,5 @@ geopressuretemplate_tag <- function(
   )
 
   # Return the processed tag object invisibly
-  invisible(tag)
+  tag
 }

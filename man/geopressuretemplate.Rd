@@ -10,13 +10,7 @@
 \alias{geopressuretemplate_tag}
 \title{Workflow for GeoPressureR}
 \usage{
-geopressuretemplate(
-  id,
-  config = config::get(config = id),
-  quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
-  ...
-)
+geopressuretemplate(id, config = NULL, quiet = FALSE, file = NULL, ...)
 
 geopressuretemplate_config(
   id,
@@ -26,41 +20,33 @@ geopressuretemplate_config(
   ...
 )
 
-geopressuretemplate_graph(
-  id,
-  config = config::get(config = id),
-  quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
-  ...
-)
+geopressuretemplate_graph(id, config = NULL, quiet = FALSE, file = NULL, ...)
 
 geopressuretemplate_pressurepath(
   id,
-  config = config::get(config = id),
+  config = NULL,
   quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
+  file = NULL,
   ...
 )
 
-geopressuretemplate_tag(
-  id,
-  config = config::get(config = id),
-  quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
-  ...
-)
+geopressuretemplate_tag(id, config = NULL, quiet = FALSE, file = NULL, ...)
 }
 \arguments{
-\item{id}{unique identifier of a tag.}
+\item{id}{unique identifier of a tag. For the workflow functions, this can also be a character
+vector of tag identifiers. For \code{geopressuretemplate_status()}, if \code{NULL}, all tag identifiers
+found in \code{config.yml} and \code{data/interim} are reported.}
 
-\item{config}{configuration object specifying workflow parameters, which is loaded by default
-using \code{config::get(config = id)}.}
+\item{config}{configuration object specifying workflow parameters. If omitted, each tag uses
+\code{config::get(config = id_i)}. For vector \code{id}, supply a list of configuration objects with the
+same length as \code{id}.}
 
 \item{quiet}{Logical. If \code{TRUE}, suppresses informational messages during execution. The default
 value is \code{FALSE}.}
 
 \item{file}{A file path to save the intermediate results (e.g., tag, graph, and pressure paths).
-Default is \verb{./data/interim/\{id\}.RData}.}
+If omitted, each tag uses \verb{./data/interim/\{id\}.RData}. For vector \code{id}, supply a character
+vector of file paths with the same length as \code{id}.}
 
 \item{...}{Additional parameters to overwrite default or config values. Always prefer to modify
 \code{config.yml} if possible.}
@@ -71,10 +57,22 @@ a tag. The default value is \code{TRUE}.}
 \item{assert_graph}{Logical. If \code{TRUE}, check that the config is compatible for the creation of
 a graph. The default value is \code{TRUE}. Set to \code{FALSE} only if you don't want to create a graph
 model}
+
+\item{config_file}{Path to the \code{config.yml} file used by \code{geopressuretemplate_status()}.}
 }
 \value{
-The function returns nothing. Instead, it saves the processed outputs (tag, graph,
-pressure paths, etc.) to the specified \code{file}.
+\code{geopressuretemplate()}, \code{geopressuretemplate_graph()} and
+\code{geopressuretemplate_pressurepath()} return the saved \code{file} path invisibly for scalar \code{id}, or
+a named character vector of saved file paths for vector \code{id}.
+
+\code{geopressuretemplate_tag()} returns the created \code{tag} invisibly for scalar \code{id}, or a named list
+of \code{tag} objects for vector \code{id}.
+
+\code{geopressuretemplate_config()} returns a single configuration object.
+
+\code{geopressuretemplate_status()} returns a \code{data.frame} with one row per tag and columns
+describing the requested workflow, available interim artifacts, missing artifacts, and next
+suggested workflow step.
 }
 \description{
 The \code{geopressuretemplate()} function manages the complete workflow for modelling bird

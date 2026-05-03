@@ -3,11 +3,52 @@
 #' @export
 geopressuretemplate_pressurepath <- function(
   id,
-  config = config::get(config = id),
+  config = NULL,
   quiet = FALSE,
-  file = glue::glue("./data/interim/{id}.RData"),
+  file = NULL,
   ...
 ) {
+  inputs <- geopressuretemplate_normalize_inputs(
+    id = id,
+    config = config,
+    config_missing = missing(config),
+    file = file,
+    file_missing = missing(file)
+  )
+
+  if (inputs$scalar) {
+    return(invisible(geopressuretemplate_pressurepath_scalar(
+      id = inputs$id[[1]],
+      config = inputs$config[[1]],
+      quiet = quiet,
+      file = inputs$file[[1]],
+      ...
+    )))
+  }
+
+  if (!quiet) {
+    cli::cli_h1("Running geopressuretemplate_pressurepath for {.val {length(inputs$id)}} tags")
+  }
+
+  out <- unlist(
+    lapply(seq_along(inputs$id), function(i) {
+      geopressuretemplate_pressurepath_scalar(
+        id = inputs$id[[i]],
+        config = inputs$config[[i]],
+        quiet = quiet,
+        file = inputs$file[[i]],
+        ...
+      )
+    }),
+    use.names = FALSE
+  )
+  names(out) <- inputs$id
+
+  invisible(out)
+}
+
+#' @noRd
+geopressuretemplate_pressurepath_scalar <- function(id, config, quiet, file, ...) {
   config <- geopressuretemplate_config(id, config = config, ...)
 
   if ("pressurepath" %in% names(config$geopressuretemplate)) {
@@ -43,12 +84,22 @@ geopressuretemplate_pressurepath <- function(
       save_list <- c(save_list, "pressurepath_most_likely")
     }
 
+    if ("geopressureviz" %in% config$geopressuretemplate$pressurepath) {
+      if ("path_geopressureviz" %in% save_list) {
+        path_geopressureviz <- get("path_geopressureviz")
+      } else {
+        file_geopressureviz <- geopressuretemplate_geopressureviz_file(id, file)
+        if (file.exists(file_geopressureviz)) {
+          path_geopressureviz <- utils::read.csv(file_geopressureviz)
+          save_list <- c(save_list, "path_geopressureviz")
+        }
+      }
+    }
+
     if (
-      "geopressureviz" %in%
-        config$geopressuretemplate$pressurepath &&
-        "path_geopressureviz" %in% save_list
+      "geopressureviz" %in% config$geopressuretemplate$pressurepath &&
+        exists("path_geopressureviz", inherits = FALSE)
     ) {
-      path_geopressureviz <- get("path_geopressureviz")
       pressurepath_geopressureviz <- do.call(
         pressurepath_create,
         c(
@@ -80,7 +131,7 @@ geopressuretemplate_pressurepath <- function(
         config$geopressuretemplate$pressurepath &&
         "path_simulation" %in% save_list
     ) {
-      path_simulation <- get("path_tag")
+      path_simulation <- get("path_simulation")
       pressurepath_simulation <- do.call(
         pressurepath_create,
         c(
@@ -93,11 +144,11 @@ geopressuretemplate_pressurepath <- function(
 
     # Save the outputs to the specified file
     save(
-      list = save_list,
+      list = unique(save_list),
       file = file
     )
   }
 
   # Return the file path invisibly
-  invisible(file)
+  file
 }
