@@ -11,7 +11,7 @@ graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
 
 \item{thr_as}{threshold of airspeed (km/h).}
 
-\item{variable}{\ifelse{html}{\out{<a href="https://lifecycle.r-lib.org/articles/stages.html#deprecated"><img src="figures/lifecycle-deprecated.svg" alt="[Deprecated]" /></a>}}{\strong{[Deprecated]}} No longer used.
+\item{variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.
 \code{graph_add_wind()} always uses \code{c("u", "v")}.}
 
 \item{...}{
