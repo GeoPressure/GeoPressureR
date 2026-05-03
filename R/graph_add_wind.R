@@ -183,6 +183,11 @@ add_wind_graph_edge <- function(
   }
   g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
   flight <- stap2flight(graph$stap, format = "list")
+  stap_include <- if ("include" %in% names(graph$stap)) {
+    graph$stap$stap_id[graph$stap$include]
+  } else {
+    graph$stap$stap_id
+  }
   n_grid <- prod(g$dim)
   edge_s0 <- graph$s - 1
   edge_t0 <- graph$t - 1
@@ -220,9 +225,11 @@ add_wind_graph_edge <- function(
   n_edge_done <- 0L
   for (i_stap in seq_along(edge_stap)) {
     # Work on one source stationary period at a time so the output can be written into ws[st_id].
-    stap_id <- edge_stap[i_stap]
-    fl_s <- flight[[stap_id]]
-    st_id <- list_st_id[[stap_id]]
+    # Graph layers are compressed to included staps; flight names use original stap_id.
+    stap_layer <- as.integer(edge_stap[i_stap])
+    stap_id <- stap_include[stap_layer]
+    fl_s <- flight[[as.character(stap_id)]]
+    st_id <- list_st_id[[edge_stap[i_stap]]]
     if (length(st_id) == 0) {
       next
     }

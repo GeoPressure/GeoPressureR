@@ -106,6 +106,11 @@ edge_add_wind <- function(
 
   # Convert consecutive stationary periods into one or several flight segments.
   flight <- stap2flight(graph$stap, format = "list")
+  stap_include <- if ("include" %in% names(graph$stap)) {
+    graph$stap$stap_id[graph$stap$include]
+  } else {
+    graph$stap$stap_id
+  }
 
   # Convert edge ids to array indices and group edges by source stationary period.
   edge_info <- edge_add_wind_prepare_edges(edge_s, edge_t, g, graph$stap)
@@ -142,11 +147,13 @@ edge_add_wind <- function(
     # Extract the flight information from the current stap to the next one considered in the graph.
     # It can be the next, or if some stap are skipped at construction, it can contains multiples
     # flights
-    stap_id <- edge_stap[i_stap]
-    fl_s <- flight[[stap_id]]
+    # Graph layers are compressed to included staps; flight names use original stap_id.
+    stap_layer <- as.integer(edge_stap[i_stap])
+    stap_id <- stap_include[stap_layer]
+    fl_s <- flight[[as.character(stap_id)]]
 
     # Determine the id of edges of the graph corresponding to this/these flight(s).
-    st_id <- list_st_id[[stap_id]]
+    st_id <- list_st_id[[edge_stap[i_stap]]]
     if (length(st_id) == 0) {
       next
     }

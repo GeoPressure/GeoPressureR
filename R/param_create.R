@@ -104,7 +104,6 @@ param_create <- function(id, default = FALSE, ...) {
       graph_add_wind = list(
         thr_as = formals(graph_add_wind)$thr_as,
         file = formals(edge_add_wind)$file,
-        variable = formals(edge_add_wind)$variable,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
         interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear
       ),
