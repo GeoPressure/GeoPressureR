@@ -1,3 +1,20 @@
+# GeoPressureR v3.5.4
+
+## Main
+
+- [Improve `graph_add_wind()` memory use for large graphs](https://github.com/GeoPressure/GeoPressureR/commit/0084fb61) by computing graph-scale wind speed directly in chunks instead of materializing detailed per-time-step wind output.
+- [Improve `graph_create()` memory use](https://github.com/GeoPressure/GeoPressureR/commit/36f534b9) by releasing intermediate graph chunks while building the final graph vectors.
+- [Document and export `tag_status()`](https://github.com/GeoPressure/GeoPressureR/commit/86dbd393) for companion packages.
+
+## Minor
+
+- Deprecate `edge_add_wind(return_averaged_variable)`; `edge_add_wind()` now always returns detailed edge/time/variable values.
+- Deprecate `graph_add_wind(variable)`; `graph_add_wind()` now always uses `c("u", "v")`.
+- Update GeoPressureViz wind handling to compute averaged edge wind from detailed `edge_add_wind()` output.
+- Add example usage to `mask_water()` documentation.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.5.3...v3.5.4>
+
 # GeoPressureR v3.5.3
 
 ## Main
