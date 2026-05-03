@@ -316,12 +316,17 @@ graph_create <- function(
   # Fill vectors in chunks
   start_idx <- 1
   for (i in seq_along(gr)) {
-    end_idx <- start_idx + nrow(gr[[i]]) - 1
-    s_vec[start_idx:end_idx] <- gr[[i]]$s
-    t_vec[start_idx:end_idx] <- gr[[i]]$t
-    gs_vec[start_idx:end_idx] <- gr[[i]]$gs
+    gr_i <- gr[[i]]
+    end_idx <- start_idx + nrow(gr_i) - 1
+    s_vec[start_idx:end_idx] <- gr_i$s
+    t_vec[start_idx:end_idx] <- gr_i$t
+    gs_vec[start_idx:end_idx] <- gr_i$gs
+    gr[i] <- list(NULL)
+    rm(gr_i)
     start_idx <- end_idx + 1
   }
+  rm(gr)
+  gc()
 
   # Create graph list with proper class
   graph <- structure(
