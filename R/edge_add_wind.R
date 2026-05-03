@@ -27,32 +27,11 @@
 #' match ERA5 native resolution (1hr).
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
-#' @param return_averaged_variable logical to return the variable for each timestep or average for
-#' the entire flight.
+#' @param return_averaged_variable `r lifecycle::badge("deprecated")` No longer used.
 #' @param quiet logical to hide messages about the progress
 #' @inheritParams tag_download_wind
 #'
-#' @return
-#' If `return_averaged_variable = TRUE`, returns a data.frame with one row per edge and columns:
-#' - `stap_s` id of the source/origin stationary period
-#' - `stap_t` id of the target/destination stationary period
-#' - `s` node id of the source (same as/similar to `edge_s`)
-#' - `t` node id of the target (same as/similar to `edge_t`)
-#' - `lat_s` latitude of the source
-#' - `lat_t` latitude of the target
-#' - `lon_s` longitude of the source
-#' - `lon_t` longitude of the target
-#' - `start` start datetime of the flight
-#' - `end` end datetime of the flight
-#' - `duration` flight duration
-#' - `n` number of flight
-#' - `distance` distance of the flight
-#' - `bearing` bearing of the flight
-#' - `gs` groundspeed
-#' - `ws` windspeed (if `graph` provided)
-#'
-#' If `return_averaged_variable = FALSE`, returns a data.frame with one row per time step and edge,
-#' and columns:
+#' @return A data.frame with one row per time step, edge, and variable:
 #' - `edge_id` edge index
 #' - `val` value of the variable at each time step
 #' - `pressure` pressure at each time step
@@ -86,7 +65,7 @@ edge_add_wind <- function(
   variable = c("u", "v"),
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
-  return_averaged_variable = FALSE,
+  return_averaged_variable = lifecycle::deprecated(),
   file = \(stap_id, tag_id) {
     glue::glue(
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
@@ -94,6 +73,14 @@ edge_add_wind <- function(
   },
   quiet = FALSE
 ) {
+  if (lifecycle::is_present(return_averaged_variable)) {
+    lifecycle::deprecate_warn(
+      "3.5.4",
+      "edge_add_wind(return_averaged_variable)",
+      details = "{.fun edge_add_wind} now always returns detailed edge/time/variable values. Use {.fun graph_add_wind} for memory-efficient graph-scale wind."
+    )
+  }
+
   if (!requireNamespace("ncdf4", quietly = TRUE)) {
     cli::cli_abort(c(
       "x" = "Package {.pkg ncdf4} is required for {.fun edge_add_wind}.",
@@ -114,53 +101,55 @@ edge_add_wind <- function(
     file = file
   )
 
-  # Compute lat-lon coordinate of the grid
+  # Build the spatial grid used by the graph nodes.
   g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
 
-  # Compute flight from stap
+  # Convert consecutive stationary periods into one or several flight segments.
   flight <- stap2flight(graph$stap, format = "list")
 
+  # Convert edge ids to array indices and group edges by source stationary period.
   edge_info <- edge_add_wind_prepare_edges(edge_s, edge_t, g, graph$stap)
   edge_s <- edge_info$edge_s
   edge_t <- edge_info$edge_t
   table_edge_s <- edge_info$table_edge_s
   list_st_id <- edge_info$list_st_id
+  edge_stap <- names(list_st_id)
 
-  # Keep only the ID for the file function, remove the rest to save memory
+  # Keep only the ID for the file function, remove the rest to save memory.
   graph <- list(param = list(id = graph$param$id))
   gc()
 
-  # Prepare the matrix of speed to return
-  if (return_averaged_variable) {
-    var <- matrix(NA, nrow = nrow(edge_s), ncol = length(variable))
-  } else {
-    var <- list()
-    for (var_i in seq_len(length(variable))) {
-      var[[var_i]] <- vector("list", length(flight))
-    }
+  var <- vector("list", length(variable))
+  for (var_i in seq_len(length(variable))) {
+    var[[var_i]] <- vector("list", length(flight))
   }
 
   # Start progress bar
   if (!quiet) {
     i_stap <- 0
     cli::cli_progress_bar(
-      "Compute wind speed for edges of stationary period:",
-      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(flight)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
-      format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
+      "Extract variables for edges of stationary period:",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(edge_stap)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format_done = "{cli::col_green(cli::symbol$tick)} Extract variables for edges of stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = sum(table_edge_s)
     )
   }
 
   # Loop through the stationary period kept in the graph
-  for (i_stap in seq_len(length(flight))) {
+  n_edge_done <- 0L
+  for (i_stap in seq_along(edge_stap)) {
     # Extract the flight information from the current stap to the next one considered in the graph.
     # It can be the next, or if some stap are skipped at construction, it can contains multiples
     # flights
-    fl_s <- flight[[i_stap]]
+    stap_id <- edge_stap[i_stap]
+    fl_s <- flight[[stap_id]]
 
     # Determine the id of edges of the graph corresponding to this/these flight(s).
-    st_id <- list_st_id[[i_stap]]
+    st_id <- list_st_id[[stap_id]]
+    if (length(st_id) == 0) {
+      next
+    }
 
     # We are assuming that the bird flight as a straight line between the source and the target node
     # of each edge. If multiple flights happen during this transition, we assume that the bird flew
@@ -171,31 +160,20 @@ edge_add_wind <- function(
     # stopovers.
     ratio_stap <- as.matrix(c(0, cumsum(fl_s$duration) / sum(fl_s$duration)))
 
-    if (return_averaged_variable) {
-      # Prepare the u- and v- windspeed for each flight (row) and edge (col)
-      var_stap <- list()
-      for (var_i in seq_len(length(variable))) {
-        var_stap[[var_i]] <- matrix(
-          NA,
-          nrow = length(fl_s$stap_s),
-          ncol = length(st_id)
-        )
-      }
-    } else {
-      for (var_i in seq_len(length(variable))) {
-        var[[var_i]][[i_stap]] <- vector("list", nrow(fl_s))
-      }
+    for (var_i in seq_len(length(variable))) {
+      var[[var_i]][[i_stap]] <- vector("list", nrow(fl_s))
     }
 
     # Loop through each flight of the transition
     for (i_fl in seq_len(nrow(fl_s))) {
       # Find the stationary period ID from this specific flight (source)
       i_s <- fl_s$stap_s[i_fl]
+      file_path <- file(i_s, tag_id)
 
       # Read the netCDF file
-      nc <- ncdf4::nc_open(file(i_s, tag_id))
+      nc <- ncdf4::nc_open(file_path)
 
-      nc_info <- edge_add_wind_nc_info(nc, file(i_s, tag_id))
+      nc_info <- edge_add_wind_nc_info(nc, file_path)
       time <- nc_info$time
       pres <- nc_info$pres
       lat <- nc_info$lat
@@ -209,10 +187,8 @@ edge_add_wind <- function(
       lat_e <- coords$lat_e
       lon_e <- coords$lon_e
 
-      # As ERA5 data is available every hour, we build a one hour resolution time series including the
-      # start and end time of the flight. Thus, we first round the start end end time.
-
-      # Round down to the lower n-minute interval
+      # Interpolate the straight-line segment onto regular query times. The query path has one
+      # coordinate per edge and time step.
       interp <- edge_add_wind_interp_path(
         fl_s,
         i_fl,
@@ -227,6 +203,8 @@ edge_add_wind <- function(
       lon_int <- interp$lon_int
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
 
+      # For nearest-neighbour spatial interpolation, precompute ERA5 grid indices once for all
+      # query positions of this flight segment.
       lat_int_ind <- NULL
       lon_int_ind <- NULL
       lat_int_int <- NULL
@@ -238,7 +216,7 @@ edge_add_wind <- function(
         lon_int_ind <- matrix(match(lon_int_int, lon), nrow = nrow(lon_int))
       }
 
-      out <- edge_add_wind_fill_var_fl(
+      out <- edge_add_wind_fill_flight(
         pressure,
         t_q,
         pres,
@@ -261,58 +239,71 @@ edge_add_wind <- function(
       var_fl <- out$var_fl
       p_q <- out$p_q
 
-      if (return_averaged_variable) {
-        # Compute the average wind component of the flight accounting for the weighting scheme
-        for (var_i in seq_len(length(variable))) {
-          var_stap[[var_i]][i_fl, ] <- colSums(var_fl[[var_i]] * w)
-        }
-      } else {
-        for (var_i in seq_len(length(variable))) {
-          var[[var_i]][[i_stap]][[i_fl]] <- data.frame(
-            edge_id = rep(st_id, each = length(t_q)),
-            val = as.vector(var_fl[[var_i]]),
-            pressure = rep(p_q, length(st_id)),
-            date = rep(t_q, length(st_id)),
-            w = rep(w, length(st_id))
-          )
-          var[[var_i]][[i_stap]][[i_fl]]$var <- variable[var_i]
+      for (var_i in seq_len(length(variable))) {
+        # Expand the time-by-edge matrices into the detailed diagnostic output.
+        var[[var_i]][[i_stap]][[i_fl]] <- data.frame(
+          edge_id = rep(st_id, each = length(t_q)),
+          val = as.vector(var_fl[[var_i]]),
+          pressure = rep(p_q, length(st_id)),
+          date = rep(t_q, length(st_id)),
+          w = rep(w, length(st_id))
+        )
+        var[[var_i]][[i_stap]][[i_fl]]$var <- variable[var_i]
 
-          # Add lat lon
-          if (interp_spatial_linear) {
-            var[[var_i]][[i_stap]][[i_fl]]$lat <- as.vector(lat_int)
-            var[[var_i]][[i_stap]][[i_fl]]$lon <- as.vector(lon_int)
-          } else {
-            var[[var_i]][[i_stap]][[i_fl]]$lat <- lat_int_int
-            var[[var_i]][[i_stap]][[i_fl]]$lon <- lon_int_int
-          }
+        # Add lat lon
+        if (interp_spatial_linear) {
+          var[[var_i]][[i_stap]][[i_fl]]$lat <- as.vector(lat_int)
+          var[[var_i]][[i_stap]][[i_fl]]$lon <- as.vector(lon_int)
+        } else {
+          var[[var_i]][[i_stap]][[i_fl]]$lat <- lat_int_int
+          var[[var_i]][[i_stap]][[i_fl]]$lon <- lon_int_int
         }
       }
 
       # Close the netCDF file
       ncdf4::nc_close(nc)
 
-      rm(lat_int, lon_int)
+      rm(
+        nc,
+        nc_info,
+        time,
+        pres,
+        lat,
+        dlat,
+        lon,
+        dlon,
+        coords,
+        lat_s,
+        lon_s,
+        lat_e,
+        lon_e,
+        interp,
+        t_q,
+        lat_int,
+        lon_int,
+        w,
+        lat_int_ind,
+        lon_int_ind,
+        lat_int_int,
+        lon_int_int,
+        file_path,
+        out,
+        var_fl,
+        p_q
+      )
       gc()
     }
 
-    if (return_averaged_variable) {
-      # Compute the average over all the flight of the transition accounting for the duration of the
-      # flight.
-      for (var_i in seq_len(length(variable))) {
-        var[st_id, var_i] <- colSums(
-          var_stap[[var_i]] * fl_s$duration / sum(fl_s$duration)
-        )
-      }
-    }
     if (!quiet) {
+      n_edge_done <- n_edge_done + length(st_id)
       cli::cli_progress_update(
-        set = sum(table_edge_s[seq(1, i_stap)]),
+        set = n_edge_done,
         force = TRUE
       )
     }
   }
 
-  # Final cleanup: remove only objects that exist (var_stap included unconditionally)
+  # Final cleanup: remove only objects that exist
   rm(
     list = intersect(
       c(
@@ -322,7 +313,6 @@ edge_add_wind <- function(
         "fl_s",
         "st_id",
         "ratio_stap",
-        "var_stap",
         "table_edge_s"
       ),
       ls()
@@ -330,14 +320,7 @@ edge_add_wind <- function(
   )
   gc()
 
-  if (!return_averaged_variable) {
-    var <- do.call(
-      rbind,
-      unlist(unlist(var, recursive = FALSE), recursive = FALSE)
-    )
-  }
-
-  return(var)
+  do.call(rbind, unlist(unlist(var, recursive = FALSE), recursive = FALSE))
 }
 
 
@@ -356,10 +339,10 @@ edge_add_wind_check <- function(
 
   tag_id <- graph$param$id
 
-  # Compute lat-lon coordinate of the grid
+  # Rebuild the same graph grid used by the edge indices.
   g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
 
-  # Compute flight from stap
+  # File coverage is checked flight-by-flight because one NetCDF file is expected per stap.
   flight <- stap2flight(graph$stap, format = "list")
 
   # Check pressure
@@ -379,11 +362,12 @@ edge_add_wind_check <- function(
     fl_s <- flight[[i_flight]]
     for (i_fl in seq_len(length(fl_s$stap_s))) {
       i_s <- fl_s$stap_s[i_fl]
+      file_path <- file(i_s, tag_id)
 
-      if (!file.exists(file(i_s, tag_id))) {
-        cli::cli_abort(c(x = "No wind file {.file {file(i_s, tag_id)}}"))
+      if (!file.exists(file_path)) {
+        cli::cli_abort(c(x = "No wind file {.file {file_path}}"))
       }
-      nc <- ncdf4::nc_open(file(i_s, tag_id))
+      nc <- ncdf4::nc_open(file_path)
 
       # Check that the variables are present
       available_variable <- names(nc$var)
@@ -410,7 +394,7 @@ edge_add_wind_check <- function(
         )
       } else {
         cli::cli_abort(c(
-          x = "Time variable not found in {.file {file(i_s, tag_id)}}",
+          x = "Time variable not found in {.file {file_path}}",
           "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
         ))
       }
@@ -424,7 +408,7 @@ edge_add_wind_check <- function(
       )
       if (!(min(time) <= t_e && max(time) >= t_s)) {
         cli::cli_abort(c(
-          x = "Wind file ({.file {file(i_s, tag_id)}}) does not cover the flight time range.",
+          x = "Wind file ({.file {file_path}}) does not cover the flight time range.",
           "i" = "Wind file: {min(time)} to {max(time)}. Flight: {t_s} to {t_e}.",
           "!" = "You might have modified your stationary periods without updating your wind file? ",
           ">" = "If so, run {.run tag_download_wind(tag)}"
@@ -442,7 +426,7 @@ edge_add_wind_check <- function(
             max(pres) >= min(1000, max(pres_value)))
         ) {
           cli::cli_abort(c(
-            x = "Wind file ({.file {file(i_s, tag_id)}}) does not cover the flight pressure range.",
+            x = "Wind file ({.file {file_path}}) does not cover the flight pressure range.",
             "i" = "Wind file: {min(pres)} to {max(pres)} hPa. Flight: {min(pres_value)} to
             {max(pres_value)} hPa.",
             "!" = "You might have modified your stationary periods without updating your wind
@@ -464,7 +448,7 @@ edge_add_wind_check <- function(
       ) {
         cli::cli_abort(c(
           x = "Spatial extent of the grid ({graph$param$tag_set_map$extent}) is
-        not included in the extent of {.file {file(i_s, tag_id)}} ({nc_extent})"
+        not included in the extent of {.file {file_path}} ({nc_extent})"
         ))
       }
 
@@ -475,6 +459,8 @@ edge_add_wind_check <- function(
           the end time. Please review your labelling file."
         ))
       }
+
+      ncdf4::nc_close(nc)
     }
   }
 }
@@ -482,6 +468,7 @@ edge_add_wind_check <- function(
 
 #' @noRd
 edge_add_wind_prepare_edges <- function(edge_s, edge_t, g, stap) {
+  # Accept either compact graph indices or already-expanded [lat, lon, stap] indices.
   if (!is.matrix(edge_s)) {
     edge_s <- arrayInd(edge_s, c(g$dim, nrow(stap)))
   }
@@ -507,6 +494,7 @@ edge_add_wind_prepare_edges <- function(edge_s, edge_t, g, stap) {
   assertthat::assert_that(all(edge_s[, 1] >= 1 & edge_s[, 1] <= g$dim[1]))
   assertthat::assert_that(all(edge_s[, 2] >= 1 & edge_s[, 2] <= g$dim[2]))
 
+  # Group edges by source stap so each ERA5 file is opened only for the relevant edges.
   list(
     edge_s = edge_s,
     edge_t = edge_t,
@@ -518,7 +506,7 @@ edge_add_wind_prepare_edges <- function(edge_s, edge_t, g, stap) {
 
 #' @noRd
 edge_add_wind_nc_info <- function(nc, file_path) {
-  # Fix to use the correct time variable ("time" until the new CDS, then "valid_time")
+  # ERA5 files changed their time coordinate name in the CDS; support both layouts.
   if ("time" %in% names(nc$dim)) {
     time <- as.POSIXct(
       ncdf4::ncvar_get(nc, "time") * 60 * 60,
@@ -539,6 +527,8 @@ edge_add_wind_nc_info <- function(nc, file_path) {
   }
   pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
   pres <- ncdf4::ncvar_get(nc, pres_var)
+
+  # Keep only coordinate vectors and grid spacing; variable arrays are read later in small chunks.
   lat <- ncdf4::ncvar_get(nc, "latitude")
   dlat <- abs(lat[2] - lat[1])
   lon <- ncdf4::ncvar_get(nc, "longitude")
@@ -550,6 +540,7 @@ edge_add_wind_nc_info <- function(nc, file_path) {
 
 #' @noRd
 edge_add_wind_segment_coords <- function(edge_s, edge_t, g, st_id, ratio_stap, i_fl) {
+  # If several flights connect two graph staps, split the edge in proportion to flight duration.
   lat_s <- g$lat[edge_s[st_id, 1]] +
     ratio_stap[i_fl] * (g$lat[edge_t[st_id, 1]] - g$lat[edge_s[st_id, 1]])
   lon_s <- g$lon[edge_s[st_id, 2]] +
@@ -565,6 +556,7 @@ edge_add_wind_segment_coords <- function(edge_s, edge_t, g, st_id, ratio_stap, i
 
 #' @noRd
 edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, rounding_interval) {
+  # Query times cover the whole flight by rounding start down and end up to the requested interval.
   t_s <- as.POSIXct(
     trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
       (60 * rounding_interval),
@@ -579,6 +571,7 @@ edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, ro
   )
   t_q <- seq(from = t_s, to = t_e, by = 60 * rounding_interval)
 
+  # Linearly interpolate position along the straight segment at each query time.
   dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
   dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
   w <- pmax(
@@ -600,6 +593,8 @@ edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, ro
 
 #' @noRd
 edge_add_wind_weights <- function(fl_s, i_fl, t_q, rounding_interval) {
+  # Weight query times by how much of the flight interval they represent. Boundary points receive
+  # partial weights because the flight rarely starts or ends exactly on the query grid.
   w <- numeric(length(t_q))
   assertthat::assert_that(length(w) > 1)
 
@@ -634,7 +629,7 @@ edge_add_wind_weights <- function(fl_s, i_fl, t_q, rounding_interval) {
 
 
 #' @noRd
-edge_add_wind_fill_var_fl <- function(
+edge_add_wind_fill_flight <- function(
   pressure,
   t_q,
   pres,
@@ -654,164 +649,229 @@ edge_add_wind_fill_var_fl <- function(
   i_fl,
   fl_s
 ) {
-  var_fl <- lapply(seq_len(length(variable)), function(var_i) {
-    matrix(NA, nrow = length(t_q), ncol = nrow(lat_int))
-  })
+  # Detailed output keeps one value per query time and edge, so allocate time-by-edge matrices here.
+  var_fl <- vector("list", length(variable))
+  for (var_i in seq_len(length(variable))) {
+    var_fl[[var_i]] <- matrix(NA, nrow = length(t_q), ncol = nrow(lat_int))
+  }
   p_q <- numeric(length(t_q))
 
+  # Each query time reads the smallest NetCDF slab needed, then applies pressure/time/space
+  # interpolation inside edge_add_wind_values_time().
   for (i_time in seq_len(length(t_q))) {
-    # find the two pressure level to query (one above, one under) based on the geolocator
-    # pressure at this timestep
-    p_q[i_time] <- stats::approx(
-      pressure$date,
-      pressure$value,
+    lat_int_ind_i <- if (interp_spatial_linear) NULL else lat_int_ind[, i_time]
+    lon_int_ind_i <- if (interp_spatial_linear) NULL else lon_int_ind[, i_time]
+    out <- edge_add_wind_values_time(
+      pressure,
       t_q[i_time],
-      rule = 2
-    )$y
-    if (p_q[i_time] >= pres[1]) {
-      id_pres <- 1
-      n_pres <- 1
-      if (p_q[i_time] > pres[1] && pres[1] != 1000) {
-        cli::cli_warn(c(
-          "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
-          "i" = "Stationary period: {i_s}",
-          "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
-          "i" = "Time index: {i_time} of {length(t_q)}",
-          "i" = "Date: {format(t_q[i_time], '%Y-%m-%d %H:%M:%S')}",
-          "i" = "Pressure: {round(p_q[i_time], 2)} hPa",
-          "i" = "Highest available level: {pres[1]} hPa",
-          "i" = "Pressure difference: {round(p_q[i_time] - pres[1], 2)} hPa"
-        ))
-      }
-    } else if (p_q[i_time] <= pres[length(pres)]) {
-      id_pres <- length(pres)
-      n_pres <- 1
-      if (p_q[i_time] < pres[length(pres)]) {
-        cli::cli_warn(
-          "Pressure is below the lowest level. This should never happen!"
-        )
-      }
-    } else {
-      id_pres <- max(which(pres >= p_q[i_time]))
-      n_pres <- 2
-    }
-
-    # find the two time step before and after the time step to query in ERA5
-    tmp <- which(time <= t_q[i_time])
-    id_time <- tmp[which.min(abs(time[tmp] - t_q[i_time]))]
-    n_time <- ifelse(
-      id_time == length(time) | time[id_time] == t_q[i_time],
-      1,
-      2
+      pres,
+      time,
+      lat,
+      lon,
+      dlat,
+      dlon,
+      lat_int[, i_time],
+      lon_int[, i_time],
+      lat_int_ind_i,
+      lon_int_ind_i,
+      interp_spatial_linear,
+      nc,
+      variable,
+      i_s,
+      i_fl,
+      fl_s
     )
-
-    # Find the index of lat and longitude necessary
-    id_lon <- which(
-      lon >= (min(lon_int[, i_time]) - dlon) &
-        (max(lon_int[, i_time]) + dlon) >= lon
-    )
-    id_lat <- which(
-      lat >= (min(lat_int[, i_time]) - dlat) &
-        (max(lat_int[, i_time]) + dlat) >= lat
-    )
-
-    # get the two maps of u- and v-
-    var_nc <- vector("list", length(variable))
+    p_q[i_time] <- out$pressure
     for (var_i in seq_len(length(variable))) {
-      var_nc[[var_i]] <- ncdf4::ncvar_get(
-        nc,
-        variable[var_i],
-        start = c(id_lon[1], id_lat[1], id_pres, id_time),
-        count = c(length(id_lon), length(id_lat), n_pres, n_time),
-        collapse_degen = FALSE
-      )
-    }
-
-    # Interpolate linearly along time
-    if (n_time == 2) {
-      w_time <- as.numeric(difftime(
-        t_q[i_time],
-        time[id_time],
-        units = "hours"
-      )) /
-        as.numeric(difftime(
-          time[id_time + 1],
-          time[id_time],
-          units = "hours"
-        ))
-      for (var_i in seq_len(length(variable))) {
-        var_nc[[var_i]] <- var_nc[[var_i]][,,, 1] +
-          w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1])
-      }
-    } else {
-      for (var_i in seq_len(length(variable))) {
-        var_nc[[var_i]] <- var_nc[[var_i]][,,, 1]
-      }
-    }
-
-    # Interpolate linearly along altitude/pressure.
-    if (n_pres == 2) {
-      w_pres <- (p_q[i_time] - pres[id_pres]) /
-        (pres[id_pres + 1] - pres[id_pres])
-      for (var_i in seq_len(length(variable))) {
-        var_nc[[var_i]] <- var_nc[[var_i]][,, 1] +
-          w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1])
-      }
-    }
-
-    if (interp_spatial_linear) {
-      # Interpolation the u- and v- component at the interpolated position at the current time
-      # step.
-      # Because lat_int and lon_int are so big, we round their value and only interpolate on the
-      # unique value that are needed. Then, we give the interpolated value back to all the
-      # lat_int lon_int dimension
-      # Convert the coordinate to 1d to have a more efficient unique.
-      ll_int_1d <- (round(lat_int[, i_time], 1) + 90) *
-        10 *
-        10000 +
-        (round(lon_int[, i_time], 1) + 180) * 10 +
-        1
-      ll_int_1d_uniq <- unique(ll_int_1d)
-
-      lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
-      lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
-      # Check that the transformation is correct with
-      # cbind((round(lat_int[, i_time], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
-      # cbind((round(lon_int[, i_time],1)+180)*10, (ll_int_1d - 1) %% 10000)
-      # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i_time], lon_int[, i_time])
-
-      id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
-
-      for (var_i in seq_len(length(variable))) {
-        tmp <- pracma::interp2(
-          rev(lat[id_lat]),
-          lon[id_lon],
-          var_nc[[var_i]][, rev(seq_len(ncol(var_nc[[var_i]])))],
-          lat_int_uniq,
-          lon_int_uniq,
-          method = "linear"
-        )
-        assertthat::assert_that(!anyNA(tmp))
-        var_fl[[var_i]][i_time, ] <- tmp[id_uniq]
-      }
-    } else {
-      # Take the closest value
-      for (var_i in seq_len(length(variable))) {
-        # Compute the index of lat, lon in the spatial extent extracted for var_nc
-        lon_int_ind_off <- lon_int_ind[, i_time] - id_lon[1] + 1
-        lat_int_ind_off <- lat_int_ind[, i_time] - id_lat[1] + 1
-
-        # compute the 2d index
-        ind <- (lat_int_ind_off - 1) *
-          nrow(var_nc[[var_i]]) +
-          lon_int_ind_off
-
-        # Extract variable
-        var_fl[[var_i]][i_time, ] <- var_nc[[var_i]][ind]
-      }
+      var_fl[[var_i]][i_time, ] <- out$value[[var_i]]
     }
   }
 
   list(var_fl = var_fl, p_q = p_q)
+}
+
+
+#' @noRd
+edge_add_wind_values_time <- function(
+  pressure,
+  t_q_i,
+  pres,
+  time,
+  lat,
+  lon,
+  dlat,
+  dlon,
+  lat_int_i,
+  lon_int_i,
+  lat_int_ind_i,
+  lon_int_ind_i,
+  interp_spatial_linear,
+  nc,
+  variable,
+  i_s,
+  i_fl,
+  fl_s
+) {
+  # Interpolate bird pressure to the query time, then choose the one or two ERA5 levels bracketing
+  # that pressure.
+  p_q <- stats::approx(
+    pressure$date,
+    pressure$value,
+    t_q_i,
+    rule = 2
+  )$y
+  if (p_q >= pres[1]) {
+    id_pres <- 1
+    n_pres <- 1
+    if (p_q > pres[1] && pres[1] != 1000) {
+      cli::cli_warn(c(
+        "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
+        "i" = "Stationary period: {i_s}",
+        "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
+        "i" = "Date: {format(t_q_i, '%Y-%m-%d %H:%M:%S')}",
+        "i" = "Pressure: {round(p_q, 2)} hPa",
+        "i" = "Highest available level: {pres[1]} hPa",
+        "i" = "Pressure difference: {round(p_q - pres[1], 2)} hPa"
+      ))
+    }
+  } else if (p_q <= pres[length(pres)]) {
+    id_pres <- length(pres)
+    n_pres <- 1
+    if (p_q < pres[length(pres)]) {
+      cli::cli_warn(
+        "Pressure is below the lowest level. This should never happen!"
+      )
+    }
+  } else {
+    id_pres <- max(which(pres >= p_q))
+    n_pres <- 2
+  }
+
+  # Choose the one or two ERA5 time slices bracketing this query time.
+  id_time <- findInterval(t_q_i, time)
+  n_time <- ifelse(
+    id_time == length(time) | time[id_time] == t_q_i,
+    1,
+    2
+  )
+
+  # Read only the spatial bounding box needed for the edge positions at this query time.
+  id_lon <- which(
+    lon >= (min(lon_int_i) - dlon) &
+      (max(lon_int_i) + dlon) >= lon
+  )
+  id_lat <- which(
+    lat >= (min(lat_int_i) - dlat) &
+      (max(lat_int_i) + dlat) >= lat
+  )
+
+  # Extract a small NetCDF slab: lon x lat x pressure x time for each requested variable.
+  var_nc <- vector("list", length(variable))
+  for (var_i in seq_len(length(variable))) {
+    var_nc[[var_i]] <- ncdf4::ncvar_get(
+      nc,
+      variable[var_i],
+      start = c(id_lon[1], id_lat[1], id_pres, id_time),
+      count = c(length(id_lon), length(id_lat), n_pres, n_time),
+      collapse_degen = FALSE
+    )
+  }
+
+  # First interpolate linearly along time, reducing the slab to lon x lat x pressure.
+  if (n_time == 2) {
+    w_time <- as.numeric(difftime(
+      t_q_i,
+      time[id_time],
+      units = "hours"
+    )) /
+      as.numeric(difftime(
+        time[id_time + 1],
+        time[id_time],
+        units = "hours"
+      ))
+    for (var_i in seq_len(length(variable))) {
+      var_nc[[var_i]] <- array(
+        var_nc[[var_i]][,,, 1] +
+          w_time * (var_nc[[var_i]][,,, 2] - var_nc[[var_i]][,,, 1]),
+        dim = c(length(id_lon), length(id_lat), n_pres)
+      )
+    }
+  } else {
+    for (var_i in seq_len(length(variable))) {
+      var_nc[[var_i]] <- array(
+        var_nc[[var_i]][,,, 1],
+        dim = c(length(id_lon), length(id_lat), n_pres)
+      )
+    }
+  }
+
+  # Then interpolate linearly along pressure, reducing the slab to lon x lat.
+  if (n_pres == 2) {
+    w_pres <- (p_q - pres[id_pres]) /
+      (pres[id_pres + 1] - pres[id_pres])
+    for (var_i in seq_len(length(variable))) {
+      var_nc[[var_i]] <- array(
+        var_nc[[var_i]][,, 1] +
+          w_pres * (var_nc[[var_i]][,, 2] - var_nc[[var_i]][,, 1]),
+        dim = c(length(id_lon), length(id_lat))
+      )
+    }
+  } else {
+    for (var_i in seq_len(length(variable))) {
+      var_nc[[var_i]] <- array(
+        var_nc[[var_i]][,, 1],
+        dim = c(length(id_lon), length(id_lat))
+      )
+    }
+  }
+
+  if (interp_spatial_linear) {
+    # Bilinear spatial interpolation: round positions to 0.1 degree, interpolate only unique
+    # coordinates, then map values back to all edges.
+    ll_int_1d <- (round(lat_int_i, 1) + 90) *
+      10 *
+      10000 +
+      (round(lon_int_i, 1) + 180) * 10 +
+      1
+    ll_int_1d_uniq <- unique(ll_int_1d)
+
+    lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
+    lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
+    # Check that the transformation is correct with
+    # cbind((round(lat_int[, i_time], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
+    # cbind((round(lon_int[, i_time],1)+180)*10, (ll_int_1d - 1) %% 10000)
+    # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i_time], lon_int[, i_time])
+
+    id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
+
+    value <- vector("list", length(variable))
+    for (var_i in seq_len(length(variable))) {
+      tmp <- pracma::interp2(
+        rev(lat[id_lat]),
+        lon[id_lon],
+        var_nc[[var_i]][, rev(seq_len(ncol(var_nc[[var_i]])))],
+        lat_int_uniq,
+        lon_int_uniq,
+        method = "linear"
+      )
+      assertthat::assert_that(!anyNA(tmp))
+      value[[var_i]] <- tmp[id_uniq]
+    }
+  } else {
+    # Nearest-neighbour spatial interpolation: use precomputed global grid indices, offset them
+    # into the current NetCDF slab, then extract values directly.
+    value <- vector("list", length(variable))
+    for (var_i in seq_len(length(variable))) {
+      lon_int_ind_off <- lon_int_ind_i - id_lon[1] + 1
+      lat_int_ind_off <- lat_int_ind_i - id_lat[1] + 1
+
+      ind <- (lat_int_ind_off - 1) *
+        nrow(var_nc[[var_i]]) +
+        lon_int_ind_off
+
+      value[[var_i]] <- var_nc[[var_i]][ind]
+    }
+  }
+  list(value = value, pressure = p_q)
 }
 # nocov end

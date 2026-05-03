@@ -88,6 +88,5 @@ edge_add_wind(
   graph,
   edge_s = edge_most_likely$s,
   edge_t = edge_most_likely$t,
-  pressure = tag$pressure,
-  return_averaged_variable = FALSE
+  pressure = tag$pressure
 )
