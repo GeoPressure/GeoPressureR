@@ -15,7 +15,7 @@
 #'   `rnaturalearth::ne_countries(scale = ...)`. Valid values are `"small"`,
 #'   `"medium"`, `"large"` or `c(110, 50, 10)`. Default is `"medium"`.
 #' @param land_threshold Numeric threshold used to classify pixels as water from
-#'   the rasterized land fraction. Pixels with land fraction strictly below
+#'   the rasterized land fraction. Pixels with land fraction at or below
 #'   `land_threshold` are marked as water. Use `0` for a conservative mask where
 #'   any land in a pixel makes it land.
 #'
@@ -145,8 +145,8 @@ mask_water <- function(extent, scale, ne_scale = "medium", land_threshold = 0) {
     background = 0
   )
 
-  # Convert to matrix and return logical when land fraction is strictly below land_threshold
-  land_fraction <- terra::as.matrix(r_land_fraction, wide = TRUE)
+  # Convert to matrix and return logical when land fraction is at or below land_threshold
+  land_fraction <- terra::as.matrix(r_land, wide = TRUE)
 
-  land_fraction < land_threshold
+  land_fraction <= land_threshold
 }
