@@ -79,10 +79,11 @@ plot_twl_calib <- function(
 
   stap <- twl_calib$calib_stap
   stap$duration <- stap2duration(stap)
+  zenith <- if ("zenith" %in% names(stap)) stap$zenith else rep(NA_real_, nrow(stap))
   stap$label <- glue::glue(
-    "#{stap$stap_id} ({format(round(stap$duration), trim = TRUE)}d) {ifelse(is.na(stap$zenith), 'known', 'fitted')}"
+    "#{stap$stap_id} ({format(round(stap$duration), trim = TRUE)}d) {ifelse(is.na(zenith), 'known', 'fitted')}"
   )
-  stap_type <- ifelse(is.na(stap$zenith), "known", "fitted")
+  stap_type <- ifelse(is.na(zenith), "known", "fitted")
   names(stap_type) <- as.character(stap$stap_id)
 
   stap_label <- stap$label[match(names(twl_calib$hist_counts), stap$stap_id)]
