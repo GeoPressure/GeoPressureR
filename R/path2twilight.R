@@ -103,17 +103,23 @@ path2twilight <- function(
         by = "day"
       )
 
-      # Filtering dates for only those in path: WHY DOING THIS? I want to keep the twilight during
-      # the flight (e.g. overday flight are excluded)
-      # date <- date[sapply(date, function(d) { any(d >= path$start & d <= path$end) })]
+      # Keep only dates covered by a path segment, with 1-day padding at each boundary.
+      pad <- 60 * 60 * 24
+      keep <- rowSums(
+        outer(as.numeric(date), as.numeric(path$start) - pad, `>=`) &
+          outer(as.numeric(date), as.numeric(path$end) + pad, `<=`)
+      )
+      date <- date[keep > 0]
     }
 
+    # Use row-based indices to extract coordinates, and path stap_id values for the returned output.
+    path_row <- find_stap(path[, c("start", "end"), drop = FALSE], date)
     stap_id <- find_stap(path, date)
 
     twl <- data.frame(
       date = date,
-      lon = path$lon[round(stap_id)],
-      lat = path$lat[round(stap_id)],
+      lon = path$lon[round(path_row)],
+      lat = path$lat[round(path_row)],
       stap_id = stap_id
     )
   }
@@ -173,7 +179,7 @@ path2twilight <- function(
     )
 
     # Sort by twilight date/time
-    out <- out[order(out$twilight), ]
+    out <- out[order(out$date), ]
 
     return(out)
   } else {
