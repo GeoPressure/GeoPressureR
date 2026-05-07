@@ -8,13 +8,16 @@
 #'
 #' By default (`solar_dep=0`), the computation returns sunrise and sunset. But, it is also possible
 #' to compute different twilights by setting depression angle value greater than 0 (6° for civil,
-#' 12° for nautical and 18° for astronomical).
+#' 12° for nautical and 18° for astronomical). The corresponding solar elevation threshold is
+#' `-solar_dep`, and the equivalent solar zenith angle is `90 + solar_dep`.
 #'
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame
 #' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
 #' uses the range of `path$date` provided.
 #' @param solar_dep a numerical value representing the solar depression angle used to compute
-#' sunrise and sunset.
+#' sunrise and sunset. The corresponding solar elevation threshold is `-solar_dep`, and the
+#' equivalent solar zenith angle is `90 + solar_dep` (e.g. `solar_dep = 6` corresponds to
+#' zenith angle 96°).
 #' @param return_long logical defining the format of the data.frame returned. If `TRUE`, returns the
 #' long format identical to `twilight_create()`. If `FALSE`, return the sunrise and sunset as
 #' different column, making the data.frame the same size as `date`.
