@@ -17,7 +17,8 @@ edge_add_wind(
     
     glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
  },
-  quiet = FALSE
+  quiet = FALSE,
+  path_model = c("gs", "as_2step")
 )
 }
 \arguments{
@@ -45,6 +46,10 @@ match ERA5 native resolution (1hr).}
 takes the nearest neighbour. ERA5 native resolution is 0.25°}
 
 \item{return_averaged_variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
+
+\item{path_model}{model used to interpolate the bird path during flight. \code{"gs"} assumes constant
+groundspeed. \code{"as_2step"} first samples wind on the \code{"gs"} path, then approximately redistributes
+along-track progress using a constant airspeed assumption.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as arguments (1) the stationary period identifier and (2) the tag_id.}

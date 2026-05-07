@@ -116,6 +116,11 @@ graph_add_wind <- function(
   # Update param
   dots <- list(...)
   graph$param$graph_add_wind$thr_as <- thr_as
+  graph$param$graph_add_wind$path_model <- if ("path_model" %in% names(dots)) {
+    match.arg(dots$path_model, c("gs", "as_2step"))
+  } else {
+    "gs"
+  }
 
   # Handle file parameter if provided
   if ("file" %in% names(dots)) {
@@ -147,6 +152,7 @@ add_wind_graph_edge <- function(
   pressure = NULL,
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
+  path_model = c("gs", "as_2step"),
   file = \(stap_id, tag_id) {
     glue::glue(
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
@@ -164,6 +170,7 @@ add_wind_graph_edge <- function(
   variable <- c("u", "v")
   ms_to_kmh <- 3.6
   tag_id <- graph$param$id
+  path_model <- match.arg(path_model)
   if (is.null(pressure) && inherits(graph, "tag")) {
     pressure <- graph$pressure
   }
@@ -183,11 +190,7 @@ add_wind_graph_edge <- function(
   }
   g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
   flight <- stap2flight(graph$stap, format = "list")
-  stap_include <- if ("include" %in% names(graph$stap)) {
-    graph$stap$stap_id[graph$stap$include]
-  } else {
-    graph$stap$stap_id
-  }
+  stap_include <- edge_add_wind_stap_include(graph$stap)
   n_grid <- prod(g$dim)
   edge_s0 <- graph$s - 1
   edge_t0 <- graph$t - 1
@@ -270,45 +273,147 @@ add_wind_graph_edge <- function(
 
       u_fl <- numeric(length(st_id))
       v_fl <- numeric(length(st_id))
+      interp <- NULL
+      distance <- NULL
+      id_move <- NULL
+      bearing <- NULL
+      angle <- NULL
+      edge_dir <- NULL
+      wind_along <- NULL
       # Read and interpolate one time slice at a time, accumulating weighted u/v means directly.
       # This avoids allocating detailed data.frames or time-by-edge matrices for graph_add_wind().
-      for (i_time in seq_len(length(t_q))) {
-        time_offset <- pmax(
-          pmin(
-            as.numeric(difftime(t_q[i_time], fl_s$start[i_fl], units = "hours")),
-            fl_s$duration[i_fl]
-          ),
-          0
-        )
-        lat_i <- lat_s + dlat_se * time_offset
-        lon_i <- lon_s + dlon_se * time_offset
-        lat_ind_i <- NULL
-        lon_ind_i <- NULL
-        if (!interp_spatial_linear) {
-          lat_ind_i <- match(round(lat_i * 4) / 4, lat)
-          lon_ind_i <- match(round(lon_i * 4) / 4, lon)
+      if (path_model == "as_2step") {
+        wind_along <- matrix(0, nrow = length(t_q), ncol = length(st_id))
+        distance <- graph_create_distance(cbind(lon_s, lat_s), cbind(lon_e, lat_e))
+        id_move <- distance > 0
+        edge_dir <- complex(length(st_id))
+        if (any(id_move)) {
+          bearing <- graph_create_bearing(
+            cbind(lon_s[id_move], lat_s[id_move]),
+            cbind(lon_e[id_move], lat_e[id_move])
+          )
+          angle <- ((450 - bearing) %% 360) * pi / 180
+          edge_dir[id_move] <- cos(angle) + 1i * sin(angle)
         }
-        out <- add_wind_graph_values_time(
-          pressure,
-          t_q[i_time],
-          pres,
-          time,
-          lat,
-          lon,
-          dlat,
-          dlon,
-          lat_i,
-          lon_i,
-          lat_ind_i,
-          lon_ind_i,
-          interp_spatial_linear,
-          nc,
-          i_s,
+        for (i_time in seq_len(length(t_q))) {
+          time_offset <- pmax(
+            pmin(
+              as.numeric(difftime(t_q[i_time], fl_s$start[i_fl], units = "hours")),
+              fl_s$duration[i_fl]
+            ),
+            0
+          )
+          lat_i <- lat_s + dlat_se * time_offset
+          lon_i <- lon_s + dlon_se * time_offset
+          lat_ind_i <- NULL
+          lon_ind_i <- NULL
+          if (!interp_spatial_linear) {
+            lat_ind_i <- match(round(lat_i * 4) / 4, lat)
+            lon_ind_i <- match(round(lon_i * 4) / 4, lon)
+          }
+          out <- add_wind_graph_values_time(
+            pressure,
+            t_q[i_time],
+            pres,
+            time,
+            lat,
+            lon,
+            dlat,
+            dlon,
+            lat_i,
+            lon_i,
+            lat_ind_i,
+            lon_ind_i,
+            interp_spatial_linear,
+            nc,
+            i_s,
+            i_fl,
+            fl_s
+          )
+          wind_along[i_time, id_move] <- Re(
+            (out$u[id_move] + 1i * out$v[id_move]) * ms_to_kmh * Conj(edge_dir[id_move])
+          )
+        }
+        interp <- edge_add_wind_correct_path(
+          fl_s,
           i_fl,
-          fl_s
+          t_q,
+          lat_s,
+          lon_s,
+          lat_e,
+          lon_e,
+          wind_along = wind_along
         )
-        u_fl <- u_fl + out$u * w[i_time]
-        v_fl <- v_fl + out$v * w[i_time]
+        for (i_time in seq_len(length(t_q))) {
+          lat_i <- interp$lat_int[, i_time]
+          lon_i <- interp$lon_int[, i_time]
+          lat_ind_i <- NULL
+          lon_ind_i <- NULL
+          if (!interp_spatial_linear) {
+            lat_ind_i <- match(round(lat_i * 4) / 4, lat)
+            lon_ind_i <- match(round(lon_i * 4) / 4, lon)
+          }
+          out <- add_wind_graph_values_time(
+            pressure,
+            t_q[i_time],
+            pres,
+            time,
+            lat,
+            lon,
+            dlat,
+            dlon,
+            lat_i,
+            lon_i,
+            lat_ind_i,
+            lon_ind_i,
+            interp_spatial_linear,
+            nc,
+            i_s,
+            i_fl,
+            fl_s
+          )
+          u_fl <- u_fl + out$u * w[i_time]
+          v_fl <- v_fl + out$v * w[i_time]
+        }
+      } else {
+        for (i_time in seq_len(length(t_q))) {
+          time_offset <- pmax(
+            pmin(
+              as.numeric(difftime(t_q[i_time], fl_s$start[i_fl], units = "hours")),
+              fl_s$duration[i_fl]
+            ),
+            0
+          )
+          lat_i <- lat_s + dlat_se * time_offset
+          lon_i <- lon_s + dlon_se * time_offset
+          lat_ind_i <- NULL
+          lon_ind_i <- NULL
+          if (!interp_spatial_linear) {
+            lat_ind_i <- match(round(lat_i * 4) / 4, lat)
+            lon_ind_i <- match(round(lon_i * 4) / 4, lon)
+          }
+          out <- add_wind_graph_values_time(
+            pressure,
+            t_q[i_time],
+            pres,
+            time,
+            lat,
+            lon,
+            dlat,
+            dlon,
+            lat_i,
+            lon_i,
+            lat_ind_i,
+            lon_ind_i,
+            interp_spatial_linear,
+            nc,
+            i_s,
+            i_fl,
+            fl_s
+          )
+          u_fl <- u_fl + out$u * w[i_time]
+          v_fl <- v_fl + out$v * w[i_time]
+        }
       }
 
       # Combine multiple flights inside this stap transition into one mean wind per edge.
@@ -339,6 +444,13 @@ add_wind_graph_edge <- function(
         lat_ind_i,
         lon_ind_i,
         file_path,
+        interp,
+        distance,
+        id_move,
+        bearing,
+        angle,
+        edge_dir,
+        wind_along,
         u_fl,
         v_fl
       )

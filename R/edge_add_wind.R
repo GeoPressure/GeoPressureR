@@ -28,6 +28,9 @@
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
 #' takes the nearest neighbour. ERA5 native resolution is 0.25°
 #' @param return_averaged_variable `r lifecycle::badge("deprecated")` No longer used.
+#' @param path_model model used to interpolate the bird path during flight. `"gs"` assumes constant
+#' groundspeed. `"as_2step"` first samples wind on the `"gs"` path, then approximately redistributes
+#' along-track progress using a constant airspeed assumption.
 #' @param quiet logical to hide messages about the progress
 #' @inheritParams tag_download_wind
 #'
@@ -71,7 +74,8 @@ edge_add_wind <- function(
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
     )
   },
-  quiet = FALSE
+  quiet = FALSE,
+  path_model = c("gs", "as_2step")
 ) {
   if (lifecycle::is_present(return_averaged_variable)) {
     lifecycle::deprecate_warn(
@@ -93,11 +97,13 @@ edge_add_wind <- function(
   }
 
   tag_id <- graph$param$id
+  path_model <- match.arg(path_model)
+  check_variable <- if (path_model == "as_2step") unique(c(variable, "u", "v")) else variable
 
   edge_add_wind_check(
     graph,
     pressure = pressure,
-    variable = variable,
+    variable = check_variable,
     file = file
   )
 
@@ -106,11 +112,7 @@ edge_add_wind <- function(
 
   # Convert consecutive stationary periods into one or several flight segments.
   flight <- stap2flight(graph$stap, format = "list")
-  stap_include <- if ("include" %in% names(graph$stap)) {
-    graph$stap$stap_id[graph$stap$include]
-  } else {
-    graph$stap$stap_id
-  }
+  stap_include <- edge_add_wind_stap_include(graph$stap)
 
   # Convert edge ids to array indices and group edges by source stationary period.
   edge_info <- edge_add_wind_prepare_edges(edge_s, edge_t, g, graph$stap)
@@ -209,6 +211,55 @@ edge_add_wind <- function(
       lat_int <- interp$lat_int
       lon_int <- interp$lon_int
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
+      path_lat_int_ind <- NULL
+      path_lon_int_ind <- NULL
+      path_uv <- NULL
+
+      if (path_model == "as_2step") {
+        if (!interp_spatial_linear) {
+          path_lat_int_ind <- matrix(
+            match(as.vector(round(lat_int * 4) / 4), lat),
+            nrow = nrow(lat_int)
+          )
+          path_lon_int_ind <- matrix(
+            match(as.vector(round(lon_int * 4) / 4), lon),
+            nrow = nrow(lon_int)
+          )
+        }
+        path_uv <- edge_add_wind_fill_flight(
+          pressure,
+          t_q,
+          pres,
+          time,
+          lat,
+          lon,
+          dlat,
+          dlon,
+          lat_int,
+          lon_int,
+          path_lat_int_ind,
+          path_lon_int_ind,
+          interp_spatial_linear,
+          nc,
+          c("u", "v"),
+          i_s,
+          i_fl,
+          fl_s
+        )$var_fl
+        interp <- edge_add_wind_correct_path(
+          fl_s,
+          i_fl,
+          t_q,
+          lat_s,
+          lon_s,
+          lat_e,
+          lon_e,
+          path_uv[[1]],
+          path_uv[[2]]
+        )
+        lat_int <- interp$lat_int
+        lon_int <- interp$lon_int
+      }
 
       # For nearest-neighbour spatial interpolation, precompute ERA5 grid indices once for all
       # query positions of this flight segment.
@@ -293,6 +344,9 @@ edge_add_wind <- function(
         lon_int_ind,
         lat_int_int,
         lon_int_int,
+        path_lat_int_ind,
+        path_lon_int_ind,
+        path_uv,
         file_path,
         out,
         var_fl,
@@ -546,6 +600,16 @@ edge_add_wind_nc_info <- function(nc, file_path) {
 
 
 #' @noRd
+edge_add_wind_stap_include <- function(stap) {
+  if ("include" %in% names(stap)) {
+    stap$stap_id[stap$include]
+  } else {
+    stap$stap_id
+  }
+}
+
+
+#' @noRd
 edge_add_wind_segment_coords <- function(edge_s, edge_t, g, st_id, ratio_stap, i_fl) {
   # If several flights connect two graph staps, split the edge in proportion to flight duration.
   lat_s <- g$lat[edge_s[st_id, 1]] +
@@ -558,6 +622,78 @@ edge_add_wind_segment_coords <- function(edge_s, edge_t, g, st_id, ratio_stap, i
     ratio_stap[i_fl + 1] * (g$lon[edge_t[st_id, 2]] - g$lon[edge_s[st_id, 2]])
 
   list(lat_s = lat_s, lon_s = lon_s, lat_e = lat_e, lon_e = lon_e)
+}
+
+
+#' @noRd
+edge_add_wind_correct_path <- function(
+  fl_s,
+  i_fl,
+  t_q,
+  lat_s,
+  lon_s,
+  lat_e,
+  lon_e,
+  u = NULL,
+  v = NULL,
+  wind_along = NULL
+) {
+  duration <- fl_s$duration[i_fl]
+  elapsed <- pmax(
+    pmin(
+      as.numeric(difftime(t_q, fl_s$start[i_fl], units = "hours")),
+      duration
+    ),
+    0
+  )
+  ratio <- matrix(elapsed / duration, nrow = length(t_q), ncol = length(lat_s))
+
+  distance <- graph_create_distance(cbind(lon_s, lat_s), cbind(lon_e, lat_e))
+  id_move <- distance > 0
+  if (any(id_move)) {
+    if (is.null(wind_along)) {
+      bearing <- graph_create_bearing(
+        cbind(lon_s[id_move], lat_s[id_move]),
+        cbind(lon_e[id_move], lat_e[id_move])
+      )
+      angle <- ((450 - bearing) %% 360) * pi / 180
+      edge_dir <- cos(angle) + 1i * sin(angle)
+      wind_along <- Re(sweep(
+        (u[, id_move, drop = FALSE] + 1i * v[, id_move, drop = FALSE]) * 3.6,
+        2,
+        Conj(edge_dir),
+        `*`
+      ))
+    } else {
+      wind_along <- wind_along[, id_move, drop = FALSE]
+    }
+
+    cum_wind <- matrix(0, nrow = length(t_q), ncol = sum(id_move))
+    if (length(t_q) > 1) {
+      wind_sum <- numeric(sum(id_move))
+      for (i_time in seq.int(2, length(t_q))) {
+        wind_sum <- wind_sum +
+          (wind_along[i_time - 1, ] + wind_along[i_time, ]) *
+            (elapsed[i_time] - elapsed[i_time - 1]) /
+            2
+        cum_wind[i_time, ] <- wind_sum
+      }
+    }
+
+    airspeed <- distance[id_move] / duration - cum_wind[length(t_q), ] / duration
+    ratio[, id_move] <- sweep(
+      tcrossprod(elapsed, airspeed) + cum_wind,
+      2,
+      distance[id_move],
+      `/`
+    )
+  }
+
+  ratio <- t(pmin(pmax(ratio, 0), 1))
+  list(
+    lat_int = lat_s + ratio * (lat_e - lat_s),
+    lon_int = lon_s + ratio * (lon_e - lon_s)
+  )
 }
 
 

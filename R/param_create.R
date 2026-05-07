@@ -105,7 +105,8 @@ param_create <- function(id, default = FALSE, ...) {
         thr_as = formals(graph_add_wind)$thr_as,
         file = formals(edge_add_wind)$file,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
-        interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear
+        interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear,
+        path_model = "gs"
       ),
       graph_simulation = list(
         nj = formals(graph_simulation)$nj
