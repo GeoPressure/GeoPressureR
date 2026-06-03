@@ -215,8 +215,7 @@ test_that("tag_label() | missing file and setmap branches", {
 
   tag_sm <- tag_label(tag, quiet = TRUE)
   tag_sm <- tag_set_map(tag_sm, extent = c(-16, 23, 0, 50))
-  out <- tag_label(tag_sm, quiet = TRUE)
-  expect_identical(out, tag_sm)
+  expect_error(tag_label(tag_sm, quiet = TRUE), "restart from your raw data")
 })
 
 test_that("tag_label() | deprecated arguments", {
