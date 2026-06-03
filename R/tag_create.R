@@ -54,6 +54,9 @@
 #' This function can be used to crop the data at specific date, for instance to remove pre-equipment
 #' or post-retrieval data.
 #'
+#' Changing `time_shift` may require regenerating TRAINSET label files because label matching uses
+#' exact timestamps.
+#'
 #' @param id unique identifier of a tag.
 #' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
 #' `"tabular"`.
@@ -85,6 +88,8 @@
 #' in-memory table with columns `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`,
 #' `acceleration_x`, `acceleration_y` and `acceleration_z`, or a CSV path with `datetime` plus
 #' these sensor columns.
+#' @param time_shift Raw timestamp correction added to sensor dates, in hours. Use a single numeric
+#' value for all sensors or a named list for sensor-specific shifts.
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).
 #' @param quiet logical to hide messages about the progress.
@@ -159,7 +164,8 @@ tag_create <- function(
   temperature_internal_file = NULL,
   magnetic_file = NULL,
   assert_pressure = TRUE,
-  quiet = FALSE
+  quiet = FALSE,
+  time_shift = 0
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
@@ -270,6 +276,8 @@ tag_create <- function(
     }
   }
 
+  tag <- tag_create_time_shift(tag, time_shift)
+
   # Crop date
   tag <- tag_create_crop(
     tag,
@@ -277,6 +285,8 @@ tag_create <- function(
     crop_end = crop_end,
     quiet = quiet
   )
+
+  tag$param$tag_create$time_shift <- time_shift
 
   return(tag)
 }
@@ -376,6 +386,41 @@ tag_create_dto <- function(
     cli::cli_bullets(c("v" = "Read {.file {sensor_path}}"))
   }
   return(sensor_data)
+}
+
+#' Shift sensor data.frame timestamps
+#' @noRd
+tag_create_time_shift <- function(tag, time_shift) {
+  sensors <- c(
+    "pressure",
+    "light",
+    "acceleration",
+    "temperature_external",
+    "temperature_internal",
+    "magnetic"
+  )
+
+  if (is.numeric(time_shift)) {
+    assertthat::assert_that(length(time_shift) == 1)
+    shift_by_sensor <- stats::setNames(as.list(rep(time_shift, length(sensors))), sensors)
+  } else {
+    assertthat::assert_that(is.list(time_shift))
+    assertthat::assert_that(!is.null(names(time_shift)))
+    assertthat::assert_that(all(names(time_shift) %in% sensors))
+    assertthat::assert_that(all(vapply(time_shift, is.numeric, logical(1))))
+    assertthat::assert_that(all(vapply(time_shift, length, integer(1)) == 1))
+
+    shift_by_sensor <- stats::setNames(as.list(rep(0, length(sensors))), sensors)
+    shift_by_sensor[names(time_shift)] <- time_shift
+  }
+
+  for (sensor in sensors) {
+    if (sensor %in% names(tag)) {
+      tag[[sensor]]$date <- tag[[sensor]]$date + as.numeric(shift_by_sensor[[sensor]]) * 60 * 60
+    }
+  }
+
+  tag
 }
 
 #' Crop sensor data.frame

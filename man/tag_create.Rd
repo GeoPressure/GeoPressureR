@@ -17,7 +17,8 @@ tag_create(
   temperature_internal_file = NULL,
   magnetic_file = NULL,
   assert_pressure = TRUE,
-  quiet = FALSE
+  quiet = FALSE,
+  time_shift = 0
 )
 }
 \arguments{
@@ -68,6 +69,9 @@ these sensor columns.}
 \item{assert_pressure}{logical to check that the return tag has pressure data.}
 
 \item{quiet}{logical to hide messages about the progress.}
+
+\item{time_shift}{Raw timestamp correction added to sensor dates, in hours. Use a single numeric
+value for all sensors or a named list for sensor-specific shifts.}
 }
 \value{
 a GeoPressureR \code{tag} object containing
@@ -155,6 +159,9 @@ have data in a format that is not yet supported.
 
 This function can be used to crop the data at specific date, for instance to remove pre-equipment
 or post-retrieval data.
+
+Changing \code{time_shift} may require regenerating TRAINSET label files because label matching uses
+exact timestamps.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
