@@ -13,7 +13,9 @@ path2twilight(path, date = NULL, solar_dep = 0, return_long = TRUE)
 uses the range of \code{path$date} provided.}
 
 \item{solar_dep}{a numerical value representing the solar depression angle used to compute
-sunrise and sunset.}
+sunrise and sunset. The corresponding solar elevation threshold is \code{-solar_dep}, and the
+equivalent solar zenith angle is \code{90 + solar_dep} (e.g. \code{solar_dep = 6} corresponds to
+zenith angle 96°).}
 
 \item{return_long}{logical defining the format of the data.frame returned. If \code{TRUE}, returns the
 long format identical to \code{twilight_create()}. If \code{FALSE}, return the sunrise and sunset as
@@ -49,7 +51,8 @@ We use the \href{https://github.com/adokter/suntools}{suntools} package for this
 
 By default (\code{solar_dep=0}), the computation returns sunrise and sunset. But, it is also possible
 to compute different twilights by setting depression angle value greater than 0 (6° for civil,
-12° for nautical and 18° for astronomical).
+12° for nautical and 18° for astronomical). The corresponding solar elevation threshold is
+\code{-solar_dep}, and the equivalent solar zenith angle is \code{90 + solar_dep}.
 }
 \examples{
 path <- data.frame(

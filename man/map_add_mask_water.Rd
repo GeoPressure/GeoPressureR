@@ -14,7 +14,7 @@ map_add_mask_water(map, ne_scale = "medium", land_threshold = 0)
 \code{"medium"}, \code{"large"} or \code{c(110, 50, 10)}. Default is \code{"medium"}.}
 
 \item{land_threshold}{Numeric threshold used to classify pixels as water from
-the rasterized land fraction. Pixels with land fraction strictly below
+the rasterized land fraction. Pixels with land fraction at or below
 \code{land_threshold} are marked as water. Use \code{0} for a conservative mask where
 any land in a pixel makes it land.}
 }
