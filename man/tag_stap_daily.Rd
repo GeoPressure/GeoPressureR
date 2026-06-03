@@ -8,7 +8,7 @@ tag_stap_daily(
   tag,
   stap0 = NULL,
   twl_grouping = "night",
-  max_twl_gap_hours = 23.5,
+  max_twl_gap = 23.5,
   quiet = FALSE
 )
 }
@@ -23,7 +23,7 @@ columns (POSIXct-compatible strings), or a tag \code{id} resolved by \code{read_
 combined into the same stationary period, while \code{"day"} assumes the bird is moving during the
 day, so sunset-to-sunrise twilights are combined into the same stationary period.}
 
-\item{max_twl_gap_hours}{maximum allowed gap between consecutive twilights (in hours) before
+\item{max_twl_gap}{maximum allowed gap between consecutive twilights (in hours) before
 erroring, indicating missing twilights.}
 
 \item{quiet}{logical to hide messages.}

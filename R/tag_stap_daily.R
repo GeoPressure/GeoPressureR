@@ -12,7 +12,7 @@
 #' (default) assumes the bird is moving during the night, so sunrise-to-sunset twilights are
 #' combined into the same stationary period, while `"day"` assumes the bird is moving during the
 #' day, so sunset-to-sunrise twilights are combined into the same stationary period.
-#' @param max_twl_gap_hours maximum allowed gap between consecutive twilights (in hours) before
+#' @param max_twl_gap maximum allowed gap between consecutive twilights (in hours) before
 #' erroring, indicating missing twilights.
 #' @param quiet logical to hide messages.
 #'
@@ -33,7 +33,7 @@ tag_stap_daily <- function(
   tag,
   stap0 = NULL,
   twl_grouping = "night",
-  max_twl_gap_hours = 23.5,
+  max_twl_gap = 23.5,
   quiet = FALSE
 ) {
   # Check tag and twilight data
@@ -65,16 +65,16 @@ tag_stap_daily <- function(
   }
 
   # Check for missing twilights
-  if (!is.numeric(max_twl_gap_hours) || length(max_twl_gap_hours) != 1) {
-    cli::cli_abort("{.var max_twl_gap_hours} must be a single numeric value.")
+  if (!is.numeric(max_twl_gap) || length(max_twl_gap) != 1) {
+    cli::cli_abort("{.var max_twl_gap} must be a single numeric value.")
   }
   twl_gap <- as.numeric(diff(twl$twilight), units = "secs")
-  if (length(twl_gap) > 0 && any(twl_gap > max_twl_gap_hours * 60 * 60)) {
+  if (length(twl_gap) > 0 && any(twl_gap > max_twl_gap * 60 * 60)) {
     max_gap <- max(twl_gap)
     cli::cli_abort(c(
-      "x" = "Missing twilight suspected: found gaps larger than {max_twl_gap_hours}h.",
+      "x" = "Missing twilight suspected: found gaps larger than {max_twl_gap}h.",
       "i" = "Largest gap: {format_minutes(max_gap / 60)}.",
-      "i" = "Check for missing twilights or increase {.var max_twl_gap_hours}."
+      "i" = "Check for missing twilights or increase {.var max_twl_gap}."
     ))
   }
 
@@ -154,7 +154,7 @@ tag_stap_daily <- function(
   # Store parameters used
   tag$param$tag_stap_daily <- list(
     twl_grouping = twl_grouping,
-    max_twl_gap_hours = max_twl_gap_hours
+    max_twl_gap = max_twl_gap
   )
 
   return(tag)
