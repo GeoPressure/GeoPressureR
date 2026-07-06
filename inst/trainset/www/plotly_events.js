@@ -12,24 +12,6 @@ function setupPlotlyEventHandlers(el) {
     }
 
     relayoutTimer = setTimeout(function () {
-      function toMs(x) {
-        if (x == null) return null;
-        if (typeof x === "number") return x;
-        if (x instanceof Date) return x.getTime();
-        if (typeof x === "string") {
-          // Plotly sometimes sends numeric values as strings; treat as epoch ms.
-          if (/^[0-9]+(\\.[0-9]+)?$/.test(x)) return Number(x);
-          var t = new Date(x).getTime();
-          return isNaN(t) ? null : t;
-        }
-        try {
-          var t2 = new Date(x).getTime();
-          return isNaN(t2) ? null : t2;
-        } catch (e) {
-          return null;
-        }
-      }
-
       var xmin = null;
       var xmax = null;
       var autorange = false;
@@ -45,20 +27,16 @@ function setupPlotlyEventHandlers(el) {
         }
       }
 
-      // Convert to epoch ms for stable parsing in R
-      var xminMs = toMs(xmin);
-      var xmaxMs = toMs(xmax);
-
       // Only send if range is explicitly present (or autorange).
-      if (!autorange && (xminMs == null || xmaxMs == null)) {
+      if (!autorange && (xmin == null || xmax == null)) {
         return;
       }
 
       Shiny.setInputValue(
         "plotly_relayout_xrange",
         {
-          xmin_ms: xminMs,
-          xmax_ms: xmaxMs,
+          xmin: xmin,
+          xmax: xmax,
           autorange: autorange,
           nav: window.trainsetLastNav || null,
           timestamp: Date.now(),
@@ -90,11 +68,24 @@ function setupPlotlyEventHandlers(el) {
       });
     }
 
+    var selectionRange = null;
+    if (eventData && eventData.range && Array.isArray(eventData.range.x)) {
+      selectionRange = {
+        xmin: eventData.range.x[0],
+        xmax: eventData.range.x[1],
+        ymin: eventData.range.y ? Number(eventData.range.y[0]) : null,
+        ymax: eventData.range.y ? Number(eventData.range.y[1]) : null,
+        y2min: eventData.range.y2 ? Number(eventData.range.y2[0]) : null,
+        y2max: eventData.range.y2 ? Number(eventData.range.y2[1]) : null,
+      };
+    }
+
     // Send combined event data with key state
     Shiny.setInputValue(
       "plotly_selected_with_keys",
       {
         points: cleanEventData,
+        range: selectionRange,
         ctrlPressed: ctrlPressed,
         timestamp: Date.now(),
       },

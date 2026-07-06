@@ -422,11 +422,13 @@ shiny::observeEvent(input$plotly_relayout_xrange, {
   }
 
   # Basic de-dup to avoid needless redraws from repeated relayout events
-  xmin_ms <- ev$xmin_ms
-  xmax_ms <- ev$xmax_ms
-  if (!is.null(xmin_ms) && !is.null(xmax_ms) && !is.na(xmin_ms) && !is.na(xmax_ms)) {
+  xmin <- NULL
+  xmax <- NULL
+  if (!is.null(ev$xmin) && !is.null(ev$xmax)) {
+    xmin <- as.POSIXct(ev$xmin, tz = time_tz)
+    xmax <- as.POSIXct(ev$xmax, tz = time_tz)
     # Epoch ms does not fit in 32-bit integers; keep as numeric.
-    current <- c(round(as.numeric(xmin_ms)), round(as.numeric(xmax_ms)))
+    current <- round(as.numeric(c(xmin, xmax)) * 1000)
     last <- isolate(state$last_relayout_ms)
     if (
       !is.null(last) &&
@@ -450,11 +452,9 @@ shiny::observeEvent(input$plotly_relayout_xrange, {
     return()
   }
 
-  if (is.null(ev$xmin_ms) || is.null(ev$xmax_ms) || is.na(ev$xmin_ms) || is.na(ev$xmax_ms)) {
+  if (is.null(xmin) || is.null(xmax) || is.na(xmin) || is.na(xmax)) {
     return()
   }
 
-  xmin <- as.POSIXct(ev$xmin_ms / 1000, origin = "1970-01-01", tz = time_tz)
-  xmax <- as.POSIXct(ev$xmax_ms / 1000, origin = "1970-01-01", tz = time_tz)
   refresh_detail_traces(xmin, xmax)
 })

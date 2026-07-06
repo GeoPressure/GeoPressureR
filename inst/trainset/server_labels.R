@@ -72,16 +72,16 @@ if (isTRUE(has_pressure && has_acceleration)) {
 }
 
 # Shared labeling function for both selection and click events
-apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
+apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_range = NULL) {
   active_series <- active_series_or_default()
   selected_label <- if (isTRUE(ctrl_pressed)) "" else input$label_select
 
-  if (is.null(point_data) || nrow(point_data) == 0 || length(point_data) == 0) {
+  if (is.null(selection_range) && (is.null(point_data) || nrow(point_data) == 0 || length(point_data) == 0)) {
     return()
   }
 
   # Treat pressure overview/detail line clicks as pressure markers for labeling
-  if (has_pressure) {
+  if (is.null(selection_range) && has_pressure) {
     point_data$curveNumber[
       point_data$curveNumber %in% c(curve_overview_pressure, curve_pressure_detail_line)
     ] <- curve_pressure_markers
@@ -95,11 +95,11 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
     NULL
   }
 
-  if (!is.null(target_curve)) {
+  if (is.null(selection_range) && !is.null(target_curve)) {
     point_data <- point_data[point_data$curveNumber == target_curve, , drop = FALSE]
   }
 
-  if (nrow(point_data) == 0) {
+  if (is.null(selection_range) && nrow(point_data) == 0) {
     shiny::showNotification(
       glue::glue(
         "No {active_series} points in selection. Switch active series or select different points."
@@ -111,7 +111,25 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
   }
 
   point_indices <- NULL
-  if (!is.null(point_data$rowIndex) && !all(is.na(point_data$rowIndex))) {
+  if (!is.null(selection_range)) {
+    series_data <- if (active_series == "pressure") pressure_data else acceleration_data
+    xmin <- as.POSIXct(selection_range$xmin, tz = time_tz)
+    xmax <- as.POSIXct(selection_range$xmax, tz = time_tz)
+    ymin <- if (active_series == "acceleration" && !is.null(selection_range$y2min)) {
+      selection_range$y2min
+    } else {
+      selection_range$ymin
+    }
+    ymax <- if (active_series == "acceleration" && !is.null(selection_range$y2max)) {
+      selection_range$y2max
+    } else {
+      selection_range$ymax
+    }
+    point_indices <- which(
+      series_data$date >= xmin & series_data$date <= xmax &
+        series_data$value >= ymin & series_data$value <= ymax
+    )
+  } else if (!is.null(point_data$rowIndex) && !all(is.na(point_data$rowIndex))) {
     point_indices <- as.integer(point_data$rowIndex)
     point_indices <- point_indices[!is.na(point_indices)]
   } else {
@@ -153,9 +171,9 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE) {
 }
 
 process_plotly_event <- function(event_info) {
-  if (!is.null(event_info$points) && length(event_info$points) > 0) {
-    point_data <- points_to_df(event_info$points)
-    apply_labels_to_points(point_data, event_info$ctrlPressed)
+  if ((!is.null(event_info$points) && length(event_info$points) > 0) || !is.null(event_info$range)) {
+    point_data <- if (!is.null(event_info$points)) points_to_df(event_info$points) else NULL
+    apply_labels_to_points(point_data, event_info$ctrlPressed, event_info$range)
   }
 
   labels <- view_labels()
