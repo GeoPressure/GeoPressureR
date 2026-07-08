@@ -172,8 +172,8 @@ find_stap <- function(stap, date) {
   stap_id <- stap_ref[idx]
   # For dates in the flight gap (after end[i] and before start[i+1]),
   # interpolate linearly to get fractional stap_id between consecutive periods.
-  in_gap <- date_num > end_num[idx] & idx < nrow(stap)
-  if (any(in_gap)) {
+  in_gap <- which(date_num > end_num[idx] & idx < nrow(stap))
+  if (length(in_gap) > 0) {
     gap_idx <- idx[in_gap]
     gap_len <- start_num[gap_idx + 1] - end_num[gap_idx]
     stap_id[in_gap] <- stap_ref[gap_idx] +
