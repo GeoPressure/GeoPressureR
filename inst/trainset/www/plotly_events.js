@@ -12,6 +12,14 @@ function setupPlotlyEventHandlers(el) {
     }
 
     relayoutTimer = setTimeout(function () {
+      function toMs(x) {
+        if (x == null) return null;
+        if (typeof x === "number") return x;
+        if (x instanceof Date) return x.getTime();
+        var time = new Date(x).getTime();
+        return isNaN(time) ? null : time;
+      }
+
       var xmin = null;
       var xmax = null;
       var autorange = false;
@@ -27,16 +35,19 @@ function setupPlotlyEventHandlers(el) {
         }
       }
 
+      var xminMs = toMs(xmin);
+      var xmaxMs = toMs(xmax);
+
       // Only send if range is explicitly present (or autorange).
-      if (!autorange && (xmin == null || xmax == null)) {
+      if (!autorange && (xminMs == null || xmaxMs == null)) {
         return;
       }
 
       Shiny.setInputValue(
         "plotly_relayout_xrange",
         {
-          xmin: xmin,
-          xmax: xmax,
+          xmin_ms: xminMs,
+          xmax_ms: xmaxMs,
           autorange: autorange,
           nav: window.trainsetLastNav || null,
           timestamp: Date.now(),
