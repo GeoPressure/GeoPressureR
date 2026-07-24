@@ -66,6 +66,11 @@ body {
   margin: 0;
 }
 
+/* Keep the overview trace in the range slider, but out of the main plot. */
+#ts_plot .cartesianlayer .subplot.xy .scatterlayer > .trace:first-child {
+  display: none;
+}
+
 /* When compute button is hidden, round the right corners of stap_id_next */
 .input-group:has(#compute_stap_btn[style*="display: none"]) #stap_id_next {
   border-top-right-radius: 0.375rem;
