@@ -70,10 +70,10 @@ plot_path(path, plot_leaflet = FALSE)
 \seealso{
 \code{\link[=plot.map]{plot.map()}}
 
-Other path: 
-\code{\link{path2edge}()},
-\code{\link{path2elevation}()},
-\code{\link{path2twilight}()},
-\code{\link{tag2path}()}
+Other path:
+\code{\link[=path2edge]{path2edge()}},
+\code{\link[=path2elevation]{path2elevation()}},
+\code{\link[=path2twilight]{path2twilight()}},
+\code{\link[=tag2path]{tag2path()}}
 }
 \concept{path}

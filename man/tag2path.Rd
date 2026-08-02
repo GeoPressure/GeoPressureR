@@ -63,10 +63,10 @@ plot_path(path)
 
 }
 \seealso{
-Other path: 
-\code{\link{path2edge}()},
-\code{\link{path2elevation}()},
-\code{\link{path2twilight}()},
-\code{\link{plot_path}()}
+Other path:
+\code{\link[=path2edge]{path2edge()}},
+\code{\link[=path2elevation]{path2elevation()}},
+\code{\link[=path2twilight]{path2twilight()}},
+\code{\link[=plot_path]{plot_path()}}
 }
 \concept{path}

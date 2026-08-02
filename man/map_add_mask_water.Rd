@@ -64,9 +64,9 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other map: 
-\code{\link{map_create}()},
-\code{\link{print.map}()},
-\code{\link{rast.map}()}
+Other map:
+\code{\link[=map_create]{map_create()}},
+\code{\link[=print.map]{print.map()}},
+\code{\link[=rast.map]{rast.map()}}
 }
 \concept{map}

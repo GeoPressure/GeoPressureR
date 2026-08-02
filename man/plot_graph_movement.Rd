@@ -52,10 +52,10 @@ movement_power <- list(
 plot_graph_movement(movement_power)
 }
 \seealso{
-Other movement: 
-\code{\link{bird_create}()},
-\code{\link{graph_set_movement}()},
-\code{\link{speed2prob}()},
-\code{\link{tag_download_wind}()}
+Other movement:
+\code{\link[=bird_create]{bird_create()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=speed2prob]{speed2prob()}},
+\code{\link[=tag_download_wind]{tag_download_wind()}}
 }
 \concept{movement}

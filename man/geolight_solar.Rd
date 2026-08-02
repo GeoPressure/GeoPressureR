@@ -79,12 +79,12 @@ NOAA Global Monitoring Laboratory. Solar Calculation Details.
 Meeus, J. (1998). \emph{Astronomical Algorithms}. Willmann-Bell.
 }
 \seealso{
-Other geolight: 
-\code{\link{geolight_fit_location}()},
-\code{\link{geolight_map}()},
-\code{\link{plot_twl_calib}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
+Other geolight:
+\code{\link[=geolight_fit_location]{geolight_fit_location()}},
+\code{\link[=geolight_map]{geolight_map()}},
+\code{\link[=plot_twl_calib]{plot_twl_calib()}},
+\code{\link[=twilight_create]{twilight_create()}},
+\code{\link[=twilight_label_read]{twilight_label_read()}},
+\code{\link[=twilight_label_write]{twilight_label_write()}}
 }
 \concept{geolight}

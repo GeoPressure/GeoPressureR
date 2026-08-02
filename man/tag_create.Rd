@@ -205,10 +205,10 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/tag-object.html#create-tag}{GeoPressureManual}
 
-Other tag: 
-\code{\link{print.tag}()},
-\code{\link{read_stap}()},
-\code{\link{tag_set_map}()},
-\code{\link{tag_stap_daily}()}
+Other tag:
+\code{\link[=print.tag]{print.tag()}},
+\code{\link[=read_stap]{read_stap()}},
+\code{\link[=tag_set_map]{tag_set_map()}},
+\code{\link[=tag_stap_daily]{tag_stap_daily()}}
 }
 \concept{tag}

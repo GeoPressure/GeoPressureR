@@ -53,10 +53,10 @@ plot(speed, prob, type = "l", xlab = "Airspeed [km/h]", ylab = "Probability")
 abline(v = low_speed_fix)
 }
 \seealso{
-Other movement: 
-\code{\link{bird_create}()},
-\code{\link{graph_set_movement}()},
-\code{\link{plot_graph_movement}()},
-\code{\link{tag_download_wind}()}
+Other movement:
+\code{\link[=bird_create]{bird_create()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=plot_graph_movement]{plot_graph_movement()}},
+\code{\link[=tag_download_wind]{tag_download_wind()}}
 }
 \concept{movement}

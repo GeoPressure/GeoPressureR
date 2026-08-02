@@ -92,10 +92,10 @@ print(tag_custom)
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/pressure-map.html#define-geographical-and-temporal-parameters-of-the-map}{GeoPressureManual}
 
-Other tag: 
-\code{\link{print.tag}()},
-\code{\link{read_stap}()},
-\code{\link{tag_create}()},
-\code{\link{tag_stap_daily}()}
+Other tag:
+\code{\link[=print.tag]{print.tag()}},
+\code{\link[=read_stap]{read_stap()}},
+\code{\link[=tag_create]{tag_create()}},
+\code{\link[=tag_stap_daily]{tag_stap_daily()}}
 }
 \concept{tag}

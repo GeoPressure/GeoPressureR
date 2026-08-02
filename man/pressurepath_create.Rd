@@ -135,8 +135,8 @@ plot_pressurepath(pressurepath)
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
 
-Other pressurepath: 
-\code{\link{geopressure_timeseries}()},
-\code{\link{plot_pressurepath}()}
+Other pressurepath:
+\code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
+\code{\link[=plot_pressurepath]{plot_pressurepath()}}
 }
 \concept{pressurepath}

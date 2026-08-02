@@ -16,10 +16,10 @@ rast.map(x, names = glue::glue("#{map$stap$stap_id}"), crs = "epsg:4326", ...)
 \item{...}{additional parameters for \code{terra::rast}}
 }
 \value{
-A \link[terra:SpatRaster-class]{terra::SpatRaster} object.
+A \link[terra:SpatRaster]{terra::SpatRaster} object.
 }
 \description{
-This function convert a GeoPressureR \code{map} object into a \code{\link[terra:SpatRaster-class]{terra::SpatRaster}} with the data of
+This function convert a GeoPressureR \code{map} object into a \code{\link[terra:SpatRaster]{terra::SpatRaster}} with the data of
 each stationary periods stored in a different layer.
 }
 \examples{
@@ -38,9 +38,9 @@ rast.map(tag$map_pressure)
 
 }
 \seealso{
-Other map: 
-\code{\link{map_add_mask_water}()},
-\code{\link{map_create}()},
-\code{\link{print.map}()}
+Other map:
+\code{\link[=map_add_mask_water]{map_add_mask_water()}},
+\code{\link[=map_create]{map_create()}},
+\code{\link[=print.map]{print.map()}}
 }
 \concept{map}

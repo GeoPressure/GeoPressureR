@@ -23,7 +23,7 @@ bird_create("Acrocephalus arundinaceus")
 
 }
 \seealso{
-Other bird: 
-\code{\link{bird_create}()}
+Other bird:
+\code{\link[=bird_create]{bird_create()}}
 }
 \concept{bird}

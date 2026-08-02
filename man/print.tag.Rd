@@ -26,10 +26,10 @@ print(tag)
 
 }
 \seealso{
-Other tag: 
-\code{\link{read_stap}()},
-\code{\link{tag_create}()},
-\code{\link{tag_set_map}()},
-\code{\link{tag_stap_daily}()}
+Other tag:
+\code{\link[=read_stap]{read_stap()}},
+\code{\link[=tag_create]{tag_create()}},
+\code{\link[=tag_set_map]{tag_set_map()}},
+\code{\link[=tag_stap_daily]{tag_stap_daily()}}
 }
 \concept{tag}

@@ -51,8 +51,8 @@ plot_pressurepath(pressurepath, type = "altitude")
 
 }
 \seealso{
-Other pressurepath: 
-\code{\link{geopressure_timeseries}()},
-\code{\link{pressurepath_create}()}
+Other pressurepath:
+\code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
+\code{\link[=pressurepath_create]{pressurepath_create()}}
 }
 \concept{pressurepath}

@@ -15,7 +15,7 @@ graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
 \code{graph_add_wind()} always uses \code{c("u", "v")}.}
 
 \item{...}{
-  Arguments passed on to \code{\link[=edge_add_wind]{edge_add_wind}}
+  Arguments passed on to \code{\link{edge_add_wind}}
   \describe{
     \item{\code{pressure}}{pressure measurement of the associated \code{tag} data used to estimate the pressure
 level (i.e., altitude) of the bird during the flights. This data.frame needs to contain \code{date} as
@@ -64,12 +64,12 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 
-Other graph: 
-\code{\link{graph_create}()},
-\code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_set_movement}()},
-\code{\link{graph_simulation}()},
-\code{\link{print.graph}()}
+Other graph:
+\code{\link[=graph_create]{graph_create()}},
+\code{\link[=graph_marginal]{graph_marginal()}},
+\code{\link[=graph_most_likely]{graph_most_likely()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=graph_simulation]{graph_simulation()}},
+\code{\link[=print.graph]{print.graph()}}
 }
 \concept{graph}
