@@ -1,3 +1,23 @@
+# GeoPressureR v3.6.0
+
+## Main
+
+Prepare for the release of GeoPathSampleR package and GeoTwilight paper:
+
+- [Strengthen fitted-location estimation](https://github.com/GeoPressure/GeoPressureR/commit/bc96fe94) with multi-start optimization, normalized twilight residuals, and a zenith-angle prior.
+- [Refine fitted calibration anchors](https://github.com/GeoPressure/GeoPressureR/commit/595f4fad) using local twilight likelihoods before global calibration.
+- [Expose fitted-anchor diagnostics](https://github.com/GeoPressure/GeoPressureR/commit/134723d3) in the calibration workflow and plotting functions.
+
+## Minor
+
+- [Add `time_shift` to `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/dcb4a382) with corresponding parameter display and test coverage.
+- [Improve `find_stap()` handling of non-regular stationary-period IDs](https://github.com/GeoPressure/GeoPressureR/commit/5a8a49b5) while preserving the correct IDs.
+- [Add `land_threshold` to `mask_water()`](https://github.com/GeoPressure/GeoPressureR/commit/7817a9c9) for configurable land masking.
+- [Rename `max_twl_gap_hours` to `max_twl_gap`](https://github.com/GeoPressure/GeoPressureR/commit/a2ef2bda) in daily stationary-period generation.
+- [Allow `plot_twl_calib()` without a zenith column](https://github.com/GeoPressure/GeoPressureR/commit/00128ce1) by defaulting to known zenith values.
+- [Improve Plotly relayout and range-selection handling](https://github.com/GeoPressure/GeoPressureR/commit/56b24322), including epoch-millisecond event times and hidden overview traces ([8efc6f9c](https://github.com/GeoPressure/GeoPressureR/commit/8efc6f9c), [51efd0e5](https://github.com/GeoPressure/GeoPressureR/commit/51efd0e5)).
+- [Fix map-setting invalidation when labels change](https://github.com/GeoPressure/GeoPressureR/commit/fd00f56a) and [handle missing values in logical indexing](https://github.com/GeoPressure/GeoPressureR/commit/b53607eb).
+
 # GeoPressureR v3.5.4
 
 ## Main
