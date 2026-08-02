@@ -12,6 +12,11 @@ geolight_map(
   tag,
   twl_calib_adjust = 1.4,
   fitted_location_duration = Inf,
+  zenith_prior_mean = 93,
+  zenith_prior_sd = 1.3,
+  zenith_prior_penalty_weight = 1e-04,
+  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_max_iter = 0,
   twl_llp = function(n) log(n)/n,
   compute_known = FALSE,
   keep_twl = FALSE,
@@ -30,6 +35,11 @@ geolight_map_calibrate(
   tag,
   twl_calib_adjust = 1.4,
   fitted_location_duration = Inf,
+  zenith_prior_mean = 93,
+  zenith_prior_sd = 1.3,
+  zenith_prior_penalty_weight = 1e-04,
+  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_max_iter = 0,
   quiet = FALSE
 )
 
@@ -42,9 +52,22 @@ geolight_map_likelihood(tag, compute_known = FALSE, quiet = FALSE)
 
 \item{fitted_location_duration}{Minimum duration (in days) of stationary period(s) eligible to be
 used as an automatic (fitted) calibration site estimated from twilight times.
-If enabled (finite duration), the longest eligible stationary period is selected and its
-location is estimated from twilight times, then used like a known location for calibration.
+If enabled (finite duration), eligible stationary periods without known coordinates are fitted
+from twilight times, then used like known locations for calibration.
 Default is \code{Inf} (disabled).}
+
+\item{zenith_prior_mean}{Gaussian prior mean for the fitted zenith angle (degrees).}
+
+\item{zenith_prior_sd}{Gaussian prior standard deviation for the fitted zenith angle (degrees).}
+
+\item{zenith_prior_penalty_weight}{Weight controlling how strongly automatically fitted
+calibration locations are pulled toward \code{zenith_prior_mean}.}
+
+\item{refine_fitted_location_scale_km}{Target spatial resolution, in kilometers, for fitted
+calibration-anchor refinement. This also defines the movement threshold for convergence.}
+
+\item{refine_fitted_location_max_iter}{Maximum number of fitted-location refinement iterations.
+Use \code{0} to disable refinement. In practice, \code{2} iterations is usually sufficient.}
 
 \item{twl_llp}{log-linear pooling aggregation weight.}
 
@@ -62,7 +85,8 @@ a \code{tag} with the likelihood of light as \code{tag$map_light}
 This function estimates a likelihood map for each stationary period based on twilight data.
 The function performs the following steps:
 \enumerate{
-\item Perform a calibration on the known stationary period. See below for details
+\item Calibrate twilight errors from true known locations and/or automatically fitted calibration
+locations. See below for details.
 \item Compute a likelihood map for each twilight using the calibration.
 \item Combine the likelihood maps of all twilights belonging to the same stationary periods with a
 log-linear pooling. See \href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation}
@@ -76,8 +100,19 @@ Calibration can be based on:
 \item an automatically fitted calibration location (enabled via \code{fitted_location_duration}).
 }
 
-When \code{fitted_location_duration} is finite, the longest eligible stationary period is selected and
-its location is estimated from twilight times, then used like a known location for calibration.
+When \code{fitted_location_duration} is finite, stationary periods at least as long as this threshold and
+without known coordinates can be fitted from twilight geometry and used as calibration locations.
+If known locations are also present, the calibration combines the known and fitted locations. The
+fitted-location step uses a weak Gaussian prior on the effective zenith angle, controlled by
+\code{zenith_prior_mean}, \code{zenith_prior_sd}, and \code{zenith_prior_penalty_weight}.
+
+After the initial fitted-location estimate, \code{refine_fitted_location_max_iter > 0} optionally
+refines automatically fitted calibration anchors by iteratively recalibrating the twilight-error
+distribution for the same stationary period and moving the anchor to the local light-likelihood
+mode. This is a calibration-anchor refinement, not a separate movement estimator. It is only
+applied to fitted calibration locations; true known locations are kept fixed. Refined fitted
+anchors have \code{zenith} set to \code{NA} because the initial fitted zenith no longer corresponds to the
+refined coordinates. The default is \code{0}, so existing behavior is unchanged.
 
 Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 angle error. We use a kernel distribution to fit the zenith angle during the known stationary
@@ -122,36 +157,12 @@ plot(tag, type = "map_light")
 
 }
 \seealso{
-Other geolight: 
-\code{\link{geolight_fit_location}()},
-\code{\link{geolight_solar}()},
-\code{\link{plot_twl_calib}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
-
-Other geolight: 
-\code{\link{geolight_fit_location}()},
-\code{\link{geolight_solar}()},
-\code{\link{plot_twl_calib}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
-
-Other geolight: 
-\code{\link{geolight_fit_location}()},
-\code{\link{geolight_solar}()},
-\code{\link{plot_twl_calib}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
-
-Other geolight: 
-\code{\link{geolight_fit_location}()},
-\code{\link{geolight_solar}()},
-\code{\link{plot_twl_calib}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
+Other geolight:
+\code{\link[=geolight_fit_location]{geolight_fit_location()}},
+\code{\link[=geolight_solar]{geolight_solar()}},
+\code{\link[=plot_twl_calib]{plot_twl_calib()}},
+\code{\link[=twilight_create]{twilight_create()}},
+\code{\link[=twilight_label_read]{twilight_label_read()}},
+\code{\link[=twilight_label_write]{twilight_label_write()}}
 }
 \concept{geolight}

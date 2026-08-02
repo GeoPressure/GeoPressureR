@@ -54,6 +54,11 @@ test_that("geolight_map() computes light likelihood map and calibration", {
 
   expect_true("geolight_map" %in% names(tag$param))
   expect_true("twl_calib" %in% names(tag$param$geolight_map))
+  expect_true("zenith_prior_mean" %in% names(tag$param$geolight_map))
+  expect_true("zenith_prior_sd" %in% names(tag$param$geolight_map))
+  expect_true("zenith_prior_penalty_weight" %in% names(tag$param$geolight_map))
+  expect_true("refine_fitted_location_scale_km" %in% names(tag$param$geolight_map))
+  expect_true("refine_fitted_location_max_iter" %in% names(tag$param$geolight_map))
   expect_true("twl_llp" %in% names(tag$param$geolight_map))
   expect_true("compute_known" %in% names(tag$param$geolight_map))
 })

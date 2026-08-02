@@ -5,6 +5,11 @@ geolight_map_calibrate <- function(
   tag,
   twl_calib_adjust = 1.4,
   fitted_location_duration = Inf,
+  zenith_prior_mean = 93,
+  zenith_prior_sd = 1.3,
+  zenith_prior_penalty_weight = 1e-4,
+  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_max_iter = 0,
   quiet = FALSE
 ) {
   tag_assert(tag, "twilight")
@@ -20,10 +25,34 @@ geolight_map_calibrate <- function(
     tag = tag,
     fitted_location_duration = fitted_location_duration,
     extent = tag$param$tag_set_map$extent,
+    zenith_prior_mean = zenith_prior_mean,
+    zenith_prior_sd = zenith_prior_sd,
+    zenith_prior_penalty_weight = zenith_prior_penalty_weight,
     compute_known = FALSE,
     quiet = TRUE
   )
 
+  fitted_idx <- is.finite(stap$lon) &
+    is.finite(stap$lat) &
+    is.na(stap$known_lon) &
+    is.na(stap$known_lat)
+
+  if (refine_fitted_location_max_iter > 0 && any(fitted_idx)) {
+    stap_refined <- geolight_refine_location(
+      tag = tag,
+      path = stap[fitted_idx, ],
+      twl_calib_adjust = twl_calib_adjust,
+      scale_km = refine_fitted_location_scale_km,
+      max_iter = refine_fitted_location_max_iter
+    )
+
+    idx <- match(stap_refined$stap_id, stap$stap_id)
+    stap$lon[idx] <- stap_refined$lon
+    stap$lat[idx] <- stap_refined$lat
+    stap$zenith[idx] <- NA_real_
+  }
+
+  stap$calib_type <- ifelse(fitted_idx, "fitted", "known")
   stap$known_lat[!is.na(stap$lat)] <- stap$lat[!is.na(stap$lat)]
   stap$known_lon[!is.na(stap$lon)] <- stap$lon[!is.na(stap$lon)]
 
@@ -39,6 +68,11 @@ geolight_map_calibrate <- function(
   }
   tag$param$geolight_map$twl_calib_adjust <- twl_calib_adjust
   tag$param$geolight_map$fitted_location_duration <- fitted_location_duration
+  tag$param$geolight_map$zenith_prior_mean <- zenith_prior_mean
+  tag$param$geolight_map$zenith_prior_sd <- zenith_prior_sd
+  tag$param$geolight_map$zenith_prior_penalty_weight <- zenith_prior_penalty_weight
+  tag$param$geolight_map$refine_fitted_location_scale_km <- refine_fitted_location_scale_km
+  tag$param$geolight_map$refine_fitted_location_max_iter <- refine_fitted_location_max_iter
   tag$param$geolight_map$twl_calib <- twl_calib
 
   tag
@@ -48,7 +82,8 @@ geolight_map_calibrate <- function(
 #' @param twl a twilight data.frame
 #' @param calib_stap a stationary period data.frame with calibration locations. Must contain
 #' the columns `known_lat`, `known_lon`, `start`, and `end`. This can include both true known
-#' locations and estimated (fitted) locations.
+#' locations and estimated (fitted) locations. When produced by `geolight_map_calibrate()`,
+#' `calib_type` records whether each calibration anchor is `"known"` or `"fitted"`.
 #' @inheritParams geolight_map
 #' @return a `twl_calib` object with components:
 #' * `x`: the zenith angle sequence
@@ -86,7 +121,7 @@ geolight_calibrate <- function(
   twl <- twilight_include(twl)
   twl_include <- twl[twl$include, ]
 
-  # Calibrate the twilight in term of zenith angle with a kernel density.
+  # Calibrate twilight errors in terms of solar zenith angle.
   z_calib <- lapply(seq_len(nrow(calib_stap)), function(i) {
     id <- twl_include$twilight >= calib_stap$start[i] &
       twl_include$twilight <= calib_stap$end[i]
