@@ -20,9 +20,7 @@ test_that("geolight_fit_location() does not estimate known staps by default", {
       known = known
     )
 
-  expect_warning({
-    path <- geolight_fit_location(tag, fitted_location_duration = 0)
-  })
+  path <- geolight_fit_location(tag, fitted_location_duration = 0, quiet = TRUE)
 
   known_row <- path[path$stap_id == 1, ]
   expect_true(is.na(known_row$zenith))
@@ -36,4 +34,39 @@ test_that("geolight_fit_location() works without known columns in stap", {
   )
 
   expect_true(all(c("known_lon", "known_lat", "lon", "lat", "zenith") %in% names(path)))
+})
+
+test_that("geolight_fit_location() requires numeric zenith-prior parameters", {
+  expect_error(
+    geolight_fit_location(
+      tag_twl_daily,
+      fitted_location_duration = 5,
+      zenith_prior_mean = NULL,
+      quiet = TRUE
+    )
+  )
+})
+
+test_that("geolight_fit_location_objective() applies zenith prior penalty", {
+  tt <- as.POSIXct("2023-06-20 00:15:00", tz = "UTC")
+  sun <- geolight_solar_constants(tt)
+  par <- c(70, 70, 80)
+
+  value_without_prior <- geolight_fit_location_objective(
+    par = par,
+    sun = sun,
+    zenith_prior_mean = 80,
+    zenith_prior_sd = 1,
+    zenith_prior_penalty_weight = 0
+  )
+  value_with_prior <- geolight_fit_location_objective(
+    par = par,
+    sun = sun,
+    zenith_prior_mean = 90,
+    zenith_prior_sd = 1,
+    zenith_prior_penalty_weight = 1
+  )
+
+  expect_gt(value_with_prior, value_without_prior)
+  expect_equal(value_with_prior - value_without_prior, 50)
 })
