@@ -29,9 +29,10 @@ outside the calibrated range (e.g., \code{0.95} for 2.5\%/97.5\%).}
 a ggplot or ggplotly object
 }
 \description{
-This function plots the stacked calibration histogram and fitted density. If a \code{path} is
-provided, it instead plots the solar zenith angle histogram derived from \code{tag$twilight} and the
-path, with the calibration density overlaid.
+This function plots the stacked calibration histogram and fitted density, with calibration
+stationary periods labeled as known or fitted anchors. Refined fitted anchors remain labeled as
+fitted. If a \code{path} is provided, it instead plots the solar zenith angle histogram derived from
+\code{tag$twilight} and the path, with the calibration density overlaid.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -65,12 +66,12 @@ plot_twl_calib(tag, path = path, plot_plotly = FALSE)
 
 }
 \seealso{
-Other geolight: 
-\code{\link{geolight_fit_location}()},
-\code{\link{geolight_map}()},
-\code{\link{geolight_solar}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
+Other geolight:
+\code{\link[=geolight_fit_location]{geolight_fit_location()}},
+\code{\link[=geolight_map]{geolight_map()}},
+\code{\link[=geolight_solar]{geolight_solar()}},
+\code{\link[=twilight_create]{twilight_create()}},
+\code{\link[=twilight_label_read]{twilight_label_read()}},
+\code{\link[=twilight_label_write]{twilight_label_write()}}
 }
 \concept{geolight}

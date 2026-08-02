@@ -76,6 +76,11 @@ param_create <- function(id, default = FALSE, ...) {
       geolight_map = list(
         twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
         fitted_location_duration = formals(geolight_map)$fitted_location_duration,
+        zenith_prior_mean = formals(geolight_map)$zenith_prior_mean,
+        zenith_prior_sd = formals(geolight_map)$zenith_prior_sd,
+        zenith_prior_penalty_weight = formals(geolight_map)$zenith_prior_penalty_weight,
+        refine_fitted_location_scale_km = formals(geolight_map)$refine_fitted_location_scale_km,
+        refine_fitted_location_max_iter = formals(geolight_map)$refine_fitted_location_max_iter,
         twl_llp = formals(geolight_map)$twl_llp,
         compute_known = formals(geolight_map)$compute_known
       ),
