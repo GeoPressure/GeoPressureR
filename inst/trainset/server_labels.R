@@ -76,7 +76,10 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
   active_series <- active_series_or_default()
   selected_label <- if (isTRUE(ctrl_pressed)) "" else input$label_select
 
-  if (is.null(selection_range) && (is.null(point_data) || nrow(point_data) == 0 || length(point_data) == 0)) {
+  if (
+    is.null(selection_range) &&
+      (is.null(point_data) || nrow(point_data) == 0 || length(point_data) == 0)
+  ) {
     return()
   }
 
@@ -126,8 +129,10 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
       selection_range$ymax
     }
     point_indices <- which(
-      series_data$date >= xmin & series_data$date <= xmax &
-        series_data$value >= ymin & series_data$value <= ymax
+      series_data$date >= xmin &
+        series_data$date <= xmax &
+        series_data$value >= ymin &
+        series_data$value <= ymax
     )
   } else if (!is.null(point_data$rowIndex) && !all(is.na(point_data$rowIndex))) {
     point_indices <- as.integer(point_data$rowIndex)
@@ -171,7 +176,9 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
 }
 
 process_plotly_event <- function(event_info) {
-  if ((!is.null(event_info$points) && length(event_info$points) > 0) || !is.null(event_info$range)) {
+  if (
+    (!is.null(event_info$points) && length(event_info$points) > 0) || !is.null(event_info$range)
+  ) {
     point_data <- if (!is.null(event_info$points)) points_to_df(event_info$points) else NULL
     apply_labels_to_points(point_data, event_info$ctrlPressed, event_info$range)
   }

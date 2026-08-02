@@ -146,10 +146,16 @@ geolight_refine_location_one <- function(
 geolight_refine_scale <- function(extent, scale_km, map_scale = NULL) {
   target_scale <- min(8, max(1, 2^ceiling(log2(111.32 / scale_km))))
   scales <- unique(c(8, 4, 2, 1, map_scale))
-  valid <- vapply(scales, \(scale) {
-    all(round(c(extent[4] - extent[3], extent[2] - extent[1]) * scale) ==
-      c(extent[4] - extent[3], extent[2] - extent[1]) * scale)
-  }, logical(1))
+  valid <- vapply(
+    scales,
+    \(scale) {
+      all(
+        round(c(extent[4] - extent[3], extent[2] - extent[1]) * scale) ==
+          c(extent[4] - extent[3], extent[2] - extent[1]) * scale
+      )
+    },
+    logical(1)
+  )
   scales <- scales[valid]
   scales[which.min(abs(log(scales / target_scale)))]
 }

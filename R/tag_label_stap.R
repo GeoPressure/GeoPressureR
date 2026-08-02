@@ -177,8 +177,7 @@ find_stap <- function(stap, date) {
     gap_idx <- idx[in_gap]
     gap_len <- start_num[gap_idx + 1] - end_num[gap_idx]
     stap_id[in_gap] <- stap_ref[gap_idx] +
-      (date_num[in_gap] - end_num[gap_idx]) / gap_len *
-      (stap_ref[gap_idx + 1] - stap_ref[gap_idx])
+      (date_num[in_gap] - end_num[gap_idx]) / gap_len * (stap_ref[gap_idx + 1] - stap_ref[gap_idx])
   }
 
   # Check that all date have a stap_id

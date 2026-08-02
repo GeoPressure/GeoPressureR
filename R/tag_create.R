@@ -408,7 +408,7 @@ tag_create_time_shift <- function(tag, time_shift) {
     assertthat::assert_that(!is.null(names(time_shift)))
     assertthat::assert_that(all(names(time_shift) %in% sensors))
     assertthat::assert_that(all(vapply(time_shift, is.numeric, logical(1))))
-    assertthat::assert_that(all(vapply(time_shift, length, integer(1)) == 1))
+    assertthat::assert_that(all(lengths(time_shift) == 1))
 
     shift_by_sensor <- stats::setNames(as.list(rep(0, length(sensors))), sensors)
     shift_by_sensor[names(time_shift)] <- time_shift

@@ -98,8 +98,17 @@ geolight_fit_location <- function(
   )
   assertthat::assert_that(is.numeric(extent), length(extent) == 4L)
   assertthat::assert_that(is.numeric(zenith_bounds), length(zenith_bounds) == 2L)
-  assertthat::assert_that(is.numeric(zenith_prior_mean), length(zenith_prior_mean) == 1L, !is.na(zenith_prior_mean))
-  assertthat::assert_that(is.numeric(zenith_prior_sd), length(zenith_prior_sd) == 1L, !is.na(zenith_prior_sd), zenith_prior_sd > 0)
+  assertthat::assert_that(
+    is.numeric(zenith_prior_mean),
+    length(zenith_prior_mean) == 1L,
+    !is.na(zenith_prior_mean)
+  )
+  assertthat::assert_that(
+    is.numeric(zenith_prior_sd),
+    length(zenith_prior_sd) == 1L,
+    !is.na(zenith_prior_sd),
+    zenith_prior_sd > 0
+  )
 
   # Twilight table and inclusion mask
   twl <- twilight_include(tag$twilight)
