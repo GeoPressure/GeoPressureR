@@ -13,6 +13,9 @@
 #' @param pad padding of the map in degree lat-lon (only for `plot_leaflet = FALSE`).
 #' @param polyline list of parameters passed to `leaflet::addPolylines()`
 #' @param circle list of parameters passed to `leaflet::addCircleMarkers()`
+#' @param group optional Leaflet overlay group name. When supplied, all
+#'   trajectories in `path` can be shown or hidden together while retaining
+#'   separate line geometries for each `j`.
 #'
 #' @return A `leaflet` map when `plot_leaflet = TRUE`, otherwise a `ggplot2` object.
 #'
@@ -53,7 +56,8 @@ plot_path <- function(
   provider_options = leaflet::providerTileOptions(),
   pad = 3,
   polyline = NULL,
-  circle = NULL
+  circle = NULL,
+  group = NULL
 ) {
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("lat", "lon")))
@@ -91,7 +95,8 @@ plot_path <- function(
       provider = provider,
       provider_options = provider_options,
       polyline = polyline,
-      circle = circle
+      circle = circle,
+      group = group
     ))
   }
 
@@ -176,7 +181,8 @@ plot_path_leaflet <- function(
   provider = "Esri.WorldTopoMap",
   provider_options = leaflet::providerTileOptions(),
   polyline = NULL,
-  circle = NULL
+  circle = NULL,
+  group = NULL
 ) {
   polyline <- merge_params(
     list(
@@ -245,6 +251,11 @@ plot_path_leaflet <- function(
     polyline_full$color <- "grey"
 
     for (j in unique_j) {
+      layer_group <- if (is.null(group)) {
+        path$j[path$j == j][1]
+      } else {
+        group
+      }
       map <- do.call(
         leaflet::addPolylines,
         c(
@@ -252,7 +263,7 @@ plot_path_leaflet <- function(
             map = map,
             lng = path_full$lon[path_full$j == j],
             lat = path_full$lat[path_full$j == j],
-            group = path$j[path$j == j]
+            group = layer_group
           ),
           polyline_full
         )
@@ -262,14 +273,19 @@ plot_path_leaflet <- function(
 
   # Overlay with trajectory of consecutive position in black.
   for (j in unique_j) {
+    layer_group <- if (is.null(group)) {
+      path$j[path$j == j][1]
+    } else {
+      group
+    }
     map <- do.call(
       leaflet::addPolylines,
       c(
         list(
-          map = map,
-          lng = path$lon[path$j == j],
-          lat = path$lat[path$j == j],
-          group = path$j[path$j == j]
+            map = map,
+            lng = path$lon[path$j == j],
+            lat = path$lat[path$j == j],
+            group = layer_group
         ),
         polyline
       )
@@ -278,6 +294,7 @@ plot_path_leaflet <- function(
 
   path_full <- path[!is.na(path$lat), ]
   if (nrow(path_full)) {
+    layer_group <- if (is.null(group)) path_full$j else group
     map <- do.call(
       leaflet::addCircleMarkers,
       c(
@@ -285,7 +302,7 @@ plot_path_leaflet <- function(
           map = map,
           lng = path_full$lon,
           lat = path_full$lat,
-          group = path_full$j
+          group = layer_group
         ),
         circle
       )

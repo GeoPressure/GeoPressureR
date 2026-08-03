@@ -12,7 +12,8 @@ plot_path(
   provider_options = leaflet::providerTileOptions(),
   pad = 3,
   polyline = NULL,
-  circle = NULL
+  circle = NULL,
+  group = NULL
 )
 }
 \arguments{
@@ -33,6 +34,10 @@ leaflet::providerTileOptions()}
 \item{polyline}{list of parameters passed to \code{leaflet::addPolylines()}}
 
 \item{circle}{list of parameters passed to \code{leaflet::addCircleMarkers()}}
+
+\item{group}{optional Leaflet overlay group name. When supplied, all
+trajectories in \code{path} can be shown or hidden together while retaining
+separate line geometries for each \code{j}.}
 }
 \value{
 A \code{leaflet} map when \code{plot_leaflet = TRUE}, otherwise a \code{ggplot2} object.
