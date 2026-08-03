@@ -10,6 +10,31 @@ tag_twl <- tag_create("18LX", quiet = TRUE) |>
   twilight_label_read()
 tag_twl_daily <- tag_stap_daily(tag_twl, quiet = TRUE)
 
+test_that("tag_stap_daily() accepts deprecated twl_grouping", {
+  expect_warning(
+    tag_legacy <- tag_stap_daily(tag_twl, twl_grouping = "night", quiet = TRUE),
+    "deprecated"
+  )
+
+  expect_equal(
+    tag_legacy$param$tag_stap_daily$movement_period,
+    "night"
+  )
+})
+
+test_that("tag_stap_daily() accepts deprecated stap0", {
+  stap_long <- data.frame(
+    start = as.POSIXct("2017-07-27 22:55:00", tz = "UTC"),
+    end = as.POSIXct("2017-08-08 23:20:00", tz = "UTC")
+  )
+  expect_warning(
+    tag_legacy <- tag_stap_daily(tag_twl, stap0 = stap_long, quiet = TRUE),
+    "deprecated"
+  )
+
+  expect_true(all(tag_legacy$stap$stap0))
+})
+
 test_that("geolight_fit_location() does not estimate known staps by default", {
   known <- data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
 
