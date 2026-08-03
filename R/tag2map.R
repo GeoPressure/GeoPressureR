@@ -24,10 +24,12 @@ tag2map <- function(tag, likelihood = NULL) {
 
 #' Return a valid likelihood map name
 #
-#' @inheritParams tag2map
+#' @param tag a GeoPressureR `tag` object.
+#' @param likelihood field of the `tag` list containing the likelihood map(s), or a map type name.
 #'
 #' @return Likelihood map name
-#' @noRd
+#' @keywords internal
+#' @export
 tag2likelihood <- function(tag, likelihood = NULL) {
   tag_assert(tag)
   map_types <- map_type()
