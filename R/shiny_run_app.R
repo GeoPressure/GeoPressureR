@@ -7,7 +7,7 @@ callr_run_bg <- function(func, args = list(), ...) {
   callr::r_bg(
     func = function(func, args, package_path, load_from_source) {
       if (load_from_source) {
-        get("load_all", envir = loadNamespace("pkgload"))(
+        pkgload::load_all(
           package_path,
           quiet = TRUE,
           helpers = FALSE,

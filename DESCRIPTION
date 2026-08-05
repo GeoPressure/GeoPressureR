@@ -48,6 +48,7 @@ Suggests:
     rnaturalearth,
     rnaturalearthdata,
     ncdf4,
+    pkgload,
     readxl,
     shiny,
     shinyjs,

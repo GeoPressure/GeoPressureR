@@ -173,6 +173,18 @@
     },
     {
       "@type": "SoftwareApplication",
+      "identifier": "pkgload",
+      "name": "pkgload",
+      "provider": {
+        "@id": "https://cran.r-project.org",
+        "@type": "Organization",
+        "name": "Comprehensive R Archive Network (CRAN)",
+        "url": "https://cran.r-project.org"
+      },
+      "sameAs": "https://CRAN.R-project.org/package=pkgload"
+    },
+    {
+      "@type": "SoftwareApplication",
       "identifier": "readxl",
       "name": "readxl",
       "provider": {
@@ -499,7 +511,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "8427.686KB",
+  "fileSize": "29428.064KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",
