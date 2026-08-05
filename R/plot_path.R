@@ -282,10 +282,10 @@ plot_path_leaflet <- function(
       leaflet::addPolylines,
       c(
         list(
-            map = map,
-            lng = path$lon[path$j == j],
-            lat = path$lat[path$j == j],
-            group = layer_group
+          map = map,
+          lng = path$lon[path$j == j],
+          lat = path$lat[path$j == j],
+          group = layer_group
         ),
         polyline
       )
