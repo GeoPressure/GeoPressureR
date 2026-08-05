@@ -1,4 +1,33 @@
 # nocov start
+# Run a function in a background process with the same GeoPressureR code as the caller.
+callr_run_bg <- function(func, args = list(), ...) {
+  package_path <- getNamespaceInfo(asNamespace("GeoPressureR"), "path")
+  load_from_source <- !file.exists(file.path(package_path, "Meta", "package.rds"))
+
+  callr::r_bg(
+    func = function(func, args, package_path, load_from_source) {
+      if (load_from_source) {
+        get("load_all", envir = loadNamespace("pkgload"))(
+          package_path,
+          quiet = TRUE,
+          helpers = FALSE,
+          export_all = FALSE
+        )
+      } else {
+        loadNamespace("GeoPressureR")
+      }
+      do.call(func, args)
+    },
+    args = list(
+      func = func,
+      args = args,
+      package_path = package_path,
+      load_from_source = load_from_source
+    ),
+    ...
+  )
+}
+
 # Resolve launch.browser handler to the system browser.
 shiny_launch_browser <- function(launch_browser) {
   if (isTRUE(launch_browser)) {
@@ -26,9 +55,8 @@ shiny_run_app_bg <- function(
   proc_id = NULL,
   app_label = "app"
 ) {
-  p <- callr::r_bg(
+  p <- callr_run_bg(
     func = function(app_dir, shiny_opts) {
-      loadNamespace("GeoPressureR")
       do.call(shiny::shinyOptions, shiny_opts)
       shiny::runApp(app_dir)
     },
