@@ -57,7 +57,7 @@ geopressure_map_mismatch <- function(
     S = tag$param$tag_set_map$extent[3],
     N = tag$param$tag_set_map$extent[4],
     scale = tag$param$tag_set_map$scale,
-    max_sample = max_sample,
+    maxSample = max_sample,
     margin = margin,
     includeMask = keep_mask,
     maskThreshold = thr_mask,
