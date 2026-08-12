@@ -110,17 +110,14 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
         )
       },
       error = function(e) {
+        error_call <- if (!is.null(e$parent$call)) e$parent$call else conditionCall(e)
         cli::cli_alert_warning(c(
-          "!" = "Function {.fun geopressure_timeseries} did not work.",
-          "i" = conditionMessage(e)
+          "!" = "The pressure query could not be processed.",
+          "i" = conditionMessage(e),
+          "i" = "Failed call: {error_call}"
         ))
         shiny::showNotification(
-          shiny::HTML(paste0(
-            "Query failed (#",
-            stap_id,
-            ").<br>",
-            shiny::htmlEscape(conditionMessage(e))
-          )),
+          paste0("Query failed (#", stap_id, "): ", conditionMessage(e)),
           type = "error",
           duration = 12
         )
