@@ -53,7 +53,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
       silent = TRUE
     )
 
-    p <- callr::r_bg(
+    p <- GeoPressureR:::callr_run_bg(
       func = function(lat0, lon0, pres_df) {
         GeoPressureR::geopressure_timeseries(lat0, lon0, pressure = pres_df)
       },

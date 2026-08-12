@@ -789,6 +789,9 @@ server <- function(input, output, session) {
     # Update path with potentially corrected lat/lon
     reactVal$path$lon[stap_idx] <- pressuretimeseries$lon[1]
     reactVal$path$lat[stap_idx] <- pressuretimeseries$lat[1]
+    if (!"ind" %in% names(reactVal$path)) {
+      reactVal$path$ind <- NA_integer_
+    }
     reactVal$path$ind[stap_idx] <- latlon2ind(
       pressuretimeseries$lat[1],
       pressuretimeseries$lon[1]
