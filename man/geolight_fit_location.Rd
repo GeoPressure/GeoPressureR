@@ -8,8 +8,10 @@ geolight_fit_location(
   tag,
   fitted_location_duration = Inf,
   extent = NULL,
-  zenith_init = 96,
-  zenith_bounds = c(60, 120),
+  zenith_bounds = c(70, 110),
+  zenith_prior_mean = 93,
+  zenith_prior_sd = 1.3,
+  zenith_prior_penalty_weight = 1e-04,
   compute_known = FALSE,
   quiet = FALSE
 )
@@ -23,9 +25,15 @@ used as a fitted location from twilight times. Default is \code{Inf} (disabled).
 \item{extent}{Numeric vector \code{c(W, E, S, N)} in degrees
 (longitude west/east, latitude south/north).}
 
-\item{zenith_init}{Initial zenith angle (degrees).}
-
 \item{zenith_bounds}{Numeric vector of length 2 giving zenith bounds (degrees).}
+
+\item{zenith_prior_mean}{Gaussian prior mean for fitted zenith angle (degrees).}
+
+\item{zenith_prior_sd}{Gaussian prior standard deviation for fitted zenith angle (degrees).}
+
+\item{zenith_prior_penalty_weight}{Weight controlling how strongly automatically fitted
+locations are pulled toward \code{zenith_prior_mean}. This only affects fitted locations; known
+locations are still used directly when \code{compute_known = FALSE}.}
 
 \item{compute_known}{Logical; if FALSE, known stationary periods are copied from \code{tag$stap}
 (rather than being estimated).}
@@ -46,6 +54,24 @@ Each twilight defines a small circle on the Earth:
 the set of locations at a fixed angular distance (zenith angle) from the
 subsolar point at that time. The fitted location is the point that is, in a
 least-squares sense, closest to all those circles simultaneously.
+
+For a stationary period with twilight-specific subsolar points \code{s_i}, the
+fitted longitude \code{lon}, latitude \code{lat}, and zenith angle \code{z} minimize
+
+mean_i ( d((lon, lat), s_i) - z )^2 + P_prior(z)
+
+where \verb{d((lon, lat), s_i)} is the great-circle angular distance from the
+candidate location to the subsolar point at twilight \code{i}. The first term is
+the mean squared residual to the iso-zenith small circles, normalized by the
+number of twilight events so its influence does not depend on sample size.
+
+\code{P_prior(z)} is an optional Gaussian penalty on the fitted zenith angle:
+
+1/2 * ((z - mu) / sigma)^2
+
+where \code{mu = zenith_prior_mean} and \code{sigma = zenith_prior_sd}. This acts as a
+prior on the effective zenith angle while leaving longitude and latitude
+driven by the twilight geometry.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -59,12 +85,12 @@ path <- geolight_fit_location(tag, fitted_location_duration = 5, quiet = TRUE)
 
 }
 \seealso{
-Other geolight: 
-\code{\link{geolight_map}()},
-\code{\link{geolight_solar}()},
-\code{\link{plot_twl_calib}()},
-\code{\link{twilight_create}()},
-\code{\link{twilight_label_read}()},
-\code{\link{twilight_label_write}()}
+Other geolight:
+\code{\link[=geolight_map]{geolight_map()}},
+\code{\link[=geolight_solar]{geolight_solar()}},
+\code{\link[=plot_twl_calib]{plot_twl_calib()}},
+\code{\link[=twilight_create]{twilight_create()}},
+\code{\link[=twilight_label_read]{twilight_label_read()}},
+\code{\link[=twilight_label_write]{twilight_label_write()}}
 }
 \concept{geolight}

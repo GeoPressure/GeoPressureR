@@ -249,6 +249,77 @@ test_that("tag_create() | tabular csv and in-memory input", {
   expect_equal(tag_in_memory$param$tag_create$pressure_file, "in_memory")
 })
 
+test_that("tag_create() | time_shift scalar shifts all sensors and applies before crop", {
+  dt <- as.POSIXct(
+    c("2017-06-20 00:00:00", "2017-06-20 01:00:00"),
+    tz = "UTC"
+  )
+  pressure <- data.frame(date = dt, value = c(1000, 1001))
+  light <- data.frame(date = dt, value = c(1, 2))
+  acceleration <- data.frame(date = dt, value = c(10, 20))
+  temperature_external <- data.frame(date = dt, value = c(15, 16))
+  temperature_internal <- data.frame(date = dt, value = c(35, 36))
+  magnetic <- data.frame(
+    date = dt,
+    acceleration_x = c(0.1, 0.2),
+    acceleration_y = c(0.3, 0.4),
+    acceleration_z = c(0.5, 0.6),
+    magnetic_x = c(1, 2),
+    magnetic_y = c(3, 4),
+    magnetic_z = c(5, 6)
+  )
+
+  tag <- tag_create(
+    id = "dummy_shift",
+    manufacturer = "tabular",
+    pressure_file = pressure,
+    light_file = light,
+    acceleration_file = acceleration,
+    temperature_external_file = temperature_external,
+    temperature_internal_file = temperature_internal,
+    magnetic_file = magnetic,
+    time_shift = 2,
+    crop_start = "2017-06-20 02:00:00",
+    quiet = TRUE
+  )
+
+  shifted_dt <- dt + 2 * 60 * 60
+  expect_equal(tag$pressure$date, shifted_dt)
+  expect_equal(tag$light$date, shifted_dt)
+  expect_equal(tag$acceleration$date, shifted_dt)
+  expect_equal(tag$temperature_external$date, shifted_dt)
+  expect_equal(tag$temperature_internal$date, shifted_dt)
+  expect_equal(tag$magnetic$date, shifted_dt)
+  expect_equal(tag$param$tag_create$time_shift, 2)
+})
+
+test_that("tag_create() | time_shift named list shifts only selected sensors", {
+  dt <- as.POSIXct(
+    c("2017-06-20 00:00:00", "2017-06-20 01:00:00"),
+    tz = "UTC"
+  )
+  pressure <- data.frame(date = dt, value = c(1000, 1001))
+  light <- data.frame(date = dt, value = c(1, 2))
+  acceleration <- data.frame(date = dt, value = c(10, 20))
+
+  time_shift <- list(pressure = -2, light = 1)
+
+  tag <- tag_create(
+    id = "dummy_shift_list",
+    manufacturer = "tabular",
+    pressure_file = pressure,
+    light_file = light,
+    acceleration_file = acceleration,
+    time_shift = time_shift,
+    quiet = TRUE
+  )
+
+  expect_equal(tag$pressure$date, dt - 2 * 60 * 60)
+  expect_equal(tag$light$date, dt + 60 * 60)
+  expect_equal(tag$acceleration$date, dt)
+  expect_equal(tag$param$tag_create$time_shift, time_shift)
+})
+
 test_that("tag_create_soi() | airtemperature fallback and optional sensors", {
   dir_tmp <- tempfile("gpr-soi-")
   dir.create(dir_tmp, recursive = TRUE)
@@ -299,4 +370,8 @@ test_that("tag_create_soi() | airtemperature fallback and optional sensors", {
 test_that("param_create() | default", {
   expect_no_error(param_create(id = "18LX", extent = c(0, 0, 1, 1)))
   expect_no_error(param_create(id = "18LX", default = TRUE))
+  expect_equal(
+    param_create(id = "18LX", default = TRUE)$tag_create$time_shift,
+    formals(tag_create)$time_shift
+  )
 })

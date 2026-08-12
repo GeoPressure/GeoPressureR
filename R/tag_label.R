@@ -128,43 +128,11 @@ tag_label <- function(
   } else {
     # Check if label has already been tag_set_map
     if (tag_assert(tag, "setmap", "logical")) {
-      if (!quiet) {
-        cli::cli_bullets(c(
-          "!" = "The tag_set_map has already been defined for {.var tag}."
-        ))
-      }
-      choices <- list(
-        "1" = glue::glue("No, return the original `tag`"),
-        "2" = glue::glue(
-          "Yes, read the new label, but start `tag` from scratch"
-        )
-      )
-      res <- if (interactive() && !quiet) {
-        # nocov start
-        as.numeric(names(
-          utils::select.list(
-            choices,
-            title = "How to you want to proceed with the new label file?"
-          )
-        ))
-        # nocov end
-      } else {
-        1
-      }
-
-      if (res == 1) {
-        return(tag)
-      } else if (res == 2) {
-        tag <- tag_create(
-          id = tag$param$id,
-          pressure_file = tag$param$tag_create$pressure_file,
-          light_file = tag$param$tag_create$light_file,
-          acceleration_file = tag$param$tag_create$acceleration_file,
-          crop_start = tag$param$tag_create$crop_start,
-          crop_end = tag$param$tag_create$crop_end,
-          quiet = TRUE
-        )
-      }
+      cli::cli_abort(c(
+        x = "{.fun tag_set_map} has already been run on this {.var tag}.",
+        i = "To use a different label file, restart from your raw data with {.fun tag_create}, then rerun {.fun tag_label} before {.fun tag_set_map}.",
+        ">" = "This avoids reconstructing a {.var tag} from stored parameters in a way that may become inconsistent as {.pkg GeoPressureR} evolves."
+      ))
     }
 
     # If the file exist, read it

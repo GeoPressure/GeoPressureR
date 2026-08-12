@@ -7,14 +7,18 @@
 find_stap(stap, date)
 }
 \arguments{
-\item{stap}{a data.frame with columns \code{start} and \code{end} defining stationary periods.}
+\item{stap}{a data.frame with columns \code{start} and \code{end} defining stationary periods, and
+optionally \code{stap_id}.}
 
 \item{date}{a POSIXct vector of datetimes to map to stationary periods.}
 }
 \value{
-Numeric vector of \code{stap_id} indices (fractional values for in-flight gaps).
+Numeric vector of \code{stap_id} values (fractional values for in-flight gaps).
 }
 \description{
-Find the stationary period corresponding to a date
+When \code{stap} contains a \code{stap_id} column, values are returned on that scale. Otherwise,
+\code{find_stap()} returns row-based indices \code{1:nrow(stap)}. For dates in flight gaps between two
+consecutive stationary periods, the returned value is linearly interpolated between the two
+neighbouring stationary periods, yielding decimal \code{stap_id}.
 }
 \keyword{internal}

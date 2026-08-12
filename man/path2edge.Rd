@@ -47,10 +47,10 @@ edges can be useful to extract flight information specific to a path.
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html#extract-flight-information}{GeoPressureManual}
 
-Other path: 
-\code{\link{path2elevation}()},
-\code{\link{path2twilight}()},
-\code{\link{plot_path}()},
-\code{\link{tag2path}()}
+Other path:
+\code{\link[=path2elevation]{path2elevation()}},
+\code{\link[=path2twilight]{path2twilight()}},
+\code{\link[=plot_path]{plot_path()}},
+\code{\link[=tag2path]{tag2path()}}
 }
 \concept{path}

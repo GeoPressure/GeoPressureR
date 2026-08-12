@@ -34,10 +34,10 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/tag-object.html#read-labelled-file}{GeoPressureManual}
 
-Other tag_label: 
-\code{\link{tag_label}()},
-\code{\link{tag_label_auto}()},
-\code{\link{tag_label_stap}()},
-\code{\link{tag_label_write}()}
+Other tag_label:
+\code{\link[=tag_label]{tag_label()}},
+\code{\link[=tag_label_auto]{tag_label_auto()}},
+\code{\link[=tag_label_stap]{tag_label_stap()}},
+\code{\link[=tag_label_write]{tag_label_write()}}
 }
 \concept{tag_label}

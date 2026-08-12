@@ -25,7 +25,7 @@ print(param)
 
 }
 \seealso{
-Other param: 
-\code{\link{param_create}()}
+Other param:
+\code{\link[=param_create]{param_create()}}
 }
 \concept{param}

@@ -29,7 +29,9 @@ The most commonly used variables:\code{"altitude"}, \code{"surface_pressure"}, \
 All variables can be listed with \code{GeoPressureR:::pressurepath_variable}.}
 
 \item{solar_dep}{a numerical value representing the solar depression angle used to compute
-sunrise and sunset. If \code{NULL}, does not compute sunrise sunset.}
+sunrise and sunset. The corresponding solar elevation threshold is \code{-solar_dep}, and the
+equivalent solar zenith angle is \code{90 + solar_dep} (e.g. \code{solar_dep = 6} corresponds to
+zenith angle 96°). If \code{NULL}, does not compute sunrise sunset.}
 
 \item{era5_dataset}{select the dataset to use: \code{"single-levels"} for ERA5 hourly data on single
 levels (\doi{10.24381/cds.adbb2d47}), \code{"land"} for ERA5-Land hourly data
@@ -102,7 +104,8 @@ the tag mean pressure measurement as \code{surface_pressure_norm}.
 
 \code{pressurepath_create()} also computes the local sunrise and sunset times for each timestep
 according to the position of the path using \code{path2twilight()}. Sunrise and sunset are defined
-by the solar depression angle \code{solar_dep}.
+by the solar depression angle \code{solar_dep}, with solar elevation threshold \code{-solar_dep} and
+equivalent solar zenith angle \code{90 + solar_dep}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -132,8 +135,8 @@ plot_pressurepath(pressurepath)
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/pressure-map.html}{GeoPressureManual | Pressure Map}
 
-Other pressurepath: 
-\code{\link{geopressure_timeseries}()},
-\code{\link{plot_pressurepath}()}
+Other pressurepath:
+\code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
+\code{\link[=plot_pressurepath]{plot_pressurepath()}}
 }
 \concept{pressurepath}

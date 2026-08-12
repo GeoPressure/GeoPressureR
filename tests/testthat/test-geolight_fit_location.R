@@ -10,6 +10,31 @@ tag_twl <- tag_create("18LX", quiet = TRUE) |>
   twilight_label_read()
 tag_twl_daily <- tag_stap_daily(tag_twl, quiet = TRUE)
 
+test_that("tag_stap_daily() accepts deprecated twl_grouping", {
+  expect_warning(
+    tag_legacy <- tag_stap_daily(tag_twl, twl_grouping = "night", quiet = TRUE),
+    "deprecated"
+  )
+
+  expect_equal(
+    tag_legacy$param$tag_stap_daily$movement_period,
+    "night"
+  )
+})
+
+test_that("tag_stap_daily() accepts deprecated stap0", {
+  stap_long <- data.frame(
+    start = as.POSIXct("2017-07-27 22:55:00", tz = "UTC"),
+    end = as.POSIXct("2017-08-08 23:20:00", tz = "UTC")
+  )
+  expect_warning(
+    tag_legacy <- tag_stap_daily(tag_twl, stap0 = stap_long, quiet = TRUE),
+    "deprecated"
+  )
+
+  expect_true(all(tag_legacy$stap$stap0))
+})
+
 test_that("geolight_fit_location() does not estimate known staps by default", {
   known <- data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
 
@@ -20,9 +45,7 @@ test_that("geolight_fit_location() does not estimate known staps by default", {
       known = known
     )
 
-  expect_warning({
-    path <- geolight_fit_location(tag, fitted_location_duration = 0)
-  })
+  path <- geolight_fit_location(tag, fitted_location_duration = 0, quiet = TRUE)
 
   known_row <- path[path$stap_id == 1, ]
   expect_true(is.na(known_row$zenith))
@@ -36,4 +59,39 @@ test_that("geolight_fit_location() works without known columns in stap", {
   )
 
   expect_true(all(c("known_lon", "known_lat", "lon", "lat", "zenith") %in% names(path)))
+})
+
+test_that("geolight_fit_location() requires numeric zenith-prior parameters", {
+  expect_error(
+    geolight_fit_location(
+      tag_twl_daily,
+      fitted_location_duration = 5,
+      zenith_prior_mean = NULL,
+      quiet = TRUE
+    )
+  )
+})
+
+test_that("geolight_fit_location_objective() applies zenith prior penalty", {
+  tt <- as.POSIXct("2023-06-20 00:15:00", tz = "UTC")
+  sun <- geolight_solar_constants(tt)
+  par <- c(70, 70, 80)
+
+  value_without_prior <- geolight_fit_location_objective(
+    par = par,
+    sun = sun,
+    zenith_prior_mean = 80,
+    zenith_prior_sd = 1,
+    zenith_prior_penalty_weight = 0
+  )
+  value_with_prior <- geolight_fit_location_objective(
+    par = par,
+    sun = sun,
+    zenith_prior_mean = 90,
+    zenith_prior_sd = 1,
+    zenith_prior_penalty_weight = 1
+  )
+
+  expect_gt(value_with_prior, value_without_prior)
+  expect_equal(value_with_prior - value_without_prior, 50)
 })

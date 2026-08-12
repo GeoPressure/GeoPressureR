@@ -43,6 +43,12 @@ geolightviz <- function(
 
   tag_assert(tag, "twilight")
 
+  if (!is.null(stapath)) {
+    stapath <- geolightviz_normalize_stap_id(stapath)
+  } else if ("stap" %in% names(tag)) {
+    tag$stap <- geolightviz_normalize_stap_id(tag$stap)
+  }
+
   # Build light and twilight traces for the app.
   light_trace <- light_matrix(tag)
 
@@ -99,6 +105,25 @@ geolightviz <- function(
     launch_browser = launch_browser
   )
   # nocov end
+}
+
+#' @noRd
+geolightviz_normalize_stap_id <- function(stapath) {
+  if (!("stap_id" %in% names(stapath))) {
+    return(stapath)
+  }
+
+  n <- nrow(stapath)
+  if (isTRUE(all.equal(as.numeric(stapath$stap_id), seq_len(n)))) {
+    return(stapath)
+  }
+
+  cli::cli_warn(
+    "GeoLightViz renumbered {.field stap_id} to {.val 1}:{.val {n}} for navigation and editing compatibility."
+  )
+  stapath$stap_id <- seq_len(n)
+
+  stapath
 }
 
 #' @noRd

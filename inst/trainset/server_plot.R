@@ -450,11 +450,11 @@ shiny::observeEvent(input$plotly_relayout_xrange, {
     return()
   }
 
-  if (is.null(ev$xmin_ms) || is.null(ev$xmax_ms) || is.na(ev$xmin_ms) || is.na(ev$xmax_ms)) {
+  if (is.null(xmin_ms) || is.null(xmax_ms) || is.na(xmin_ms) || is.na(xmax_ms)) {
     return()
   }
 
-  xmin <- as.POSIXct(ev$xmin_ms / 1000, origin = "1970-01-01", tz = time_tz)
-  xmax <- as.POSIXct(ev$xmax_ms / 1000, origin = "1970-01-01", tz = time_tz)
+  xmin <- as.POSIXct(xmin_ms / 1000, origin = "1970-01-01", tz = time_tz)
+  xmax <- as.POSIXct(xmax_ms / 1000, origin = "1970-01-01", tz = time_tz)
   refresh_detail_traces(xmin, xmax)
 })

@@ -127,6 +127,15 @@ Otherwise, assume correct usage.
 - Do not add documentation (roxygen, README, vignettes) unless requested.
 
 
+## Mandatory CI checks
+- Before committing or pushing agent-made changes, run from the repository root:
+  - `air format . --check`
+  - `jarl check .`
+- Both commands must pass with no warnings or errors introduced by the changes.
+- Fix failures before committing or pushing; do not defer them to CI.
+- Never use `:::` in package code. Call internal GeoPressureR functions directly and exported functions with `::` when a namespace qualifier is needed.
+
+
 ## Hard constraints (never do)
 - Do not introduce new dependencies
 - Do not add unnecessary validation

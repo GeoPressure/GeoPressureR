@@ -11,7 +11,8 @@ geolight_calibrate(twl, calib_stap, twl_calib_adjust = 1.4)
 
 \item{calib_stap}{a stationary period data.frame with calibration locations. Must contain
 the columns \code{known_lat}, \code{known_lon}, \code{start}, and \code{end}. This can include both true known
-locations and estimated (fitted) locations.}
+locations and estimated (fitted) locations. When produced by \code{geolight_map_calibrate()},
+\code{calib_type} records whether each calibration anchor is \code{"known"} or \code{"fitted"}.}
 
 \item{twl_calib_adjust}{smoothing parameter for the kernel density (see \code{\link[stats:density]{stats::density()}}).}
 }

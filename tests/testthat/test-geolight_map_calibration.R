@@ -43,6 +43,7 @@ assert_twl_calib <- function(tag) {
       "stap_id",
       "known_lat",
       "known_lon",
+      "calib_type",
       "start",
       "end"
     ) %in%
@@ -50,6 +51,7 @@ assert_twl_calib <- function(tag) {
   ))
   expect_true(!anyNA(twl_calib$calib_stap$known_lat))
   expect_true(!anyNA(twl_calib$calib_stap$known_lon))
+  expect_true(all(twl_calib$calib_stap$calib_type %in% c("known", "fitted")))
 }
 
 test_that("geolight_map_calibrate() with known locations", {
@@ -58,13 +60,94 @@ test_that("geolight_map_calibrate() with known locations", {
   assert_twl_calib(tag)
 })
 
-test_that("geolight_map_calibrate() with fixed locations", {
+test_that("geolight_map_calibrate() with fitted locations", {
   tag <- make_tag_for_calib(with_known = FALSE)
-  tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = 0, quiet = TRUE))
+  tag <- expect_no_error(geolight_map_calibrate(
+    tag,
+    fitted_location_duration = 0,
+    refine_fitted_location_max_iter = 0,
+    quiet = TRUE
+  ))
   assert_twl_calib(tag)
+  expect_equal(tag$param$geolight_map$refine_fitted_location_max_iter, 0)
 })
 
-test_that("geolight_map_calibrate() with combined known and fixed", {
+test_that("geolight_map_calibrate() stores fitted-location prior parameters", {
+  tag <- make_tag_for_calib(with_known = FALSE)
+  tag <- geolight_map_calibrate(
+    tag,
+    fitted_location_duration = 0,
+    zenith_prior_mean = 93,
+    zenith_prior_sd = 1.3,
+    zenith_prior_penalty_weight = 1e-2,
+    quiet = TRUE
+  )
+
+  expect_equal(tag$param$geolight_map$zenith_prior_mean, 93)
+  expect_equal(tag$param$geolight_map$zenith_prior_sd, 1.3)
+  expect_equal(tag$param$geolight_map$zenith_prior_penalty_weight, 1e-2)
+})
+
+test_that("geolight refinement uses local target-resolution grids", {
+  extent <- c(-16, 23, 0, 50)
+  extent_local <- geolight_refine_extent(
+    lon = 17,
+    lat = 49,
+    radius_lat_km = 200,
+    radius_lon_km = 100,
+    extent = extent,
+    scale = geolight_refine_scale(extent, 20)
+  )
+
+  expect_equal(geolight_refine_scale(extent, 20), 8)
+  expect_equal(geolight_refine_scale(extent, 40), 4)
+  expect_lt(prod(c(extent_local[4] - extent_local[3], extent_local[2] - extent_local[1])), 39 * 50)
+  expect_no_error(map_expand(extent_local, geolight_refine_scale(extent, 20)))
+
+  extent_scale_3 <- c(0, 1 / 3, 0, 1 / 3)
+  expect_equal(geolight_refine_scale(extent_scale_3, 20, map_scale = 3), 3)
+  expect_no_error(map_expand(extent_scale_3, geolight_refine_scale(extent_scale_3, 20, 3)))
+})
+
+test_that("geolight_map_calibrate() refines fitted locations when requested", {
+  tag <- make_tag_for_calib(with_known = FALSE)
+  tag <- expect_no_error(geolight_map_calibrate(
+    tag,
+    fitted_location_duration = 0,
+    refine_fitted_location_scale_km = 20,
+    refine_fitted_location_max_iter = 2,
+    quiet = TRUE
+  ))
+
+  assert_twl_calib(tag)
+  expect_equal(tag$param$geolight_map$refine_fitted_location_scale_km, 20)
+  expect_equal(tag$param$geolight_map$refine_fitted_location_max_iter, 2)
+
+  calib_stap <- tag$param$geolight_map$twl_calib$calib_stap
+  expect_true(all(is.finite(calib_stap$known_lon)))
+  expect_true(all(is.finite(calib_stap$known_lat)))
+  expect_true(all(is.na(calib_stap$zenith)))
+  expect_true(all(calib_stap$calib_type == "fitted"))
+  expect_equal(calib_stap$stap_id, tag$stap$stap_id)
+})
+
+test_that("geolight_map_calibrate() keeps known locations fixed during refinement", {
+  tag <- make_tag_for_calib(with_known = TRUE)
+  tag <- expect_no_error(geolight_map_calibrate(
+    tag,
+    fitted_location_duration = Inf,
+    refine_fitted_location_max_iter = 2,
+    quiet = TRUE
+  ))
+
+  calib_stap <- tag$param$geolight_map$twl_calib$calib_stap
+  expect_equal(calib_stap$known_lon[calib_stap$stap_id == 1], 17.05)
+  expect_equal(calib_stap$known_lat[calib_stap$stap_id == 1], 48.9)
+  expect_equal(calib_stap$calib_type[calib_stap$stap_id == 1], "known")
+  expect_equal(tag$param$geolight_map$refine_fitted_location_max_iter, 2)
+})
+
+test_that("geolight_map_calibrate() with combined known and fitted locations", {
   tag <- make_tag_for_calib(with_known = TRUE)
   tag <- expect_no_error(geolight_map_calibrate(tag, fitted_location_duration = 0, quiet = TRUE))
   assert_twl_calib(tag)

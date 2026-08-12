@@ -225,31 +225,32 @@ geopressure_timeseries <- function(
       cli::cli_progress_step("Compute normalized ERA5 pressure")
     }
 
-    # Use a merge to combine all information possible from out into pressure.
-    out <- merge(pressure, out, all.x = TRUE)
+    # Add default metadata before merging to preserve these columns in the output.
+    pressure_merge <- pressure
+    if (!("stap_id" %in% names(pressure_merge))) {
+      pressure_merge$stap_id <- 1
+    }
+    if (!("label" %in% names(pressure_merge))) {
+      pressure_merge$label <- ""
+    }
+    out <- merge(pressure_merge, out, all.x = TRUE)
     names(out)[names(out) == "value"] <- "pressure_tag"
 
-    # find when the bird was in flight or not to be considered
-    if (!("stap_id" %in% names(pressure))) {
-      pressure$stap_id <- 1
-    }
-    if (!("label" %in% names(pressure))) {
-      pressure$label <- ""
-    }
-    # We compute the mean pressure of the geolocator only when the bird is on the ground
-    # (id_q==0) and when not labelled as flight or discard
-    id_norm <- pressure$stap_id != 0 & pressure$label != "discard"
+    # Use merged metadata so normalization masks stay aligned with `out` rows.
+    stap_id <- if ("stap_id" %in% names(out)) out$stap_id else rep(1, nrow(out))
+    label <- if ("label" %in% names(out)) out$label else rep("", nrow(out))
+    # Normalize only non-flight observations that are not marked as discarded.
+    id_norm <- stap_id != 0 & label != "discard"
     # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
     if (sum(id_norm) > 0) {
-      pressure$elev <- ifelse(
-        startsWith(pressure$label, "elev_"),
-        gsub("^.*?elev_", "", pressure$label),
+      elev <- ifelse(
+        startsWith(label, "elev_"),
+        gsub("^.*?elev_", "", label),
         "0"
       )
-      elev <- unique(pressure$elev)
-      for (elev_i in elev) {
-        id_elev <- pressure$elev == elev_i
-        pressure_tag_m <- mean(pressure$value[id_elev & id_norm])
+      for (elev_i in unique(elev)) {
+        id_elev <- elev == elev_i
+        pressure_tag_m <- mean(out$pressure_tag[id_elev & id_norm])
         surface_pressure_m <- mean(out$surface_pressure[id_elev & id_norm])
         out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] -
           surface_pressure_m +

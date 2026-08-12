@@ -12,7 +12,8 @@
 #' - `lk_sparse`: list of sparse likelihood entries (`idx`, `prob`) for included staps.
 #' - `likelihood`: resolved likelihood field(s).
 #'
-#' @noRd
+#' @keywords internal
+#' @export
 tag_prepare_likelihood <- function(
   tag,
   likelihood = NULL,

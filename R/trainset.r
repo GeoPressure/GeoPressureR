@@ -103,6 +103,13 @@ trainset <- function(
     cli::cli_abort("{.arg x} must be a {.cls tag} or a single character string (file path or id)")
   }
 
+  # Labels can change stationary periods, so map settings and outputs are no longer valid.
+  if (tag_assert(tag, "setmap", "logical")) {
+    tag$param$tag_set_map <- NULL
+    tag[grepl("^map_", names(tag))] <- NULL
+    tag$mask_water <- NULL
+  }
+
   label_dir <- normalizePath(label_dir, mustWork = FALSE)
 
   # nocov start

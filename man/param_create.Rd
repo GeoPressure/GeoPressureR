@@ -30,7 +30,7 @@ print(param)
 
 }
 \seealso{
-Other param: 
-\code{\link{print.param}()}
+Other param:
+\code{\link[=print.param]{print.param()}}
 }
 \concept{param}

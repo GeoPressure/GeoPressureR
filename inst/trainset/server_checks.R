@@ -439,15 +439,24 @@ check_results_ui <- function(
 }
 
 show_check_modal <- function() {
-  shiny::showModal(
-    shiny::modalDialog(
-      title = "Checks",
-      easyClose = TRUE,
-      size = "l",
-      shiny::uiOutput("check_modal_results"),
-      footer = NULL
-    )
+  modal <- shiny::modalDialog(
+    title = shiny::div(
+      class = "d-flex align-items-center justify-content-between w-100",
+      shiny::span("Checks"),
+      shiny::tags$button(
+        type = "button",
+        class = "btn-close",
+        title = "Close",
+        onclick = "Shiny.setInputValue('check_close', Date.now(), {priority: 'event'});"
+      )
+    ),
+    easyClose = TRUE,
+    size = "l",
+    shiny::uiOutput("check_modal_results"),
+    footer = NULL
   )
+  modal$attribs$class <- paste(modal$attribs$class, "check-modal")
+  shiny::showModal(modal)
 }
 
 output$check_modal_results <- shiny::renderUI({
@@ -491,6 +500,10 @@ output$check_modal_results <- shiny::renderUI({
 shiny::observeEvent(input$check_btn, {
   refresh_stap_state()
   show_check_modal()
+})
+
+shiny::observeEvent(input$check_close, {
+  shiny::removeModal()
 })
 
 set_check_threshold <- function(input_value, state_name) {

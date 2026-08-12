@@ -53,14 +53,14 @@ bird_create("Madynuss nutshell", mass = 8, wing_span = 0.2, wing_aspect = 4)
 
 }
 \seealso{
-Other bird: 
-\code{\link{print.bird}()}
+Other bird:
+\code{\link[=print.bird]{print.bird()}}
 
-Other movement: 
-\code{\link{graph_set_movement}()},
-\code{\link{plot_graph_movement}()},
-\code{\link{speed2prob}()},
-\code{\link{tag_download_wind}()}
+Other movement:
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=plot_graph_movement]{plot_graph_movement()}},
+\code{\link[=speed2prob]{speed2prob()}},
+\code{\link[=tag_download_wind]{tag_download_wind()}}
 }
 \concept{bird}
 \concept{movement}

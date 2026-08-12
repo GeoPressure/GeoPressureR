@@ -14,13 +14,18 @@
 #' @param ne_scale Natural Earth resolution passed to
 #'   `rnaturalearth::ne_countries(scale = ...)`. Valid values are `"small"`,
 #'   `"medium"`, `"large"` or `c(110, 50, 10)`. Default is `"medium"`.
+#' @param land_threshold Numeric threshold used to classify pixels as water from
+#'   the rasterized land fraction. Pixels with land fraction at or below
+#'   `land_threshold` are marked as water. Use `0` for a conservative mask where
+#'   any land in a pixel makes it land.
 #'
 #' @return A `map` object with `mask_water` added as a logical matrix.
 #'
 #' @details
 #' The coastline data is rasterized to match the map's grid (defined by `extent` and
-#' `scale` from the map). For `"large"`/`10` resolution, `rnaturalearthhires` is used
-#' by `rnaturalearth` when available.
+#' `scale` from the map). `land_threshold` controls how much land can be present
+#' in a pixel before it is treated as land in `map$mask_water`. For `"large"`/`10`
+#' resolution, `rnaturalearthhires` is used by `rnaturalearth` when available.
 #'
 #' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -48,7 +53,7 @@
 #'
 #' @family map
 #' @export
-map_add_mask_water <- function(map, ne_scale = "medium") {
+map_add_mask_water <- function(map, ne_scale = "medium", land_threshold = 0) {
   if (!requireNamespace("rnaturalearth", quietly = TRUE)) {
     cli::cli_abort(c(
       "x" = "Package {.pkg rnaturalearth} is required for {.fun map_add_mask_water}.",
@@ -66,7 +71,8 @@ map_add_mask_water <- function(map, ne_scale = "medium") {
   map$mask_water <- mask_water(
     extent = map$extent,
     scale = map$scale,
-    ne_scale = ne_scale
+    ne_scale = ne_scale,
+    land_threshold = land_threshold
   )
 
   map
@@ -102,7 +108,7 @@ map_add_mask_water <- function(map, ne_scale = "medium") {
 #' )
 #' terra::plot(terra::vect(land), add = TRUE, border = "black", col = NA, lwd = 0.5)
 #' @noRd
-mask_water <- function(extent, scale, ne_scale = "medium") {
+mask_water <- function(extent, scale, ne_scale = "medium", land_threshold = 0) {
   # Validate inputs using map_expand (it will check extent and scale)
   g <- map_expand(extent, scale)
 
@@ -139,6 +145,8 @@ mask_water <- function(extent, scale, ne_scale = "medium") {
     background = 0
   )
 
-  # Convert to matrix and return logical when water
-  terra::as.matrix(r_land, wide = TRUE) == 0
+  # Convert to matrix and return logical when land fraction is at or below land_threshold
+  land_fraction <- terra::as.matrix(r_land, wide = TRUE)
+
+  land_fraction <= land_threshold
 }

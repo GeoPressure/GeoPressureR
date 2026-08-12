@@ -1,8 +1,9 @@
 #' Plot twilight calibration diagnostics
 #'
-#' This function plots the stacked calibration histogram and fitted density. If a `path` is
-#' provided, it instead plots the solar zenith angle histogram derived from `tag$twilight` and the
-#' path, with the calibration density overlaid.
+#' This function plots the stacked calibration histogram and fitted density, with calibration
+#' stationary periods labeled as known or fitted anchors. Refined fitted anchors remain labeled as
+#' fitted. If a `path` is provided, it instead plots the solar zenith angle histogram derived from
+#' `tag$twilight` and the path, with the calibration density overlaid.
 #'
 #' @param x a GeoPressureR `twl_calib` object or a `tag` object with calibration.
 #' @param tag a GeoPressureR `tag` object with twilight calibration (used by
@@ -79,10 +80,14 @@ plot_twl_calib <- function(
 
   stap <- twl_calib$calib_stap
   stap$duration <- stap2duration(stap)
+  if (!"calib_type" %in% names(stap)) {
+    zenith <- if ("zenith" %in% names(stap)) stap$zenith else rep(NA_real_, nrow(stap))
+    stap$calib_type <- ifelse(is.na(zenith), "known", "fitted")
+  }
   stap$label <- glue::glue(
-    "#{stap$stap_id} ({format(round(stap$duration), trim = TRUE)}d) {ifelse(is.na(stap$zenith), 'known', 'fitted')}"
+    "#{stap$stap_id} ({format(round(stap$duration), trim = TRUE)}d) {stap$calib_type}"
   )
-  stap_type <- ifelse(is.na(stap$zenith), "known", "fitted")
+  stap_type <- stap$calib_type
   names(stap_type) <- as.character(stap$stap_id)
 
   stap_label <- stap$label[match(names(twl_calib$hist_counts), stap$stap_id)]

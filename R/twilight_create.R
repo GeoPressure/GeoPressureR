@@ -95,6 +95,7 @@ twilight_create <- function(
   id_sr_r <- id_sr + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   # check that this value was measured and above the threshold
   id <- mat$value[id_sr_r] >= twl_thr
+  id <- !is.na(id) & id
   id_sr <- id_sr[id]
   id_sr_r <- id_sr_r[id]
   if (any(stats::na.omit(id_sr) == 1)) {
@@ -113,6 +114,7 @@ twilight_create <- function(
   id_ss_s <- id_ss + (seq_len(dim(l)[2]) - 1) * dim(l)[1]
   # check that this value was measured and above the threshold
   id <- mat$value[id_ss_s + 1] >= twl_thr
+  id <- !is.na(id) & id
   id_ss_s <- id_ss_s[id]
   id_ss <- id_ss[id]
   if (any(stats::na.omit(id_ss) == dim(l)[1])) {

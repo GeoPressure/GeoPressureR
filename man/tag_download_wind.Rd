@@ -49,15 +49,21 @@ to the service. Most ECMWF services are limited to 20 concurrent requests
 \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}}
 
 \item{...}{
-  Arguments passed on to \code{\link[ecmwfr:wf_request]{ecmwfr::wf_request_batch}}
+  Arguments passed on to \code{\link[ecmwfr:wf_request_batch]{ecmwfr::wf_request_batch}}
   \describe{
+    \item{\code{request}}{nested list with query parameters following the layout
+as specified on the ECMWF APIs page}
     \item{\code{user}}{user (default = "ecmwf") provided by the ECMWF data service,
 used to retrieve the token set by \code{\link[ecmwfr]{wf_set_key}}}
+    \item{\code{transfer}}{logical, download data TRUE or FALSE (default = TRUE)}
     \item{\code{path}}{path were to store the downloaded data}
     \item{\code{time_out}}{how long to wait on a download to start (default =
 \code{3600} seconds).}
     \item{\code{retry}}{polling frequency of submitted request for downloading (default =
 \code{30} seconds).}
+    \item{\code{job_name}}{optional name to use as an RStudio job and as output variable
+name. It has to be a syntactically valid name.}
+    \item{\code{verbose}}{show feedback on processing}
     \item{\code{request_list}}{a list of requests that will be processed in parallel.}
     \item{\code{total_timeout}}{overall timeout limit for all the requests in seconds.}
   }}
@@ -96,10 +102,10 @@ More information \href{https://geopressure.org/GeoPressureManual/geopressuretemp
 \href{https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html}{\code{wf_request_batch()} },
 \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual }
 
-Other movement: 
-\code{\link{bird_create}()},
-\code{\link{graph_set_movement}()},
-\code{\link{plot_graph_movement}()},
-\code{\link{speed2prob}()}
+Other movement:
+\code{\link[=bird_create]{bird_create()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=plot_graph_movement]{plot_graph_movement()}},
+\code{\link[=speed2prob]{speed2prob()}}
 }
 \concept{movement}

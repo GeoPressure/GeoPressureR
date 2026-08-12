@@ -4,7 +4,7 @@
 \alias{map_add_mask_water}
 \title{Create water mask for geolight map}
 \usage{
-map_add_mask_water(map, ne_scale = "medium")
+map_add_mask_water(map, ne_scale = "medium", land_threshold = 0)
 }
 \arguments{
 \item{map}{a GeoPressureR \code{map} object from \code{geolight_map}.}
@@ -12,6 +12,11 @@ map_add_mask_water(map, ne_scale = "medium")
 \item{ne_scale}{Natural Earth resolution passed to
 \code{rnaturalearth::ne_countries(scale = ...)}. Valid values are \code{"small"},
 \code{"medium"}, \code{"large"} or \code{c(110, 50, 10)}. Default is \code{"medium"}.}
+
+\item{land_threshold}{Numeric threshold used to classify pixels as water from
+the rasterized land fraction. Pixels with land fraction at or below
+\code{land_threshold} are marked as water. Use \code{0} for a conservative mask where
+any land in a pixel makes it land.}
 }
 \value{
 A \code{map} object with \code{mask_water} added as a logical matrix.
@@ -28,8 +33,9 @@ islands; the mask then flags the remaining pixels as water.
 }
 \details{
 The coastline data is rasterized to match the map's grid (defined by \code{extent} and
-\code{scale} from the map). For \code{"large"}/\code{10} resolution, \code{rnaturalearthhires} is used
-by \code{rnaturalearth} when available.
+\code{scale} from the map). \code{land_threshold} controls how much land can be present
+in a pixel before it is treated as land in \code{map$mask_water}. For \code{"large"}/\code{10}
+resolution, \code{rnaturalearthhires} is used by \code{rnaturalearth} when available.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
@@ -58,9 +64,9 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other map: 
-\code{\link{map_create}()},
-\code{\link{print.map}()},
-\code{\link{rast.map}()}
+Other map:
+\code{\link[=map_create]{map_create()}},
+\code{\link[=print.map]{print.map()}},
+\code{\link[=rast.map]{rast.map()}}
 }
 \concept{map}

@@ -7,6 +7,22 @@ test_with_extdata()
 test_that("twilight_create() runs and outputs expected structure", {
   tag <- tag_create("18LX", quiet = TRUE)
   expect_no_error(plot_tag_twilight(tag))
+  twilight_line <- data.frame(
+    twilight = as.POSIXct(
+      c(
+        "2017-08-01 05:30:00",
+        "2017-08-01 20:30:00",
+        "2017-08-03 05:40:00",
+        "2017-08-03 20:20:00",
+        "2017-08-06 05:50:00",
+        "2017-08-06 20:10:00"
+      ),
+      tz = "UTC"
+    ),
+    rise = c(TRUE, FALSE, TRUE, FALSE, TRUE, FALSE),
+    stap_id = c(2, 2, 3.4, 3.4, 7, 7)
+  )
+  expect_no_error(plot_tag_twilight(tag, twilight_line = twilight_line))
   tag <- twilight_create(tag)
 
   expect_true(all(c("twilight", "rise") %in% names(tag$twilight)))

@@ -8,13 +8,16 @@
 #'
 #' By default (`solar_dep=0`), the computation returns sunrise and sunset. But, it is also possible
 #' to compute different twilights by setting depression angle value greater than 0 (6° for civil,
-#' 12° for nautical and 18° for astronomical).
+#' 12° for nautical and 18° for astronomical). The corresponding solar elevation threshold is
+#' `-solar_dep`, and the equivalent solar zenith angle is `90 + solar_dep`.
 #'
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame
 #' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
 #' uses the range of `path$date` provided.
 #' @param solar_dep a numerical value representing the solar depression angle used to compute
-#' sunrise and sunset.
+#' sunrise and sunset. The corresponding solar elevation threshold is `-solar_dep`, and the
+#' equivalent solar zenith angle is `90 + solar_dep` (e.g. `solar_dep = 6` corresponds to
+#' zenith angle 96°).
 #' @param return_long logical defining the format of the data.frame returned. If `TRUE`, returns the
 #' long format identical to `twilight_create()`. If `FALSE`, return the sunrise and sunset as
 #' different column, making the data.frame the same size as `date`.
@@ -100,17 +103,23 @@ path2twilight <- function(
         by = "day"
       )
 
-      # Filtering dates for only those in path: WHY DOING THIS? I want to keep the twilight during
-      # the flight (e.g. overday flight are excluded)
-      # date <- date[sapply(date, function(d) { any(d >= path$start & d <= path$end) })]
+      # Keep only dates covered by a path segment, with 1-day padding at each boundary.
+      pad <- 60 * 60 * 24
+      keep <- rowSums(
+        outer(as.numeric(date), as.numeric(path$start) - pad, `>=`) &
+          outer(as.numeric(date), as.numeric(path$end) + pad, `<=`)
+      )
+      date <- date[keep > 0]
     }
 
+    # Use row-based indices to extract coordinates, and path stap_id values for the returned output.
+    path_row <- find_stap(path[, c("start", "end"), drop = FALSE], date)
     stap_id <- find_stap(path, date)
 
     twl <- data.frame(
       date = date,
-      lon = path$lon[round(stap_id)],
-      lat = path$lat[round(stap_id)],
+      lon = path$lon[round(path_row)],
+      lat = path$lat[round(path_row)],
       stap_id = stap_id
     )
   }
@@ -170,7 +179,7 @@ path2twilight <- function(
     )
 
     # Sort by twilight date/time
-    out <- out[order(out$twilight), ]
+    out <- out[order(out$date), ]
 
     return(out)
   } else {

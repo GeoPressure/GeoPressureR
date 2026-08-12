@@ -99,19 +99,19 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \doi{10.1111/2041-210X.14082}.}
 }
 \seealso{
-Other graph: 
-\code{\link{graph_add_wind}()},
-\code{\link{graph_create}()},
-\code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_simulation}()},
-\code{\link{print.graph}()}
+Other graph:
+\code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_create]{graph_create()}},
+\code{\link[=graph_marginal]{graph_marginal()}},
+\code{\link[=graph_most_likely]{graph_most_likely()}},
+\code{\link[=graph_simulation]{graph_simulation()}},
+\code{\link[=print.graph]{print.graph()}}
 
-Other movement: 
-\code{\link{bird_create}()},
-\code{\link{plot_graph_movement}()},
-\code{\link{speed2prob}()},
-\code{\link{tag_download_wind}()}
+Other movement:
+\code{\link[=bird_create]{bird_create()}},
+\code{\link[=plot_graph_movement]{plot_graph_movement()}},
+\code{\link[=speed2prob]{speed2prob()}},
+\code{\link[=tag_download_wind]{tag_download_wind()}}
 }
 \concept{graph}
 \concept{movement}

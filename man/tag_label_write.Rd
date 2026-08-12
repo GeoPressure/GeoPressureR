@@ -48,10 +48,10 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/tag-object.html#initialize-and-create-the-label-.csv-file}{GeoPressureManual}
 
-Other tag_label: 
-\code{\link{tag_label}()},
-\code{\link{tag_label_auto}()},
-\code{\link{tag_label_read}()},
-\code{\link{tag_label_stap}()}
+Other tag_label:
+\code{\link[=tag_label]{tag_label()}},
+\code{\link[=tag_label_auto]{tag_label_auto()}},
+\code{\link[=tag_label_read]{tag_label_read()}},
+\code{\link[=tag_label_stap]{tag_label_stap()}}
 }
 \concept{tag_label}

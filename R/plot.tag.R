@@ -599,18 +599,20 @@ plot_tag_twilight <- function(
       as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
+    # Group by rounded stap_id so decimal flight values are attached to the nearest stationary
+    # period without linking unrelated segments when stap_id is discontinuous.
     twll$stap_id <- factor(round(twll$stap_id))
 
     p <- p +
       ggplot2::geom_line(
         data = twll[twll$rise, ],
-        ggplot2::aes(x = .data$date, y = .data$time),
+        ggplot2::aes(x = .data$date, y = .data$time, group = .data$stap_id),
         linewidth = 1,
         color = "brown"
       ) +
       ggplot2::geom_line(
         data = twll[!twll$rise, ],
-        ggplot2::aes(x = .data$date, y = .data$time),
+        ggplot2::aes(x = .data$date, y = .data$time, group = .data$stap_id),
         linewidth = 1,
         color = "lightgreen"
       )

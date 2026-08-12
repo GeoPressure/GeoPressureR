@@ -67,12 +67,12 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/trajectory.html#product-3-simulated-paths}{GeoPressureManual}
 
-Other graph: 
-\code{\link{graph_add_wind}()},
-\code{\link{graph_create}()},
-\code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_set_movement}()},
-\code{\link{print.graph}()}
+Other graph:
+\code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_create]{graph_create()}},
+\code{\link[=graph_marginal]{graph_marginal()}},
+\code{\link[=graph_most_likely]{graph_most_likely()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=print.graph]{print.graph()}}
 }
 \concept{graph}

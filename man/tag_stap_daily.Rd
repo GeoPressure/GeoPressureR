@@ -6,51 +6,70 @@
 \usage{
 tag_stap_daily(
   tag,
-  stap0 = NULL,
-  twl_grouping = "night",
-  max_twl_gap_hours = 23.5,
-  quiet = FALSE
+  stap_long = NULL,
+  movement_period = "night",
+  max_twl_gap = 23.5,
+  quiet = FALSE,
+  twl_grouping = lifecycle::deprecated(),
+  stap0 = lifecycle::deprecated()
 )
 }
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object with \code{twilight}.}
 
-\item{stap0}{optional \code{stap} data.frame with columns \code{start} and \code{end}, a CSV path with those
+\item{stap_long}{optional long stationary periods, supplied as a \code{stap} data.frame with columns
+\code{start} and \code{end}, a CSV path with those
 columns (POSIXct-compatible strings), or a tag \code{id} resolved by \code{read_stap()}.}
 
-\item{twl_grouping}{Which period is assumed to be when the bird is moving: \code{"night"}
+\item{movement_period}{When the bird is assumed to be moving: \code{"night"}
 (default) assumes the bird is moving during the night, so sunrise-to-sunset twilights are
 combined into the same stationary period, while \code{"day"} assumes the bird is moving during the
 day, so sunset-to-sunrise twilights are combined into the same stationary period.}
 
-\item{max_twl_gap_hours}{maximum allowed gap between consecutive twilights (in hours) before
+\item{max_twl_gap}{maximum allowed gap between consecutive twilights (in hours) before
 erroring, indicating missing twilights.}
 
 \item{quiet}{logical to hide messages.}
+
+\item{twl_grouping}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Renamed to \code{movement_period}.}
+
+\item{stap0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Renamed to \code{stap_long}.}
 }
 \value{
 Updated \code{tag} with a twilight-based \code{stap} and optional \code{stap0}. The \code{stap} includes a
 logical column \code{stap0} set to \code{TRUE} when intervals come from the provided \code{stap0} input.
 }
 \description{
-Build a \code{stap} table using midpoints between consecutive twilight pairs so the period lengths
-follow the twilight drift. If a \code{stap0} is provided (as a data.frame or a CSV path), its
-intervals are kept as-is and the remaining gaps are filled using twilight midpoints.
+Construct stationary periods from labelled sunrise and sunset times. Each boundary is the
+midpoint of an assumed movement period: night midpoints when movement occurs at night, or day
+midpoints when movement occurs during the day. The resulting \code{stap} intervals therefore cover
+the periods between successive movements. If a \code{stap_long} is provided (as a data.frame or a CSV
+path), its intervals are kept as-is and the remaining gaps are filled using twilight midpoints.
 }
 \examples{
+# Create and label the sunrise and sunset times used to define periods.
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>
-    tag_label(quiet = TRUE) |>
     twilight_create() |>
     twilight_label_read()
+
+  # Assume the bird moves at night. Preserve the long stationary periods
+  # stored in data/stap-label/18LX.csv, while filling the remaining time
+  # with daily periods bounded by night midpoints.
+  tag <- tag_stap_daily(
+    tag,
+    stap_long = tag$param$id,
+    movement_period = "night"
+  )
 })
-tag <- tag_stap_daily(tag, twl_grouping = "night")
+
+head(tag$stap)
 }
 \seealso{
-Other tag: 
-\code{\link{print.tag}()},
-\code{\link{read_stap}()},
-\code{\link{tag_create}()},
-\code{\link{tag_set_map}()}
+Other tag:
+\code{\link[=print.tag]{print.tag()}},
+\code{\link[=read_stap]{read_stap()}},
+\code{\link[=tag_create]{tag_create()}},
+\code{\link[=tag_set_map]{tag_set_map()}}
 }
 \concept{tag}

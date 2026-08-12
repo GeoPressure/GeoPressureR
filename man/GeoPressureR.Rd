@@ -29,6 +29,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Raphaël Nussbaumer \email{rafnuss@gmail.com} (\href{https://orcid.org/0000-0002-8185-1020}{ORCID}) [copyright holder]
   \item Mathieu Gravey \email{mathieu@mgravey.com} (\href{https://orcid.org/0000-0002-0871-1507}{ORCID})
 }
 

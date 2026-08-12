@@ -12,13 +12,35 @@
 #' subsolar point at that time. The fitted location is the point that is, in a
 #' least-squares sense, closest to all those circles simultaneously.
 #'
+#' For a stationary period with twilight-specific subsolar points `s_i`, the
+#' fitted longitude `lon`, latitude `lat`, and zenith angle `z` minimize
+#'
+#'   mean_i ( d((lon, lat), s_i) - z )^2 + P_prior(z)
+#'
+#' where `d((lon, lat), s_i)` is the great-circle angular distance from the
+#' candidate location to the subsolar point at twilight `i`. The first term is
+#' the mean squared residual to the iso-zenith small circles, normalized by the
+#' number of twilight events so its influence does not depend on sample size.
+#'
+#' `P_prior(z)` is an optional Gaussian penalty on the fitted zenith angle:
+#'
+#'   1/2 * ((z - mu) / sigma)^2
+#'
+#' where `mu = zenith_prior_mean` and `sigma = zenith_prior_sd`. This acts as a
+#' prior on the effective zenith angle while leaving longitude and latitude
+#' driven by the twilight geometry.
+#'
 #' @param tag A GeoPressureR tag object containing `tag$twilight` and `tag$stap`.
 #' @param fitted_location_duration Minimum duration (in days) of stationary period(s) eligible to be
 #' used as a fitted location from twilight times. Default is `Inf` (disabled).
 #' @param extent Numeric vector `c(W, E, S, N)` in degrees
 #'   (longitude west/east, latitude south/north).
-#' @param zenith_init Initial zenith angle (degrees).
 #' @param zenith_bounds Numeric vector of length 2 giving zenith bounds (degrees).
+#' @param zenith_prior_mean Gaussian prior mean for fitted zenith angle (degrees).
+#' @param zenith_prior_sd Gaussian prior standard deviation for fitted zenith angle (degrees).
+#' @param zenith_prior_penalty_weight Weight controlling how strongly automatically fitted
+#' locations are pulled toward `zenith_prior_mean`. This only affects fitted locations; known
+#' locations are still used directly when `compute_known = FALSE`.
 #' @param compute_known Logical; if FALSE, known stationary periods are copied from `tag$stap`
 #'   (rather than being estimated).
 #' @param quiet Logical; if TRUE, suppress informative messages.
@@ -42,8 +64,10 @@ geolight_fit_location <- function(
   tag,
   fitted_location_duration = Inf,
   extent = NULL,
-  zenith_init = 96,
-  zenith_bounds = c(60, 120),
+  zenith_bounds = c(70, 110),
+  zenith_prior_mean = 93,
+  zenith_prior_sd = 1.3,
+  zenith_prior_penalty_weight = 1e-4,
   compute_known = FALSE,
   quiet = FALSE
 ) {
@@ -74,10 +98,27 @@ geolight_fit_location <- function(
   )
   assertthat::assert_that(is.numeric(extent), length(extent) == 4L)
   assertthat::assert_that(is.numeric(zenith_bounds), length(zenith_bounds) == 2L)
+  assertthat::assert_that(
+    is.numeric(zenith_prior_mean),
+    length(zenith_prior_mean) == 1L,
+    !is.na(zenith_prior_mean)
+  )
+  assertthat::assert_that(
+    is.numeric(zenith_prior_sd),
+    length(zenith_prior_sd) == 1L,
+    !is.na(zenith_prior_sd),
+    zenith_prior_sd > 0
+  )
 
   # Twilight table and inclusion mask
   twl <- twilight_include(tag$twilight)
   assertthat::assert_that(nrow(twl) > 0)
+  if (nrow(twl) <= 4) {
+    cli::cli_warn(c(
+      "!" = "Only {nrow(twl)} twilights available for location fitting.",
+      "i" = "More than 4 twilights are recommended for a stable estimate."
+    ))
+  }
 
   # Add stationary period for each twilight in case not yet computed
   twl$stap_id <- find_stap(tag$stap, twl$twilight)
@@ -108,17 +149,18 @@ geolight_fit_location <- function(
   # Only keep eligible staps for fitting
   twl_id_by_stap <- twl_id_by_stap[names(twl_id_by_stap) %in% stap$stap_id[eligible]]
 
-  # Keep only periods with at least one twilight
-  twl_id_by_stap <- twl_id_by_stap[lengths(twl_id_by_stap) > 0]
-
   # Precompute solar quantities for all twilight times once
   sun_all <- geolight_solar_constants(twl$twilight)
 
   # Initial parameters (lon, lat, zenith)
-  par_init <- c(
-    lon = mean(c(extent[1], extent[2])),
-    lat = mean(c(extent[3], extent[4])),
-    zenith = zenith_init
+  n_lon_init <- 4
+  n_lat_init <- 4
+  n_zenith_init <- 4
+  par_init_grid <- expand.grid(
+    lon = seq(extent[1], extent[2], length.out = n_lon_init),
+    lat = seq(extent[3], extent[4], length.out = n_lat_init),
+    zenith = seq(zenith_bounds[1], zenith_bounds[2], length.out = n_zenith_init),
+    KEEP.OUT.ATTRS = FALSE
   )
 
   lower <- c(extent[1], extent[3], zenith_bounds[1])
@@ -131,9 +173,9 @@ geolight_fit_location <- function(
   path$lat <- NA_real_
   path$zenith <- NA_real_
 
-  for (k in seq_along(twl_id_by_stap)) {
-    stap_id <- names(twl_id_by_stap)[k]
-    idx <- twl_id_by_stap[[k]]
+  for (istap in seq_along(twl_id_by_stap)) {
+    stap_id <- names(twl_id_by_stap)[istap]
+    idx <- twl_id_by_stap[[istap]]
 
     # Match stap_id to row in path table
     path_row <- match(as.numeric(stap_id), path$stap_id)
@@ -141,14 +183,24 @@ geolight_fit_location <- function(
     # Subset solar constants to twilights of this stationary period
     sun_i <- sun_all[idx, ]
 
-    fit <- stats::optim(
-      par = par_init,
-      fn = geolight_fit_location_objective,
-      sun = sun_i,
-      method = "L-BFGS-B",
-      lower = lower,
-      upper = upper
-    )
+    fits <- apply(par_init_grid, 1, \(par0) {
+      stats::optim(
+        par = par0,
+        fn = geolight_fit_location_objective,
+        sun = sun_i,
+        zenith_prior_mean = zenith_prior_mean,
+        zenith_prior_sd = zenith_prior_sd,
+        zenith_prior_penalty_weight = zenith_prior_penalty_weight,
+        method = "L-BFGS-B",
+        lower = lower,
+        upper = upper
+      )
+    })
+
+    # Prefer converged optimizations, but keep the best fallback if all starts fail.
+    ok <- vapply(fits, \(x) !is.null(x$convergence) && x$convergence == 0L, logical(1))
+    pool <- if (any(ok)) fits[ok] else fits
+    fit <- pool[[which.min(vapply(pool, `[[`, numeric(1), "value"))]]
 
     if (!quiet && !is.null(fit$convergence) && fit$convergence != 0L) {
       cli::cli_warn(
@@ -197,20 +249,30 @@ geolight_fit_location <- function(
 #'
 #' This objective computes, for a candidate location (lon, lat), the
 #' great-circle angular distance to each subsolar point, subtracts the
-#' small-circle radius, and sums the squared residuals:
+#' small-circle radius, and averages the squared residuals:
 #'
-#'   sum_i ( distance(candidate, subsolar_i) - zenith )^2
+#'   mean_i ( distance(candidate, subsolar_i) - zenith )^2
 #'
 #' Minimizing this quantity finds the point that is, in a least-squares
-#' sense, closest to all twilight curves simultaneously.
+#' sense, closest to all twilight curves simultaneously while keeping the
+#' twilight contribution on a scale that does not depend on the number of
+#' twilight events.
 #'
 #' @param par Numeric vector `c(lon, lat, zenith)` in **degrees**.
 #' @param sun data.frame returned by `geolight_solar_constants()`,
 #'   already subset to the twilight rows being fitted.
+#' @param zenith_prior_mean Gaussian prior mean for fitted zenith angle (degrees).
+#' @param zenith_prior_sd Gaussian prior standard deviation for fitted zenith angle (degrees).
 #'
-#' @return Numeric scalar: sum of squared distances (radians^2).
+#' @return Numeric scalar: mean squared small-circle residuals (radians^2) plus penalties.
 #' @noRd
-geolight_fit_location_objective <- function(par, sun) {
+geolight_fit_location_objective <- function(
+  par,
+  sun,
+  zenith_prior_mean,
+  zenith_prior_sd,
+  zenith_prior_penalty_weight
+) {
   # ---- unpack parameters (degrees) ----
   lon_deg <- par[1]
   lat_deg <- par[2]
@@ -245,11 +307,13 @@ geolight_fit_location_objective <- function(par, sun) {
   cos_gamma <- pmin(1, pmax(-1, cos_gamma))
   gamma <- acos(cos_gamma) # radians
 
-  # ---- signed distance to small circle ----
-  # positive if candidate is outside the circle,
-  # negative if inside
-  d <- gamma - rho
+  # Signed residual from the iso-zenith small circle:
+  # positive outside the circle, negative inside.
+  circle_residual <- gamma - rho
 
-  # ---- objective: sum of squared distances ----
-  sum(d * d)
+  # Gaussian prior penalty on the fitted zenith angle.
+  zenith_prior_penalty <- 0.5 * ((zen_deg - zenith_prior_mean) / zenith_prior_sd)^2
+
+  # Objective = normalized geometric misfit + zenith prior penalty.
+  mean(circle_residual * circle_residual) + zenith_prior_penalty_weight * zenith_prior_penalty
 }

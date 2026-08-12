@@ -37,12 +37,12 @@ print(graph)
 
 }
 \seealso{
-Other graph: 
-\code{\link{graph_add_wind}()},
-\code{\link{graph_create}()},
-\code{\link{graph_marginal}()},
-\code{\link{graph_most_likely}()},
-\code{\link{graph_set_movement}()},
-\code{\link{graph_simulation}()}
+Other graph:
+\code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_create]{graph_create()}},
+\code{\link[=graph_marginal]{graph_marginal()}},
+\code{\link[=graph_most_likely]{graph_most_likely()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=graph_simulation]{graph_simulation()}}
 }
 \concept{graph}

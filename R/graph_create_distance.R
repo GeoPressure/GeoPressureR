@@ -138,24 +138,17 @@ graph_compute_chunk_size <- function(
 }
 
 
-#' Core coordinate calculation functions
+#' Calculate great-circle distances
 #'
-#' @description
-#' Vectorized implementations of coordinate calculations:
-#'
-#' - `haversine_distance()`: Calculates great-circle distances using the Haversine formula
-#' - `haversine_bearing()`: Calculates initial bearing (forward azimuth) along great circle paths
+#' Vectorized implementation of the Haversine formula.
 #'
 #' @param from_coords Matrix of source coordinates (longitude, latitude) in decimal degrees
 #' @param to_coords Matrix of target coordinates (longitude, latitude) in decimal degrees
 #'
-#' @return
-#' - `haversine_distance()`: Vector of distances in kilometers
-#' - `haversine_bearing()`: Vector of bearings in degrees (0-360°, where 0° = North, 90° = East)
-#' @noRd
-NULL
+#' @return A vector of distances in kilometers.
 
-#' @noRd
+#' @keywords internal
+#' @export
 haversine_distance <- function(from_coords, to_coords) {
   # Convert to radians
   to_rad <- pi / 180

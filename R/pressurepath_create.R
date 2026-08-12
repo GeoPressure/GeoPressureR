@@ -39,7 +39,8 @@
 #'
 #'  `pressurepath_create()` also computes the local sunrise and sunset times for each timestep
 #'  according to the position of the path using `path2twilight()`. Sunrise and sunset are defined
-#'  by the solar depression angle `solar_dep`.
+#'  by the solar depression angle `solar_dep`, with solar elevation threshold `-solar_dep` and
+#'  equivalent solar zenith angle `90 + solar_dep`.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param path a GeoPressureR `path` data.frame.
@@ -50,7 +51,9 @@
 #' `"land_sea_mask"`.
 #' All variables can be listed with `GeoPressureR:::pressurepath_variable`.
 #' @param solar_dep a numerical value representing the solar depression angle used to compute
-#' sunrise and sunset. If `NULL`, does not compute sunrise sunset.
+#' sunrise and sunset. The corresponding solar elevation threshold is `-solar_dep`, and the
+#' equivalent solar zenith angle is `90 + solar_dep` (e.g. `solar_dep = 6` corresponds to
+#' zenith angle 96°). If `NULL`, does not compute sunrise sunset.
 #' @param era5_dataset select the dataset to use: `"single-levels"` for ERA5 hourly data on single
 #' levels (\doi{10.24381/cds.adbb2d47}), `"land"` for ERA5-Land hourly data
 #' (\doi{10.24381/cds.e2161bac}), or `"both"` to use `"land"` where available and

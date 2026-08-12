@@ -142,9 +142,7 @@ zoom_to_window <- function(start, end, lag_x_hours = 12, lag_y = 5) {
   xmin <- start - lag_x
   xmax <- end + lag_x
 
-  layout_update <- list(
-    xaxis = list(range = list(xmin, xmax))
-  )
+  layout_update <- list("xaxis.range" = list(xmin, xmax))
 
   active_series <- active_series_or_default()
   if (active_series == "acceleration" && has_acceleration) {
@@ -166,11 +164,9 @@ zoom_to_window <- function(start, end, lag_x_hours = 12, lag_y = 5) {
   }
 
   if (length(y_vals) > 0 && !all(is.na(y_vals))) {
-    layout_update[[y_axis]] <- list(
-      range = c(
-        min(y_vals, na.rm = TRUE) - lag_y,
-        max(y_vals, na.rm = TRUE) + lag_y
-      )
+    layout_update[[glue::glue("{y_axis}.range")]] <- c(
+      min(y_vals, na.rm = TRUE) - lag_y,
+      max(y_vals, na.rm = TRUE) + lag_y
     )
   }
 

@@ -33,11 +33,11 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 plot_tag_pressure(tag)
 }
 \seealso{
-Other plot_tag: 
-\code{\link{plot_tag_acceleration}()},
-\code{\link{plot_tag_actogram}()},
-\code{\link{plot_tag_light}()},
-\code{\link{plot_tag_temperature}()},
-\code{\link{plot_tag_twilight}()}
+Other plot_tag:
+\code{\link[=plot_tag_acceleration]{plot_tag_acceleration()}},
+\code{\link[=plot_tag_actogram]{plot_tag_actogram()}},
+\code{\link[=plot_tag_light]{plot_tag_light()}},
+\code{\link[=plot_tag_temperature]{plot_tag_temperature()}},
+\code{\link[=plot_tag_twilight]{plot_tag_twilight()}}
 }
 \concept{plot_tag}
