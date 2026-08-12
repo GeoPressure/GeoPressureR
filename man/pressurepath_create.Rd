@@ -137,6 +137,7 @@ plot_pressurepath(pressurepath)
 
 Other pressurepath:
 \code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
+\code{\link[=geopressure_timeseries_arco]{geopressure_timeseries_arco()}},
 \code{\link[=plot_pressurepath]{plot_pressurepath()}}
 }
 \concept{pressurepath}
