@@ -4,8 +4,8 @@
 #' Analysis-Ready Cloud-Optimised (ARCO) Zarr archive.
 #'
 #' @inheritParams geopressure_timeseries
-#' @param cds_token Climate Data Store API token. By default, read from
-#'   `CDSAPI_KEY`, `ecmwfr_PAT`, or `~/.cdsapirc`.
+#' @param compute_altitude logical to compute altitude when `pressure` is supplied. Set to `FALSE`
+#'   to skip reading ERA5-Land temperature and geopotential data.
 #' @param cache_dir Directory used to cache static ERA5-Land rasters.
 #'
 #' @return The same data.frame structure as [geopressure_timeseries()].
@@ -17,33 +17,18 @@ geopressure_timeseries_arco <- function(
   pressure = NULL,
   start_time = NULL,
   end_time = NULL,
+  compute_altitude = !is.null(pressure),
   quiet = FALSE,
   debug = FALSE,
-  cds_token = NULL,
   cache_dir = tools::R_user_dir("GeoPressureR", "cache")
 ) {
   assertthat::assert_that(is.numeric(lon))
   assertthat::assert_that(is.numeric(lat))
   assertthat::assert_that(lon >= -180 & lon <= 180)
   assertthat::assert_that(lat >= -90 & lat <= 90)
+  assertthat::assert_that(is.logical(compute_altitude), length(compute_altitude) == 1)
+  assertthat::assert_that(!compute_altitude || !is.null(pressure))
   assertthat::assert_that(is.logical(quiet))
-  if (is.null(cds_token)) {
-    cds_token <- Sys.getenv("CDSAPI_KEY")
-    if (!nzchar(cds_token)) {
-      cds_token <- Sys.getenv("ecmwfr_PAT")
-    }
-    cdsapirc <- path.expand("~/.cdsapirc")
-    if (!nzchar(cds_token) && file.exists(cdsapirc)) {
-      key <- grep("^\\s*key\\s*:", readLines(cdsapirc, warn = FALSE), value = TRUE)
-      if (length(key)) {
-        cds_token <- trimws(sub("^\\s*key\\s*:\\s*", "", key[[1]]))
-      }
-    }
-  }
-  assertthat::assert_that(
-    nzchar(cds_token),
-    msg = "Set `CDSAPI_KEY`, `ecmwfr_PAT`, or configure `~/.cdsapirc`."
-  )
 
   if (!requireNamespace("Rarr", quietly = TRUE)) {
     cli::cli_abort(c(
@@ -51,6 +36,13 @@ geopressure_timeseries_arco <- function(
       "i" = "Install it with {.run BiocManager::install('Rarr')}."
     ))
   }
+  if (!requireNamespace("ecmwfr", quietly = TRUE)) {
+    cli::cli_abort(c(
+      "x" = "Package {.pkg ecmwfr} is required for {.fun geopressure_timeseries_arco}.",
+      "i" = "Install it with {.run install.packages('ecmwfr')}."
+    ))
+  }
+  cds_token <- ecmwfr::wf_get_key()
   arco_host <- "https://arco.datastores.ecmwf.int"
   arco_client <- list(
     get_object = function(Bucket, Key, ...) {
@@ -162,42 +154,50 @@ geopressure_timeseries_arco <- function(
   )
 
   if (!is.null(pressure)) {
-    if (!quiet) {
-      cli::cli_progress_step("Read ERA5-Land temperature and compute altitude")
-    }
-    temperature <- era5_land_arco_read(
-      variable = "t2m",
-      lon = round(lon * 10) / 10,
-      lat = round(lat * 10) / 10,
-      date = date,
-      arco_client = arco_client,
-      debug = debug
-    )
     nearest_time <- match(requested_hour, date)
     out <- out[nearest_time, ]
     out$date <- requested_date
 
-    geopotential_file <- file.path(cache_dir, "geo_1279l4_0.1x0.1.grib2")
-    if (!file.exists(geopotential_file)) {
-      dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-      httr2::request(
-        "https://confluence.ecmwf.int/download/attachments/140385202/geo_1279l4_0.1x0.1.grib2?version=1&modificationDate=1582901403445&api=v2"
-      ) |>
-        httr2::req_perform(path = geopotential_file)
+    if (compute_altitude) {
+      if (!quiet) {
+        cli::cli_progress_step("Read ERA5-Land temperature and compute altitude")
+      }
+      temperature <- era5_land_arco_read(
+        variable = "t2m",
+        lon = round(lon * 10) / 10,
+        lat = round(lat * 10) / 10,
+        date = date,
+        arco_client = arco_client,
+        debug = debug
+      )
+      geopotential_file <- file.path(cache_dir, "geo_1279l4_0.1x0.1.grib2")
+      if (!file.exists(geopotential_file)) {
+        dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+        httr2::request(
+          "https://confluence.ecmwf.int/download/attachments/140385202/geo_1279l4_0.1x0.1.grib2?version=1&modificationDate=1582901403445&api=v2"
+        ) |>
+          httr2::req_perform(path = geopotential_file)
+      }
+      geopotential <- terra::rast(geopotential_file)
+      terra::ext(geopotential) <- c(-0.05, 359.95, -90.05, 90.05)
+      geopotential <- terra::rotate(geopotential)
+      elevation <- terra::extract(geopotential, matrix(c(lon, lat), ncol = 2))[[1]] / 9.80665
+      out$altitude <- elevation +
+        temperature[nearest_time] /
+          -0.0065 *
+          ((pressure$value * 100 / surface_pressure[nearest_time])^(-8.31432 *
+            -0.0065 /
+            9.80665 /
+            0.0289644) -
+            1)
     }
-    geopotential <- terra::rast(geopotential_file)
-    terra::ext(geopotential) <- c(-0.05, 359.95, -90.05, 90.05)
-    geopotential <- terra::rotate(geopotential)
-    elevation <- terra::extract(geopotential, matrix(c(lon, lat), ncol = 2))[[1]] / 9.80665
-    out$altitude <- elevation +
-      temperature[nearest_time] /
-        -0.0065 *
-        ((pressure$value * 100 / surface_pressure[nearest_time])^(-8.31432 *
-          -0.0065 /
-          9.80665 /
-          0.0289644) -
-          1)
-    out <- out[c("date", "surface_pressure", "altitude", "lat", "lon")]
+    out <- out[c(
+      "date",
+      "surface_pressure",
+      if (compute_altitude) "altitude",
+      "lat",
+      "lon"
+    )]
 
     pressure_merge <- pressure
     if (!("stap_id" %in% names(pressure_merge))) {

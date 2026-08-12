@@ -10,9 +10,9 @@ geopressure_timeseries_arco(
   pressure = NULL,
   start_time = NULL,
   end_time = NULL,
+  compute_altitude = !is.null(pressure),
   quiet = FALSE,
   debug = FALSE,
-  cds_token = NULL,
   cache_dir = tools::R_user_dir("GeoPressureR", "cache")
 )
 }
@@ -30,12 +30,12 @@ the time series as POSIXlt.}
 \item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
 the time series as POSIXlt.}
 
+\item{compute_altitude}{logical to compute altitude when \code{pressure} is supplied. Set to \code{FALSE}
+to skip reading ERA5-Land temperature and geopotential data.}
+
 \item{quiet}{logical to hide messages about the progress}
 
 \item{debug}{logical to display additional information to debug a request}
-
-\item{cds_token}{Climate Data Store API token. By default, read from
-\code{CDSAPI_KEY}, \code{ecmwfr_PAT}, or \code{~/.cdsapirc}.}
 
 \item{cache_dir}{Directory used to cache static ERA5-Land rasters.}
 }

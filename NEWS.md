@@ -10,6 +10,8 @@ Prepare for the release of GeoPathSampleR package and GeoTwilight paper:
 
 ## Minor
 
+- Add experimental `geopressure_timeseries_arco()` access to ERA5-Land ARCO data, with optional
+  altitude computation and the same CDS credentials configured by `ecmwfr::wf_set_key()`.
 - [Add `time_shift` to `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/dcb4a382) with corresponding parameter display and test coverage.
 - [Improve `find_stap()` handling of non-regular stationary-period IDs](https://github.com/GeoPressure/GeoPressureR/commit/5a8a49b5) while preserving the correct IDs.
 - [Add `land_threshold` to `mask_water()`](https://github.com/GeoPressure/GeoPressureR/commit/7817a9c9) for configurable land masking.
