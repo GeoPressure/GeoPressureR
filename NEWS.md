@@ -14,24 +14,24 @@ Prepare for the release of GeoPathSampleR package and GeoTwilight paper:
 - [Improve `find_stap()` handling of non-regular stationary-period IDs](https://github.com/GeoPressure/GeoPressureR/commit/5a8a49b5) while preserving the correct IDs.
 - [Add `land_threshold` to `mask_water()`](https://github.com/GeoPressure/GeoPressureR/commit/7817a9c9) for configurable land masking.
 - [Rename `max_twl_gap_hours` to `max_twl_gap`](https://github.com/GeoPressure/GeoPressureR/commit/a2ef2bda) in daily stationary-period generation.
+- [Rename `tag_stap_daily()` arguments](https://github.com/GeoPressure/GeoPressureR/commit/d8fd8a8f): `stap0` becomes `stap_long` and `twl_grouping` becomes `movement_period`, with deprecated aliases retained for compatibility.
 - [Allow `plot_twl_calib()` without a zenith column](https://github.com/GeoPressure/GeoPressureR/commit/00128ce1) by defaulting to known zenith values.
 - [Improve Plotly relayout and range-selection handling](https://github.com/GeoPressure/GeoPressureR/commit/56b24322), including epoch-millisecond event times and hidden overview traces ([8efc6f9c](https://github.com/GeoPressure/GeoPressureR/commit/8efc6f9c), [51efd0e5](https://github.com/GeoPressure/GeoPressureR/commit/51efd0e5)).
 - [Fix map-setting invalidation when labels change](https://github.com/GeoPressure/GeoPressureR/commit/fd00f56a) and [handle missing values in logical indexing](https://github.com/GeoPressure/GeoPressureR/commit/b53607eb).
+- [Add grouped Leaflet layers to `plot_path()`](https://github.com/GeoPressure/GeoPressureR/commit/effb40b6) for clearer posterior-path visualization.
+- [Preserve pressure metadata during `geopressure_timeseries()` normalization](https://github.com/GeoPressure/GeoPressureR/commit/6535f3bc).
+- [Fix the `maxSample` request parameter used by `geopressure_map_mismatch()`](https://github.com/GeoPressure/GeoPressureR/commit/2925af09).
+- Improve GeoPressureViz background pressure queries when running from a development source tree ([f13c1e7a](https://github.com/GeoPressure/GeoPressureR/commit/f13c1e7a), [f61a3fff](https://github.com/GeoPressure/GeoPressureR/commit/f61a3fff)) and [provide clearer query errors](https://github.com/GeoPressure/GeoPressureR/commit/77236d44).
+- [Add an explicit close button to the Trainset Checks modal](https://github.com/GeoPressure/GeoPressureR/commit/f61a3fff).
+- [Expose likelihood and distance helpers](https://github.com/GeoPressure/GeoPressureR/commit/686fd33a) for companion packages while keeping them internal to GeoPressureR.
 
 # GeoPressureR v3.5.4
 
 ## Main
 
-- [Improve `graph_add_wind()` memory use for large graphs](https://github.com/GeoPressure/GeoPressureR/commit/0084fb61) by computing graph-scale wind speed directly in chunks instead of materializing detailed per-time-step wind output.
+- [Refactor wind extraction for large graphs](https://github.com/GeoPressure/GeoPressureR/commit/0084fb61): `graph_add_wind()` now computes averaged `u`/`v` wind directly in memory-efficient chunks, while `edge_add_wind()` returns detailed edge/time/variable values. The `graph_add_wind(variable)` and `edge_add_wind(return_averaged_variable)` arguments are deprecated, and GeoPressureViz now aggregates the detailed output explicitly.
 - [Improve `graph_create()` memory use](https://github.com/GeoPressure/GeoPressureR/commit/36f534b9) by releasing intermediate graph chunks while building the final graph vectors.
 - [Document and export `tag_status()`](https://github.com/GeoPressure/GeoPressureR/commit/86dbd393) for companion packages.
-
-## Minor
-
-- Deprecate `edge_add_wind(return_averaged_variable)`; `edge_add_wind()` now always returns detailed edge/time/variable values.
-- Deprecate `graph_add_wind(variable)`; `graph_add_wind()` now always uses `c("u", "v")`.
-- Update GeoPressureViz wind handling to compute averaged edge wind from detailed `edge_add_wind()` output.
-- Add example usage to `mask_water()` documentation.
 
 **Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.5.3...v3.5.4>
 
