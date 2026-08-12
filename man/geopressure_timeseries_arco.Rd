@@ -202,6 +202,7 @@ ECMWF ERA5-Land hourly data, \doi{10.24381/cds.e2161bac}.
 Other pressurepath:
 \code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
-\code{\link[=pressurepath_create]{pressurepath_create()}}
+\code{\link[=pressurepath_create]{pressurepath_create()}},
+\code{\link[=pressurepath_create_arco]{pressurepath_create_arco()}}
 }
 \concept{pressurepath}

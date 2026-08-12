@@ -196,25 +196,7 @@ geopressure_timeseries_arco <- function(
       "i" = "Install it with {.run install.packages('ecmwfr')}."
     ))
   }
-  cds_token <- ecmwfr::wf_get_key()
-  arco_host <- "https://arco.datastores.ecmwf.int"
-  arco_client <- list(
-    get_object = function(Bucket, Key, ...) {
-      body <- httr2::request(glue::glue("{arco_host}/{Bucket}/{Key}")) |>
-        httr2::req_auth_bearer_token(cds_token) |>
-        httr2::req_perform() |>
-        httr2::resp_body_raw()
-      list(Body = body)
-    },
-    list_objects_v2 = function(Bucket, Prefix, ...) {
-      response <- httr2::request(glue::glue("{arco_host}/{Bucket}/{Prefix}")) |>
-        httr2::req_method("HEAD") |>
-        httr2::req_auth_bearer_token(cds_token) |>
-        httr2::req_error(is_error = function(response) FALSE) |>
-        httr2::req_perform()
-      list(KeyCount = as.integer(httr2::resp_status(response) == 200L))
-    }
-  )
+  arco_client <- era5_arco_client()
 
   if (!is.null(pressure)) {
     assertthat::assert_that(is.data.frame(pressure))
@@ -458,4 +440,35 @@ era5_arco_read <- function(
   ) |>
     drop() |>
     unname()
+}
+
+era5_arco_client <- function(cache = FALSE) {
+  cds_token <- ecmwfr::wf_get_key()
+  arco_host <- "https://arco.datastores.ecmwf.int"
+  object_cache <- new.env(parent = emptyenv())
+  list(
+    get_object = function(Bucket, Key, ...) {
+      cache_key <- glue::glue("{Bucket}/{Key}")
+      if (cache && exists(cache_key, envir = object_cache, inherits = FALSE)) {
+        body <- get(cache_key, envir = object_cache, inherits = FALSE)
+      } else {
+        body <- httr2::request(glue::glue("{arco_host}/{Bucket}/{Key}")) |>
+          httr2::req_auth_bearer_token(cds_token) |>
+          httr2::req_perform() |>
+          httr2::resp_body_raw()
+        if (cache) {
+          assign(cache_key, body, envir = object_cache)
+        }
+      }
+      list(Body = body)
+    },
+    list_objects_v2 = function(Bucket, Prefix, ...) {
+      response <- httr2::request(glue::glue("{arco_host}/{Bucket}/{Prefix}")) |>
+        httr2::req_method("HEAD") |>
+        httr2::req_auth_bearer_token(cds_token) |>
+        httr2::req_error(is_error = function(response) FALSE) |>
+        httr2::req_perform()
+      list(KeyCount = as.integer(httr2::resp_status(response) == 200L))
+    }
+  )
 }
