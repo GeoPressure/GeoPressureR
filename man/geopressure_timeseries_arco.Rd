@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure_timeseries_arco.R
 \name{geopressure_timeseries_arco}
 \alias{geopressure_timeseries_arco}
-\title{Request a pressure time series directly from ERA5-Land ARCO}
+\title{Retrieve an ERA5 pressure time series directly from ARCO}
 \usage{
 geopressure_timeseries_arco(
   lat,
@@ -13,38 +13,190 @@ geopressure_timeseries_arco(
   compute_altitude = !is.null(pressure),
   quiet = FALSE,
   debug = FALSE,
-  cache_dir = tools::R_user_dir("GeoPressureR", "cache")
+  era5_dataset = c("land", "single-levels")
 )
 }
 \arguments{
-\item{lat}{Latitude to query (0° to 90°).}
+\item{lat}{Numeric scalar latitude to query, between -90 and 90 degrees.}
 
-\item{lon}{Longitude to query (-180° to 180°).}
+\item{lon}{Numeric scalar longitude to query, between -180 and 180 degrees.}
 
-\item{pressure}{A data.frame of pressure time series, containing at least a \code{"date"} and
-\code{"value"} column.}
+\item{pressure}{Optional data.frame containing the geolocator pressure series, with at least a
+POSIXct or POSIXlt \code{date} column and a numeric \code{value} column in hPa. Additional columns are
+retained.}
 
-\item{start_time}{If \code{pressure} is not provided, \code{start_time} defines the start time of
-the time series as POSIXlt.}
+\item{start_time}{Start of the requested interval. Used only when \code{pressure} is \code{NULL} and
+interpreted in UTC.}
 
-\item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
-the time series as POSIXlt.}
+\item{end_time}{End of the requested interval. Used only when \code{pressure} is \code{NULL} and
+interpreted in UTC.}
 
-\item{compute_altitude}{logical to compute altitude when \code{pressure} is supplied. Set to \code{FALSE}
-to skip reading ERA5-Land temperature and geopotential data.}
+\item{compute_altitude}{Logical scalar. If \code{TRUE}, compute altitude from tag pressure, ERA5
+surface pressure, 2 m temperature, and surface geopotential. It defaults to \code{TRUE} when
+\code{pressure} is supplied and \code{FALSE} otherwise.}
 
-\item{quiet}{logical to hide messages about the progress}
+\item{quiet}{Logical scalar to suppress progress messages.}
 
-\item{debug}{logical to display additional information to debug a request}
+\item{debug}{Logical scalar to display the selected Zarr paths and array indices.}
 
-\item{cache_dir}{Directory used to cache static ERA5-Land rasters.}
+\item{era5_dataset}{ERA5 product to use: \code{"land"} for ERA5-Land at 0.1 degree resolution or
+\code{"single-levels"} for global ERA5 at 0.25 degree resolution.}
 }
 \value{
-The same data.frame structure as \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}.
+A data.frame. Without \code{pressure}, it contains:
+\itemize{
+\item \code{date}: hourly POSIXct timestamp in UTC;
+\item \code{surface_pressure}: ERA5 surface pressure in hPa;
+\item \code{lat}, \code{lon}: queried coordinates, or the selected closest-land coordinates for ERA5-Land.
+}
+
+With \code{pressure}, the input rows and additional columns are retained, \code{value} is renamed to
+\code{pressure_tag}, and the ERA5 variables are joined by date. The result additionally contains
+\code{surface_pressure_norm} when normalisation observations are available and \code{altitude} when
+\code{compute_altitude = TRUE}.
 }
 \description{
-Experimental alternative to \code{\link[=geopressure_timeseries]{geopressure_timeseries()}} using the ECMWF ERA5-Land
-Analysis-Ready Cloud-Optimised (ARCO) Zarr archive.
+\code{geopressure_timeseries_arco()} retrieves an hourly surface-pressure time series at one
+location directly from the ECMWF Analysis-Ready Cloud-Optimised (ARCO) Zarr archive. It is a
+client-side alternative to \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}: the requested Zarr chunks are read in R
+instead of asking GeoPressureAPI to prepare the time series.
+
+The function can either return ERA5 surface pressure for an interval defined by \code{start_time}
+and \code{end_time}, or combine ERA5 data with a geolocator pressure series supplied through
+\code{pressure}. In the latter case it can also estimate the geolocator altitude and normalise the
+ERA5 pressure to the mean pressure level measured by the tag.
+}
+\section{ERA5 datasets and spatial matching}{
+
+Two ARCO products are supported:
+\itemize{
+\item \code{era5_dataset = "land"} uses ERA5-Land on a 0.1 degree regular grid. ERA5-Land is masked over
+oceans. If the selected grid cell contains no pressure data, the function uses the official
+ERA5-Land land-sea mask to find the closest land cell and returns its coordinates in \code{lat}
+and \code{lon}.
+\item \code{era5_dataset = "single-levels"} uses the global ERA5 single-level product on a 0.25 degree
+regular grid. Surface pressure and temperature are defined over both land and water, so the
+requested location is not moved onshore.
+}
+
+The input coordinates are rounded to the nearest cell of the selected grid. Except when the
+ERA5-Land closest-cell procedure is used, the returned \code{lat} and \code{lon} remain the input
+coordinates rather than the rounded grid-cell coordinates.
+
+ERA5-Land is available through this implementation from 2 January 1950, whereas ERA5 single
+levels is available from 2 January 1940. These starting dates reflect the time coordinates of
+the current ARCO stores.
+}
+
+\section{Temporal matching}{
+
+When \code{pressure} is not supplied, \code{start_time} and \code{end_time} are converted to UTC and rounded
+upwards to complete hours. The result contains every hourly ERA5 value in the resulting closed
+interval.
+
+When \code{pressure} is supplied, every \code{pressure$date} is converted to UTC and matched to the
+closest available ERA5 hour, with half-hours matched to the earlier hour. Because the requested
+ERA5 interval starts after the first tag timestamp, the first observation is matched to the next
+hour if the preceding hour lies outside that interval. The returned \code{date} is then restored to
+the original tag timestamp. No temporal interpolation is performed.
+}
+
+\section{Altitude computation}{
+
+If \code{pressure} is supplied and \code{compute_altitude = TRUE}, the altitude of the geolocator above
+mean sea level, \eqn{z_{tag}}, is calculated with the barometric equation
+\deqn{
+z_{tag}(t) = z_{ERA5} + \frac{T_{ERA5}(t)}{L_b}
+\left[\left(\frac{P_{tag}(t)}{P_{ERA5}(t)}\right)^{-R L_b/(g M)} - 1\right],
+}
+where \eqn{P_{tag}} is the pressure measured by the geolocator, \eqn{P_{ERA5}} is ERA5 surface
+pressure, \eqn{T_{ERA5}} is ERA5 2 m temperature, and \eqn{z_{ERA5}} is the model surface
+geopotential height. The constants are the standard temperature lapse rate
+\eqn{L_b=-0.0065\ \mathrm{K\,m^{-1}}}, universal gas constant
+\eqn{R=8.31432\ \mathrm{J\,mol^{-1}\,K^{-1}}}, standard gravity
+\eqn{g=9.80665\ \mathrm{m\,s^{-2}}}, and molar mass of dry air
+\eqn{M=0.0289644\ \mathrm{kg\,mol^{-1}}}.
+
+Pressure in \code{pressure$value} is expected in hPa and is converted internally to Pa for this
+calculation. ERA5 temperature, surface pressure, and geopotential are taken from the same
+dataset and grid cell. The returned \code{altitude} is in metres above mean sea level. Set
+\code{compute_altitude = FALSE} to avoid reading temperature and geopotential when only pressure
+comparison and normalisation are required.
+}
+
+\section{Pressure normalisation}{
+
+When tag pressure is supplied, ERA5 surface pressure is shifted to the mean tag-pressure level
+so that their temporal variations can be compared. Within each elevation-label group \eqn{e},
+the function calculates
+\deqn{
+P_{ERA5,0,e}(t) = P_{ERA5,e}(t) - \overline{P}_{ERA5,e} + \overline{P}_{tag,e}.
+}
+The means use observations for which \code{stap_id != 0} and \code{label != "discard"}. Labels beginning
+with \code{"elev_"} define separate elevation groups; all other labels belong to the default group.
+If \code{stap_id} or \code{label} is absent, the function adds \code{stap_id = 1} or \code{label = ""}, respectively.
+The result is returned as \code{surface_pressure_norm}.
+}
+
+\section{ARCO access, credentials, and local data}{
+
+The geo-chunked ARCO layout is used because it is optimised for long time series at a single
+location. The Rarr package downloads only the Zarr chunks intersecting the requested time and
+grid cell. ARCO requests use the CDS API key returned by \code{\link[ecmwfr:wf_get_key]{ecmwfr::wf_get_key()}}; users should
+configure it beforehand with \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}. The optional Rarr and ecmwfr packages must
+both be installed; Rarr is distributed through Bioconductor and ecmwfr through CRAN.
+
+Altitude calculation also requires a time-invariant surface-geopotential grid. The ERA5-Land
+0.1 degree invariant is downloaded from the official ERA5-Land documentation. The ERA5
+0.25 degree invariant is requested once from the CDS \code{reanalysis-era5-single-levels} dataset.
+These replaceable files are stored in \code{tools::R_user_dir("GeoPressureR", "cache")} and reused
+across R sessions and package updates. They can safely be deleted; the next altitude request
+will download them again. No invariant file is downloaded when \code{compute_altitude = FALSE}.
+
+ARCO access is currently an ECMWF beta service. Its availability, store structure, and rate
+limits may change independently of GeoPressureR.
+}
+
+\examples{
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+# Hourly ERA5-Land surface pressure
+x <- geopressure_timeseries_arco(
+  lat = 46,
+  lon = 6,
+  start_time = "2020-01-01 00:00",
+  end_time = "2020-01-02 00:00"
+)
+
+# Global ERA5 pressure over water
+ocean <- geopressure_timeseries_arco(
+  lat = 0,
+  lon = -30,
+  start_time = "2020-01-01 00:00",
+  end_time = "2020-01-02 00:00",
+  era5_dataset = "single-levels"
+)
+
+# Add ERA5 pressure, normalised pressure, and estimated altitude to tag data
+pressure <- data.frame(
+  date = as.POSIXct(c("2020-01-01 00:10", "2020-01-01 01:10"), tz = "UTC"),
+  value = c(980, 979)
+)
+pressurepath <- geopressure_timeseries_arco(
+  lat = 46,
+  lon = 6,
+  pressure = pressure,
+  era5_dataset = "land"
+)
+\dontshow{\}) # examplesIf}
+}
+\references{
+Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023. Global
+Positioning with Animal-borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
+1118-1129. \doi{10.1111/2041-210X.14043}.
+
+ECMWF ERA5 hourly data on single levels, \doi{10.24381/cds.adbb2d47}.
+
+ECMWF ERA5-Land hourly data, \doi{10.24381/cds.e2161bac}.
 }
 \seealso{
 Other pressurepath:

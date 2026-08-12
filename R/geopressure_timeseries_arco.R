@@ -1,15 +1,163 @@
-#' Request a pressure time series directly from ERA5-Land ARCO
+#' Retrieve an ERA5 pressure time series directly from ARCO
 #'
-#' Experimental alternative to [geopressure_timeseries()] using the ECMWF ERA5-Land
-#' Analysis-Ready Cloud-Optimised (ARCO) Zarr archive.
+#' @description
+#' `geopressure_timeseries_arco()` retrieves an hourly surface-pressure time series at one
+#' location directly from the ECMWF Analysis-Ready Cloud-Optimised (ARCO) Zarr archive. It is a
+#' client-side alternative to [geopressure_timeseries()]: the requested Zarr chunks are read in R
+#' instead of asking GeoPressureAPI to prepare the time series.
 #'
-#' @inheritParams geopressure_timeseries
-#' @param compute_altitude logical to compute altitude when `pressure` is supplied. Set to `FALSE`
-#'   to skip reading ERA5-Land temperature and geopotential data.
-#' @param cache_dir Directory used to cache static ERA5-Land rasters.
+#' The function can either return ERA5 surface pressure for an interval defined by `start_time`
+#' and `end_time`, or combine ERA5 data with a geolocator pressure series supplied through
+#' `pressure`. In the latter case it can also estimate the geolocator altitude and normalise the
+#' ERA5 pressure to the mean pressure level measured by the tag.
 #'
-#' @return The same data.frame structure as [geopressure_timeseries()].
+#' @section ERA5 datasets and spatial matching:
+#' Two ARCO products are supported:
+#'
+#' - `era5_dataset = "land"` uses ERA5-Land on a 0.1 degree regular grid. ERA5-Land is masked over
+#'   oceans. If the selected grid cell contains no pressure data, the function uses the official
+#'   ERA5-Land land-sea mask to find the closest land cell and returns its coordinates in `lat`
+#'   and `lon`.
+#' - `era5_dataset = "single-levels"` uses the global ERA5 single-level product on a 0.25 degree
+#'   regular grid. Surface pressure and temperature are defined over both land and water, so the
+#'   requested location is not moved onshore.
+#'
+#' The input coordinates are rounded to the nearest cell of the selected grid. Except when the
+#' ERA5-Land closest-cell procedure is used, the returned `lat` and `lon` remain the input
+#' coordinates rather than the rounded grid-cell coordinates.
+#'
+#' ERA5-Land is available through this implementation from 2 January 1950, whereas ERA5 single
+#' levels is available from 2 January 1940. These starting dates reflect the time coordinates of
+#' the current ARCO stores.
+#'
+#' @section Temporal matching:
+#' When `pressure` is not supplied, `start_time` and `end_time` are converted to UTC and rounded
+#' upwards to complete hours. The result contains every hourly ERA5 value in the resulting closed
+#' interval.
+#'
+#' When `pressure` is supplied, every `pressure$date` is converted to UTC and matched to the
+#' closest available ERA5 hour, with half-hours matched to the earlier hour. Because the requested
+#' ERA5 interval starts after the first tag timestamp, the first observation is matched to the next
+#' hour if the preceding hour lies outside that interval. The returned `date` is then restored to
+#' the original tag timestamp. No temporal interpolation is performed.
+#'
+#' @section Altitude computation:
+#' If `pressure` is supplied and `compute_altitude = TRUE`, the altitude of the geolocator above
+#' mean sea level, \eqn{z_{tag}}, is calculated with the barometric equation
+#' \deqn{
+#' z_{tag}(t) = z_{ERA5} + \frac{T_{ERA5}(t)}{L_b}
+#' \left[\left(\frac{P_{tag}(t)}{P_{ERA5}(t)}\right)^{-R L_b/(g M)} - 1\right],
+#' }
+#' where \eqn{P_{tag}} is the pressure measured by the geolocator, \eqn{P_{ERA5}} is ERA5 surface
+#' pressure, \eqn{T_{ERA5}} is ERA5 2 m temperature, and \eqn{z_{ERA5}} is the model surface
+#' geopotential height. The constants are the standard temperature lapse rate
+#' \eqn{L_b=-0.0065\ \mathrm{K\,m^{-1}}}, universal gas constant
+#' \eqn{R=8.31432\ \mathrm{J\,mol^{-1}\,K^{-1}}}, standard gravity
+#' \eqn{g=9.80665\ \mathrm{m\,s^{-2}}}, and molar mass of dry air
+#' \eqn{M=0.0289644\ \mathrm{kg\,mol^{-1}}}.
+#'
+#' Pressure in `pressure$value` is expected in hPa and is converted internally to Pa for this
+#' calculation. ERA5 temperature, surface pressure, and geopotential are taken from the same
+#' dataset and grid cell. The returned `altitude` is in metres above mean sea level. Set
+#' `compute_altitude = FALSE` to avoid reading temperature and geopotential when only pressure
+#' comparison and normalisation are required.
+#'
+#' @section Pressure normalisation:
+#' When tag pressure is supplied, ERA5 surface pressure is shifted to the mean tag-pressure level
+#' so that their temporal variations can be compared. Within each elevation-label group \eqn{e},
+#' the function calculates
+#' \deqn{
+#' P_{ERA5,0,e}(t) = P_{ERA5,e}(t) - \overline{P}_{ERA5,e} + \overline{P}_{tag,e}.
+#' }
+#' The means use observations for which `stap_id != 0` and `label != "discard"`. Labels beginning
+#' with `"elev_"` define separate elevation groups; all other labels belong to the default group.
+#' If `stap_id` or `label` is absent, the function adds `stap_id = 1` or `label = ""`, respectively.
+#' The result is returned as `surface_pressure_norm`.
+#'
+#' @section ARCO access, credentials, and local data:
+#' The geo-chunked ARCO layout is used because it is optimised for long time series at a single
+#' location. The Rarr package downloads only the Zarr chunks intersecting the requested time and
+#' grid cell. ARCO requests use the CDS API key returned by [ecmwfr::wf_get_key()]; users should
+#' configure it beforehand with [ecmwfr::wf_set_key()]. The optional Rarr and ecmwfr packages must
+#' both be installed; Rarr is distributed through Bioconductor and ecmwfr through CRAN.
+#'
+#' Altitude calculation also requires a time-invariant surface-geopotential grid. The ERA5-Land
+#' 0.1 degree invariant is downloaded from the official ERA5-Land documentation. The ERA5
+#' 0.25 degree invariant is requested once from the CDS `reanalysis-era5-single-levels` dataset.
+#' These replaceable files are stored in `tools::R_user_dir("GeoPressureR", "cache")` and reused
+#' across R sessions and package updates. They can safely be deleted; the next altitude request
+#' will download them again. No invariant file is downloaded when `compute_altitude = FALSE`.
+#'
+#' ARCO access is currently an ECMWF beta service. Its availability, store structure, and rate
+#' limits may change independently of GeoPressureR.
+#'
+#' @param lat Numeric scalar latitude to query, between -90 and 90 degrees.
+#' @param lon Numeric scalar longitude to query, between -180 and 180 degrees.
+#' @param pressure Optional data.frame containing the geolocator pressure series, with at least a
+#'   POSIXct or POSIXlt `date` column and a numeric `value` column in hPa. Additional columns are
+#'   retained.
+#' @param start_time Start of the requested interval. Used only when `pressure` is `NULL` and
+#'   interpreted in UTC.
+#' @param end_time End of the requested interval. Used only when `pressure` is `NULL` and
+#'   interpreted in UTC.
+#' @param compute_altitude Logical scalar. If `TRUE`, compute altitude from tag pressure, ERA5
+#'   surface pressure, 2 m temperature, and surface geopotential. It defaults to `TRUE` when
+#'   `pressure` is supplied and `FALSE` otherwise.
+#' @param quiet Logical scalar to suppress progress messages.
+#' @param debug Logical scalar to display the selected Zarr paths and array indices.
+#' @param era5_dataset ERA5 product to use: `"land"` for ERA5-Land at 0.1 degree resolution or
+#'   `"single-levels"` for global ERA5 at 0.25 degree resolution.
+#'
+#' @return A data.frame. Without `pressure`, it contains:
+#'
+#' - `date`: hourly POSIXct timestamp in UTC;
+#' - `surface_pressure`: ERA5 surface pressure in hPa;
+#' - `lat`, `lon`: queried coordinates, or the selected closest-land coordinates for ERA5-Land.
+#'
+#' With `pressure`, the input rows and additional columns are retained, `value` is renamed to
+#' `pressure_tag`, and the ERA5 variables are joined by date. The result additionally contains
+#' `surface_pressure_norm` when normalisation observations are available and `altitude` when
+#' `compute_altitude = TRUE`.
+#'
+#' @examplesIf FALSE
+#' # Hourly ERA5-Land surface pressure
+#' x <- geopressure_timeseries_arco(
+#'   lat = 46,
+#'   lon = 6,
+#'   start_time = "2020-01-01 00:00",
+#'   end_time = "2020-01-02 00:00"
+#' )
+#'
+#' # Global ERA5 pressure over water
+#' ocean <- geopressure_timeseries_arco(
+#'   lat = 0,
+#'   lon = -30,
+#'   start_time = "2020-01-01 00:00",
+#'   end_time = "2020-01-02 00:00",
+#'   era5_dataset = "single-levels"
+#' )
+#'
+#' # Add ERA5 pressure, normalised pressure, and estimated altitude to tag data
+#' pressure <- data.frame(
+#'   date = as.POSIXct(c("2020-01-01 00:10", "2020-01-01 01:10"), tz = "UTC"),
+#'   value = c(980, 979)
+#' )
+#' pressurepath <- geopressure_timeseries_arco(
+#'   lat = 46,
+#'   lon = 6,
+#'   pressure = pressure,
+#'   era5_dataset = "land"
+#' )
+#'
 #' @family pressurepath
+#' @references
+#' Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023. Global
+#' Positioning with Animal-borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
+#' 1118-1129. \doi{10.1111/2041-210X.14043}.
+#'
+#' ECMWF ERA5 hourly data on single levels, \doi{10.24381/cds.adbb2d47}.
+#'
+#' ECMWF ERA5-Land hourly data, \doi{10.24381/cds.e2161bac}.
 #' @export
 geopressure_timeseries_arco <- function(
   lat,
@@ -20,7 +168,7 @@ geopressure_timeseries_arco <- function(
   compute_altitude = !is.null(pressure),
   quiet = FALSE,
   debug = FALSE,
-  cache_dir = tools::R_user_dir("GeoPressureR", "cache")
+  era5_dataset = c("land", "single-levels")
 ) {
   assertthat::assert_that(is.numeric(lon))
   assertthat::assert_that(is.numeric(lat))
@@ -29,6 +177,12 @@ geopressure_timeseries_arco <- function(
   assertthat::assert_that(is.logical(compute_altitude), length(compute_altitude) == 1)
   assertthat::assert_that(!compute_altitude || !is.null(pressure))
   assertthat::assert_that(is.logical(quiet))
+  era5_dataset <- match.arg(era5_dataset)
+  dataset_name <- if (era5_dataset == "land") "ERA5-Land" else "ERA5 single levels"
+  resolution <- if (era5_dataset == "land") 0.1 else 0.25
+  cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
+  query_lon <- floor(lon / resolution + 0.5) * resolution
+  query_lat <- floor(lat / resolution + 0.5) * resolution
 
   if (!requireNamespace("Rarr", quietly = TRUE)) {
     cli::cli_abort(c(
@@ -70,8 +224,9 @@ geopressure_timeseries_arco <- function(
     assertthat::assert_that(is.numeric(pressure$value))
     assertthat::assert_that(nrow(pressure) > 0)
     requested_date <- as.POSIXct(pressure$date, tz = "UTC")
+    first_hour <- ceiling(min(as.numeric(requested_date)) / 3600)
     requested_hour <- as.POSIXct(
-      ceiling(as.numeric(requested_date) / 3600) * 3600,
+      pmax(first_hour, ceiling(as.numeric(requested_date) / 3600 - 0.5)) * 3600,
       origin = "1970-01-01",
       tz = "UTC"
     )
@@ -92,19 +247,20 @@ geopressure_timeseries_arco <- function(
   }
 
   if (!quiet) {
-    cli::cli_progress_step("Read ERA5-Land pressure from the ECMWF ARCO archive")
+    cli::cli_progress_step("Read {dataset_name} pressure from the ECMWF ARCO archive")
   }
-  surface_pressure <- era5_land_arco_read(
+  surface_pressure <- era5_arco_read(
     variable = "sp",
-    lon = round(lon * 10) / 10,
-    lat = round(lat * 10) / 10,
+    era5_dataset = era5_dataset,
+    lon = query_lon,
+    lat = query_lat,
     date = date,
     arco_client = arco_client,
     debug = debug
   )
 
   # The ARCO archive is masked over oceans. Match GeoPressureAPI by moving an ocean point inland.
-  if (all(is.na(surface_pressure))) {
+  if (era5_dataset == "land" && all(is.na(surface_pressure))) {
     lsm_file <- file.path(cache_dir, "lsm_1279l4_0.1x0.1.grb")
     if (!file.exists(lsm_file)) {
       dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
@@ -131,15 +287,18 @@ geopressure_timeseries_arco <- function(
     nearest <- which.min(distance)
     lon <- unname(xy[nearest, 1])
     lat <- unname(xy[nearest, 2])
+    query_lon <- round(lon * 10) / 10
+    query_lat <- round(lat * 10) / 10
     if (!quiet) {
       cli::cli_alert_warning(
         "Requested position is over water; using the closest ERA5-Land cell ({round(distance[nearest] / 1000)} km away)."
       )
     }
-    surface_pressure <- era5_land_arco_read(
+    surface_pressure <- era5_arco_read(
       variable = "sp",
-      lon = round(lon * 10) / 10,
-      lat = round(lat * 10) / 10,
+      era5_dataset = era5_dataset,
+      lon = query_lon,
+      lat = query_lat,
       date = date,
       arco_client = arco_client,
       debug = debug
@@ -160,28 +319,60 @@ geopressure_timeseries_arco <- function(
 
     if (compute_altitude) {
       if (!quiet) {
-        cli::cli_progress_step("Read ERA5-Land temperature and compute altitude")
+        cli::cli_progress_step("Read {dataset_name} temperature and compute altitude")
       }
-      temperature <- era5_land_arco_read(
+      temperature <- era5_arco_read(
         variable = "t2m",
-        lon = round(lon * 10) / 10,
-        lat = round(lat * 10) / 10,
+        era5_dataset = era5_dataset,
+        lon = query_lon,
+        lat = query_lat,
         date = date,
         arco_client = arco_client,
         debug = debug
       )
-      geopotential_file <- file.path(cache_dir, "geo_1279l4_0.1x0.1.grib2")
-      if (!file.exists(geopotential_file)) {
-        dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-        httr2::request(
-          "https://confluence.ecmwf.int/download/attachments/140385202/geo_1279l4_0.1x0.1.grib2?version=1&modificationDate=1582901403445&api=v2"
-        ) |>
-          httr2::req_perform(path = geopotential_file)
+      if (era5_dataset == "land") {
+        geopotential_file <- file.path(cache_dir, "geo_1279l4_0.1x0.1.grib2")
+        if (!file.exists(geopotential_file)) {
+          dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+          httr2::request(
+            "https://confluence.ecmwf.int/download/attachments/140385202/geo_1279l4_0.1x0.1.grib2?version=1&modificationDate=1582901403445&api=v2"
+          ) |>
+            httr2::req_perform(path = geopotential_file)
+        }
+      } else {
+        geopotential_file <- file.path(cache_dir, "era5-geopotential-0.25.grib")
+        if (!file.exists(geopotential_file)) {
+          dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+          ecmwfr::wf_request(
+            list(
+              dataset_short_name = "reanalysis-era5-single-levels",
+              product_type = "reanalysis",
+              variable = "geopotential",
+              year = "2000",
+              month = "01",
+              day = "01",
+              time = "00:00",
+              data_format = "grib",
+              download_format = "unarchived",
+              target = basename(geopotential_file)
+            ),
+            path = cache_dir,
+            verbose = !quiet
+          )
+        }
       }
       geopotential <- terra::rast(geopotential_file)
-      terra::ext(geopotential) <- c(-0.05, 359.95, -90.05, 90.05)
+      terra::ext(geopotential) <- if (era5_dataset == "land") {
+        c(-0.05, 359.95, -90.05, 90.05)
+      } else {
+        c(-0.125, 359.875, -90.125, 90.125)
+      }
       geopotential <- terra::rotate(geopotential)
-      elevation <- terra::extract(geopotential, matrix(c(lon, lat), ncol = 2))[[1]] / 9.80665
+      elevation <- terra::extract(
+        geopotential,
+        matrix(c(query_lon, query_lat), ncol = 2)
+      )[[1]] /
+        9.80665
       out$altitude <- elevation +
         temperature[nearest_time] /
           -0.0065 *
@@ -225,26 +416,36 @@ geopressure_timeseries_arco <- function(
   return(out)
 }
 
-era5_land_arco_read <- function(
+era5_arco_read <- function(
   variable,
+  era5_dataset,
   lon,
   lat,
   date,
   arco_client,
   debug
 ) {
-  store <- switch(
-    variable,
-    sp = "cadl-arco-geo-009/arco/reanalysis_era5_land/sfc-pressure-precipitation",
-    t2m = "cadl-arco-geo-007/arco/reanalysis_era5_land/sfc-2m-temperature"
-  )
+  store <- if (era5_dataset == "land") {
+    switch(
+      variable,
+      sp = "cadl-arco-geo-009/arco/reanalysis_era5_land/sfc-pressure-precipitation",
+      t2m = "cadl-arco-geo-007/arco/reanalysis_era5_land/sfc-2m-temperature"
+    )
+  } else {
+    "cadl-arco-geo-002/arco/reanalysis_era5_single_levels/sfc"
+  }
   array <- glue::glue(
     "https://arco.datastores.ecmwf.int/{store}/geoChunked.zarr/{variable}"
   )
-  # Convert ERA5-Land coordinates to one-based Zarr indexes.
-  time_index <- as.integer(as.numeric(date) / 3600 - (-175296) + 1)
-  lat_index <- as.integer(round((lat + 90) * 10) + 1)
-  lon_index <- if (lon == -180) 3600L else as.integer(round((lon + 179.9) * 10) + 1)
+  if (era5_dataset == "land") {
+    time_index <- as.integer(as.numeric(date) / 3600 - (-175296) + 1)
+    lat_index <- as.integer(round((lat + 90) * 10) + 1)
+    lon_index <- if (lon == -180) 3600L else as.integer(round((lon + 179.9) * 10) + 1)
+  } else {
+    time_index <- as.integer((as.numeric(date) - (-946771200)) / 3600 + 1)
+    lat_index <- as.integer(round((lat + 90) * 4) + 1)
+    lon_index <- if (lon == 180) 1L else as.integer(round((lon + 180) * 4) + 1)
+  }
   if (debug) {
     cli::cli_text(
       "Read {.field {variable}} indexes {range(time_index)}, {lat_index}, {lon_index} from {.url {array}}"
