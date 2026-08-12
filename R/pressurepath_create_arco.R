@@ -148,7 +148,11 @@ pressurepath_create_arco <- function(
 
   resolution <- ifelse(dataset == "land", 0.1, 0.25)
   query_lon <- floor(pressurepath$lon / resolution + 0.5) * resolution
-  query_lat <- floor(pressurepath$lat / resolution + 0.5) * resolution
+  query_lat <- ifelse(
+    dataset == "land",
+    ceiling(pressurepath$lat / resolution - 0.5) * resolution,
+    floor(pressurepath$lat / resolution + 0.5) * resolution
+  )
   requested_date <- as.POSIXct(pressurepath$date, tz = "UTC")
   first_hour <- ceiling(min(as.numeric(requested_date)) / 3600)
   requested_hour <- as.POSIXct(
