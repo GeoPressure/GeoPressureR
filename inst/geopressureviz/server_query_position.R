@@ -6,6 +6,8 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
   reactVal$query_proc <- NULL
   reactVal$query_target_stap_idx <- NULL
   reactVal$query_target_stap_id <- NULL
+  reactVal$query_requested_lat <- NULL
+  reactVal$query_requested_lon <- NULL
   reactVal$query_started_at <- NULL
   reactVal$query_running_note_id <- NULL
   reactVal$query_button_label <- "Query pressure"
@@ -69,7 +71,9 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
     reactVal$query_proc <- p
     reactVal$query_target_stap_idx <- stap_idx
     reactVal$query_target_stap_id <- stap_id
-    reactVal$query_started_at <- Sys.time()
+    reactVal$query_requested_lat <- lat0
+    reactVal$query_requested_lon <- lon0
+    reactVal$query_started_at <- as.POSIXct(Sys.time(), tz = "UTC")
     TRUE
   }
 
@@ -90,9 +94,14 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
 
     stap_idx <- reactVal$query_target_stap_idx
     stap_id <- reactVal$query_target_stap_id
+    requested_lat <- reactVal$query_requested_lat
+    requested_lon <- reactVal$query_requested_lon
+    requested_at <- reactVal$query_started_at
     reactVal$query_proc <- NULL
     reactVal$query_target_stap_idx <- NULL
     reactVal$query_target_stap_id <- NULL
+    reactVal$query_requested_lat <- NULL
+    reactVal$query_requested_lon <- NULL
     reactVal$query_started_at <- NULL
     if (!is.null(reactVal$query_running_note_id)) {
       try(shiny::removeNotification(reactVal$query_running_note_id), silent = TRUE)
@@ -102,11 +111,23 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
     tryCatch(
       {
         pressuretimeseries <- p$get_result()
-        process_pressuretimeseries(pressuretimeseries, stap_idx, stap_id)
+        cached <- process_pressuretimeseries(
+          pressuretimeseries,
+          stap_idx,
+          stap_id,
+          requested_lat,
+          requested_lon,
+          requested_at,
+          as.POSIXct(Sys.time(), tz = "UTC")
+        )
         shiny::showNotification(
-          paste0("Query completed. (#", stap_id, ")"),
-          type = "message",
-          duration = 6
+          if (cached) {
+            paste0("Query completed and cached for Trainset. (#", stap_id, ")")
+          } else {
+            paste0("Query completed, but could not be cached for Trainset. (#", stap_id, ")")
+          },
+          type = if (cached) "message" else "warning",
+          duration = if (cached) 6 else 12
         )
       },
       error = function(e) {
