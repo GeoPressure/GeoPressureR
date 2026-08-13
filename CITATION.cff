@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.6.0
+version: 3.6.1.9000
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -674,6 +674,21 @@ references:
     email: lionel@posit.co
   year: '2026'
   doi: 10.32614/CRAN.package.pkgload
+- type: software
+  title: Rarr
+  abstract: 'Rarr: Read Zarr Files in R'
+  notes: Suggests
+  url: https://huber-group-embl.github.io/Rarr/
+  repository: https://bioc-release.r-universe.dev
+  authors:
+  - family-names: Smith
+    given-names: Mike
+    orcid: https://orcid.org/0000-0002-7800-3848
+  - family-names: Gruson
+    given-names: Hugo
+    email: hugo.gruson@embl.de
+    orcid: https://orcid.org/0000-0002-4094-1476
+  year: '2026'
 - type: software
   title: readxl
   abstract: 'readxl: Read Excel Files'
