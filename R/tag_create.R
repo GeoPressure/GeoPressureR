@@ -191,12 +191,20 @@ tag_create <- function(
         manufacturer <- "bas"
       } else if (any(grepl("_press\\.xlsx$", list.files(directory)))) {
         manufacturer <- "lund"
+      } else if (any(grepl("\\.csv$", list.files(directory), ignore.case = TRUE))) {
+        manufacturer <- "tabular"
+        pressure_file <- list.files(
+          directory,
+          pattern = "\\.csv$",
+          full.names = TRUE,
+          ignore.case = TRUE
+        )[1]
       } else {
         cli::cli_abort(c(
           "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
         {.file {directory}}",
           ">" = "Check that this directory contains the file with pressure data (i.e., with
-        extension {.val .pressure}, {.val .glf}, {.val .deg} or {.val _press.xlsx})"
+        extension {.val .pressure}, {.val .glf}, {.val .deg}, {.val _press.xlsx} or {.val .csv})"
         ))
       }
     }

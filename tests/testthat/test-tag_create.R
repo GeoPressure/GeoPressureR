@@ -249,6 +249,30 @@ test_that("tag_create() | tabular csv and in-memory input", {
   expect_equal(tag_in_memory$param$tag_create$pressure_file, "in_memory")
 })
 
+test_that("tag_create() | automatically detects tabular csv", {
+  directory <- tempfile()
+  dir.create(directory)
+  dt <- as.POSIXct(
+    c("2017-06-20 00:00:00", "2017-06-20 01:00:00"),
+    tz = "UTC"
+  )
+  csv <- data.frame(
+    datetime = format(dt, "%Y-%m-%dT%H:%M"),
+    value = c(1000, 1001)
+  )
+  utils::write.csv(csv, file.path(directory, "22AU.csv"), row.names = FALSE)
+
+  tag <- tag_create(
+    id = "22AU",
+    directory = directory,
+    quiet = TRUE
+  )
+
+  expect_true("pressure" %in% names(tag))
+  expect_equal(tag$param$tag_create$manufacturer, "tabular")
+  expect_equal(tag$param$tag_create$pressure_file, file.path(directory, "22AU.csv"))
+})
+
 test_that("tag_create() | time_shift scalar shifts all sensors and applies before crop", {
   dt <- as.POSIXct(
     c("2017-06-20 00:00:00", "2017-06-20 01:00:00"),
