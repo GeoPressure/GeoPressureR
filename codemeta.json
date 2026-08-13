@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/GeoPressure/GeoPressureR",
   "issueTracker": "https://github.com/GeoPressure/GeoPressureR/issues",
   "license": "https://spdx.org/licenses/GPL-3.0",
-  "version": "3.6.0.9000",
+  "version": "3.6.0",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -511,7 +511,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "29428.064KB",
+  "fileSize": "8288.823KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

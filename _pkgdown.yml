@@ -16,7 +16,7 @@ template:
       <!-- Google tag (gtag.js) -->
 
 development:
-  mode: auto
+  mode: release
 
 home:
   sidebar:
