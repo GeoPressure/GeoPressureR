@@ -184,13 +184,14 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
 
   # Rename column datetime to date and convert to posixct
   names(sensor_data)[names(sensor_data) == "datetime"] <- "date"
-  sensor_data$date <- as.POSIXct(sensor_data$date, format = "%Y-%m-%dT%H:%M", tz = "UTC")
+  date <- sensor_data$date
+  sensor_data$date <- as.POSIXct(date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
   if (anyNA(sensor_data$date)) {
-    sensor_data$date <- as.POSIXct(strptime(
-      sensor_data$date,
-      format = "%Y-%m-%dT%H:%M:%OS",
+    sensor_data$date <- as.POSIXct(
+      date,
+      format = "%Y-%m-%dT%H:%M",
       tz = "UTC"
-    ))
+    )
   }
   if (anyNA(sensor_data$date)) {
     cli::cli_abort(c(

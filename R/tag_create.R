@@ -192,13 +192,20 @@ tag_create <- function(
       } else if (any(grepl("_press\\.xlsx$", list.files(directory)))) {
         manufacturer <- "lund"
       } else if (any(grepl("\\.csv$", list.files(directory), ignore.case = TRUE))) {
-        manufacturer <- "tabular"
-        pressure_file <- list.files(
+        csv_files <- list.files(
           directory,
           pattern = "\\.csv$",
           full.names = TRUE,
           ignore.case = TRUE
-        )[1]
+        )
+        csv_names <- tolower(basename(csv_files))
+        manufacturer <- "tabular"
+        pressure_file <- csv_files[match("pressure.csv", csv_names)]
+        light_file <- csv_files[match("light.csv", csv_names)]
+        acceleration_file <- csv_files[match("acceleration.csv", csv_names)]
+        temperature_external_file <- csv_files[match("temperature_external.csv", csv_names)]
+        temperature_internal_file <- csv_files[match("temperature_internal.csv", csv_names)]
+        magnetic_file <- csv_files[match("magnetic.csv", csv_names)]
       } else {
         cli::cli_abort(c(
           "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
@@ -265,6 +272,7 @@ tag_create <- function(
   } else if (manufacturer == "tabular") {
     tag <- tag_create_tabular(
       id,
+      directory = directory,
       pressure_file = pressure_file,
       light_file = light_file,
       acceleration_file = acceleration_file,

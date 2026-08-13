@@ -260,7 +260,17 @@ test_that("tag_create() | automatically detects tabular csv", {
     datetime = format(dt, "%Y-%m-%dT%H:%M"),
     value = c(1000, 1001)
   )
-  utils::write.csv(csv, file.path(directory, "22AU.csv"), row.names = FALSE)
+  utils::write.csv(csv, file.path(directory, "pressure.csv"), row.names = FALSE)
+  utils::write.csv(
+    data.frame(datetime = format(dt, "%Y-%m-%dT%H:%M"), value = c(1, 2)),
+    file.path(directory, "light.csv"),
+    row.names = FALSE
+  )
+  utils::write.csv(
+    data.frame(datetime = format(dt, "%Y-%m-%dT%H:%M"), value = c(3, 4)),
+    file.path(directory, "acceleration.csv"),
+    row.names = FALSE
+  )
 
   tag <- tag_create(
     id = "22AU",
@@ -269,8 +279,33 @@ test_that("tag_create() | automatically detects tabular csv", {
   )
 
   expect_true("pressure" %in% names(tag))
+  expect_true("light" %in% names(tag))
+  expect_true("acceleration" %in% names(tag))
   expect_equal(tag$param$tag_create$manufacturer, "tabular")
-  expect_equal(tag$param$tag_create$pressure_file, file.path(directory, "22AU.csv"))
+  expect_equal(tag$param$tag_create$pressure_file, file.path(directory, "pressure.csv"))
+  expect_equal(tag$param$tag_create$light_file, file.path(directory, "light.csv"))
+  expect_equal(tag$param$tag_create$acceleration_file, file.path(directory, "acceleration.csv"))
+})
+
+test_that("tag_create() | reads readr CSV timestamps without truncating seconds", {
+  directory <- tempfile()
+  dir.create(directory)
+  datetime <- as.POSIXct(
+    c("2017-06-20 00:00:01", "2017-06-20 01:02:03"),
+    tz = "UTC"
+  )
+  readr::write_csv(
+    data.frame(datetime = datetime, value = c(1000, 1001)),
+    file.path(directory, "pressure.csv")
+  )
+
+  tag <- tag_create(
+    id = "readr_csv",
+    directory = directory,
+    quiet = TRUE
+  )
+
+  expect_equal(tag$pressure$date, datetime)
 })
 
 test_that("tag_create() | time_shift scalar shifts all sensors and applies before crop", {
