@@ -176,6 +176,21 @@ pressurepath_create_arco <- function(
       debug = debug
     )
   }
+  if (era5_dataset == "both" && anyNA(surface_pressure)) {
+    id <- is.na(surface_pressure)
+    dataset[id] <- "single-levels"
+    resolution[id] <- 0.25
+    query_lon[id] <- floor(pressurepath$lon[id] / resolution[id] + 0.5) * resolution[id]
+    query_lat[id] <- floor(pressurepath$lat[id] / resolution[id] + 0.5) * resolution[id]
+    surface_pressure[id] <- era5_arco_read_points(
+      variable = "sp",
+      era5_dataset = "single-levels",
+      lon = query_lon[id],
+      lat = query_lat[id],
+      date = requested_hour[id],
+      debug = debug
+    )
+  }
 
   if (compute_altitude) {
     if (!quiet) {
