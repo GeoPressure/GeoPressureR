@@ -67,7 +67,7 @@ geolight_fit_location <- function(
   zenith_bounds = c(70, 110),
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
-  zenith_prior_penalty_weight = 1e-4,
+  zenith_prior_penalty_weight = 1e-5,
   compute_known = FALSE,
   quiet = FALSE
 ) {

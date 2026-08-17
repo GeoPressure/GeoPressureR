@@ -14,7 +14,7 @@ geolight_map(
   fitted_location_duration = Inf,
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
-  zenith_prior_penalty_weight = 1e-04,
+  zenith_prior_penalty_weight = 1e-05,
   refine_fitted_location_scale_km = 20,
   refine_fitted_location_max_iter = 0,
   twl_llp = function(n) log(n)/n,
@@ -37,7 +37,7 @@ geolight_map_calibrate(
   fitted_location_duration = Inf,
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
-  zenith_prior_penalty_weight = 1e-04,
+  zenith_prior_penalty_weight = 1e-05,
   refine_fitted_location_scale_km = 20,
   refine_fitted_location_max_iter = 0,
   quiet = FALSE

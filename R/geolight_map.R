@@ -103,7 +103,7 @@ geolight_map <- function(
   fitted_location_duration = Inf,
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
-  zenith_prior_penalty_weight = 1e-4,
+  zenith_prior_penalty_weight = 1e-5,
   refine_fitted_location_scale_km = 20,
   refine_fitted_location_max_iter = 0,
   twl_llp = \(n) log(n) / n,
