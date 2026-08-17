@@ -71,12 +71,8 @@ GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 \item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
 number of workers to the number of \code{stapelev} to query.}
 
-\item{era5_dataset}{select the dataset to use: \code{"single-levels"} for ERA5 hourly data on single
-levels (\doi{10.24381/cds.adbb2d47}), \code{"land"} for ERA5-Land hourly data
-(\doi{10.24381/cds.e2161bac}), or \code{"both"} to use \code{"land"} where available and
-\code{"single-levels"} otherwise (i.e. over water). \code{"land"} has greater precision but is not
-available on water. \code{"both"} is slower and can cause memory failures for long stationary periods
-(e.g. several months), so prefer a single dataset when possible.}
+\item{era5_dataset}{ERA5 product to use: \code{"land"} for ERA5-Land, \code{"single-levels"} for global
+ERA5, or \code{"both"} to use ERA5-Land over land and global ERA5 elsewhere.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 

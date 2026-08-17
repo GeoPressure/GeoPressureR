@@ -83,7 +83,7 @@
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
 #' 1118–1129 \doi{10.1111/2041-210X.14043}.}
 #' @export
-geopressure_timeseries <- function(
+geopressure_timeseries_api <- function(
   lat,
   lon,
   pressure = NULL,

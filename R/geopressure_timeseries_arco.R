@@ -1,7 +1,7 @@
 #' Retrieve an ERA5 pressure time series directly from ARCO
 #'
 #' @description
-#' `geopressure_timeseries_arco()` retrieves an hourly surface-pressure time series at one
+#' `geopressure_timeseries()` retrieves an hourly surface-pressure time series at one
 #' location directly from the ECMWF Analysis-Ready Cloud-Optimised (ARCO) Zarr archive. It is a
 #' client-side alternative to [geopressure_timeseries()]: the requested Zarr chunks are read in R
 #' instead of asking GeoPressureAPI to prepare the time series.
@@ -121,7 +121,7 @@
 #'
 #' @examplesIf FALSE
 #' # Hourly ERA5-Land surface pressure
-#' x <- geopressure_timeseries_arco(
+#' x <- geopressure_timeseries(
 #'   lat = 46,
 #'   lon = 6,
 #'   start_time = "2020-01-01 00:00",
@@ -129,7 +129,7 @@
 #' )
 #'
 #' # Global ERA5 pressure over water
-#' ocean <- geopressure_timeseries_arco(
+#' ocean <- geopressure_timeseries(
 #'   lat = 0,
 #'   lon = -30,
 #'   start_time = "2020-01-01 00:00",
@@ -142,7 +142,7 @@
 #'   date = as.POSIXct(c("2020-01-01 00:10", "2020-01-01 01:10"), tz = "UTC"),
 #'   value = c(980, 979)
 #' )
-#' pressurepath <- geopressure_timeseries_arco(
+#' pressurepath <- geopressure_timeseries(
 #'   lat = 46,
 #'   lon = 6,
 #'   pressure = pressure,
@@ -159,7 +159,7 @@
 #'
 #' ECMWF ERA5-Land hourly data, \doi{10.24381/cds.e2161bac}.
 #' @export
-geopressure_timeseries_arco <- function(
+geopressure_timeseries <- function(
   lat,
   lon,
   pressure = NULL,
@@ -186,13 +186,13 @@ geopressure_timeseries_arco <- function(
 
   if (!requireNamespace("Rarr", quietly = TRUE)) {
     cli::cli_abort(c(
-      "x" = "Package {.pkg Rarr} is required for {.fun geopressure_timeseries_arco}.",
+      "x" = "Package {.pkg Rarr} is required for {.fun geopressure_timeseries}.",
       "i" = "Install it with {.run BiocManager::install('Rarr')}."
     ))
   }
   if (!requireNamespace("ecmwfr", quietly = TRUE)) {
     cli::cli_abort(c(
-      "x" = "Package {.pkg ecmwfr} is required for {.fun geopressure_timeseries_arco}.",
+      "x" = "Package {.pkg ecmwfr} is required for {.fun geopressure_timeseries}.",
       "i" = "Install it with {.run install.packages('ecmwfr')}."
     ))
   }

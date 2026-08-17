@@ -109,7 +109,7 @@
 #' @seealso [GeoPressureManual | Pressure
 #' Map](https://geopressure.org/GeoPressureManual/pressure-map.html)
 #' @export
-pressurepath_create <- function(
+pressurepath_create_api <- function(
   tag,
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),

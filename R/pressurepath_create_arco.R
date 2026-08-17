@@ -1,13 +1,14 @@
 #' Create a pressure path directly from ERA5 ARCO
 #'
-#' `pressurepath_create_arco()` is a client-side alternative to [pressurepath_create()] for its
+#' `pressurepath_create()` reads the required data directly from the ECMWF Analysis-Ready
+#' Cloud-Optimised (ARCO) archive for its
 #' standard surface-pressure and altitude workflow. It interpolates the supplied path during
 #' flights, groups observations by ERA5 grid cell, and reads the required Zarr chunks directly
 #' from the ECMWF Analysis-Ready Cloud-Optimised (ARCO) archive.
 #'
 #' Surface pressure is retrieved for every retained tag observation. Altitude is computed from
 #' tag pressure, ERA5 surface pressure, 2 m temperature, and the time-invariant surface
-#' geopotential using the same barometric equation as [geopressure_timeseries_arco()]. Set
+#' geopotential using the same barometric equation as [geopressure_timeseries()]. Set
 #' `compute_altitude = FALSE` when altitude is not needed.
 #'
 #' The returned `lat` and `lon` remain the supplied or interpolated bird coordinates. ERA5 values
@@ -39,11 +40,11 @@
 #'   lat = c(48.5, 32.5, 30.5, 49.5, 41.6),
 #'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
 #' )
-#' pressurepath <- pressurepath_create_arco(tag, path, quiet = TRUE)
+#' pressurepath <- pressurepath_create(tag, path, quiet = TRUE)
 #'
 #' @family pressurepath
 #' @export
-pressurepath_create_arco <- function(
+pressurepath_create <- function(
   tag,
   path = tag2path(tag),
   compute_altitude = TRUE,
@@ -61,13 +62,13 @@ pressurepath_create_arco <- function(
 
   if (!requireNamespace("Rarr", quietly = TRUE)) {
     cli::cli_abort(c(
-      "x" = "Package {.pkg Rarr} is required for {.fun pressurepath_create_arco}.",
+      "x" = "Package {.pkg Rarr} is required for {.fun pressurepath_create}.",
       "i" = "Install it with {.run BiocManager::install('Rarr')}."
     ))
   }
   if (!requireNamespace("ecmwfr", quietly = TRUE)) {
     cli::cli_abort(c(
-      "x" = "Package {.pkg ecmwfr} is required for {.fun pressurepath_create_arco}.",
+      "x" = "Package {.pkg ecmwfr} is required for {.fun pressurepath_create}.",
       "i" = "Install it with {.run install.packages('ecmwfr')}."
     ))
   }
