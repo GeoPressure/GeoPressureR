@@ -739,19 +739,22 @@ server <- function(input, output, session) {
     pressuretimeseries$stap_ref <- stap_id
     pressuretimeseries$col <- stap$col[stap_idx]
 
-    cache_file <- try(GeoPressureR:::pressure_query_cache_write(list(
-      tag_id = tag$param$id,
-      stap_id = stap_id,
-      date = pressuretimeseries$date,
-      pressure_tag = pressuretimeseries$pressure_tag,
-      surface_pressure = pressuretimeseries$surface_pressure,
-      requested_lat = requested_lat,
-      requested_lon = requested_lon,
-      returned_lat = pressuretimeseries$lat[1],
-      returned_lon = pressuretimeseries$lon[1],
-      requested_at = requested_at,
-      completed_at = completed_at
-    )), silent = TRUE)
+    cache_file <- try(
+      getFromNamespace("pressure_query_cache_write", "GeoPressureR")(list(
+        tag_id = tag$param$id,
+        stap_id = stap_id,
+        date = pressuretimeseries$date,
+        pressure_tag = pressuretimeseries$pressure_tag,
+        surface_pressure = pressuretimeseries$surface_pressure,
+        requested_lat = requested_lat,
+        requested_lon = requested_lon,
+        returned_lat = pressuretimeseries$lat[1],
+        returned_lon = pressuretimeseries$lon[1],
+        requested_at = requested_at,
+        completed_at = completed_at
+      )),
+      silent = TRUE
+    )
 
     # Ensure existing pressurepath has columns we rely on (older saved objects may not).
     if (nrow(reactVal$pressurepath) > 0) {

@@ -43,11 +43,15 @@ pressure_query_cache_read <- function(tag_id, dates) {
   }
 
   bundles <- lapply(files, readRDS)
-  keep <- vapply(bundles, function(x) {
-    identical(x$version, 1L) &&
-      identical(x$tag_id, tag_id) &&
-      identical(as.numeric(x$date), as.numeric(dates))
-  }, logical(1))
+  keep <- vapply(
+    bundles,
+    function(x) {
+      identical(x$version, 1L) &&
+        identical(x$tag_id, tag_id) &&
+        identical(as.numeric(x$date), as.numeric(dates))
+    },
+    logical(1)
+  )
   bundles <- bundles[keep]
   bundles[order(vapply(bundles, function(x) as.numeric(x$requested_at), numeric(1)))]
 }

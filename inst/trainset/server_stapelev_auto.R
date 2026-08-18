@@ -13,10 +13,14 @@ stapelev_query_label <- function(bundle, i) {
 }
 
 stapelev_current_offsets <- function() {
-  vapply(seq_along(state$stapelev_offsets), function(i) {
-    value <- input[[paste0("stapelev_offset_", i)]]
-    round(if (is.null(value)) state$stapelev_offsets[i] else value, 1)
-  }, numeric(1))
+  vapply(
+    seq_along(state$stapelev_offsets),
+    function(i) {
+      value <- input[[paste0("stapelev_offset_", i)]]
+      round(if (is.null(value)) state$stapelev_offsets[i] else value, 1)
+    },
+    numeric(1)
+  )
 }
 
 stapelev_current_windows <- function() {
@@ -90,7 +94,9 @@ stapelev_assign_offsets <- function(proposal, offsets, windows, range, continuit
 
   date_num <- as.numeric(proposal$date)
   in_window <- outer(date_num, windows[, 1], ">=") & outer(date_num, windows[, 2], "<=")
-  in_window[, !is.finite(windows[, 1]) | !is.finite(windows[, 2]) | windows[, 1] >= windows[, 2]] <- FALSE
+  in_window[,
+    !is.finite(windows[, 1]) | !is.finite(windows[, 2]) | windows[, 1] >= windows[, 2]
+  ] <- FALSE
   deviation <- outer(proposal$residual, offsets, "-")
   distance <- abs(deviation)
   distance[!in_window] <- Inf
@@ -98,7 +104,8 @@ stapelev_assign_offsets <- function(proposal, offsets, windows, range, continuit
   error <- deviation[cbind(seq_len(nrow(proposal)), nearest)]
   group <- integer(nrow(proposal))
   valid <- proposal$label != "flight" &
-    is.finite(distance[cbind(seq_len(nrow(proposal)), nearest)]) & abs(error) <= range
+    is.finite(distance[cbind(seq_len(nrow(proposal)), nearest)]) &
+    abs(error) <= range
   group[valid] <- nearest[valid]
 
   if (continuity > 0 && any(group > 0L)) {
@@ -107,7 +114,9 @@ stapelev_assign_offsets <- function(proposal, offsets, windows, range, continuit
     keep <- logical(nrow(proposal))
     for (g in seq_along(offsets)) {
       i <- which(group == g)
-      if (!length(i)) next
+      if (!length(i)) {
+        next
+      }
       start <- c(1L, which(diff(date_num[i]) > 2 * dt) + 1L)
       end <- c(start[-1L] - 1L, length(i))
       for (j in seq_along(start)) {
@@ -171,13 +180,17 @@ stapelev_fitted_data <- function(proposal) {
 }
 
 stapelev_ribbon_y <- function(fitted, range) {
-  if (!length(fitted)) return(fitted)
+  if (!length(fitted)) {
+    return(fitted)
+  }
   lower <- fitted - range
   c(lower, lower[length(lower)], rev(fitted + range))
 }
 
 stapelev_ribbon_x <- function(date) {
-  if (!length(date)) return(date)
+  if (!length(date)) {
+    return(date)
+  }
   c(date, date[length(date)], rev(date))
 }
 
@@ -227,11 +240,13 @@ stapelev_restyle_levels <- function(settings, difference) {
       list(
         x = list(level_data$date),
         y = list(fitted),
-        hovertemplate = list(if (difference) {
-          "%{x}<br>Offset: %{y:.2f} hPa<extra></extra>"
-        } else {
-          "%{x}<br>ERA5 fitted: %{y:.2f} hPa<extra></extra>"
-        })
+        hovertemplate = list(
+          if (difference) {
+            "%{x}<br>Offset: %{y:.2f} hPa<extra></extra>"
+          } else {
+            "%{x}<br>ERA5 fitted: %{y:.2f} hPa<extra></extra>"
+          }
+        )
       ),
       list((i - 1L) * 2L + 1L)
     )
@@ -255,11 +270,13 @@ stapelev_restyle_view <- function(settings, difference) {
     "restyle",
     list(
       y = list(logger),
-      hovertemplate = list(if (difference) {
-        "%{x}<br>Logger − ERA5: %{y:.2f} hPa<br>%{text}<extra></extra>"
-      } else {
-        "%{x}<br>Logger: %{y:.2f} hPa<br>%{text}<extra></extra>"
-      })
+      hovertemplate = list(
+        if (difference) {
+          "%{x}<br>Logger − ERA5: %{y:.2f} hPa<br>%{text}<extra></extra>"
+        } else {
+          "%{x}<br>Logger: %{y:.2f} hPa<br>%{text}<extra></extra>"
+        }
+      )
     ),
     list(logger_trace + 1L)
   )
@@ -282,7 +299,11 @@ stapelev_draft_save <- function() {
   if (is.null(stap_id) || identical(stap_id, "")) {
     return()
   }
-  query_id <- if (is.null(input$stapelev_query_id)) state$stapelev_query_id else as.integer(input$stapelev_query_id)
+  query_id <- if (is.null(input$stapelev_query_id)) {
+    state$stapelev_query_id
+  } else {
+    as.integer(input$stapelev_query_id)
+  }
   settings <- stapelev_input_settings()
   state$stapelev_drafts[[stap_id]] <- list(
     query_requested_at = as.numeric(state$stapelev_queries[[query_id]]$requested_at),
@@ -316,7 +337,7 @@ show_stapelev_modal <- function() {
     return()
   }
   idx <- which(state$tag$pressure$stap_id == as.numeric(current_stap))
-  bundles <- GeoPressureR:::pressure_query_cache_read(
+  bundles <- getFromNamespace("pressure_query_cache_read", "GeoPressureR")(
     state$tag$param$id,
     state$tag$pressure$date[idx]
   )
@@ -403,13 +424,23 @@ show_stapelev_modal <- function() {
           ),
           shiny::div(
             class = "stapelev-switch stapelev-view-switch mb-3",
-            shiny::checkboxInput("stapelev_diff_view", "Pressure difference view", value = difference)
+            shiny::checkboxInput(
+              "stapelev_diff_view",
+              "Pressure difference view",
+              value = difference
+            )
           ),
           shiny::uiOutput("stapelev_offset_controls"),
           shiny::div(
             class = "stapelev-inline-input mb-3",
             shiny::tags$label("Range (hPa)"),
-            shiny::numericInput("stapelev_range", NULL, value = settings$range, min = 0.1, step = 0.1)
+            shiny::numericInput(
+              "stapelev_range",
+              NULL,
+              value = settings$range,
+              min = 0.1,
+              step = 0.1
+            )
           ),
           shiny::div(
             class = "stapelev-inline-input mb-3",
@@ -496,15 +527,19 @@ output$stapelev_offset_controls <- shiny::renderUI({
             ),
             shiny::icon("rotate")
           ),
-          if (i > 1L) shiny::tags$button(
-            type = "button",
-            class = "btn btn-outline-danger btn-sm",
-            title = glue::glue("Remove {label}"),
-            onclick = glue::glue(
-              "Shiny.setInputValue('stapelev_delete', {i}, {{priority: 'event'}});"
-            ),
-            shiny::icon("trash")
-          ) else shiny::span(class = "stapelev-delete-placeholder")
+          if (i > 1L) {
+            shiny::tags$button(
+              type = "button",
+              class = "btn btn-outline-danger btn-sm",
+              title = glue::glue("Remove {label}"),
+              onclick = glue::glue(
+                "Shiny.setInputValue('stapelev_delete', {i}, {{priority: 'event'}});"
+              ),
+              shiny::icon("trash")
+            )
+          } else {
+            shiny::span(class = "stapelev-delete-placeholder")
+          }
         )
       )
     }),
@@ -622,64 +657,85 @@ shiny::observeEvent(input$stapelev_auto_btn, {
   show_stapelev_modal()
 })
 
-shiny::observeEvent(stapelev_display_settings(), {
-  if (isTRUE(input$stapelev_live) && !is.null(state$stapelev_proposal)) {
-    stapelev_classification_settings(stapelev_display_settings())
-  }
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  stapelev_display_settings(),
+  {
+    if (isTRUE(input$stapelev_live) && !is.null(state$stapelev_proposal)) {
+      stapelev_classification_settings(stapelev_display_settings())
+    }
+  },
+  ignoreInit = TRUE
+)
 
-shiny::observeEvent(input$stapelev_live, {
-  if (isTRUE(input$stapelev_live) && !is.null(state$stapelev_proposal)) {
-    stapelev_classification_settings(stapelev_input_settings())
-  }
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$stapelev_live,
+  {
+    if (isTRUE(input$stapelev_live) && !is.null(state$stapelev_proposal)) {
+      stapelev_classification_settings(stapelev_input_settings())
+    }
+  },
+  ignoreInit = TRUE
+)
 
 shiny::observeEvent(input$stapelev_update, {
   stapelev_classification_settings(stapelev_input_settings())
 })
 
-shiny::observeEvent(stapelev_display_settings(), {
-  if (!isTRUE(input$stapelev_live) && !is.null(state$stapelev_proposal)) {
-    settings <- stapelev_display_settings()
-    committed <- stapelev_classification_settings()
-    if (length(settings$offsets) == length(committed$offsets)) {
-      stapelev_restyle_levels(settings, isTRUE(input$stapelev_diff_view))
+shiny::observeEvent(
+  stapelev_display_settings(),
+  {
+    if (!isTRUE(input$stapelev_live) && !is.null(state$stapelev_proposal)) {
+      settings <- stapelev_display_settings()
+      committed <- stapelev_classification_settings()
+      if (length(settings$offsets) == length(committed$offsets)) {
+        stapelev_restyle_levels(settings, isTRUE(input$stapelev_diff_view))
+      }
     }
-  }
-}, ignoreInit = TRUE)
+  },
+  ignoreInit = TRUE
+)
 
-shiny::observeEvent(input$stapelev_diff_view, {
-  if (!is.null(state$stapelev_proposal)) {
-    stapelev_restyle_view(stapelev_input_settings(), isTRUE(input$stapelev_diff_view))
-  }
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$stapelev_diff_view,
+  {
+    if (!is.null(state$stapelev_proposal)) {
+      stapelev_restyle_view(stapelev_input_settings(), isTRUE(input$stapelev_diff_view))
+    }
+  },
+  ignoreInit = TRUE
+)
 
 shiny::observeEvent(input$stapelev_range_select, {
   session$sendCustomMessage("stapelevRangeSelect", as.integer(input$stapelev_range_select))
 })
 
-shiny::observeEvent(input$stapelev_range_selection, {
-  i <- as.integer(input$stapelev_range_selection$level)
-  window <- sort(c(
-    input$stapelev_range_selection$start_ms,
-    input$stapelev_range_selection$end_ms
-  )) / 1000
-  proposal_time <- as.numeric(state$stapelev_proposal$date)
-  time_range <- range(proposal_time)
-  time_step <- stats::median(diff(sort(unique(proposal_time))))
-  window <- pmin(pmax(window, time_range[1]), time_range[2])
-  window <- round((window - time_range[1]) / time_step) * time_step + time_range[1]
-  windows <- state$stapelev_windows
-  windows[i, ] <- window
-  state$stapelev_windows <- windows
-  settings <- stapelev_input_settings()
-  settings$windows <- windows
-  if (isTRUE(input$stapelev_live)) {
-    stapelev_classification_settings(settings)
-  } else {
-    stapelev_restyle_levels(settings, isTRUE(input$stapelev_diff_view))
-  }
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$stapelev_range_selection,
+  {
+    i <- as.integer(input$stapelev_range_selection$level)
+    window <- sort(c(
+      input$stapelev_range_selection$start_ms,
+      input$stapelev_range_selection$end_ms
+    )) /
+      1000
+    proposal_time <- as.numeric(state$stapelev_proposal$date)
+    time_range <- range(proposal_time)
+    time_step <- stats::median(diff(sort(unique(proposal_time))))
+    window <- pmin(pmax(window, time_range[1]), time_range[2])
+    window <- round((window - time_range[1]) / time_step) * time_step + time_range[1]
+    windows <- state$stapelev_windows
+    windows[i, ] <- window
+    state$stapelev_windows <- windows
+    settings <- stapelev_input_settings()
+    settings$windows <- windows
+    if (isTRUE(input$stapelev_live)) {
+      stapelev_classification_settings(settings)
+    } else {
+      stapelev_restyle_levels(settings, isTRUE(input$stapelev_diff_view))
+    }
+  },
+  ignoreInit = TRUE
+)
 
 shiny::observeEvent(input$stapelev_add, {
   settings <- stapelev_input_settings()
@@ -711,12 +767,16 @@ shiny::observeEvent(input$stapelev_delete, {
   stapelev_classification_settings(settings)
 })
 
-shiny::observeEvent(input$stapelev_query_id, {
-  if (!is.null(state$stapelev_proposal)) {
-    compute_stapelev_proposal(input$stapelev_query_id)
-    stapelev_classification_settings(stapelev_input_settings())
-  }
-}, ignoreInit = TRUE)
+shiny::observeEvent(
+  input$stapelev_query_id,
+  {
+    if (!is.null(state$stapelev_proposal)) {
+      compute_stapelev_proposal(input$stapelev_query_id)
+      stapelev_classification_settings(stapelev_input_settings())
+    }
+  },
+  ignoreInit = TRUE
+)
 
 shiny::observe({
   current_stap <- input$stap_id
@@ -725,7 +785,10 @@ shiny::observe({
     return()
   }
   idx <- which(state$tag$pressure$stap_id == as.numeric(current_stap))
-  bundles <- GeoPressureR:::pressure_query_cache_read(state$tag$param$id, state$tag$pressure$date[idx])
+  bundles <- getFromNamespace("pressure_query_cache_read", "GeoPressureR")(
+    state$tag$param$id,
+    state$tag$pressure$date[idx]
+  )
   if (length(bundles)) shinyjs::show("stapelev_auto_btn") else shinyjs::hide("stapelev_auto_btn")
 })
 

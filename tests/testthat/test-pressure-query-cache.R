@@ -22,14 +22,20 @@ test_that("pressure query cache retains chronology and filters by timestamps", {
     )
   }
 
-  GeoPressureR:::pressure_query_cache_write(make_bundle("2020-01-01 02:00:00", 47))
-  GeoPressureR:::pressure_query_cache_write(make_bundle("2020-01-01 01:00:00", 46))
+  getFromNamespace("pressure_query_cache_write", "GeoPressureR")(make_bundle(
+    "2020-01-01 02:00:00",
+    47
+  ))
+  getFromNamespace("pressure_query_cache_write", "GeoPressureR")(make_bundle(
+    "2020-01-01 01:00:00",
+    46
+  ))
 
-  bundles <- GeoPressureR:::pressure_query_cache_read("bird-1", date)
+  bundles <- getFromNamespace("pressure_query_cache_read", "GeoPressureR")("bird-1", date)
   expect_length(bundles, 2)
   expect_equal(vapply(bundles, `[[`, numeric(1), "requested_lat"), c(46, 47))
   expect_length(
-    GeoPressureR:::pressure_query_cache_read("bird-1", date + 60),
+    getFromNamespace("pressure_query_cache_read", "GeoPressureR")("bird-1", date + 60),
     0
   )
 })
