@@ -120,7 +120,15 @@ server <- function(input, output, session) {
     warning_flight_duration = warning_flight_duration,
     warning_stap_duration = warning_stap_duration,
     warning_pressure_diff = warning_pressure_diff,
-    max_check_items = max_check_items
+    max_check_items = max_check_items,
+    stapelev_queries = list(),
+    stapelev_pressure_idx = integer(0),
+    stapelev_offsets = 0,
+    stapelev_windows = matrix(as.numeric(c(time_min, time_max)), nrow = 1),
+    stapelev_proposal = NULL,
+    stapelev_drafts = list(),
+    stapelev_stap_id = NULL,
+    stapelev_undo = NULL
   )
 
   reactive_label_pres <- shiny::reactiveVal(pressure_data$label)
@@ -235,6 +243,7 @@ server <- function(input, output, session) {
   source("server_labels.R", local = TRUE)
   source("server_checks.R", local = TRUE)
   source("server_stap.R", local = TRUE)
+  source("server_stapelev_auto.R", local = TRUE)
   source("server_save.R", local = TRUE)
   source("server_shortcuts.R", local = TRUE)
 }

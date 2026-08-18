@@ -113,3 +113,182 @@ body {
   white-space: normal !important;
   word-wrap: break-word;
 }
+
+/* Full-screen workspace for automatic stapelev proposals. */
+.stapelev-modal .modal-dialog {
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  margin: 0;
+}
+
+.stapelev-modal .modal-content {
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+.stapelev-modal .modal-title,
+.check-modal .modal-title {
+  width: 100%;
+}
+
+.stapelev-modal .btn-close,
+.check-modal .btn-close {
+  margin-left: auto;
+}
+
+.stapelev-modal .modal-body {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.stapelev-workspace {
+  height: 100%;
+}
+
+.stapelev-plot-column {
+  height: 100%;
+  min-height: 0;
+}
+
+.stapelev-controls {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-left: 1px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+.stapelev-control-content {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.stapelev-controls .selectize-control,
+.stapelev-controls .selectize-input {
+  width: 100% !important;
+}
+
+.stapelev-controls .shiny-input-container:has(#stapelev_query_id),
+.stapelev-controls #stapelev_query_id + .selectize-control {
+  width: 100% !important;
+}
+
+.stapelev-inline-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stapelev-inline-input label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.stapelev-inline-input .form-group {
+  flex: 1;
+  margin: 0;
+}
+
+.stapelev-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.stapelev-actions .btn {
+  flex: 1;
+}
+
+.stapelev-actions .stapelev-cancel {
+  flex: 0 0 auto;
+}
+
+.stapelev-delete-placeholder {
+  width: 34px;
+}
+
+.stapelev-switch .form-group,
+.stapelev-switch .checkbox {
+  margin: 0;
+}
+
+.stapelev-switch .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stapelev-switch input[type="checkbox"] {
+  position: relative;
+  width: 2.25rem;
+  height: 1.25rem;
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  background: #adb5bd;
+  border: 0;
+  border-radius: 1rem;
+  outline: none;
+  box-shadow: none;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.stapelev-switch input[type="checkbox"]:focus,
+.stapelev-switch input[type="checkbox"]:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.stapelev-switch input[type="checkbox"]::after {
+  position: absolute;
+  top: 0.175rem;
+  left: 0.175rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  content: "";
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.15s ease-in-out;
+}
+
+.stapelev-switch input[type="checkbox"]:checked {
+  background: #0d6efd;
+}
+
+.stapelev-switch input[type="checkbox"]:checked::after {
+  transform: translateX(1rem);
+}
+
+.stapelev-update-controls .shiny-html-output {
+  display: flex;
+}
+
+.stapelev-update-controls #stapelev_update {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.stapelev-offset-row {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stapelev-offset-row .label-dot {
+  margin: 0;
+}
+
+.stapelev-offset-label {
+  min-width: 3.5rem;
+  font-size: 0.875rem;
+}
+
+.stapelev-offset-row .form-group {
+  margin-bottom: 0;
+}

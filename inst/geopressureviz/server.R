@@ -725,11 +725,36 @@ server <- function(input, output, session) {
   }) # |> bindEvent(input$stap_id)
 
   # Helper to post-process and merge pressure time series results
-  process_pressuretimeseries <- function(pressuretimeseries, stap_idx, stap_id) {
+  process_pressuretimeseries <- function(
+    pressuretimeseries,
+    stap_idx,
+    stap_id,
+    requested_lat,
+    requested_lon,
+    requested_at,
+    completed_at
+  ) {
     # Keep `stap_id` as the identifier used in `pressure$stap_id` so grouping/normalization
     # stays consistent with `geopressure_timeseries()` and existing `pressurepath` objects.
     pressuretimeseries$stap_ref <- stap_id
     pressuretimeseries$col <- stap$col[stap_idx]
+
+    cache_file <- try(
+      getFromNamespace("pressure_query_cache_write", "GeoPressureR")(list(
+        tag_id = tag$param$id,
+        stap_id = stap_id,
+        date = pressuretimeseries$date,
+        pressure_tag = pressuretimeseries$pressure_tag,
+        surface_pressure = pressuretimeseries$surface_pressure,
+        requested_lat = requested_lat,
+        requested_lon = requested_lon,
+        returned_lat = pressuretimeseries$lat[1],
+        returned_lon = pressuretimeseries$lon[1],
+        requested_at = requested_at,
+        completed_at = completed_at
+      )),
+      silent = TRUE
+    )
 
     # Ensure existing pressurepath has columns we rely on (older saved objects may not).
     if (nrow(reactVal$pressurepath) > 0) {
@@ -818,7 +843,7 @@ server <- function(input, output, session) {
     shiny::updateSelectizeInput(session, "stap_id", selected = "1")
     shiny::updateSelectizeInput(session, "stap_id", selected = input$stap_id)
 
-    invisible(NULL)
+    invisible(!inherits(cache_file, "try-error"))
   }
 
   # Async query for "Query pressure" button

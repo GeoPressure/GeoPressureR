@@ -18,6 +18,7 @@ ui <- shiny::fluidPage(
     ),
     shiny::tags$script(src = "plot_controls.js"),
     shiny::tags$script(src = "plotly_events.js"),
+    shiny::tags$script(src = "stapelev_range_bars.js"),
     shiny::tags$script(shiny::HTML(
       "
       Shiny.addCustomMessageHandler('updateTitle', function(title) {
@@ -58,6 +59,15 @@ ui <- shiny::fluidPage(
               choices = c("None" = ""), # Will be updated by server
               selected = "",
               width = "150px"
+            ),
+            shinyjs::hidden(
+              shiny::actionButton(
+                "stapelev_auto_btn",
+                NULL,
+                icon = shiny::icon("wand-magic-sparkles"),
+                class = "form-group btn btn-outline-light",
+                title = "Automatic stapelev"
+              )
             ),
             shiny::actionButton("stap_id_next", ">", class = "form-group btn btn-outline-light"),
             shinyjs::hidden(
@@ -145,6 +155,20 @@ ui <- shiny::fluidPage(
             )
           ),
           shiny::actionButton("add_label_btn", "+", class = "form-group btn btn-outline-light")
+        )
+      ),
+
+      shiny::div(
+        class = "d-flex flex-column justify-content-end mt-2",
+        shiny::tagList(
+          shinyjs::hidden(
+            shiny::actionButton(
+              "undo_stapelev_btn",
+              "Undo auto",
+              class = "btn btn-warning btn-sm",
+              icon = shiny::icon("rotate-left")
+            )
+          )
         )
       ),
 
