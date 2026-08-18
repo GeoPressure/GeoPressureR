@@ -169,15 +169,20 @@ add_wind_graph_edge <- function(
   }
 
   # Reuse the public extractor checks so graph-scale wind reads the same validated ERA5 files.
+  if (!quiet) {
+    cli::cli_alert_info("Check wind files and coverage")
+  }
   edge_add_wind_check(
     graph,
     pressure = pressure,
     variable = variable,
     file = file
   )
+  if (!quiet) {
+    cli::cli_alert_success("Wind files and coverage checked")
+  }
 
-  # Prepare the same edge groups and flight segments as edge_add_wind(), but keep only
-  # vectors needed for direct weighted accumulation.
+  # Prepare edge groups without expanding all source and target coordinates at once.
   if (!quiet) {
     cli::cli_alert_info("Prepare graph edges for wind interpolation")
   }
@@ -189,25 +194,15 @@ add_wind_graph_edge <- function(
     graph$stap$stap_id
   }
   n_grid <- prod(g$dim)
-  edge_s0 <- graph$s - 1
-  edge_t0 <- graph$t - 1
-  edge_s <- cbind(
-    as.integer(edge_s0 %% g$dim[1] + 1),
-    as.integer((edge_s0 %/% g$dim[1]) %% g$dim[2] + 1),
-    as.integer(edge_s0 %/% n_grid + 1)
-  )
-  edge_t <- cbind(
-    as.integer(edge_t0 %% g$dim[1] + 1),
-    as.integer((edge_t0 %/% g$dim[1]) %% g$dim[2] + 1),
-    as.integer(edge_t0 %/% n_grid + 1)
-  )
-  table_edge_s <- table(edge_s[, 3])
-  list_st_id <- split(seq_len(nrow(edge_s)), edge_s[, 3])
+  edge_s <- graph$s
+  edge_t <- graph$t
+  edge_layer <- (edge_s - 1L) %/% n_grid + 1L
+  list_st_id <- split(seq_along(edge_s), edge_layer)
   edge_stap <- names(list_st_id)
 
-  ws <- complex(nrow(edge_s))
+  ws <- complex(length(edge_s))
 
-  # Drop the large graph object before opening wind files; only tag_id is needed from here.
+  # Drop graph metadata while retaining compact edge indices for one-period coordinate expansion.
   graph <- list(param = list(id = graph$param$id))
   gc()
 
@@ -218,7 +213,7 @@ add_wind_graph_edge <- function(
       format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(edge_stap)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
       format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
-      total = sum(table_edge_s)
+      total = length(edge_s)
     )
   }
 
@@ -233,10 +228,12 @@ add_wind_graph_edge <- function(
     if (length(st_id) == 0) {
       next
     }
-    lat_edge_s <- g$lat[edge_s[st_id, 1]]
-    lon_edge_s <- g$lon[edge_s[st_id, 2]]
-    lat_edge_t <- g$lat[edge_t[st_id, 1]]
-    lon_edge_t <- g$lon[edge_t[st_id, 2]]
+    edge_s0 <- edge_s[st_id] - 1L
+    edge_t0 <- edge_t[st_id] - 1L
+    lat_edge_s <- g$lat[edge_s0 %% g$dim[1] + 1L]
+    lon_edge_s <- g$lon[(edge_s0 %/% g$dim[1]) %% g$dim[2] + 1L]
+    lat_edge_t <- g$lat[edge_t0 %% g$dim[1] + 1L]
+    lon_edge_t <- g$lon[(edge_t0 %/% g$dim[1]) %% g$dim[2] + 1L]
 
     # If a graph edge spans several labelled flights, split the straight edge by flight duration
     # and combine flight means with duration weights.
@@ -357,6 +354,8 @@ add_wind_graph_edge <- function(
     rm(
       fl_s,
       st_id,
+      edge_s0,
+      edge_t0,
       lat_edge_s,
       lon_edge_s,
       lat_edge_t,
