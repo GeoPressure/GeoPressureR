@@ -10,9 +10,10 @@
 #'
 #' The flights are determined from the stationary periods classified `tag$stap`. It requests a
 #' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
-#'  the download more efficient, [`wf_request_batch()`](
+#' the download more efficient, [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
-#' is used to download all files at the same time (up to 20 requests in parallel).
+#' is used to download files in parallel. CDS queue limits vary with the current system workload.
+#' If CDS reports that queued requests are temporarily limited, reduce `workers` and try again.
 #'
 #' To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
 #' account on [https://www.ecmwf.int/](https://www.ecmwf.int/). Once created, you can
@@ -41,6 +42,8 @@
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as arguments (1) the stationary period identifier and (2) the tag_id.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
+#' @param workers maximum number of simultaneous requests submitted to CDS. Defaults to `19`.
+#' CDS queue limits are dynamic; use a lower value if queued requests are temporarily limited.
 #' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
 #' [`ecmwfr::wf_set_key()`]
 #' @inheritParams ecmwfr::wf_request_batch
