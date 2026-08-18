@@ -130,13 +130,17 @@ graph_create <- function(
   n_transitions <- length(nds) - 1
   gr <- vector("list", n_transitions)
   nds_sum <- vapply(nds, sum, numeric(1))
+  # Bound temporary pair arrays to an approximately 250 MiB working set.
+  max_pairs_per_block <- 1048576L # 250 bytes per candidate pair
 
   if (!quiet) {
     cli::cli_progress_done()
     i_s <- 0
     nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
+    n_pairs_done <- 0
+    n_pairs_total <- sum(nds_expend_sum)
     cli::cli_progress_step(
-      "Compute the groundspeed for stationary period {i_s}/{n_transitions}: { round(sum(nds_expend_sum[seq_len(i_s)])/sum(nds_expend_sum)*100)}% of transitions done",
+      "Compute the groundspeed for stationary period {i_s}/{n_transitions}: {round(n_pairs_done / n_pairs_total * 100)}% of candidate pairs processed",
       msg_done = "Compute the groundspeed"
     )
   }
@@ -154,143 +158,176 @@ graph_create <- function(
     t_lat <- g$lat[t_coords[, 1]]
     t_lon <- g$lon[t_coords[, 2]]
 
-    # Pre-filter coordinate combinations using rough distance approximation
-    if ((length(s_lat) * length(t_lat)) > 10000) {
-      # Use rough distance approximation
-      max_distance <- thr_gs * flight_duration[i_s] * 1.1 # Add 10% buffer for rough approximation
-
-      # Vectorized pre-filtering using rough distance approximation
-      # Create coordinate matrices and compute distances in one go
-      s_lat_matrix <- matrix(s_lat, nrow = length(s_lat), ncol = length(t_lat))
-      s_lon_matrix <- matrix(s_lon, nrow = length(s_lon), ncol = length(t_lon))
-      t_lat_matrix <- matrix(
-        t_lat,
-        nrow = length(s_lat),
-        ncol = length(t_lat),
-        byrow = TRUE
-      )
-      t_lon_matrix <- matrix(
-        t_lon,
-        nrow = length(s_lon),
-        ncol = length(t_lon),
-        byrow = TRUE
-      )
-
-      # Compute rough distances and filter in one step
-      lat_diff <- abs(t_lat_matrix - s_lat_matrix) * 111.32
-      lon_diff <- abs(t_lon_matrix - s_lon_matrix) *
-        111.32 *
-        cos((s_lat_matrix + t_lat_matrix) * pi / 360)
-      rough_valid_matrix <- sqrt(lat_diff^2 + lon_diff^2) < max_distance
-
-      # Extract coordinates for only valid combinations
-      valid_indices <- which(rough_valid_matrix, arr.ind = TRUE)
-      from_coords <- cbind(s_lon[valid_indices[, 1]], s_lat[valid_indices[, 1]])
-      to_coords <- cbind(t_lon[valid_indices[, 2]], t_lat[valid_indices[, 2]])
-      combinations <- data.frame(
-        s_idx = valid_indices[, 1],
-        t_idx = valid_indices[, 2]
-      )
-
-      # Clean up large matrices immediately (memory management handled here)
-      rm(
-        s_lat_matrix,
-        s_lon_matrix,
-        t_lat_matrix,
-        t_lon_matrix,
-        lat_diff,
-        lon_diff,
-        rough_valid_matrix,
-        valid_indices
-      )
-      gc() # Force garbage collection
+    # Use one vectorized calculation when the complete transition is small enough.
+    n_pairs <- as.double(length(s_lat)) * length(t_lat)
+    direct <- n_pairs <= 10000
+    sources_per_block <- if (direct) {
+      length(s_lat)
     } else {
-      # Direct approach for smaller combinations (no pre-filtering)
-      combinations <- expand.grid(
-        s_idx = seq_along(s_lat),
-        t_idx = seq_along(t_lat)
+      min(length(s_lat), max_pairs_per_block)
+    }
+    targets_per_block <- if (direct) {
+      length(t_lat)
+    } else {
+      min(length(t_lat), max(1L, max_pairs_per_block %/% sources_per_block))
+    }
+    source_starts <- seq.int(1L, length(s_lat), by = sources_per_block)
+    target_starts <- seq.int(1L, length(t_lat), by = targets_per_block)
+    n_blocks <- length(source_starts) * length(target_starts)
+    edge_blocks <- vector("list", n_blocks)
+    fallback_blocks <- vector("list", n_blocks)
+    has_valid_edge <- FALSE
+    i_block <- 0L
+
+    # Process target blocks in order so final edge ordering stays unchanged.
+    for (target_start in target_starts) {
+      target_idx <- seq.int(
+        target_start,
+        min(target_start + targets_per_block - 1L, length(t_lat))
       )
-      from_coords <- cbind(s_lon[combinations$s_idx], s_lat[combinations$s_idx])
-      to_coords <- cbind(t_lon[combinations$t_idx], t_lat[combinations$t_idx])
+      for (source_start in source_starts) {
+        i_block <- i_block + 1L
+        source_idx <- seq.int(
+          source_start,
+          min(source_start + sources_per_block - 1L, length(s_lat))
+        )
+
+        if (direct) {
+          combinations <- expand.grid(s_idx = source_idx, t_idx = target_idx)
+        } else {
+          # Apply the inexpensive rough-distance filter before allocating exact-distance inputs.
+          max_distance <- thr_gs * flight_duration[i_s] * 1.1
+          s_lat_matrix <- matrix(
+            s_lat[source_idx],
+            nrow = length(source_idx),
+            ncol = length(target_idx)
+          )
+          s_lon_matrix <- matrix(
+            s_lon[source_idx],
+            nrow = length(source_idx),
+            ncol = length(target_idx)
+          )
+          t_lat_matrix <- matrix(
+            t_lat[target_idx],
+            nrow = length(source_idx),
+            ncol = length(target_idx),
+            byrow = TRUE
+          )
+          t_lon_matrix <- matrix(
+            t_lon[target_idx],
+            nrow = length(source_idx),
+            ncol = length(target_idx),
+            byrow = TRUE
+          )
+          lat_diff <- abs(t_lat_matrix - s_lat_matrix) * 111.32
+          lon_diff <- abs(t_lon_matrix - s_lon_matrix) *
+            111.32 *
+            cos((s_lat_matrix + t_lat_matrix) * pi / 360)
+          rough_valid_matrix <- sqrt(lat_diff^2 + lon_diff^2) < max_distance
+          valid_indices <- which(rough_valid_matrix, arr.ind = TRUE)
+          combinations <- data.frame(
+            s_idx = source_idx[valid_indices[, 1]],
+            t_idx = target_idx[valid_indices[, 2]]
+          )
+          rm(
+            s_lat_matrix,
+            s_lon_matrix,
+            t_lat_matrix,
+            t_lon_matrix,
+            lat_diff,
+            lon_diff,
+            rough_valid_matrix,
+            valid_indices
+          )
+        }
+
+        if (nrow(combinations) == 0) {
+          if (!quiet) {
+            n_pairs_done <- n_pairs_done + length(source_idx) * length(target_idx)
+            cli::cli_progress_update()
+          }
+          next
+        }
+
+        # Calculate exact speed and bearing only for pairs surviving this block's rough filter.
+        from_coords <- cbind(s_lon[combinations$s_idx], s_lat[combinations$s_idx])
+        to_coords <- cbind(t_lon[combinations$t_idx], t_lat[combinations$t_idx])
+        gs_abs <- haversine_distance(from_coords, to_coords) / flight_duration[i_s]
+        id <- gs_abs < thr_gs
+
+        if (any(id)) {
+          has_valid_edge <- TRUE
+          fallback_blocks <- NULL
+          gs_bearing <- haversine_bearing(
+            from_coords[id, , drop = FALSE],
+            to_coords[id, , drop = FALSE]
+          )
+          gs_bearing <- ((450 - gs_bearing) %% 360) * pi / 180
+          edge_blocks[[i_block]] <- data.frame(
+            s = as.integer(nds_i_s[combinations$s_idx[id]] + (i_s - 1) * nll),
+            t = as.integer(nds_i_s_1[combinations$t_idx[id]] + i_s * nll),
+            gs = gs_abs[id] * cos(gs_bearing) + 1i * gs_abs[id] * sin(gs_bearing)
+          )
+        } else if (!has_valid_edge) {
+          fallback_gs <- gs_abs
+          gs_abs_gt_0 <- gs_abs > 0
+          source_coords_subset <- s_coords[combinations$s_idx[gs_abs_gt_0], , drop = FALSE]
+          resolution_values <- resolution[cbind(
+            source_coords_subset[, 1],
+            source_coords_subset[, 2]
+          )]
+          fallback_gs[gs_abs_gt_0] <- pmax(
+            fallback_gs[gs_abs_gt_0] - resolution_values / flight_duration[i_s],
+            1
+          )
+          fallback_id <- fallback_gs < thr_gs
+          fallback_blocks[[i_block]] <- data.frame(
+            s_idx = combinations$s_idx[fallback_id],
+            t_idx = combinations$t_idx[fallback_id],
+            gs = fallback_gs[fallback_id]
+          )
+        }
+
+        if (!quiet) {
+          n_pairs_done <- n_pairs_done + length(source_idx) * length(target_idx)
+          cli::cli_progress_update()
+        }
+      }
     }
 
-    # Clean up coordinate vectors and force garbage collection
-    rm(s_lat, s_lon, t_lat, t_lon, t_coords)
-    gc()
-
-    # Compute the exact groundspeed for remaining transitions
-    # Use memory-efficient distance calculation with automatic method selection
-    gs_abs <- graph_create_distance(from_coords, to_coords) /
-      flight_duration[i_s]
-
-    # Filter the transition based on the groundspeed
-    id <- gs_abs < thr_gs
-
-    # Check that at least one transition exist
-    if (sum(id) == 0) {
-      # The minimal distance between grid cell is not from the center of the cell, but from one
-      # edge to the other (opposite) edge. So the minimal distance between cell should be reduce
-      # by the grid resolution. We still want to keep the distance 0 only to the actual same
-      # pixel, so we make the distance at a minimum of 1 if initial distance is greater than 1.
-
-      # Extract resolution values for source coordinates where distance > 0
-      gs_abs_gt_0 <- gs_abs > 0
-      source_indices <- combinations$s_idx[gs_abs_gt_0]
-      source_coords_subset <- s_coords[source_indices, , drop = FALSE]
-      # Extract resolution for each source coordinate (lat, lon)
-      resolution_values <- resolution[cbind(
-        source_coords_subset[, 1],
-        source_coords_subset[, 2]
-      )]
-      gs_abs[gs_abs_gt_0] <- pmax(
-        gs_abs[gs_abs_gt_0] - resolution_values / flight_duration[i_s],
-        1
-      )
-
-      id <- gs_abs < thr_gs
-
-      if (sum(id) == 0) {
+    if (has_valid_edge) {
+      # Avoid copying the edge data when this transition used only one block.
+      gr[[i_s]] <- if (n_blocks == 1) edge_blocks[[1]] else do.call(rbind, edge_blocks)
+    } else {
+      # Apply the existing cell-edge fallback only after all blocks are known to lack an edge.
+      fallback <- do.call(rbind, fallback_blocks)
+      if (is.null(fallback) || nrow(fallback) == 0) {
         cli::cli_abort(c(
           x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance of
             edges, there are not any node combinaison possible between stationary period
             {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
           ">" = "Check flight duration, likelihood map (and labeling) as well as grid resolution."
         ))
-      } else {
-        cli::cli_warn(c(
-          "!" = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance
-            of edges, there are not any node combinaison possible between stationary period
-            {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
-          "i" = "We modified the distance by using the minimal distance between cell rather than
-            the distance between the center to fix this issue.",
-          ">" = "Consider using a grid with a higher resolution."
-        ))
       }
-    }
 
-    # Compute the bearing of the trajectory
-    gs_bearing <- graph_create_bearing(
-      from_coords[id, , drop = FALSE],
-      to_coords[id, , drop = FALSE]
-    )
-
-    # Convert bearing to radians and adjust for GeoPressureR convention
-    # GeoPressureR uses 0° = North, 90° = East
-    gs_bearing <- ((450 - gs_bearing) %% 360) * pi / 180
-
-    # Create the final result with proper node indices
-    gr[[i_s]] <- data.frame(
-      s = as.integer(nds_i_s[combinations$s_idx[id]] + (i_s - 1) * nll),
-      t = as.integer(nds_i_s_1[combinations$t_idx[id]] + i_s * nll),
-      gs = gs_abs[id] * cos(gs_bearing) + 1i * gs_abs[id] * sin(gs_bearing)
-    )
-
-    # Clean up remaining variables from this iteration
-    rm(gs_bearing, from_coords, to_coords, s_coords)
-    gc()
-
-    if (!quiet) {
-      cli::cli_progress_update()
+      cli::cli_warn(c(
+        "!" = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance
+          of edges, there are not any node combinaison possible between stationary period
+          {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
+        "i" = "We modified the distance by using the minimal distance between cell rather than
+          the distance between the center to fix this issue.",
+        ">" = "Consider using a grid with a higher resolution."
+      ))
+      gs_bearing <- graph_create_bearing(
+        cbind(s_lon[fallback$s_idx], s_lat[fallback$s_idx]),
+        cbind(t_lon[fallback$t_idx], t_lat[fallback$t_idx])
+      )
+      gs_bearing <- ((450 - gs_bearing) %% 360) * pi / 180
+      gr[[i_s]] <- data.frame(
+        s = as.integer(nds_i_s[fallback$s_idx] + (i_s - 1) * nll),
+        t = as.integer(nds_i_s_1[fallback$t_idx] + i_s * nll),
+        gs = fallback$gs * cos(gs_bearing) + 1i * fallback$gs * sin(gs_bearing)
+      )
     }
   }
 
