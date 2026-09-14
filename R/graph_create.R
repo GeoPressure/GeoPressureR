@@ -303,10 +303,12 @@ graph_create <- function(
       fallback <- do.call(rbind, fallback_blocks)
       if (is.null(fallback) || nrow(fallback) == 0) {
         cli::cli_abort(c(
-          x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance of
-            edges, there are not any node combinaison possible between stationary period
-            {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
-          ">" = "Check flight duration, likelihood map (and labeling) as well as grid resolution."
+          x = "No locations can be connected between stationary periods {.val {stap_include[i_s]}}
+            and {.val {stap_include[i_s + 1]}} within {.val {thr_gs}} km/h.",
+          i = "Inspect the likelihood maps and flight interval in GeoPressureViz.",
+          ">" = "Review the labeling and map settings; if the implied movement is biologically
+            plausible, reconsider {.var thr_gs}. Higher {.var thr_likelihood} or grid resolution
+            can be assessed as sensitivity analyses."
         ))
       }
 
@@ -442,7 +444,11 @@ graph_create_prune <- function(gr, quiet = FALSE) {
 
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
-        "x" = "Triming the graph killed it at stationary period {.val {i_s}} moving forward."
+        x = "No complete path remains: the graph is disconnected at stationary period
+          {.val {i_s}} when moving forward from the equipment location.",
+        i = "Inspect the likelihood maps and adjacent flight intervals in GeoPressureViz.",
+        ">" = "Review the labeling and map settings; if they are plausible, reconsider the
+          movement threshold(s) used to construct the graph."
       ))
     }
     if (!quiet) {
@@ -461,7 +467,11 @@ graph_create_prune <- function(gr, quiet = FALSE) {
 
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
-        "x" = "Triming the graph killed it at stationary period {.val {i_s}} moving backward"
+        x = "No complete path remains: the graph is disconnected at stationary period
+          {.val {i_s + 1}} when moving backward from the retrieval location.",
+        i = "Inspect the likelihood maps and adjacent flight intervals in GeoPressureViz.",
+        ">" = "Review the labeling and map settings; if they are plausible, reconsider the
+          movement threshold(s) used to construct the graph."
       ))
     }
     if (!quiet) {

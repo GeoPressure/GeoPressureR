@@ -162,7 +162,12 @@ tag_prepare_likelihood <- function(
     dist_mask[[i_s + 1]] <- dist_km < flight_duration[i_s] * thr_gs & dist_mask[[i_s + 1]]
     if (sum(dist_mask[[i_s + 1]]) == 0) {
       cli::cli_abort(c(
-        x = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the binary distance edges, there are not any nodes left at stationary period {.val {stap_id_model[i_s + 1]}} from stationary period {.val {stap_id_model[i_s]}}"
+        x = "No locations at stationary period {.val {stap_id_model[i_s + 1]}} can be reached from
+          stationary period {.val {stap_id_model[i_s]}} within {.val {thr_gs}} km/h.",
+        i = "Inspect the likelihood maps and flight interval in GeoPressureViz.",
+        ">" = "Review the labeling and map settings; if the implied movement is biologically
+          plausible, reconsider {.var thr_gs}. Higher {.var thr_likelihood} can be assessed as a
+          sensitivity analysis."
       ))
     }
   }
@@ -175,7 +180,12 @@ tag_prepare_likelihood <- function(
       dist_mask[[i_s - 1]]
     if (sum(dist_mask[[i_s - 1]]) == 0) {
       cli::cli_abort(c(
-        x = "Using the {.var thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left at stationary period {.val {stap_id_model[i_s - 1]}} from stationary period {.val {stap_id_model[i_s]}}"
+        x = "No locations at stationary period {.val {stap_id_model[i_s - 1]}} can reach stationary
+          period {.val {stap_id_model[i_s]}} within {.val {thr_gs}} km/h.",
+        i = "Inspect the likelihood maps and flight interval in GeoPressureViz.",
+        ">" = "Review the labeling and map settings; if the implied movement is biologically
+          plausible, reconsider {.var thr_gs}. Higher {.var thr_likelihood} can be assessed as a
+          sensitivity analysis."
       ))
     }
   }
@@ -184,7 +194,11 @@ tag_prepare_likelihood <- function(
   dist_mask_sum <- vapply(dist_mask, sum, numeric(1))
   if (any(dist_mask_sum == 0)) {
     cli::cli_abort(c(
-      x = "Using the {.val thr_gs} of {thr_gs} km/h provided with the binary distance edges, there are not any nodes left."
+      x = "No locations remain after binary-distance filtering within {.val {thr_gs}} km/h.",
+      i = "Inspect the likelihood maps and flight intervals in GeoPressureViz.",
+      ">" = "Review the labeling and map settings; if the implied movement is biologically
+        plausible, reconsider {.var thr_gs}. Higher {.var thr_likelihood} can be assessed as a
+        sensitivity analysis."
     ))
   }
   if (!quiet) {
