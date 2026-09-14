@@ -187,8 +187,9 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   date <- sensor_data$date
   sensor_data$date <- as.POSIXct(date, format = "%Y-%m-%dT%H:%M:%OS", tz = "UTC")
   if (anyNA(sensor_data$date)) {
-    sensor_data$date <- as.POSIXct(
-      date,
+    id <- is.na(sensor_data$date)
+    sensor_data$date[id] <- as.POSIXct(
+      date[id],
       format = "%Y-%m-%dT%H:%M",
       tz = "UTC"
     )
