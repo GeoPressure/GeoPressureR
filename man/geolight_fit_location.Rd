@@ -11,7 +11,7 @@ geolight_fit_location(
   zenith_bounds = c(70, 110),
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
-  zenith_prior_penalty_weight = 1e-04,
+  zenith_prior_penalty_weight = 1e-05,
   compute_known = FALSE,
   quiet = FALSE
 )

@@ -61,7 +61,7 @@ code sharing and troubleshooting, data archiving, work reproducibility.
 
 ## Cheatsheet
 
-<a href="https://github.com/GeoPressure/GeoPressureR/raw/master/man/figures/cheatsheet.pdf" target="_blank">
+<a href="https://github.com/GeoPressure/GeoPressureR/raw/main/man/figures/cheatsheet.pdf" target="_blank">
 <img src="man/figures/cheatsheet-01.png" width="350"/>
 <img src="man/figures/cheatsheet-02.png" width="350"/> </a>
 

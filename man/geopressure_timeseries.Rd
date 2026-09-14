@@ -2,7 +2,7 @@
 % Please edit documentation in R/geopressure_timeseries.R
 \name{geopressure_timeseries}
 \alias{geopressure_timeseries}
-\title{Request and download pressure time series at a given location}
+\title{Retrieve an ERA5 pressure time series}
 \usage{
 geopressure_timeseries(
   lat,
@@ -11,106 +11,118 @@ geopressure_timeseries(
   start_time = NULL,
   end_time = NULL,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  source = c("auto", "arco", "api"),
+  era5_dataset = c("land", "single-levels")
 )
 }
 \arguments{
-\item{lat}{Latitude to query (0° to 90°).}
+\item{lat}{Numeric scalar latitude, between -90 and 90 degrees.}
 
-\item{lon}{Longitude to query (-180° to 180°).}
+\item{lon}{Numeric scalar longitude, between -180 and 180 degrees.}
 
-\item{pressure}{A data.frame of pressure time series, containing at least a \code{"date"} and
-\code{"value"} column.}
+\item{pressure}{Optional data.frame with a date-time \code{date} column and numeric pressure \code{value}
+column in hPa. Additional columns are retained.}
 
-\item{start_time}{If \code{pressure} is not provided, \code{start_time} defines the start time of
-the time series as POSIXlt.}
+\item{start_time, end_time}{Start and end of the requested interval when \code{pressure} is \code{NULL}.}
 
-\item{end_time}{If \code{pressure} is not provided, \code{end_time} defines the end time of
-the time series as POSIXlt.}
+\item{quiet}{Logical to suppress progress messages.}
 
-\item{quiet}{logical to hide messages about the progress}
+\item{debug}{Logical to display request details.}
 
-\item{debug}{logical to display additional information to debug a request}
+\item{source}{Data source: \code{"auto"}, \code{"arco"}, or \code{"api"}.}
+
+\item{era5_dataset}{ERA5 product used by ARCO: \code{"land"} at 0.1 degree resolution or
+\code{"single-levels"} at 0.25 degree resolution. GeoPressureAPI uses its own configuration.}
 }
 \value{
-A data.frame containing
-\itemize{
-\item \code{date} POSIXct date time
-\item \code{surface_pressure} pressure (hPa)
-\item \code{lon} same as input \code{lon} except if over water
-\item \code{lat} same as input \code{lat} except if over water.
-\item \code{surface_pressure_norm} only if \code{pressure} is provided as input
-\item \code{altitude} only if \code{pressure} is provided as input
-}
+A data.frame containing \code{date}, \code{surface_pressure}, \code{lat}, and \code{lon}. With \code{pressure},
+it also retains the input columns, renames \code{value} to \code{pressure_tag}, and adds
+\code{surface_pressure_norm} and \code{altitude}.
 }
 \description{
-This function returns the surface atmospheric pressure time series from ERA5 at any requested
-location.
-
-If the location queried is over water, the location will be moved to the closest onshore
-location.
-
-The ERA5 pressure time series of the response \eqn{P_{ERA}} will be provided on a hourly basis
-between \code{start_time} and \code{end_time} or the same as \code{pressure$date} if \code{pressure} is supplied.
-
-If you supply the \code{pressure} of the geolocator \eqn{P_{gl}}, the function will
-additionally return the altitude of the geolocator above sea level \eqn{z_{gl}} using the
-barometric equation,
-\deqn{ z_{{gl}}(x)=z_{ERA5}(x) + \frac{T_{ERA5}(x)}{L_b}  \left[\left(
-\frac{P_{gl}}{P_{ERA5}(x)}\right)^{-\frac{R L_b}{g M}}-1\right],}
-where \eqn{z_{ERA}}, \eqn{T_{ERA}}, and \eqn{P_{ERA}} respectively correspond to the ground level
-elevation, temperature at 2m, and ground level pressure of ERA5, \eqn{L_b}  is the standard
-temperature lapse rate, \eqn{R} is the universal gas constant, \eqn{g} is the gravity constant
-and  \eqn{M} is the molar mass of air. See more information at
-\href{https://github.com/GeoPressure/GeoPressureAPI}{the GeoPressureAPI documentation}.
-
-To be able to compare the temporal variation of the retrieved pressure of ERA5 \eqn{P_{ERA}} to
-the geolocator pressure \eqn{P_{gl}}, the function also returns the ERA pressure normalized with
-the geolocator mean pressure measurement as \code{surface_pressure_norm}.
-\deqn{ P_{ERA5,0}(\boldsymbol{x})[t] = \left( P_{ERA5}(\boldsymbol{x})[t]-P_{gl}[t]\right) -
-\left( \frac{1}{n}\sum_{i=1}^{n} P_{ERA5}(\boldsymbol{x})[i]-P_{gl}[i] \right).}
+\code{geopressure_timeseries()} retrieves an hourly ERA5 surface-pressure time series at one
+location. Supply a tag pressure series to also normalise ERA5 pressure and estimate altitude.
 }
+\section{Data sources}{
+
+\code{source = "arco"} reads ECMWF's Analysis-Ready Cloud-Optimised (ARCO) archive directly. It is
+generally faster for a long time series at one location, supports ERA5-Land and global ERA5,
+and requires an ECMWF API key plus the optional \code{Rarr} and \code{ecmwfr} packages.
+
+\code{source = "api"} asks the hosted GeoPressureAPI to prepare the data. It needs no ECMWF key or
+\code{Rarr} installation, but depends on that service and supports its fixed ERA5 configuration.
+
+The default, \code{source = "auto"}, uses ARCO when a key stored by \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}} is
+available and GeoPressureAPI otherwise. Use \code{\link[=geopressure_timeseries_arco]{geopressure_timeseries_arco()}} or
+\code{\link[=geopressure_timeseries_api]{geopressure_timeseries_api()}} to select a backend explicitly.
+}
+
+\section{ERA5 datasets and matching}{
+
+With ARCO, \code{era5_dataset = "land"} uses ERA5-Land on a 0.1 degree grid. It has finer spatial
+resolution but is masked over oceans; ocean locations are moved to the closest land cell.
+\code{era5_dataset = "single-levels"} uses global ERA5 on a 0.25 degree grid and retains locations
+over water. GeoPressureAPI chooses its ERA5 data internally and moves ocean locations onshore.
+
+Without \code{pressure}, the requested interval is returned hourly. With ARCO and \code{pressure}, each tag
+time is matched to its closest ERA5 hour and restored after matching; no temporal interpolation
+is used. GeoPressureAPI receives the original tag timestamps and performs the matching remotely.
+}
+
+\section{Pressure-derived altitude}{
+
+When altitude is produced, GeoPressureR uses the same barometric relation as
+\href{https://github.com/GeoPressure/GeoPressureAPI}{GeoPressureAPI}:
+\deqn{z_{tag}=z_{ERA5}+\frac{T_{ERA5}}{L_b}\left[\left(
+\frac{P_{tag}}{P_{ERA5}}\right)^{-\frac{R L_b}{g M}}-1\right].}
+Here, \eqn{P_{tag}} is tag pressure, while \eqn{P_{ERA5}}, \eqn{T_{ERA5}}, and \eqn{z_{ERA5}}
+are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
+is obtained from ERA5 surface geopotential divided by standard gravity. The constants are the
+standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
+\eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s^2, and molar mass of dry air
+\eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
+metres above mean sea level.
+}
+
+\section{Pressure normalisation}{
+
+ERA5 surface pressure is also shifted to the mean tag-pressure level within each elevation-label
+group. Flight observations (\code{stap_id == 0}) and observations labelled \code{"discard"} are excluded
+from the group means. The adjusted series is returned as \code{surface_pressure_norm}.
+}
+
+\section{ECMWF API key}{
+
+ARCO access and CDS downloads use the same ECMWF Personal Access Token. Create an ECMWF account,
+copy the token from your \href{https://cds.climate.copernicus.eu/profile}{Climate Data Store profile},
+accept the dataset licence terms, and store the token once in your system keyring:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ecmwfr::wf_set_key("your-personal-access-token")
+}\if{html}{\out{</div>}}
+
+Do not put the token in a script or commit it to version control. GeoPressureR retrieves the
+stored token with \code{\link[ecmwfr:wf_get_key]{ecmwfr::wf_get_key()}} for all ECMWF-backed functions, including
+\code{\link[=geopressure_timeseries]{geopressure_timeseries()}}, \code{\link[=pressurepath_create]{pressurepath_create()}}, and \code{\link[=tag_download_wind]{tag_download_wind()}}.
+}
+
 \examples{
-# Request pressure at a given location
-pressurepath <- geopressure_timeseries(
-  lat = 46, lon = 6,
-  start_time = "2017-01-01 00:00",
-  end_time = "2017-01-02 00:00",
-  quiet = TRUE
+\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+geopressure_timeseries(
+  lat = 46,
+  lon = 6,
+  start_time = "2020-01-01",
+  end_time = "2020-01-02"
 )
-
-str(pressurepath)
-
-plot(pressurepath$date, pressurepath$surface_pressure,
-  type = "b", ylab = "Pressure (hPa)", xlab = "Datetime"
-)
-
-# Retrieve the altitude of a bird being at this location adding random noise on the sensor.
-pressurepath <- geopressure_timeseries(
-  lat = 46, lon = 6,
-  pressure = data.frame(
-    data.frame(
-      date = pressurepath$date,
-      value = pressurepath$surface_pressure + rnorm(nrow(pressurepath))
-    )
-  ),
-  quiet = TRUE
-)
-
-str(pressurepath)
-
-plot(pressurepath$date, pressurepath$altitude,
-  type = "b", ylab = "Altitude (m)", xlab = "Datetime"
-)
-}
-\references{
-{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
-Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
-1118–1129 \doi{10.1111/2041-210X.14043}.}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other pressurepath:
+\code{\link[=geopressure_timeseries_api]{geopressure_timeseries_api()}},
+\code{\link[=geopressure_timeseries_arco]{geopressure_timeseries_arco()}},
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
-\code{\link[=pressurepath_create]{pressurepath_create()}}
+\code{\link[=pressurepath_create]{pressurepath_create()}},
+\code{\link[=pressurepath_create_api]{pressurepath_create_api()}},
+\code{\link[=pressurepath_create_arco]{pressurepath_create_arco()}}
 }
 \concept{pressurepath}

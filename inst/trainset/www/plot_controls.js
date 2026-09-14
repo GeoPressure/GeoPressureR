@@ -14,6 +14,20 @@ $(document).ready(function () {
     Plotly.relayout(plot, { selections: [] });
   });
 
+  function axisRange(plot, axis) {
+    var layoutAxis = plot.layout && plot.layout[axis];
+    var fullLayoutAxis = plot._fullLayout && plot._fullLayout[axis];
+    return (layoutAxis && layoutAxis.range) || (fullLayoutAxis && fullLayoutAxis.range);
+  }
+
+  function activePlot() {
+    var modalPlot = document.getElementById("stapelev_proposal_plot");
+    if (modalPlot && $(modalPlot).is(":visible")) return modalPlot;
+    return document.getElementById("ts_plot");
+  }
+
+  var spacePanPlot = null;
+
   // Keyboard shortcuts
   $(document).keydown(function (e) {
     // Track Ctrl/Cmd key state globally
@@ -28,7 +42,21 @@ $(document).ready(function () {
       tag === "textarea" ||
       tag === "select" ||
       (e.target && e.target.isContentEditable);
-    if (!isEditable && !e.altKey && !e.ctrlKey && !e.metaKey) {
+    if (e.code === "Space" && !isEditable && !e.repeat) {
+      var panPlot = activePlot();
+      if (panPlot && panPlot.data) {
+        e.preventDefault();
+        spacePanPlot = panPlot;
+        panPlot._trainsetDragmode =
+          (panPlot.layout && panPlot.layout.dragmode) ||
+          (panPlot._fullLayout && panPlot._fullLayout.dragmode) ||
+          "zoom";
+        Plotly.relayout(panPlot, { dragmode: "pan" });
+      }
+      return;
+    }
+    var modalOpen = $("#stapelev_proposal_plot").is(":visible");
+    if (!modalOpen && !isEditable && !e.altKey && !e.ctrlKey && !e.metaKey) {
       var digit = null;
       if (e.which >= 48 && e.which <= 57) digit = e.which - 48;
       if (e.which >= 96 && e.which <= 105) digit = e.which - 96;
@@ -50,20 +78,23 @@ $(document).ready(function () {
       }
     }
 
-    var plot = document.getElementById("ts_plot");
+    if (isEditable) return;
+
+    var plot = document.getElementById(modalOpen ? "stapelev_proposal_plot" : "ts_plot");
     if (plot && plot.data) {
       if (e.key && e.key.toLowerCase() === "a" && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         window.trainsetLastNav = "keyboard";
-        Plotly.relayout("ts_plot", {
+        var autoscale = {
           "xaxis.autorange": true,
           "yaxis.autorange": true,
-          "yaxis2.autorange": true,
-        });
+        };
+        if (plot.id === "ts_plot") autoscale["yaxis2.autorange"] = true;
+        Plotly.relayout(plot, autoscale);
         return;
       }
 
-      var currentRange = plot.layout.xaxis.range;
+      var currentRange = axisRange(plot, "xaxis");
       if (currentRange) {
         var start = new Date(currentRange[0]);
         var end = new Date(currentRange[1]);
@@ -78,7 +109,7 @@ $(document).ready(function () {
           var newDuration = duration * 0.5; // Zoom in by 50%
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "xaxis.range": [newStart, newEnd],
           });
         }
@@ -90,7 +121,7 @@ $(document).ready(function () {
           var newDuration = duration * 2; // Zoom out by 100%
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "xaxis.range": [newStart, newEnd],
           });
         }
@@ -102,7 +133,7 @@ $(document).ready(function () {
           var panAmount = e.shiftKey ? duration : duration * 0.1;
           var newStart = new Date(start.getTime() - panAmount);
           var newEnd = new Date(end.getTime() - panAmount);
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "xaxis.range": [newStart, newEnd],
           });
         }
@@ -114,7 +145,7 @@ $(document).ready(function () {
           var panAmount = e.shiftKey ? duration : duration * 0.1;
           var newStart = new Date(start.getTime() + panAmount);
           var newEnd = new Date(end.getTime() + panAmount);
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "xaxis.range": [newStart, newEnd],
           });
         }
@@ -127,14 +158,18 @@ $(document).ready(function () {
     if (!e.ctrlKey && !e.metaKey) {
       window.trainsetKeyState.ctrlOrMeta = false;
     }
+    if (e.code === "Space" && spacePanPlot) {
+      Plotly.relayout(spacePanPlot, { dragmode: spacePanPlot._trainsetDragmode || "zoom" });
+      spacePanPlot = null;
+    }
   });
 
   // Custom mouse wheel handler for x-axis only zoom (unless over y-axis)
-  $("#ts_plot").on("wheel", function (e) {
+  $(document).on("wheel", "#ts_plot, #stapelev_proposal_plot", function (e) {
     e.preventDefault();
     // Mark the source so the server can debug relayout storms.
     window.trainsetLastNav = "wheel";
-    var plot = document.getElementById("ts_plot");
+    var plot = this;
     if (plot && plot.data) {
       var rect = plot.getBoundingClientRect();
       var x = e.clientX - rect.left;
@@ -152,7 +187,7 @@ $(document).ready(function () {
 
       // Check if mouse is over left y-axis (pressure)
       if (x < leftYAxisWidth) {
-        var currentYRange = plot.layout.yaxis.range;
+        var currentYRange = axisRange(plot, "yaxis");
         if (currentYRange) {
           var yStart = currentYRange[0];
           var yEnd = currentYRange[1];
@@ -168,14 +203,14 @@ $(document).ready(function () {
 
           var newYStart = yCenter - newYDuration / 2;
           var newYEnd = yCenter + newYDuration / 2;
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "yaxis.range": [newYStart, newYEnd],
           });
         }
       }
       // Check if mouse is over right y-axis (acceleration)
-      else if (x > plotWidth - rightYAxisWidth) {
-        var currentY2Range = plot.layout.yaxis2.range;
+      else if (plot.id === "ts_plot" && x > plotWidth - rightYAxisWidth) {
+        var currentY2Range = axisRange(plot, "yaxis2");
         if (currentY2Range) {
           var y2Start = currentY2Range[0];
           var y2End = currentY2Range[1];
@@ -191,14 +226,14 @@ $(document).ready(function () {
 
           var newY2Start = y2Center - newY2Duration / 2;
           var newY2End = y2Center + newY2Duration / 2;
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "yaxis2.range": [newY2Start, newY2End],
           });
         }
       }
       // Default: zoom x-axis when over plot area
       else {
-        var currentRange = plot.layout.xaxis.range;
+        var currentRange = axisRange(plot, "xaxis");
         if (currentRange) {
           var start = new Date(currentRange[0]);
           var end = new Date(currentRange[1]);
@@ -214,7 +249,7 @@ $(document).ready(function () {
 
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
-          Plotly.relayout("ts_plot", {
+          Plotly.relayout(plot, {
             "xaxis.range": [newStart, newEnd],
           });
         }

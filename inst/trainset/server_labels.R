@@ -162,6 +162,8 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
   }
 
   state$labels_dirty <- TRUE
+  state$stapelev_undo <- NULL
+  shinyjs::hide("undo_stapelev_btn")
 
   label_action <- if (isTRUE(ctrl_pressed)) {
     "Cleared labels from"

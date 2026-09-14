@@ -18,9 +18,10 @@
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
 #' @param thr_likelihood Threshold to display likelihood values.
-#' @param provider tile provider name (see `leaflet::providers`).
+#' @param provider optional tile provider name (see `leaflet::providers`). When `NULL`, uses all
+#'   available GeoPressureR basemap layers. See [map_add_tiles()].
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
-#' leaflet::providerTileOptions()
+#'   leaflet::providerTileOptions().
 #' @param palette color palette name or vector of colors.
 #' @param opacity opacity of the raster layer in leaflet.
 #' @param legend logical to display the legend.
@@ -52,7 +53,7 @@
 #'   thr_likelihood = 0.9,
 #'   palette = "viridis",
 #'   opacity = 1,
-#'   provider = "CartoDB.DarkMatterNoLabels"
+#'   provider = "Esri.WorldGrayCanvas"
 #' )
 #'
 #' @family map plot_tag
@@ -64,7 +65,7 @@ plot.map <- function(
   path = NULL,
   thr_likelihood = 1,
   plot_leaflet = TRUE,
-  provider = "Esri.WorldTopoMap",
+  provider = NULL,
   provider_options = leaflet::providerTileOptions(),
   palette = NULL,
   opacity = 0.8,
@@ -127,7 +128,7 @@ plot.map <- function(
     )
 
     lmap <- leaflet::leaflet(height = 600) |>
-      leaflet::addProviderTiles(provider = provider, options = provider_options)
+      map_add_tiles(provider = provider, provider_options = provider_options)
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)

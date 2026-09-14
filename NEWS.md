@@ -1,3 +1,21 @@
+# GeoPressureR v3.6.1
+
+## Main
+
+- [Add direct ECMWF ARCO backends](https://github.com/GeoPressure/GeoPressureR/commit/2d60a83c) for ERA5 time-series and pressure-path retrieval, with automatic selection when ECMWF credentials are available ([a29023d3](https://github.com/GeoPressure/GeoPressureR/commit/a29023d3), [56be206e](https://github.com/GeoPressure/GeoPressureR/commit/56be206e)).
+- [Add automatic elevation-label proposals](https://github.com/GeoPressure/GeoPressureR/commit/16d7c53c) to Trainset.
+- [Add configurable basemap layers](https://github.com/GeoPressure/GeoPressureR/commit/5e3b1362) to maps and visualization apps.
+- [Process graph candidate pairs in bounded blocks](https://github.com/GeoPressure/GeoPressureR/commit/9dc027cb) for more scalable graph construction.
+
+## Minor
+
+- [Refine fitted calibration locations](https://github.com/GeoPressure/GeoPressureR/commit/48b8cca5) and [fix GeoLightViz calibration stationary-period selection](https://github.com/GeoPressure/GeoPressureR/commit/fe2c7475).
+- [Improve twilight and actogram plots](https://github.com/GeoPressure/GeoPressureR/commit/9699293d), including labelled flights and GeoLightViz styling ([89478ebf](https://github.com/GeoPressure/GeoPressureR/commit/89478ebf), [111ae8ad](https://github.com/GeoPressure/GeoPressureR/commit/111ae8ad)).
+- [Preserve CSV timestamp seconds](https://github.com/GeoPressure/GeoPressureR/commit/9c6b9c33) and [handle missing sensor readings in wind workflows](https://github.com/GeoPressure/GeoPressureR/commit/8f766240).
+- [Improve graph and labeling diagnostics](https://github.com/GeoPressure/GeoPressureR/commit/90547aa0) and [GeoPressureViz background-query lookup](https://github.com/GeoPressure/GeoPressureR/commit/e15312f8).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.0...v3.6.1>
+
 # GeoPressureR v3.6.0
 
 ## Main
@@ -10,6 +28,10 @@ Prepare for the release of GeoPathSampleR package and GeoTwilight paper:
 
 ## Minor
 
+- Add experimental `geopressure_timeseries_arco()` access to ERA5 and ERA5-Land ARCO data, with
+  optional altitude computation and the same CDS credentials configured by `ecmwfr::wf_set_key()`.
+- Add experimental `pressurepath_create_arco()` for direct ARCO surface-pressure and altitude
+  retrieval along stationary periods and flights.
 - [Add `time_shift` to `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/dcb4a382) with corresponding parameter display and test coverage.
 - [Improve `find_stap()` handling of non-regular stationary-period IDs](https://github.com/GeoPressure/GeoPressureR/commit/5a8a49b5) while preserving the correct IDs.
 - [Add `land_threshold` to `mask_water()`](https://github.com/GeoPressure/GeoPressureR/commit/7817a9c9) for configurable land masking.

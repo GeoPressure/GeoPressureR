@@ -24,7 +24,7 @@ path_sm <- data.frame(
 )
 
 test_that("geopressure_timeseries() | default output", {
-  pressure_timeseries <- geopressure_timeseries(
+  pressure_timeseries <- geopressure_timeseries_api(
     lon = 6,
     lat = 46,
     start_time = as.POSIXct("2017-06-20 00:00:00", tz = "UTC"),
@@ -39,7 +39,7 @@ test_that("geopressure_timeseries() | default output", {
 
 test_that("geopressure_timeseries() | with lat, lon and pressure", {
   pressure_timeseries <-
-    geopressure_timeseries(
+    geopressure_timeseries_api(
       lat = 46,
       lon = 6,
       pressure = tag_sm$pressure,

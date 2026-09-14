@@ -1,6 +1,7 @@
 #' Format time series data frame into a matrix
 #'
 #' @param ts data.frame of a `tag`, containing at least `date` and `value`.
+#' @param sensor sensor name used in messages.
 #' @param value column name to extract
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
@@ -9,6 +10,7 @@
 #' @export
 ts2mat <- function(
   ts,
+  sensor = "time series",
   twl_offset = 0,
   value = "value",
   twl_time_tolerance = 180
@@ -23,18 +25,24 @@ ts2mat <- function(
   res_vec <- as.numeric(diff(ts$date), units = "secs")
   res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
-    res_counts <- table(res_vec)
+    res_counts <- sort(table(res_vec), decreasing = TRUE)
+    res_counts_top <- utils::head(res_counts, 5)
     res_summary <- paste(
-      names(res_counts),
+      names(res_counts_top),
       "s (",
-      res_counts,
+      res_counts_top,
       "x)",
       sep = "",
       collapse = ", "
     )
+    if (length(res_counts) > length(res_counts_top)) {
+      res_summary <- glue::glue(
+        "{res_summary}, and {length(res_counts) - length(res_counts_top)} more"
+      )
+    }
     cli::cli_warn(c(
-      x = "Temporal resolution of the time series data is not constant.",
-      i = "Found resolutions: {res_summary}",
+      x = "Temporal resolution of the {.field {sensor}} data is not constant.",
+      i = "Most common resolutions: {res_summary}",
       i = "Will use a regular resolution of {format_minutes(res / 60)}."
     ))
   }

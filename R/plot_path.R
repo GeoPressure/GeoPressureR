@@ -7,9 +7,10 @@
 #' @param plot_leaflet logical defining if the plot is an interactive `leaflet` map or a static
 #' basic plot.
 #' @param map optional `map` object to plot the path on top of.
-#' @param provider tile provider name (see `leaflet::providers`).
+#' @param provider optional tile provider name (see `leaflet::providers`). When `NULL`, uses all
+#'   available GeoPressureR basemap layers. See [map_add_tiles()].
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
-#' leaflet::providerTileOptions()
+#'   leaflet::providerTileOptions().
 #' @param pad padding of the map in degree lat-lon (only for `plot_leaflet = FALSE`).
 #' @param polyline list of parameters passed to `leaflet::addPolylines()`
 #' @param circle list of parameters passed to `leaflet::addCircleMarkers()`
@@ -52,7 +53,7 @@ plot_path <- function(
   path,
   plot_leaflet = TRUE,
   map = NULL,
-  provider = "Esri.WorldTopoMap",
+  provider = NULL,
   provider_options = leaflet::providerTileOptions(),
   pad = 3,
   polyline = NULL,
@@ -178,7 +179,7 @@ plot_path_static <- function(path, pad = 3) {
 plot_path_leaflet <- function(
   path,
   map = NULL,
-  provider = "Esri.WorldTopoMap",
+  provider = NULL,
   provider_options = leaflet::providerTileOptions(),
   polyline = NULL,
   circle = NULL,
@@ -197,10 +198,7 @@ plot_path_leaflet <- function(
 
   if (is.null(map)) {
     map <- leaflet::leaflet(height = 600) |>
-      leaflet::addProviderTiles(
-        provider = provider,
-        options = provider_options
-      )
+      map_add_tiles(provider = provider, provider_options = provider_options)
   }
 
   duration <- if ("duration" %in% names(path)) {

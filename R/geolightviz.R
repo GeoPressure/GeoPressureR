@@ -1,5 +1,7 @@
 #' Start the GeoLightViz shiny app
 #'
+#' Basemap layers are configured with [map_add_tiles()].
+#'
 #' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
 #' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
 #' @param stapath optional stationary path data.frame (defaults to `tag$stap` when available).
@@ -212,7 +214,7 @@ light_matrix <- function(tag) {
   }
 
   # Compute the matrix representation of light
-  mat <- GeoPressureR::ts2mat(light, twl_offset = twl_offset)
+  mat <- GeoPressureR::ts2mat(light, sensor = "light", twl_offset = twl_offset)
 
   mat$plottime <- time2plottime(mat$time)
 

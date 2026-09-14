@@ -30,7 +30,7 @@
 #' mode. This is a calibration-anchor refinement, not a separate movement estimator. It is only
 #' applied to fitted calibration locations; true known locations are kept fixed. Refined fitted
 #' anchors have `zenith` set to `NA` because the initial fitted zenith no longer corresponds to the
-#' refined coordinates. The default is `0`, so existing behavior is unchanged.
+#' refined coordinates. The default is `2` iterations.
 #'
 #' Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 #' angle error. We use a kernel distribution to fit the zenith angle during the known stationary
@@ -103,9 +103,9 @@ geolight_map <- function(
   fitted_location_duration = Inf,
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
-  zenith_prior_penalty_weight = 1e-4,
+  zenith_prior_penalty_weight = 1e-5,
   refine_fitted_location_scale_km = 20,
-  refine_fitted_location_max_iter = 0,
+  refine_fitted_location_max_iter = 2,
   twl_llp = \(n) log(n) / n,
   compute_known = FALSE,
   keep_twl = FALSE,

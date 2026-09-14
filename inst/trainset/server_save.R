@@ -63,11 +63,13 @@ shiny::observeEvent(input$save_btn, {
     },
     error = function(e) {
       shiny::showNotification(
-        glue::glue("Save failed: {e$message}. Using manual download instead."),
+        glue::glue(
+          "Save failed: {e$message}. Close the CSV and try again, or click Download to save a copy."
+        ),
         duration = 10,
         type = "warning"
       )
-      shinyjs::click("export_btn")
+      shinyjs::show("export_btn")
     }
   )
 })

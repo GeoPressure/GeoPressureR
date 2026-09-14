@@ -20,6 +20,8 @@
 #'
 #' The app `Save` button writes the current path to `./data/interim/{id}-path-geopressureviz.csv`.
 #'
+#' Basemap layers are configured with [map_add_tiles()].
+#'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
 #'

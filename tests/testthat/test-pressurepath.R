@@ -22,12 +22,12 @@ test_that("pressurepath_create() | single stap", {
   # pressure <- subset(tag$pressure, stap_id %in% i_s)
 
   pressurepath <- expect_no_error(
-    pressurepath_create(
+    pressurepath_create_api(
       tag,
       path_i,
       variable = c("altitude", "surface_pressure", "total_precipitation"),
       # era5_dataset = "land",
-      quiet = TRUE,
+      quiet = TRUE
     )
   )
   expect_true(all(

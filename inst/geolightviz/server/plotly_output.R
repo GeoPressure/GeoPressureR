@@ -15,15 +15,23 @@ render_plotly_output <- function(
     stapath_ <- stapath()
     idx <- as.numeric(input$stap_id)
     current_range <- c(stapath_$start[idx], stapath_$end[idx])
+    light_range <- range(.light_trace$value, na.rm = TRUE)
+    light_value <- replace(.light_trace$value, is.na(.light_trace$value), -1)
 
     # Create base heatmap
     p <- plotly::plot_ly() |>
       plotly::add_trace(
         x = ~ .light_trace$day,
         y = ~ .light_trace$plottime,
-        z = ~ .light_trace$value,
+        z = light_value,
         type = "heatmap",
-        colorscale = "Greys",
+        colorscale = list(
+          list(0, "#CC6677"),
+          list((light_range[1] + 1) / (light_range[2] + 1), "black"),
+          list(1, "white")
+        ),
+        zmin = -1,
+        zmax = light_range[2],
         showscale = FALSE
       )
     y_range <- range(.light_trace$plottime)
@@ -124,7 +132,6 @@ render_plotly_output <- function(
       plotly::config(
         displaylogo = FALSE,
         modeBarButtonsToRemove = c(
-          "select2d",
           "lasso2d",
           "zoomIn2d",
           "zoomOut2d",

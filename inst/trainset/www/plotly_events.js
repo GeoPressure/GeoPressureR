@@ -59,7 +59,6 @@ function setupPlotlyEventHandlers(el) {
       window.trainsetLastNav = null;
     }, 125);
   });
-
   // Send ctrl state when selection occurs - capture at moment of event
   el.on("plotly_selected", function (eventData) {
     var ctrlPressed =

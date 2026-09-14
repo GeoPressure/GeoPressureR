@@ -23,7 +23,9 @@
 #' `"map_pressure_mse"`, `"map_pressure_mask"`, `"mask_water"`, `"temperature_external"`,
 #' `"temperature_internal"`. Map can be combined by providing a vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
-#' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`
+#' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`. For twilight and actogram plots,
+#' use `flip_axes = TRUE` to place time horizontally and `double_plot = TRUE` for a 48-hour
+#' double plot.
 #'
 #' @return a plot, ggplotly or leaflet object.
 #'
@@ -337,7 +339,7 @@ plot_tag_acceleration <- function(
         ggplot2::aes(x = .data$date, y = .data[[variable]]),
         fill = "red",
         shape = 23,
-        size = 2,
+        size = 2
       )
   }
 
@@ -465,9 +467,13 @@ plot_tag_temperature <- function(
 #' @param twilight_line a twilight data.frame typically created with `path2twilight()` which is
 #' displayed as a line
 #' @param plot_plotly logical to use `plotly`
+#' @param flip_axes logical to place time on the x-axis and dates on the y-axis. Dates increase
+#' downward in the flipped display.
+#' @param double_plot logical to display a 48-hour window. The second 24-hour half contains the
+#' following day's observations.
 #' @inheritParams twilight_create
 #'
-#' @return a plot object.
+#' @return a ggplot or ggplotly object.
 #'
 #' @family plot_tag
 #' @examples
@@ -486,7 +492,9 @@ plot_tag_twilight <- function(
   twilight_line = NULL,
   transform_light = TRUE,
   twl_offset = NULL,
-  plot_plotly = TRUE
+  plot_plotly = TRUE,
+  flip_axes = FALSE,
+  double_plot = FALSE
 ) {
   # We need to have light data, if twilight is not yet computed, we can still display the mat image
   tag_assert(tag, "light")
@@ -509,21 +517,30 @@ plot_tag_twilight <- function(
   # Compute the matrix representation of light
   mat <- ts2mat(
     light,
+    sensor = "light",
     twl_offset = twl_offset,
     twl_time_tolerance = twl_time_tolerance
   )
 
   # Convert to long format data.frame to be able to plot with ggplot
-  mat_long <- ts2mat_to_long(mat, value_name = "light")
+  mat_long <- ts2mat_to_long(mat, value_name = "light", double_plot = double_plot)
   df_long <- mat_long$data
   mat_time_hour <- mat_long$mat_time_hour
+  light_rng <- range(df_long$light, na.rm = TRUE)
+  df_long$light[is.na(df_long$light)] <- -1
+  x_axis <- if (flip_axes) "time" else "date"
+  y_axis <- if (flip_axes) "date" else "time"
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(
       data = df_long,
-      ggplot2::aes(x = .data$date, y = .data$time, fill = .data$light)
+      ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]], fill = .data$light)
     ) +
-    ggplot2::scale_fill_gradient(low = "black", high = "white")
+    ggplot2::scale_fill_gradientn(
+      colours = c("#CC6677", "black", "white"),
+      values = c(0, (light_rng[1] + 1) / (light_rng[2] + 1), 1),
+      limits = c(-1, light_rng[2])
+    )
 
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
@@ -532,6 +549,12 @@ plot_tag_twilight <- function(
       as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
+    if (double_plot) {
+      twl_copy <- twl
+      twl_copy$date <- twl_copy$date - 1
+      twl_copy$time <- twl_copy$time + 24 * 60 * 60
+      twl <- rbind(twl, twl_copy)
+    }
 
     if ("label" %in% names(twl)) {
       twl$discard <- twl$label == "discard"
@@ -544,7 +567,7 @@ plot_tag_twilight <- function(
       p <- p +
         ggplot2::geom_point(
           data = twl,
-          ggplot2::aes(x = .data$date, y = .data$time),
+          ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]]),
           colour = "yellow",
           size = 4,
           shape = 16
@@ -558,8 +581,8 @@ plot_tag_twilight <- function(
           ggplot2::geom_point(
             data = twl,
             ggplot2::aes(
-              x = .data$date,
-              y = .data$time,
+              x = .data[[x_axis]],
+              y = .data[[y_axis]],
               colour = .data$stap_id
             ),
             size = 6,
@@ -572,7 +595,7 @@ plot_tag_twilight <- function(
         p <- p +
           ggplot2::geom_point(
             data = twl,
-            ggplot2::aes(x = .data$date, y = .data$time, color = .data$rise),
+            ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]], color = .data$rise),
             size = 4,
             shape = 16
           ) +
@@ -584,7 +607,7 @@ plot_tag_twilight <- function(
     p <- p +
       ggplot2::geom_point(
         data = twl[twl$discard, ],
-        ggplot2::aes(x = .data$date, y = .data$time),
+        ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]]),
         size = 3,
         shape = 4,
         stroke = 2,
@@ -599,37 +622,67 @@ plot_tag_twilight <- function(
       as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
+    twll$copy <- 1L
+    if (double_plot) {
+      twll_copy <- twll
+      twll_copy$date <- twll_copy$date - 1
+      twll_copy$time <- twll_copy$time + 24 * 60 * 60
+      twll_copy$copy <- 2L
+      twll <- rbind(twll, twll_copy)
+    }
     # Group by rounded stap_id so decimal flight values are attached to the nearest stationary
     # period without linking unrelated segments when stap_id is discontinuous.
-    twll$stap_id <- factor(round(twll$stap_id))
+    twll$stap_id <- interaction(round(twll$stap_id), twll$copy)
 
     p <- p +
       ggplot2::geom_line(
         data = twll[twll$rise, ],
-        ggplot2::aes(x = .data$date, y = .data$time, group = .data$stap_id),
+        ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]], group = .data$stap_id),
         linewidth = 1,
         color = "brown"
       ) +
       ggplot2::geom_line(
         data = twll[!twll$rise, ],
-        ggplot2::aes(x = .data$date, y = .data$time, group = .data$stap_id),
+        ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]], group = .data$stap_id),
         linewidth = 1,
         color = "lightgreen"
       )
   }
 
-  p <- p +
-    ggplot2::theme_bw() +
-    ggplot2::scale_y_datetime(
-      name = "Time",
-      date_breaks = "1 hour",
-      date_labels = "%H:%M",
-      expand = c(0, 0)
-    ) +
-    ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
+  p <- p + ggplot2::theme_bw()
+  if (flip_axes) {
+    p <- p +
+      ggplot2::scale_x_datetime(
+        name = "Time",
+        date_breaks = "1 hour",
+        date_labels = "%H:%M",
+        expand = c(0, 0)
+      ) +
+      ggplot2::scale_y_date(
+        name = "Date",
+        expand = c(0, 0)
+      )
+  } else {
+    p <- p +
+      ggplot2::scale_y_datetime(
+        name = "Time",
+        date_breaks = "1 hour",
+        date_labels = "%H:%M",
+        expand = c(0, 0)
+      ) +
+      ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
+  }
+
+  if (flip_axes && !plot_plotly) {
+    p <- p + ggplot2::coord_transform(y = "reverse")
+  }
 
   # Setting the breaks seems to mess up plotly
-  plot_tag_finalize(p, plot_plotly, autorange = FALSE)
+  p <- plot_tag_finalize(p, plot_plotly, autorange = FALSE)
+  if (flip_axes && plot_plotly) {
+    p <- plot_tag_flip_axes_plotly(p)
+  }
+  p
 }
 
 
@@ -639,9 +692,13 @@ plot_tag_twilight <- function(
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
+#' @param flip_axes logical to place time on the x-axis and dates on the y-axis. Dates increase
+#' downward in the flipped display.
+#' @param double_plot logical to display a 48-hour window. The second 24-hour half contains the
+#' following day's observations.
 #' @inheritParams twilight_create
 #'
-#' @return a plot object.
+#' @return a ggplot or ggplotly object.
 #'
 #' @family plot_tag
 #' @examples
@@ -651,7 +708,13 @@ plot_tag_twilight <- function(
 #'   plot_tag_actogram(tag, plot_plotly = TRUE)
 #' })
 #' @export
-plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
+plot_tag_actogram <- function(
+  tag,
+  twl_offset = NULL,
+  plot_plotly = TRUE,
+  flip_axes = FALSE,
+  double_plot = FALSE
+) {
   # We need to have acceleration data
   tag_assert(tag, "acceleration")
 
@@ -662,16 +725,21 @@ plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
   twl_offset <- resolve_twl_offset(tag, acc, twl_offset)
 
   # Compute the matrix representation of light
-  mat <- ts2mat(acc, twl_offset = twl_offset)
+  mat <- ts2mat(acc, sensor = "acceleration", twl_offset = twl_offset)
 
   if ("label" %in% names(acc)) {
-    matl <- ts2mat(acc, twl_offset = twl_offset, value = "label")
-    mat$value[matl$value == "flight"] <- max(acc$value) + 1
+    acc_label <- acc
+    acc_label$value <- as.numeric(acc$label == "flight")
+    matl <- ts2mat(acc_label, sensor = "acceleration", twl_offset = twl_offset)
+    mat$value[matl$value == 1] <- max(acc$value) + 1
   }
 
   # Convert to long format data.frame to be able to plot with ggplot
-  mat_long <- ts2mat_to_long(mat, value_name = "acceleration")
+  mat_long <- ts2mat_to_long(mat, value_name = "acceleration", double_plot = double_plot)
   df_long <- mat_long$data
+  df_long$acceleration[is.na(df_long$acceleration)] <- -1
+  x_axis <- if (flip_axes) "time" else "date"
+  y_axis <- if (flip_axes) "date" else "time"
 
   # Make color scale
   pos_acc <- acc$value[acc$value > 0 & is.finite(acc$value)]
@@ -706,30 +774,56 @@ plot_tag_actogram <- function(tag, twl_offset = NULL, plot_plotly = FALSE) {
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(
       data = df_long,
-      ggplot2::aes(x = .data$date, y = .data$time, fill = .data$acceleration)
+      ggplot2::aes(x = .data[[x_axis]], y = .data[[y_axis]], fill = .data$acceleration)
     ) +
     ggplot2::theme_bw() +
-    ggplot2::scale_y_datetime(
-      name = "Time",
-      date_breaks = "1 hour",
-      date_labels = "%H:%M",
-      expand = c(0, 0)
-    ) +
-    ggplot2::scale_x_date(name = "Date", expand = c(0, 0)) +
     ggplot2::scale_fill_gradientn(
       colours = c(
+        "grey", # Missing data
         "#FFFFFF", # 0 - No activity
         "#B2FFB2", # Low activity (light green)
         "#66FF66", # Medium activity (green)
         "#33CC33", # Higher activity (darker green),
         "#660066", # High activity (purple)
-        "#000000" # Continuous activity (black)
+        "#000000", # Continuous activity (black)
+        "#FF0000" # Labelled flight
       ),
-      values = val,
-      na.value = "grey"
+      values = c(0, (x + 1) / (rng[2] + 2), 1),
+      limits = c(-1, rng[2] + 1)
     )
 
-  plot_tag_finalize(p, plot_plotly)
+  if (flip_axes) {
+    p <- p +
+      ggplot2::scale_x_datetime(
+        name = "Time",
+        date_breaks = "1 hour",
+        date_labels = "%H:%M",
+        expand = c(0, 0)
+      ) +
+      ggplot2::scale_y_date(
+        name = "Date",
+        expand = c(0, 0)
+      )
+  } else {
+    p <- p +
+      ggplot2::scale_y_datetime(
+        name = "Time",
+        date_breaks = "1 hour",
+        date_labels = "%H:%M",
+        expand = c(0, 0)
+      ) +
+      ggplot2::scale_x_date(name = "Date", expand = c(0, 0))
+  }
+
+  if (flip_axes && !plot_plotly) {
+    p <- p + ggplot2::coord_transform(y = "reverse")
+  }
+
+  p <- plot_tag_finalize(p, plot_plotly)
+  if (flip_axes && plot_plotly) {
+    p <- plot_tag_flip_axes_plotly(p)
+  }
+  p
 }
 
 
@@ -749,7 +843,7 @@ resolve_twl_offset <- function(tag, data, twl_offset) {
 }
 
 #' @noRd
-ts2mat_to_long <- function(mat, value_name) {
+ts2mat_to_long <- function(mat, value_name, double_plot = FALSE) {
   df <- as.data.frame(mat$value)
   names(df) <- mat$day
   mat_time_hour <- as.numeric(substr(mat$time, 1, 2)) +
@@ -768,7 +862,48 @@ ts2mat_to_long <- function(mat, value_name) {
   )
   df_long$date <- as.Date(df_long$date)
 
+  if (double_plot) {
+    df_long_copy <- df_long
+    df_long_copy$date <- df_long_copy$date - 1
+    df_long_copy$time <- df_long_copy$time + 24 * 60 * 60
+    df_long <- rbind(df_long, df_long_copy)
+    mat_time_hour <- c(mat_time_hour, mat_time_hour + 24)
+  }
+
   list(data = df_long, mat_time_hour = mat_time_hour)
+}
+
+#' @noRd
+plot_tag_flip_axes_plotly <- function(p) {
+  p$x$data <- lapply(p$x$data, function(trace) {
+    if (inherits(trace$x, "POSIXt")) {
+      trace$x <- as.numeric(trace$x) / 3600
+    }
+    if (!is.null(trace$text)) {
+      trace$text <- gsub(
+        "[0-9]{4}-[0-9]{2}-[0-9]{2} ([0-9]{2}:[0-9]{2}):[0-9]{2}",
+        "\\1",
+        trace$text
+      )
+    }
+    trace
+  })
+
+  xaxis <- p$x$layout$xaxis
+  tickvals <- xaxis$tickvals
+  ticktime <- as.POSIXct(tickvals, origin = "1970-01-01", tz = "UTC")
+  tick_id <- format(ticktime, "%H:%M") %in% c("00:00", "06:00", "12:00", "18:00")
+  xaxis$type <- "linear"
+  xaxis$tickmode <- "array"
+  xaxis$tickvals <- tickvals[tick_id] / 3600
+  xaxis$ticktext <- format(ticktime[tick_id], "%H:%M")
+  xaxis$range <- as.numeric(as.POSIXct(xaxis$range, tz = "UTC")) / 3600
+  xaxis$categoryorder <- NULL
+  xaxis$categoryarray <- NULL
+  xaxis$hoverformat <- NULL
+  p$x$layout$xaxis <- xaxis
+  p$x$layout$yaxis$autorange <- "reversed"
+  p
 }
 
 #' @noRd

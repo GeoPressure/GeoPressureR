@@ -10,21 +10,15 @@
 #'
 #' The flights are determined from the stationary periods classified `tag$stap`. It requests a
 #' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
-#'  the download more efficient, [`wf_request_batch()`](
+#' the download more efficient, [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
-#' is used to download all files at the same time (up to 20 requests in parallel).
-#'
-#' To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
-#' account on [https://www.ecmwf.int/](https://www.ecmwf.int/). Once created, you can
-#' retrieve your API Token on [https://cds.climate.copernicus.eu/profile
-#' ](https://cds.climate.copernicus.eu/profile) and save them in your local keychain with:
-#' \code{
-#'   ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
-#' }
+#' is used to download files in parallel. CDS queue limits vary with the current system workload.
+#' If CDS reports that queued requests are temporarily limited, reduce `workers` and try again.
 #'
 #' More information [in the GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html).
 #'
+#' @template ecmwf-key
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood will be computed.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
@@ -41,6 +35,8 @@
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as arguments (1) the stationary period identifier and (2) the tag_id.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
+#' @param workers maximum number of simultaneous requests submitted to CDS. Defaults to `19`.
+#' CDS queue limits are dynamic; use a lower value if queued requests are temporarily limited.
 #' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
 #' [`ecmwfr::wf_set_key()`]
 #' @inheritParams ecmwfr::wf_request_batch
@@ -166,12 +162,22 @@ tag_download_wind <- function(
     # Find the pressure level needed during this flight
     flight_id <- flight_time[1] <= tag$pressure$date &
       tag$pressure$date <= utils::tail(flight_time, 1)
+    flight_pressure <- tag$pressure$value[flight_id]
+    flight_pressure <- flight_pressure[is.finite(flight_pressure)]
+    if (length(flight_pressure) == 0) {
+      cli::cli_abort(c(
+        "x" = "No finite pressure observations are available for the flight between stationary periods {.val {stap$stap_id[i_s]}} and {.val {stap$stap_id[i_s + 1]}}.",
+        "i" = "Flight period: {.val {format(flight_time[1], '%Y-%m-%d %H:%M UTC')}} to {.val {format(utils::tail(flight_time, 1), '%Y-%m-%d %H:%M UTC')}}.",
+        "i" = "Pressure observations are required to select the ERA5 pressure levels for the wind download.",
+        ">" = "Review the pressure data or exclude this flight with {.arg include_stap_id}."
+      ))
+    }
     pres_id_min <- min(
-      sum(min(tag$pressure$value[flight_id]) >= possible_pressure),
+      sum(min(flight_pressure) >= possible_pressure),
       length(possible_pressure) - 1
     )
     pres_id_max <- min(
-      sum(max(tag$pressure$value[flight_id]) > possible_pressure) + 1,
+      sum(max(flight_pressure) > possible_pressure) + 1,
       length(possible_pressure)
     )
     flight_pres_id <- seq(pres_id_min, pres_id_max)

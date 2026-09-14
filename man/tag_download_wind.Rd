@@ -41,9 +41,8 @@ taking as arguments (1) the stationary period identifier and (2) the tag_id.}
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
 
-\item{workers}{maximum number of simultaneous request that will be submitted
-to the service. Most ECMWF services are limited to 20 concurrent requests
-(default = 2).}
+\item{workers}{maximum number of simultaneous requests submitted to CDS. Defaults to \code{19}.
+CDS queue limits are dynamic; use a lower value if queued requests are temporarily limited.}
 
 \item{cds_token}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Enter the API token with
 \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}}
@@ -82,17 +81,25 @@ can be downloaded.
 The flights are determined from the stationary periods classified \code{tag$stap}. It requests a
 single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
 the download more efficient, \href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
-is used to download all files at the same time (up to 20 requests in parallel).
-
-To be able to download data from the Climate Data Store (CDS), you will need to create an ECMWF
-account on \url{https://www.ecmwf.int/}. Once created, you can
-retrieve your API Token on \url{https://cds.climate.copernicus.eu/profile} and save them in your local keychain with:
-\code{
-  ecmwfr::wf_set_key("abcd1234-foo-bar-98765431-XXXXXXXXXX")
-}
+is used to download files in parallel. CDS queue limits vary with the current system workload.
+If CDS reports that queued requests are temporarily limited, reduce \code{workers} and try again.
 
 More information \href{https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html}{in the GeoPressureManual}.
 }
+\section{ECMWF API key}{
+
+ARCO access and CDS downloads use the same ECMWF Personal Access Token. Create an ECMWF account,
+copy the token from your \href{https://cds.climate.copernicus.eu/profile}{Climate Data Store profile},
+accept the dataset licence terms, and store the token once in your system keyring:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ecmwfr::wf_set_key("your-personal-access-token")
+}\if{html}{\out{</div>}}
+
+Do not put the token in a script or commit it to version control. GeoPressureR retrieves the
+stored token with \code{\link[ecmwfr:wf_get_key]{ecmwfr::wf_get_key()}} for all ECMWF-backed functions, including
+\code{\link[=geopressure_timeseries]{geopressure_timeseries()}}, \code{\link[=pressurepath_create]{pressurepath_create()}}, and \code{\link[=tag_download_wind]{tag_download_wind()}}.
+}
+
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
   tag_download_wind(tag)

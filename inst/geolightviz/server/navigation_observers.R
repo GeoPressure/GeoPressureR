@@ -54,8 +54,7 @@ setup_navigation_observers <- function(
 
   # Show calibration histogram button
   shiny::observeEvent(input$show_twilight_histogram, {
-    idx <- as.numeric(input$stap_id)
-    show_calibration(idx)
+    show_calibration()
   })
 
   # Return update function for use by other modules

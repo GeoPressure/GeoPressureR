@@ -64,6 +64,8 @@ path.
 
 The app \code{Save} button writes the current path to \code{./data/interim/{id}-path-geopressureviz.csv}.
 
+Basemap layers are configured with \code{\link[=map_add_tiles]{map_add_tiles()}}.
+
 Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }
 \examples{

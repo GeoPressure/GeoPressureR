@@ -16,14 +16,14 @@
 #' haversine_bearing)
 #' @param n_coords Number of coordinate pairs to process
 #' @param ... Additional arguments for memory management (for coordinate calculation functions)
-#' @param memory_fraction Fraction of available memory to use (default: 0.2 for 20%).
-#' This controls how much of your system's total memory the function will use for calculations.
+#' @param memory_fraction Fraction of installed physical memory to use (default: 0.2 for 20%).
+#' This controls the chunk-memory budget, up to `max_memory_mb`.
 #' - 0.05 (5%): Very conservative, good for shared systems or when running other processes
 #' - 0.10 (10%): Moderate usage, balances performance and system stability
 #' - 0.20 (20%): Aggressive usage for dedicated analysis, faster but may impact other apps
 #' - 0.50+ (50%+): Only for dedicated high-memory analysis on powerful machines
-#' @param min_memory_mb Minimum memory to allocate in MB (default: 50)
-#' @param max_memory_mb Maximum memory to allocate in MB (default: 1000)
+#' @param min_memory_mb Minimum memory to allocate in MiB (default: 50)
+#' @param max_memory_mb Maximum memory to allocate in MiB (default: 1000)
 #'
 #' @return
 #' - `graph_create_distance()`: Vector of distances in kilometers
@@ -86,52 +86,72 @@ graph_compute_chunk_size <- function(
   min_memory_mb = 50,
   max_memory_mb = 1000
 ) {
-  # Detect available memory
+  # Detect installed physical memory rather than transient free memory so chunk sizes are
+  # reproducible across runs on the same machine.
   total_memory_mb <- if (Sys.info()["sysname"] == "Windows") {
-    tryCatch(as.numeric(utils::memory.limit()), error = function(e) 8000)
-  } else if (Sys.info()["sysname"] == "Darwin") {
-    # macOS memory detection
+    # Query total memory through PowerShell on Windows.
     tryCatch(
       {
-        # Get total memory in bytes
+        total_mem <- system(
+          "powershell -NoProfile -Command \"(Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory\"",
+          intern = TRUE
+        )
+        if (length(total_mem) > 0 && !is.na(as.numeric(total_mem))) {
+          as.numeric(total_mem) / (1024^2)
+        } else {
+          # Use a conservative fallback when the platform query is unavailable.
+          8000
+        }
+      },
+      error = function(e) 8000
+    )
+  } else if (Sys.info()["sysname"] == "Darwin") {
+    # Query total memory in bytes on macOS and convert it to MiB.
+    tryCatch(
+      {
+        # Get total memory in bytes, then convert it to MiB.
         total_mem <- system("sysctl -n hw.memsize", intern = TRUE)
         if (length(total_mem) > 0 && !is.na(as.numeric(total_mem))) {
-          as.numeric(total_mem) / (1024^2) # Convert bytes to MB
+          as.numeric(total_mem) / (1024^2)
         } else {
-          8000 # Default to 8GB if detection fails
+          # Use a conservative fallback when the platform query is unavailable.
+          8000
+        }
+      },
+      error = function(e) 8000
+    )
+  } else if (Sys.info()["sysname"] == "Linux") {
+    # Read total physical memory from /proc/meminfo on Linux (reported in KiB), then convert to MiB.
+    tryCatch(
+      {
+        mem_info <- system(
+          "awk '/MemTotal/ {print $2}' /proc/meminfo",
+          intern = TRUE
+        )
+        if (length(mem_info) > 0 && !is.na(as.numeric(mem_info))) {
+          as.numeric(mem_info) / 1024
+        } else {
+          # Use a conservative fallback when /proc/meminfo is unavailable.
+          8000
         }
       },
       error = function(e) 8000
     )
   } else {
-    # For other Unix-like systems, try to get available memory using free
-    tryCatch(
-      {
-        mem_info <- system(
-          "free -m 2>/dev/null | awk 'NR==2{print $7}'",
-          intern = TRUE
-        )
-        if (length(mem_info) > 0 && !is.na(as.numeric(mem_info))) {
-          as.numeric(mem_info)
-        } else {
-          8000 # Default to 8GB if detection fails
-        }
-      },
-      error = function(e) 8000
-    )
+    8000
   }
 
-  # Calculate memory allocation for chunking with bounds
+  # Calculate memory allocation for chunking with bounds (all values are MiB).
   memory_for_chunk_mb <- max(
     min_memory_mb,
     min(max_memory_mb, total_memory_mb * memory_fraction)
   )
 
-  # Each coordinate pair uses ~500 bytes (conservative estimate for intermediate calculations)
-  coords_per_mb <- 1024^2 / 500 # ~2k coordinate pairs per MB
+  # Each coordinate pair uses ~500 bytes (a conservative estimate for intermediate calculations).
+  coords_per_mb <- 1024^2 / 500 # ~2k coordinate pairs per MiB
   max_chunk_from_memory <- as.integer(memory_for_chunk_mb * coords_per_mb)
 
-  # Ensure minimum chunk size of 100 for efficiency, but don't exceed data size
+  # Ensure a useful minimum chunk size, but never exceed the number of pairs requested.
   chunk_size <- max(100, min(max_chunk_from_memory, n_coords))
 
   return(chunk_size)

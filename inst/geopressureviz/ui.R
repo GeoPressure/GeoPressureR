@@ -101,7 +101,7 @@ ui <- shiny::bootstrapPage(
     draggable = FALSE,
     width = "200px",
     style = "z-index:500; min-width: 300px;padding-left: 50px",
-    shiny::tags$h2("GeoPressureViz", style = "color:white;"),
+    shiny::tags$h2("GeoPressureViz", style = "color:white;")
   ),
   shiny::absolutePanel(
     top = 0,
