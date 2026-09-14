@@ -168,6 +168,7 @@ Otherwise, assume correct usage.
 
 ### Release checklist
 - Set `DESCRIPTION`, `CITATION.cff`, and `codemeta.json` to the final `X.Y.Z` version; do not merge a release with `.9000`.
+- Run `cffr::cff_write()` after finalizing `DESCRIPTION`, then review and commit the generated `CITATION.cff` changes.
 - Add the canonical release block to `NEWS.md` before opening the PR, then paste that exact block into the PR body.
 - Resolve all `R CMD check` warnings and release-relevant notes, and confirm the PR's GitHub Actions matrix is green.
 - After merging to `main`, create tag `vX.Y.Z` and paste the unchanged canonical release block into the GitHub Release description.
