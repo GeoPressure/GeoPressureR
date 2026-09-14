@@ -136,6 +136,43 @@ Otherwise, assume correct usage.
 - Never use `:::` in package code. Call internal GeoPressureR functions directly and exported functions with `::` when a namespace qualifier is needed.
 
 
+## Development, PR, and release workflow
+
+### Branch flow
+- Develop on `dev`: make focused commits, run the mandatory checks, and push to `origin/dev`.
+- Open a pull request from `dev` to `main`. Merge `main` into `dev` and resolve conflicts before the PR is merged.
+- Use a draft PR while release metadata or release checks are incomplete. Mark it ready only when the final package version, NEWS entry, and required GitHub checks are complete.
+
+### One canonical release block
+- For every release, write one Markdown release block first. It is the source of truth and must be copied **verbatim** to:
+  1. the new top section of `NEWS.md`;
+  2. the pull-request body; and
+  3. the GitHub Release body created for the version tag.
+- Do not shorten, paraphrase, reorder, or add items independently in any of those three places.
+- Use the release version as the PR title (for example, `v3.6.1`) and as the top NEWS heading.
+- Keep the heading, subsection headings, bullet text, Markdown links, and the full-changelog comparison link identical in all three copies.
+
+```md
+# GeoPressureR vX.Y.Z
+
+## Main
+
+- [Describe the principal user-facing change](https://github.com/GeoPressure/GeoPressureR/commit/<sha>).
+
+## Minor
+
+- [Describe a smaller change or fix](https://github.com/GeoPressure/GeoPressureR/commit/<sha>).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/vX.Y.(Z-1)...vX.Y.Z>
+```
+
+### Release checklist
+- Set `DESCRIPTION`, `CITATION.cff`, and `codemeta.json` to the final `X.Y.Z` version; do not merge a release with `.9000`.
+- Add the canonical release block to `NEWS.md` before opening the PR, then paste that exact block into the PR body.
+- Resolve all `R CMD check` warnings and release-relevant notes, and confirm the PR's GitHub Actions matrix is green.
+- After merging to `main`, create tag `vX.Y.Z` and paste the unchanged canonical release block into the GitHub Release description.
+
+
 ## Hard constraints (never do)
 - Do not introduce new dependencies
 - Do not add unnecessary validation
