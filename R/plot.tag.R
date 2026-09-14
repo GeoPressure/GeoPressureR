@@ -517,6 +517,7 @@ plot_tag_twilight <- function(
   # Compute the matrix representation of light
   mat <- ts2mat(
     light,
+    sensor = "light",
     twl_offset = twl_offset,
     twl_time_tolerance = twl_time_tolerance
   )
@@ -725,12 +726,12 @@ plot_tag_actogram <- function(
   twl_offset <- resolve_twl_offset(tag, acc, twl_offset)
 
   # Compute the matrix representation of light
-  mat <- ts2mat(acc, twl_offset = twl_offset)
+  mat <- ts2mat(acc, sensor = "acceleration", twl_offset = twl_offset)
 
   if ("label" %in% names(acc)) {
     acc_label <- acc
     acc_label$value <- as.numeric(acc$label == "flight")
-    matl <- ts2mat(acc_label, twl_offset = twl_offset)
+    matl <- ts2mat(acc_label, sensor = "acceleration", twl_offset = twl_offset)
     mat$value[matl$value == 1] <- max(acc$value) + 1
   }
 

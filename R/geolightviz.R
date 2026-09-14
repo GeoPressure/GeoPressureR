@@ -214,7 +214,7 @@ light_matrix <- function(tag) {
   }
 
   # Compute the matrix representation of light
-  mat <- GeoPressureR::ts2mat(light, twl_offset = twl_offset)
+  mat <- GeoPressureR::ts2mat(light, sensor = "light", twl_offset = twl_offset)
 
   mat$plottime <- time2plottime(mat$time)
 

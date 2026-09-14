@@ -85,9 +85,8 @@ tag_label <- function(
     file_input <- file.path(dirname(file), glue::glue("{tag$param$id}.csv"))
     if (file.exists(file_input)) {
       cli::cli_abort(c(
-        "!" = "The label file {.file {file}} does not exist but {.file {file_input}} exist.",
-        i = "Edit {.file {file_input}} in TRAINSET and export {.file {file}} in the same
-        directory."
+        "!" = "The label file {.file {file}} does not exist but {.file {file_input}} exists.",
+        i = "Run {.code trainset(\"{file_input}\")} to label the data, then click Save to create {.file {file}}."
       ))
     }
 
@@ -96,17 +95,18 @@ tag_label <- function(
     if (!quiet) {
       cli::cli_bullets(c("!" = "The label file {.file {file}} does not exist."))
     }
-    choices <- list(
-      "1" = "No",
-      "2" = glue::glue("Yes, in `{file_default}` (default)"),
-      "3" = glue::glue("Yes, in `{file_input}` (in input file directory)")
-    )
+    choices <- c("No", glue::glue("Yes, in `{file_default}` (default)"))
+    if (file_input != file_default) {
+      choices <- c(
+        choices,
+        glue::glue("Yes, in `{file_input}` (in input file directory)")
+      )
+    }
     res <- if (interactive() && !quiet) {
       # nocov start
-      as.numeric(names(utils::select.list(
-        choices,
-        title = "Do you want to create it?"
-      )))
+      cli::cli_text("Do you want to create it?")
+      cli::cli_ol(choices)
+      as.integer(readline("Selection: "))
       # nocov end
     } else {
       1
