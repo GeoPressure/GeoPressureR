@@ -19,16 +19,7 @@ render_map_output <- function(
   output$map <- leaflet::renderLeaflet({
     leaflet::leaflet() |>
       leaflet::addMapPane("raster_pane", zIndex = 210) |>
-      leaflet::addProviderTiles(
-        "CartoDB.DarkMatterNoLabels",
-        group = "Dark Matter"
-      ) |>
-      leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite") |>
-      leaflet::addProviderTiles("Esri.WorldTopoMap", group = "Topography") |>
-      leaflet::addLayersControl(
-        baseGroups = c("Dark Matter", "Satellite", "Topography"),
-        position = c("topleft")
-      ) |>
+      map_add_tiles(position = "topleft") |>
       leaflet::fitBounds(
         extent[1],
         extent[3],

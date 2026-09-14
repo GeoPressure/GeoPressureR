@@ -9,7 +9,7 @@
   path = NULL,
   thr_likelihood = 1,
   plot_leaflet = TRUE,
-  provider = "Esri.WorldTopoMap",
+  provider = NULL,
   provider_options = leaflet::providerTileOptions(),
   palette = NULL,
   opacity = 0.8,
@@ -27,10 +27,11 @@
 
 \item{plot_leaflet}{logical to use an interactive \code{leaflet} map instead of \code{terra::plot}}
 
-\item{provider}{tile provider name (see \code{leaflet::providers}).}
+\item{provider}{optional tile provider name (see \code{leaflet::providers}). When \code{NULL}, uses all
+available GeoPressureR basemap layers. See \code{\link[=map_add_tiles]{map_add_tiles()}}.}
 
 \item{provider_options}{tile options. See leaflet::addProviderTiles() and
-leaflet::providerTileOptions()}
+leaflet::providerTileOptions().}
 
 \item{palette}{color palette name or vector of colors.}
 
@@ -82,7 +83,7 @@ plot(tag$map_pressure,
   thr_likelihood = 0.9,
   palette = "viridis",
   opacity = 1,
-  provider = "CartoDB.DarkMatterNoLabels"
+  provider = "Esri.WorldGrayCanvas"
 )
 
 }

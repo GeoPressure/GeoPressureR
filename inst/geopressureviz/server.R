@@ -124,17 +124,7 @@ server <- function(input, output, session) {
   output$map <- leaflet::renderLeaflet({
     map <- leaflet::leaflet() |>
       leaflet::addMapPane("raster_pane", zIndex = 210) |>
-      leaflet::addProviderTiles(
-        "CartoDB.DarkMatterNoLabels",
-        group = "Dark Matter"
-      ) |>
-      # options = providerTileOptions(noWrap = TRUE)
-      leaflet::addProviderTiles("Esri.WorldImagery", group = "Satellite") |>
-      leaflet::addProviderTiles("Esri.WorldTopoMap", group = "Topography") |>
-      leaflet::addLayersControl(
-        baseGroups = c("Dark Matter", "Satellite", "Topography"),
-        position = c("topleft")
-      )
+      map_add_tiles(position = "topleft")
   })
   output$tag_id <- shiny::renderUI({
     return(shiny::HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))

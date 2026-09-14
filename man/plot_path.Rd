@@ -8,7 +8,7 @@ plot_path(
   path,
   plot_leaflet = TRUE,
   map = NULL,
-  provider = "Esri.WorldTopoMap",
+  provider = NULL,
   provider_options = leaflet::providerTileOptions(),
   pad = 3,
   polyline = NULL,
@@ -24,10 +24,11 @@ basic plot.}
 
 \item{map}{optional \code{map} object to plot the path on top of.}
 
-\item{provider}{tile provider name (see \code{leaflet::providers}).}
+\item{provider}{optional tile provider name (see \code{leaflet::providers}). When \code{NULL}, uses all
+available GeoPressureR basemap layers. See \code{\link[=map_add_tiles]{map_add_tiles()}}.}
 
 \item{provider_options}{tile options. See leaflet::addProviderTiles() and
-leaflet::providerTileOptions()}
+leaflet::providerTileOptions().}
 
 \item{pad}{padding of the map in degree lat-lon (only for \code{plot_leaflet = FALSE}).}
 

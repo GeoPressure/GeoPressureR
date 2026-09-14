@@ -34,7 +34,7 @@ When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running th
 When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
 }
 \description{
-Start the GeoLightViz shiny app
+Basemap layers are configured with \code{\link[=map_add_tiles]{map_add_tiles()}}.
 }
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
