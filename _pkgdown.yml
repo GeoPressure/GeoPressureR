@@ -73,6 +73,8 @@ reference:
     desc: Retrieving time series pressure at a given location.
     contents:
       - geopressure_timeseries
+      - geopressure_timeseries_api
+      - geopressure_timeseries_arco
   - title: GeoLight
     desc: Geopositioning based on light data.
     contents:
@@ -123,6 +125,7 @@ reference:
       - rast.map
       - map_expand
       - map_add_mask_water
+      - map_add_tiles
   - title: Path
     desc: Data.frame of positions defining a bird trajectory.
     contents:
@@ -136,6 +139,8 @@ reference:
     desc: Data.frame of pressure time series along a path.
     contents:
       - pressurepath_create
+      - pressurepath_create_api
+      - pressurepath_create_arco
       - plot_pressurepath
       - path2elevation
   - title: GeoPressureTemplate
