@@ -8,7 +8,7 @@ message: 'To cite package "GeoPressureR" in publications use:'
 type: software
 license: GPL-3.0-or-later
 title: 'GeoPressureR: Global Positioning by Atmospheric Pressure'
-version: 3.6.1.9000
+version: 3.6.1
 doi: 10.5281/zenodo.7754457
 abstract: R package to determine the position and trajectory of a bird based on light-weight
   data-logger measuring at lease atmospheric pressure.
@@ -301,6 +301,18 @@ references:
     orcid: https://orcid.org/0000-0002-4035-0289
   year: '2026'
   doi: 10.32614/CRAN.package.jsonlite
+- type: software
+  title: keyring
+  abstract: 'keyring: Access the System Credential Store from R'
+  notes: Imports
+  url: https://keyring.r-lib.org/
+  repository: https://CRAN.R-project.org/package=keyring
+  authors:
+  - family-names: Csárdi
+    given-names: Gábor
+    email: csardi.gabor@gmail.com
+  year: '2026'
+  doi: 10.32614/CRAN.package.keyring
 - type: software
   title: leaflet
   abstract: 'leaflet: Create Interactive Web Maps with the JavaScript ''Leaflet''

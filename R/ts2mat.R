@@ -26,7 +26,7 @@ ts2mat <- function(
   res <- stats::median(res_vec)
   if (length(unique(res_vec)) != 1) {
     res_counts <- sort(table(res_vec), decreasing = TRUE)
-    res_counts_top <- head(res_counts, 5)
+    res_counts_top <- utils::head(res_counts, 5)
     res_summary <- paste(
       names(res_counts_top),
       "s (",

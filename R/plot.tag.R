@@ -550,7 +550,10 @@ plot_tag_twilight <- function(
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
     twl$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
     if (double_plot) {
-      twl <- rbind(twl, transform(twl, date = date - 1, time = time + 24 * 60 * 60))
+      twl_copy <- twl
+      twl_copy$date <- twl_copy$date - 1
+      twl_copy$time <- twl_copy$time + 24 * 60 * 60
+      twl <- rbind(twl, twl_copy)
     }
 
     if ("label" %in% names(twl)) {
@@ -621,15 +624,11 @@ plot_tag_twilight <- function(
     twll$time <- as.POSIXct(Sys.Date()) + time_hour * 3600
     twll$copy <- 1L
     if (double_plot) {
-      twll <- rbind(
-        twll,
-        transform(
-          twll,
-          date = date - 1,
-          time = time + 24 * 60 * 60,
-          copy = 2L
-        )
-      )
+      twll_copy <- twll
+      twll_copy$date <- twll_copy$date - 1
+      twll_copy$time <- twll_copy$time + 24 * 60 * 60
+      twll_copy$copy <- 2L
+      twll <- rbind(twll, twll_copy)
     }
     # Group by rounded stap_id so decimal flight values are attached to the nearest stationary
     # period without linking unrelated segments when stap_id is discontinuous.
@@ -864,14 +863,10 @@ ts2mat_to_long <- function(mat, value_name, double_plot = FALSE) {
   df_long$date <- as.Date(df_long$date)
 
   if (double_plot) {
-    df_long <- rbind(
-      df_long,
-      transform(
-        df_long,
-        date = date - 1,
-        time = time + 24 * 60 * 60
-      )
-    )
+    df_long_copy <- df_long
+    df_long_copy$date <- df_long_copy$date - 1
+    df_long_copy$time <- df_long_copy$time + 24 * 60 * 60
+    df_long <- rbind(df_long, df_long_copy)
     mat_time_hour <- c(mat_time_hour, mat_time_hour + 24)
   }
 

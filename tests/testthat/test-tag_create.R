@@ -287,16 +287,20 @@ test_that("tag_create() | automatically detects tabular csv", {
   expect_equal(tag$param$tag_create$acceleration_file, file.path(directory, "acceleration.csv"))
 })
 
-test_that("tag_create() | reads readr CSV timestamps without truncating seconds", {
+test_that("tag_create() | reads CSV timestamps without truncating seconds", {
   directory <- tempfile()
   dir.create(directory)
   datetime <- as.POSIXct(
     c("2017-06-20 00:00:01", "2017-06-20 01:02:03"),
     tz = "UTC"
   )
-  readr::write_csv(
-    data.frame(datetime = datetime, value = c(1000, 1001)),
-    file.path(directory, "pressure.csv")
+  utils::write.csv(
+    data.frame(
+      datetime = format(datetime, "%Y-%m-%dT%H:%M:%S"),
+      value = c(1000, 1001)
+    ),
+    file.path(directory, "pressure.csv"),
+    row.names = FALSE
   )
 
   tag <- tag_create(
