@@ -9,7 +9,7 @@ geolight_map_calibrate <- function(
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-5,
   refine_fitted_location_scale_km = 20,
-  refine_fitted_location_max_iter = 0,
+  refine_fitted_location_max_iter = 2,
   quiet = FALSE
 ) {
   tag_assert(tag, "twilight")

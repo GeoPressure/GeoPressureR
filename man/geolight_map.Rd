@@ -16,7 +16,7 @@ geolight_map(
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-05,
   refine_fitted_location_scale_km = 20,
-  refine_fitted_location_max_iter = 0,
+  refine_fitted_location_max_iter = 2,
   twl_llp = function(n) log(n)/n,
   compute_known = FALSE,
   keep_twl = FALSE,
@@ -39,7 +39,7 @@ geolight_map_calibrate(
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-05,
   refine_fitted_location_scale_km = 20,
-  refine_fitted_location_max_iter = 0,
+  refine_fitted_location_max_iter = 2,
   quiet = FALSE
 )
 
@@ -112,7 +112,7 @@ distribution for the same stationary period and moving the anchor to the local l
 mode. This is a calibration-anchor refinement, not a separate movement estimator. It is only
 applied to fitted calibration locations; true known locations are kept fixed. Refined fitted
 anchors have \code{zenith} set to \code{NA} because the initial fitted zenith no longer corresponds to the
-refined coordinates. The default is \code{0}, so existing behavior is unchanged.
+refined coordinates. The default is \code{2} iterations.
 
 Instead of calibrating the twilight errors in terms of duration, we directly model the zenith
 angle error. We use a kernel distribution to fit the zenith angle during the known stationary
