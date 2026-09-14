@@ -90,27 +90,27 @@ init <- function(
   rv$compute_known <- compute_known
   fitted_location_duration <- .tag$param$geolight_map[["fitted_location_duration"]]
   if (is.null(fitted_location_duration)) {
-    fitted_location_duration <- 30
+    fitted_location_duration <- Inf
   }
   twl_calib_adjust <- .tag$param$geolight_map[["twl_calib_adjust"]]
   if (is.null(twl_calib_adjust)) {
-    twl_calib_adjust <- 1
+    twl_calib_adjust <- 1.4
   }
 
   twl_calib <- .tag$param$geolight_map[["twl_calib"]]
 
-  if (rv$has_map) {
-    if (is.null(twl_calib)) {
-      print(fitted_location_duration)
-      tag_calib <- GeoPressureR::geolight_map_calibrate(
-        tag = tag_for_map,
-        twl_calib_adjust = twl_calib_adjust,
-        fitted_location_duration = fitted_location_duration,
-        quiet = FALSE
-      )
-      twl_calib <- tag_calib$param$geolight_map[["twl_calib"]]
-      tag_for_map$param$geolight_map[["twl_calib"]] <- twl_calib
-    }
+  known_stap <- !is.na(.stapath$known_lat) & !is.na(.stapath$known_lon)
+  if (
+    rv$has_map && is.null(twl_calib) && (any(known_stap) || is.finite(fitted_location_duration))
+  ) {
+    tag_calib <- GeoPressureR::geolight_map_calibrate(
+      tag = tag_for_map,
+      twl_calib_adjust = twl_calib_adjust,
+      fitted_location_duration = fitted_location_duration,
+      quiet = FALSE
+    )
+    twl_calib <- tag_calib$param$geolight_map[["twl_calib"]]
+    tag_for_map$param$geolight_map[["twl_calib"]] <- twl_calib
   }
   rv$twl_calib <- shiny::reactiveVal(twl_calib)
 
