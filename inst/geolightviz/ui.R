@@ -148,7 +148,7 @@ ui <- function() {
             icon = shiny::icon("sliders-h"),
             class = "bg-secondary"
           )
-        ),
+        )
       ),
       shiny::fluidRow(
         class = "d-flex flex-fill",
