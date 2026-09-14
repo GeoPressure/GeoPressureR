@@ -728,8 +728,10 @@ plot_tag_actogram <- function(
   mat <- ts2mat(acc, twl_offset = twl_offset)
 
   if ("label" %in% names(acc)) {
-    matl <- ts2mat(acc, twl_offset = twl_offset, value = "label")
-    mat$value[matl$value == "flight"] <- max(acc$value) + 1
+    acc_label <- acc
+    acc_label$value <- as.numeric(acc$label == "flight")
+    matl <- ts2mat(acc_label, twl_offset = twl_offset)
+    mat$value[matl$value == 1] <- max(acc$value) + 1
   }
 
   # Convert to long format data.frame to be able to plot with ggplot
@@ -783,10 +785,11 @@ plot_tag_actogram <- function(
         "#66FF66", # Medium activity (green)
         "#33CC33", # Higher activity (darker green),
         "#660066", # High activity (purple)
-        "#000000" # Continuous activity (black)
+        "#000000", # Continuous activity (black)
+        "#FF0000" # Labelled flight
       ),
-      values = c(0, (x + 1) / (rng[2] + 1)),
-      limits = c(-1, rng[2])
+      values = c(0, (x + 1) / (rng[2] + 2), 1),
+      limits = c(-1, rng[2] + 1)
     )
 
   if (flip_axes) {
