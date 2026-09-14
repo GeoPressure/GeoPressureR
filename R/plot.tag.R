@@ -339,7 +339,7 @@ plot_tag_acceleration <- function(
         ggplot2::aes(x = .data$date, y = .data[[variable]]),
         fill = "red",
         shape = 23,
-        size = 2,
+        size = 2
       )
   }
 

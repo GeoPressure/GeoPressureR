@@ -33,7 +33,7 @@ modal_calibration_ui <- function(id) {
           shiny::tags$code("geolight_map()"),
           href = "https://geopressure.org/GeoPressureR/reference/geolight_map.html#arg-twl-calib-adjust",
           target = "_blank"
-        ),
+        )
       ),
       shiny::fluidRow(
         shiny::column(
@@ -51,7 +51,7 @@ modal_calibration_ui <- function(id) {
               step = 0.1,
               width = "70px"
             )
-          ),
+          )
         ),
         shiny::column(
           6,

@@ -159,16 +159,16 @@ ui <- function() {
           shiny::div(
             class = "d-flex flex-column flex-fill",
             height = "100%",
-            plotly::plotlyOutput("plotly_div", width = "100%", height = "100%"),
+            plotly::plotlyOutput("plotly_div", width = "100%", height = "100%")
           )
         ),
         shiny::column(
           5,
           id = "map_container",
           class = "flex-fill p-0",
-          leaflet::leafletOutput("map", width = "100%", height = "100%"),
-        ),
-      ),
+          leaflet::leafletOutput("map", width = "100%", height = "100%")
+        )
+      )
     )
   )
 }

@@ -27,7 +27,7 @@ test_that("pressurepath_create() | single stap", {
       path_i,
       variable = c("altitude", "surface_pressure", "total_precipitation"),
       # era5_dataset = "land",
-      quiet = TRUE,
+      quiet = TRUE
     )
   )
   expect_true(all(

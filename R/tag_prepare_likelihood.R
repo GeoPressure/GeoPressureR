@@ -55,7 +55,7 @@ tag_prepare_likelihood <- function(
     cli::cli_progress_done()
     cli::cli_progress_step(
       "Create nodes from likelihood maps {.field {likelihood}} ({.val {g$dim[1]}}x{.val {g$dim[2]}}x{.val {n_stap}})",
-      msg_done = "Nodes created from {round(lk_mask_nb/prod(sz)*100)}% of the likelihood maps {.field {likelihood}} ({.val {g$dim[1]}}x{.val {g$dim[1]}}x{.val {n_stap}})",
+      msg_done = "Nodes created from {round(lk_mask_nb/prod(sz)*100)}% of the likelihood maps {.field {likelihood}} ({.val {g$dim[1]}}x{.val {g$dim[1]}}x{.val {n_stap}})"
     )
   }
 

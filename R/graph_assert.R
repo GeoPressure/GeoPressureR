@@ -26,7 +26,7 @@ graph_assert <- function(graph, condition = "graph") {
       ">" = "Check the input and run {.fun graph_create} again."
     )
   } else {
-    stop(glue::glue("condition {.var {condition}} is unknown"))
+    stop(glue::glue("condition {condition} is unknown"))
   }
 
   if (condition %in% status) {

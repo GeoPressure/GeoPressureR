@@ -243,7 +243,7 @@ plot_twl_calib_path <- function(
     ggplot2::geom_col(
       data = hist_df,
       ggplot2::aes(x = .data$zenith_angle, y = .data$count_norm, fill = .data$ci_flag),
-      width = twl_calib_path$binwidth,
+      width = twl_calib_path$binwidth
     ) +
     ggplot2::geom_line(
       data = line_df,

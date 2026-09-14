@@ -16,7 +16,7 @@ stap <- data.frame(
     by = "day"
   )
 )
-stap$end <- stap$start + sample.int(10, ) * 10000
+stap$end <- stap$start + sample.int(10) * 10000
 
 test_that("map_create() | basic", {
   expect_error(map_create())
