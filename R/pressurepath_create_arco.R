@@ -43,6 +43,7 @@ pressurepath_create_arco_impl <- function(
 ) {
   era5_dataset <- match.arg(era5_dataset)
   era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
+  pressurepath_variable_check(variable, "arco", era5_dataset)
 
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
   dataset <- rep(era5_dataset, nrow(pressurepath))

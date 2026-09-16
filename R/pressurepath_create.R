@@ -68,14 +68,12 @@ pressurepath_create <- function(
   assertthat::assert_that(is.logical(quiet))
   source <- ecmwf_select_source(source, quiet)
 
+  # Validate once, here, where both the backend and the product are resolved. The available sets
+  # differ per (source, era5_dataset) pair, and an unavailable variable makes GeoPressureAPI
+  # return an empty response that blanks every column rather than erroring.
+  pressurepath_variable_check(variable, source, era5_dataset)
+
   if (source == "arco") {
-    unsupported <- setdiff(variable, c("altitude", "surface_pressure"))
-    if (length(unsupported) > 0) {
-      cli::cli_abort(c(
-        "x" = "ARCO does not support variable{?s} {.val {unsupported}}.",
-        "i" = "Use {.code source = \"api\"} for additional ERA5 variables."
-      ))
-    }
     arco_require_dependencies()
     pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
     return(pressurepath_create_arco_impl(

@@ -50,6 +50,7 @@ Other pressurepath:
 \code{\link[=geopressure_timeseries_arco]{geopressure_timeseries_arco()}},
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
 \code{\link[=pressurepath_create]{pressurepath_create()}},
-\code{\link[=pressurepath_create_api]{pressurepath_create_api()}}
+\code{\link[=pressurepath_create_api]{pressurepath_create_api()}},
+\code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}}
 }
 \concept{pressurepath}

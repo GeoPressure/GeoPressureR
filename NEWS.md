@@ -15,6 +15,18 @@
   every other variable, and `geopressure_map()` still defaults to `"land"` because its pressure
   mismatch is differential and therefore unaffected.
 
+- **`variable` is now validated against the resolved backend and ERA5 product.** The available
+  sets genuinely differ — 292 variables for ERA5 single levels, 70 for ERA5-Land (only 44 shared),
+  and 2 for ARCO — but every request was previously checked against the ERA5 single-levels list
+  alone. Asking for a variable ERA5-Land does not carry made GeoPressureAPI return `200 success`
+  with *every* array empty, which arrived as a `pressurepath` whose ERA5 columns were all `NA`,
+  behind a generic warning. Conversely, 26 ERA5-Land-only variables (`snow_cover`,
+  `total_evaporation`, the `evaporation_from_*` and `*_hourly` fields) were rejected despite
+  working. Requests are now checked up front with an error naming the configuration that would
+  work, and near-misses suggest the intended variable.
+- New `pressurepath_variable_available()` lists the variables a given `source` and `era5_dataset`
+  can return.
+
 ## Minor
 
 - Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.

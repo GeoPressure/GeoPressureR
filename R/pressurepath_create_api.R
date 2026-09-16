@@ -50,17 +50,9 @@ pressurepath_create_api_impl <- function(
   )
   era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
-  # Validate requested variables against the allowed set
-  unknown_vars <- setdiff(variable, c(pressurepath_variable, "altitude"))
-  assertthat::assert_that(
-    length(unknown_vars) == 0,
-    msg = paste0(
-      "Unknown variable(s): ",
-      paste(unknown_vars, collapse = ", "),
-      ". Allowed variables are: ",
-      paste(c(pressurepath_variable, "altitude"), collapse = ", ")
-    )
-  )
+  # Validate against what this ERA5 product actually carries. ERA5-Land has 70 bands against 292
+  # for single levels, so the allowed set is not the same for every value of `era5_dataset`.
+  pressurepath_variable_check(variable, "api", era5_dataset)
 
   # Check workers
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
