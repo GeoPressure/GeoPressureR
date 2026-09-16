@@ -16,10 +16,12 @@
 #' [geopressure_timeseries_api()] to select a backend explicitly.
 #'
 #' @section ERA5 datasets and matching:
-#' With ARCO, `era5_dataset = "land"` uses ERA5-Land on a 0.1 degree grid. It has finer spatial
-#' resolution but is masked over oceans; ocean locations are moved to the closest land cell.
-#' `era5_dataset = "single-levels"` uses global ERA5 on a 0.25 degree grid and retains locations
-#' over water. GeoPressureAPI chooses its ERA5 data internally and moves ocean locations onshore.
+#' With ARCO, `era5_dataset = "single-levels"` (the default) uses global ERA5 on a 0.25 degree grid
+#' and retains locations over water. `era5_dataset = "land"` uses ERA5-Land on a 0.1 degree grid;
+#' it has finer spatial resolution but is masked over oceans, so ocean locations are moved to the
+#' closest land cell, and it must not be used when `pressure` is supplied because `altitude` is
+#' then computed from it (see the *Choosing `era5_dataset`* section). GeoPressureAPI chooses its
+#' ERA5 data internally and moves ocean locations onshore.
 #'
 #' Without `pressure`, the requested interval is returned hourly. With ARCO and `pressure`, each tag
 #' time is matched to its closest ERA5 hour and restored after matching; no temporal interpolation
@@ -39,8 +41,10 @@
 #'   column in hPa. Additional columns are retained.
 #' @param start_time,end_time Start and end of the requested interval when `pressure` is `NULL`.
 #' @param source Data source: `"auto"`, `"arco"`, or `"api"`.
-#' @param era5_dataset ERA5 product used by ARCO: `"land"` at 0.1 degree resolution or
-#'   `"single-levels"` at 0.25 degree resolution. GeoPressureAPI uses its own configuration.
+#' @param era5_dataset ERA5 product used by ARCO: `"single-levels"` (default) at 0.25 degree
+#'   resolution or `"land"` at 0.1 degree resolution. Keep the default when `pressure` is supplied,
+#'   because `altitude` is then computed; see the *Choosing `era5_dataset`* section.
+#'   GeoPressureAPI uses its own configuration.
 #' @param quiet Logical to suppress progress messages.
 #' @param debug Logical to display request details.
 #'
@@ -67,7 +71,7 @@ geopressure_timeseries <- function(
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api"),
-  era5_dataset = c("land", "single-levels")
+  era5_dataset = c("single-levels", "land")
 ) {
   input <- geopressure_timeseries_prepare(
     lat,

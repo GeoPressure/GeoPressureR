@@ -9,7 +9,7 @@ pressurepath_create(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -28,8 +28,9 @@ pressurepath_create(
 \item{solar_dep}{Solar depression angle used to compute sunrise and sunset, or \code{NULL} to skip
 this computation.}
 
-\item{era5_dataset}{ERA5 product: \code{"land"}, \code{"single-levels"}, or \code{"both"} to use ERA5-Land
-over land and global ERA5 elsewhere.}
+\item{era5_dataset}{ERA5 product: \code{"single-levels"} (default), \code{"land"}, or \code{"both"} to use
+ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever \code{variable} includes
+\code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
 
 \item{preprocess}{Whether to preprocess pressure with \code{\link[=geopressure_map_preprocess]{geopressure_map_preprocess()}}.}
 
@@ -67,9 +68,9 @@ available and GeoPressureAPI otherwise. Use \code{\link[=pressurepath_create_arc
 
 Measurements are retained only when \code{path} contains the surrounding stationary periods.
 Coordinates during flights are interpolated linearly, while ERA5 values are sampled at the
-nearest grid cell and hour. \code{era5_dataset = "land"} uses 0.1 degree ERA5-Land,
-\code{"single-levels"} uses 0.25 degree global ERA5, and \code{"both"} selects ERA5-Land over land and
-global ERA5 over water.
+nearest grid cell and hour. \code{era5_dataset = "single-levels"} uses 0.25 degree global ERA5,
+\code{"land"} uses 0.1 degree ERA5-Land, and \code{"both"} selects ERA5-Land over land and global ERA5
+over water.
 
 Surface pressure is returned in hPa and normalised to the mean tag pressure within each
 stationary-period and elevation-label group. Observations labelled \code{"discard"} are excluded
@@ -89,6 +90,46 @@ standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
 \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s^2, and molar mass of dry air
 \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
 metres above mean sea level.
+}
+
+\section{Choosing \code{era5_dataset}}{
+
+\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.} It is the default.
+
+ERA5-Land's \code{surface_pressure} is not the exact hydrostatic image of the orography ERA5-Land
+publishes as \code{geopotential} \if{html}{\out{<e2>}}<80><94> the two disagree by up to ~10 hPa in steep terrain. The
+\eqn{z_{ERA5}} term therefore fails to cancel from the relation above and the whole discrepancy
+lands in the retrieved altitude. Measured against 41,653 hourly station-pressure observations
+from 271 NOAA ISD stations (2\if{html}{\out{<e2>}}<80><93>3576 m, Alps, July 2020), compared with surveyed station
+elevation:\tabular{llll}{
+   \code{era5_dataset} \tab bias \tab MAE \tab RMSE \cr
+   \code{"single-levels"} \tab \if{html}{\out{<e2>}}<88><92>0.6 m \tab 9.0 m \tab 27.4 m \cr
+   \code{"land"} / \code{"both"} \tab +2.5 m \tab 55.3 m \tab 76.9 m \cr
+}
+
+
+ERA5-Land replays the land component of ERA5 and assimilates no atmospheric observations of its
+own, so it carries no independent information about absolute altitude. Substituting the
+orography implied by its own surface pressure removes the error exactly and reproduces
+\code{"single-levels"} to 0.1 m.
+
+\code{"land"} and \code{"both"} are retained for backward compatibility and are \strong{deprecated for
+altitude} since GeoPressureR 3.7.0; requesting \code{"altitude"} with either signals a deprecation
+warning. They remain fully supported and appropriate for retrieving other variables at 0.1
+degree resolution, and \code{\link[=geopressure_map]{geopressure_map()}} still defaults to \code{"land"} because its pressure
+mismatch is differential and unaffected.
+}
+
+\section{Accuracy}{
+
+With \code{era5_dataset = "single-levels"} the altitude error separates into two parts that behave
+very differently. A static per-site offset (median 3.7 m, p90 15 m) reflects station metadata
+and sub-grid terrain and does not vary in time, while the temporal scatter (median SD 3.1 m,
+p90 7.7 m) is the actual reanalysis error. Expect roughly \strong{3 m for relative altitude changes
+at a fixed location} and \strong{10 m mean absolute error for absolute altitude}, degrading to tens
+of metres in steep terrain \if{html}{\out{<e2>}}<80><94> where it is a fixed offset rather than noise. Precision is nearly
+independent of flight altitude: de-biased RMSE stays 2\if{html}{\out{<e2>}}<80><93>7 m up to 1000 m above the model surface
+and about 12 m at 1000\if{html}{\out{<e2>}}<80><93>3000 m above it.
 }
 
 \section{ECMWF API key}{

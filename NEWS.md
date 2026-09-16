@@ -1,3 +1,27 @@
+# GeoPressureR (development version)
+
+## Main
+
+- **`era5_dataset` now defaults to `"single-levels"` for altitude retrieval.** ERA5-Land's
+  `surface_pressure` is not the exact hydrostatic image of the orography ERA5-Land publishes as
+  `geopotential` — the two disagree by up to ~10 hPa in steep terrain — so the orography term does
+  not cancel from the barometric relation and the discrepancy lands in `altitude`. Measured against
+  41,653 hourly station-pressure observations from 271 NOAA ISD stations (2–3576 m, Alps, July
+  2020), mean absolute error is **9 m** for `"single-levels"` against **55 m** for `"land"` and
+  `"both"`. Affects `pressurepath_create()`, `pressurepath_create_api()`,
+  `pressurepath_create_arco()`, `geopressure_timeseries()` and `geopressure_timeseries_arco()`.
+- **`era5_dataset = "land"` and `"both"` are deprecated for altitude** and now signal a
+  `lifecycle` deprecation warning when `"altitude"` is requested. They remain fully supported for
+  every other variable, and `geopressure_map()` still defaults to `"land"` because its pressure
+  mismatch is differential and therefore unaffected.
+
+## Minor
+
+- Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.
+- Document the achievable accuracy of pressure-derived altitude: a static per-site offset (median
+  3.7 m) plus temporal scatter (median SD 3.1 m), giving ~3 m for relative altitude changes at a
+  fixed location and ~10 m mean absolute error for absolute altitude.
+
 # GeoPressureR v3.6.1
 
 ## Main

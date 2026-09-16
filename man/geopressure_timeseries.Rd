@@ -13,7 +13,7 @@ geopressure_timeseries(
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api"),
-  era5_dataset = c("land", "single-levels")
+  era5_dataset = c("single-levels", "land")
 )
 }
 \arguments{
@@ -32,8 +32,10 @@ column in hPa. Additional columns are retained.}
 
 \item{source}{Data source: \code{"auto"}, \code{"arco"}, or \code{"api"}.}
 
-\item{era5_dataset}{ERA5 product used by ARCO: \code{"land"} at 0.1 degree resolution or
-\code{"single-levels"} at 0.25 degree resolution. GeoPressureAPI uses its own configuration.}
+\item{era5_dataset}{ERA5 product used by ARCO: \code{"single-levels"} (default) at 0.25 degree
+resolution or \code{"land"} at 0.1 degree resolution. Keep the default when \code{pressure} is supplied,
+because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.
+GeoPressureAPI uses its own configuration.}
 }
 \value{
 A data.frame containing \code{date}, \code{surface_pressure}, \code{lat}, and \code{lon}. With \code{pressure},
@@ -60,10 +62,12 @@ available and GeoPressureAPI otherwise. Use \code{\link[=geopressure_timeseries_
 
 \section{ERA5 datasets and matching}{
 
-With ARCO, \code{era5_dataset = "land"} uses ERA5-Land on a 0.1 degree grid. It has finer spatial
-resolution but is masked over oceans; ocean locations are moved to the closest land cell.
-\code{era5_dataset = "single-levels"} uses global ERA5 on a 0.25 degree grid and retains locations
-over water. GeoPressureAPI chooses its ERA5 data internally and moves ocean locations onshore.
+With ARCO, \code{era5_dataset = "single-levels"} (the default) uses global ERA5 on a 0.25 degree grid
+and retains locations over water. \code{era5_dataset = "land"} uses ERA5-Land on a 0.1 degree grid;
+it has finer spatial resolution but is masked over oceans, so ocean locations are moved to the
+closest land cell, and it must not be used when \code{pressure} is supplied because \code{altitude} is
+then computed from it (see the \emph{Choosing \code{era5_dataset}} section). GeoPressureAPI chooses its
+ERA5 data internally and moves ocean locations onshore.
 
 Without \code{pressure}, the requested interval is returned hourly. With ARCO and \code{pressure}, each tag
 time is matched to its closest ERA5 hour and restored after matching; no temporal interpolation
@@ -83,6 +87,46 @@ standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
 \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s^2, and molar mass of dry air
 \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
 metres above mean sea level.
+}
+
+\section{Choosing \code{era5_dataset}}{
+
+\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.} It is the default.
+
+ERA5-Land's \code{surface_pressure} is not the exact hydrostatic image of the orography ERA5-Land
+publishes as \code{geopotential} \if{html}{\out{<e2>}}<80><94> the two disagree by up to ~10 hPa in steep terrain. The
+\eqn{z_{ERA5}} term therefore fails to cancel from the relation above and the whole discrepancy
+lands in the retrieved altitude. Measured against 41,653 hourly station-pressure observations
+from 271 NOAA ISD stations (2\if{html}{\out{<e2>}}<80><93>3576 m, Alps, July 2020), compared with surveyed station
+elevation:\tabular{llll}{
+   \code{era5_dataset} \tab bias \tab MAE \tab RMSE \cr
+   \code{"single-levels"} \tab \if{html}{\out{<e2>}}<88><92>0.6 m \tab 9.0 m \tab 27.4 m \cr
+   \code{"land"} / \code{"both"} \tab +2.5 m \tab 55.3 m \tab 76.9 m \cr
+}
+
+
+ERA5-Land replays the land component of ERA5 and assimilates no atmospheric observations of its
+own, so it carries no independent information about absolute altitude. Substituting the
+orography implied by its own surface pressure removes the error exactly and reproduces
+\code{"single-levels"} to 0.1 m.
+
+\code{"land"} and \code{"both"} are retained for backward compatibility and are \strong{deprecated for
+altitude} since GeoPressureR 3.7.0; requesting \code{"altitude"} with either signals a deprecation
+warning. They remain fully supported and appropriate for retrieving other variables at 0.1
+degree resolution, and \code{\link[=geopressure_map]{geopressure_map()}} still defaults to \code{"land"} because its pressure
+mismatch is differential and unaffected.
+}
+
+\section{Accuracy}{
+
+With \code{era5_dataset = "single-levels"} the altitude error separates into two parts that behave
+very differently. A static per-site offset (median 3.7 m, p90 15 m) reflects station metadata
+and sub-grid terrain and does not vary in time, while the temporal scatter (median SD 3.1 m,
+p90 7.7 m) is the actual reanalysis error. Expect roughly \strong{3 m for relative altitude changes
+at a fixed location} and \strong{10 m mean absolute error for absolute altitude}, degrading to tens
+of metres in steep terrain \if{html}{\out{<e2>}}<80><94> where it is a fixed offset rather than noise. Precision is nearly
+independent of flight altitude: de-biased RMSE stays 2\if{html}{\out{<e2>}}<80><93>7 m up to 1000 m above the model surface
+and about 12 m at 1000\if{html}{\out{<e2>}}<80><93>3000 m above it.
 }
 
 \section{Pressure normalisation}{

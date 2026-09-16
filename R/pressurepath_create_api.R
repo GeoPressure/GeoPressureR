@@ -12,7 +12,7 @@ pressurepath_create_api <- function(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -38,7 +38,7 @@ pressurepath_create_api_impl <- function(
   pressurepath,
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -48,6 +48,7 @@ pressurepath_create_api_impl <- function(
     era5_dataset,
     choices = c("single-levels", "land", "both")
   )
+  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
   # Validate requested variables against the allowed set
   unknown_vars <- setdiff(variable, c(pressurepath_variable, "altitude"))
@@ -108,7 +109,12 @@ pressurepath_create_api_impl <- function(
 
   # Perform the request and convert the response to data.frame
   resp <- httr2::req_perform(req)
-  resp_data <- httr2::resp_body_json(resp, simplifyVector = TRUE)$data
+  resp_body <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+  # GeoPressureAPI flags configurations whose `altitude` cannot be trusted.
+  if (!is.null(resp_body$warning)) {
+    cli::cli_warn(c("!" = "GeoPressureAPI: {resp_body$warning}"))
+  }
+  resp_data <- resp_body$data
 
   # If variable requested does not exist, the API return an empty list, which we
   # convert here as a NA

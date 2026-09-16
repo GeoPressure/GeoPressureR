@@ -18,9 +18,9 @@
 #' @section Path and ERA5 processing:
 #' Measurements are retained only when `path` contains the surrounding stationary periods.
 #' Coordinates during flights are interpolated linearly, while ERA5 values are sampled at the
-#' nearest grid cell and hour. `era5_dataset = "land"` uses 0.1 degree ERA5-Land,
-#' `"single-levels"` uses 0.25 degree global ERA5, and `"both"` selects ERA5-Land over land and
-#' global ERA5 over water.
+#' nearest grid cell and hour. `era5_dataset = "single-levels"` uses 0.25 degree global ERA5,
+#' `"land"` uses 0.1 degree ERA5-Land, and `"both"` selects ERA5-Land over land and global ERA5
+#' over water.
 #'
 #' Surface pressure is returned in hPa and normalised to the mean tag pressure within each
 #' stationary-period and elevation-label group. Observations labelled `"discard"` are excluded
@@ -35,8 +35,9 @@
 #'   `"surface_pressure"`; GeoPressureAPI supports additional variables.
 #' @param solar_dep Solar depression angle used to compute sunrise and sunset, or `NULL` to skip
 #'   this computation.
-#' @param era5_dataset ERA5 product: `"land"`, `"single-levels"`, or `"both"` to use ERA5-Land
-#'   over land and global ERA5 elsewhere.
+#' @param era5_dataset ERA5 product: `"single-levels"` (default), `"land"`, or `"both"` to use
+#'   ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever `variable` includes
+#'   `"altitude"`; see the *Choosing `era5_dataset`* section.
 #' @param preprocess Whether to preprocess pressure with [geopressure_map_preprocess()].
 #' @param workers Number of parallel GeoPressureAPI requests, or `"auto"`.
 #' @param source Data source: `"auto"`, `"arco"`, or `"api"`.
@@ -56,14 +57,14 @@ pressurepath_create <- function(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api")
 ) {
-  era5_dataset <- match.arg(era5_dataset, c("both", "land", "single-levels"))
+  era5_dataset <- match.arg(era5_dataset, c("single-levels", "land", "both"))
   assertthat::assert_that(is.logical(quiet))
   source <- ecmwf_select_source(source, quiet)
 

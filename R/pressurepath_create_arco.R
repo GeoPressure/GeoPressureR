@@ -12,7 +12,7 @@ pressurepath_create_arco <- function(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   quiet = FALSE,
   debug = FALSE
@@ -36,12 +36,13 @@ pressurepath_create_arco_impl <- function(
   pressurepath,
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = c("both", "land", "single-levels"),
+  era5_dataset = c("single-levels", "land", "both"),
   preprocess = FALSE,
   quiet = FALSE,
   debug = FALSE
 ) {
   era5_dataset <- match.arg(era5_dataset)
+  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
   dataset <- rep(era5_dataset, nrow(pressurepath))
