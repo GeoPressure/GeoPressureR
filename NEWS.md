@@ -33,9 +33,24 @@
   the same whichever `source` is used. `era5_dataset = "both"` accepts the 8 variables carried by
   both products, since it reads ERA5-Land over land and ERA5 over water within one request.
 
+- **A `pressurepath` now records how it was made.** `era5_dataset`, `source` and `variable` are
+  stored as attributes, alongside the existing `id`, `preprocess`, `sd` and `type`. Altitude
+  differs by tens of metres between ERA5 products, so a saved path has to say which one produced
+  it — and every other object in the package (`tag_set_map()`, `graph_create()`,
+  `graph_set_movement()`, ...) already records its own arguments.
+- **Both backends now return identical column sets, in an identical order**: identifiers,
+  position, the requested variables in the order asked for, anything else the path carried, then
+  the derived columns. Previously ARCO appended `surface_pressure` last and put `date` first,
+  while the API used the request order, so switching `source` silently reshaped the result.
+  `surface_pressure` (and so `surface_pressure_norm`) is now attached only when requested, which
+  is what the API backend already did.
+
 ## Minor
 
 - Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.
+- `pressurepath_finalize()` is the single place surface pressure becomes hPa. Both backends hand
+  it over in Pa, the unit every ERA5 source uses, and the `surface_pressure_pa` and `date_first`
+  flags are gone.
 - Document that `total_precipitation`, `surface_solar_radiation_downwards` and
   `surface_thermal_radiation_downwards` are hourly increments from the API but accumulate from
   00 UTC from ARCO when `era5_dataset = "land"`.

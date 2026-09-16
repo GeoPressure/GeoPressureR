@@ -168,19 +168,29 @@ pressurepath_prepare <- function(tag, path, preprocess, quiet) {
   pressurepath
 }
 
+#' Shape and annotate a pressure path
+#'
+#' Both backends hand over `surface_pressure` in Pa, the unit every ERA5 source uses, and this is
+#' the one place it becomes hPa. The column order and the recorded provenance are likewise defined
+#' here alone, so a path is indistinguishable whichever `source` produced it.
+#'
+#' @param pressurepath Assembled path, with ERA5 variables attached and `surface_pressure` in Pa.
+#' @param variable Variables the caller requested, in that order.
+#' @param era5_dataset,source Resolved ERA5 product and backend, recorded as attributes because
+#'   they change the result materially and cannot otherwise be recovered from a saved path.
+#' @noRd
 pressurepath_finalize <- function(
   pressurepath,
   tag,
   path,
   preprocess,
   solar_dep,
-  surface_pressure_pa = FALSE,
-  date_first = FALSE
+  variable = character(),
+  era5_dataset = NA_character_,
+  source = NA_character_
 ) {
   if ("surface_pressure" %in% names(pressurepath) && !all(is.na(pressurepath$surface_pressure))) {
-    if (surface_pressure_pa) {
-      pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
-    }
+    pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
     pp <- pressurepath
     pp$stapelev <- paste(
       pp$stap_id,
@@ -211,12 +221,27 @@ pressurepath_finalize <- function(
     twl <- path2twilight(pressurepath, solar_dep = solar_dep, return_long = FALSE)
     pressurepath <- merge(pressurepath, twl[, c("date", "sunset", "sunrise")])
   }
-  if (date_first) {
-    pressurepath <- pressurepath[c("date", setdiff(names(pressurepath), "date"))]
-  }
+
+  # Fixed column order: identifiers, position, the requested variables in the order asked for,
+  # anything else the path carried, then the derived columns. `setdiff` keeps unknown columns
+  # rather than dropping them.
+  lead <- c("date", "stap_id", "pressure_tag", "label", "lat", "lon")
+  trail <- c("surface_pressure_norm", "sunset", "sunrise")
+  pressurepath <- pressurepath[c(
+    intersect(lead, names(pressurepath)),
+    intersect(variable, names(pressurepath)),
+    setdiff(names(pressurepath), c(lead, variable, trail)),
+    intersect(trail, names(pressurepath))
+  )]
+
   attr(pressurepath, "id") <- tag$param$id
   attr(pressurepath, "preprocess") <- preprocess
   attr(pressurepath, "sd") <- tag$param$geopressure_map$sd
   attr(pressurepath, "type") <- attr(path, "type")
+  # Provenance: altitude differs by tens of metres between ERA5 products, so a saved path has to
+  # say which one made it.
+  attr(pressurepath, "variable") <- variable
+  attr(pressurepath, "era5_dataset") <- era5_dataset
+  attr(pressurepath, "source") <- source
   pressurepath
 }

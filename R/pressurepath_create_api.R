@@ -141,6 +141,8 @@ pressurepath_create_api_impl <- function(
     path,
     preprocess,
     solar_dep,
-    surface_pressure_pa = TRUE
+    variable = variable,
+    era5_dataset = era5_dataset,
+    source = "api"
   )
 }

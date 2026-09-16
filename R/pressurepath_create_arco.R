@@ -155,8 +155,21 @@ pressurepath_create_arco_impl <- function(
     }
   }
 
-  pressurepath$surface_pressure <- surface_pressure / 100
-  pressurepath_finalize(pressurepath, tag, path, preprocess, solar_dep, date_first = TRUE)
+  # Handed over in Pa; `pressurepath_finalize()` is the single place that converts to hPa. Only
+  # attached when asked for, matching the API backend.
+  if ("surface_pressure" %in% variable) {
+    pressurepath$surface_pressure <- surface_pressure
+  }
+  pressurepath_finalize(
+    pressurepath,
+    tag,
+    path,
+    preprocess,
+    solar_dep,
+    variable = variable,
+    era5_dataset = era5_dataset,
+    source = "arco"
+  )
 }
 
 era5_arco_read_points <- function(variable, era5_dataset, lon, lat, date, debug) {
