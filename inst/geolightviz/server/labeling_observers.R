@@ -8,6 +8,28 @@ setup_labeling_observers <- function(
   zoom_state,
   session
 ) {
+  label_undo <- shiny::reactiveVal(list())
+  label_redo <- shiny::reactiveVal(list())
+
+  update_label_history_buttons <- function() {
+    if (length(label_undo())) {
+      shinyjs::enable("undo_twilight_label")
+    } else {
+      shinyjs::disable("undo_twilight_label")
+    }
+    if (length(label_redo())) {
+      shinyjs::enable("redo_twilight_label")
+    } else {
+      shinyjs::disable("redo_twilight_label")
+    }
+  }
+
+  record_label_change <- function(idx, before, after) {
+    label_undo(append(label_undo(), list(list(idx = idx, before = before, after = after))))
+    label_redo(list())
+    update_label_history_buttons()
+  }
+
   # Toggle labeling mode button
   shiny::observeEvent(input$label_twilight, {
     is_modifying(!is_modifying())
@@ -18,7 +40,7 @@ setup_labeling_observers <- function(
       shiny::updateActionButton(
         session,
         "label_twilight",
-        label = "Stop",
+        label = shiny::tags$span("Stop", class = "btn-label"),
         icon = shiny::icon("stop")
       )
       shinyjs::removeClass("label_twilight", "primary")
@@ -29,7 +51,7 @@ setup_labeling_observers <- function(
       shiny::updateActionButton(
         session,
         "label_twilight",
-        label = "Start",
+        label = shiny::tags$span("Start", class = "btn-label"),
         icon = shiny::icon("pen")
       )
       shinyjs::addClass("label_twilight", "primary")
@@ -61,12 +83,15 @@ setup_labeling_observers <- function(
 
     # Toggle labels for nearby points
     if (length(nearby_idx) > 0) {
-      twl_$label[nearby_idx] <- ifelse(
-        twl_$label[nearby_idx] == "",
+      before <- twl_$label[nearby_idx]
+      after <- ifelse(
+        before == "",
         "discard",
         ""
       )
+      twl_$label[nearby_idx] <- after
       twl(twl_)
+      record_label_change(nearby_idx, before, after)
     }
   })
 
@@ -79,16 +104,46 @@ setup_labeling_observers <- function(
       twl_ <- twl()
       idx <- selected$pointNumber + 1
       if (length(idx) > 0) {
-        twl_$label[idx] <- ifelse(twl_$label[idx] == "", "discard", "")
+        before <- twl_$label[idx]
+        after <- ifelse(before == "", "discard", "")
+        twl_$label[idx] <- after
         twl(twl_)
+        record_label_change(idx, before, after)
       }
-    } else {
-      plotly::plotlyProxyInvoke(
-        plotly::plotlyProxy("plotly_div", session),
-        "restyle",
-        list(selectedpoints = NULL)
-      )
     }
+    plotly::plotlyProxyInvoke(
+      plotly::plotlyProxy("plotly_div", session),
+      "restyle",
+      list(selectedpoints = NULL)
+    )
+  })
+
+  shiny::observeEvent(input$undo_twilight_label, {
+    undo <- label_undo()
+    if (!length(undo)) {
+      return()
+    }
+    transaction <- undo[[length(undo)]]
+    twl_ <- twl()
+    twl_$label[transaction$idx] <- transaction$before
+    twl(twl_)
+    label_undo(undo[-length(undo)])
+    label_redo(append(label_redo(), list(transaction)))
+    update_label_history_buttons()
+  })
+
+  shiny::observeEvent(input$redo_twilight_label, {
+    redo <- label_redo()
+    if (!length(redo)) {
+      return()
+    }
+    transaction <- redo[[length(redo)]]
+    twl_ <- twl()
+    twl_$label[transaction$idx] <- transaction$after
+    twl(twl_)
+    label_redo(redo[-length(redo)])
+    label_undo(append(label_undo(), list(transaction)))
+    update_label_history_buttons()
   })
 
   # Capture zoom state when user zooms/pans
@@ -100,7 +155,9 @@ setup_labeling_observers <- function(
       !is.null(relayout_data$`xaxis.autorange`) ||
         !is.null(relayout_data$`yaxis.autorange`)
     ) {
-      zoom_state(NULL)
+      if (!is_modifying()) {
+        zoom_state(NULL)
+      }
       return()
     }
 

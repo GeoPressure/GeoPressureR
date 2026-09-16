@@ -43,7 +43,8 @@ setup_position_observers <- function(
       shiny::updateActionButton(
         session,
         "edit_position",
-        label = "Edit Position"
+        label = "Edit Position",
+        icon = shiny::icon("pen")
       )
       shinyjs::removeClass("edit_position", "primary")
     } else {
@@ -51,7 +52,8 @@ setup_position_observers <- function(
       shiny::updateActionButton(
         session,
         "edit_position",
-        label = "Stop editing"
+        label = "Stop editing",
+        icon = shiny::icon("stop")
       )
       shinyjs::addClass("edit_position", "primary")
     }

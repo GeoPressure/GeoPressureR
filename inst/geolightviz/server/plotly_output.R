@@ -17,6 +17,8 @@ render_plotly_output <- function(
     current_range <- c(stapath_$start[idx], stapath_$end[idx])
     light_range <- range(.light_trace$value, na.rm = TRUE)
     light_value <- replace(.light_trace$value, is.na(.light_trace$value), -1)
+    x_range <- range(.light_trace$day) + c(-0.5, 0.5)
+    y_range <- range(.light_trace$plottime) + c(-0.5, 0.5) * .light_trace$res
 
     # Create base heatmap
     p <- plotly::plot_ly() |>
@@ -34,8 +36,6 @@ render_plotly_output <- function(
         zmax = light_range[2],
         showscale = FALSE
       )
-    y_range <- range(.light_trace$plottime)
-
     # Add highlighted range
     p <- p |>
       plotly::add_trace(
@@ -111,6 +111,8 @@ render_plotly_output <- function(
       plotly::layout(
         margin = list(l = 20, r = 0, t = 0, b = 20),
         dragmode = dragmode,
+        selectdirection = "d",
+        uirevision = "geolightviz",
         newshape = list(line = list(color = "blue", width = 2)),
         showlegend = FALSE,
         coloraxis = NULL,
@@ -120,13 +122,15 @@ render_plotly_output <- function(
         xaxis = list(
           title = "Date",
           zeroline = FALSE,
-          automargin = TRUE
+          automargin = TRUE,
+          range = x_range
         ),
         yaxis = list(
           tickformat = "%H:%M",
           title = "Time of Day",
           zeroline = FALSE,
-          automargin = TRUE
+          automargin = TRUE,
+          range = y_range
         )
       ) |>
       plotly::config(
