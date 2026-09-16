@@ -4,12 +4,15 @@
 #' variables. Positions during flights are linearly interpolated between stationary periods.
 #'
 #' @section Data sources:
-#' `source = "arco"` reads ECMWF's Analysis-Ready Cloud-Optimised (ARCO) archive directly. It is
-#' optimised for surface pressure and altitude, requires an ECMWF API key and the optional `Rarr`
-#' and `ecmwfr` packages, and supports only `"surface_pressure"` and `"altitude"`.
+#' `source = "arco"` reads ECMWF's Analysis-Ready Cloud-Optimised (ARCO) archive directly. It
+#' requires an ECMWF API key and the optional `Rarr` and `ecmwfr` packages. `variable` uses the
+#' same names as the hosted API, but the archive carries fewer of them: 20 for
+#' `era5_dataset = "single-levels"`, 16 for `"land"`, and the 8 they share for `"both"`, plus the
+#' derived `"altitude"`. Use [pressurepath_variable_available()] to list them.
 #'
 #' `source = "api"` uses the hosted GeoPressureAPI. It needs no ECMWF key or `Rarr` installation
-#' and can retrieve the wider set of ERA5 variables listed in `pressurepath_variable`.
+#' and reaches the full Earth Engine band set: 292 variables for `era5_dataset = "single-levels"`
+#' and `"both"`, 70 for `"land"`.
 #'
 #' The default, `source = "auto"`, uses ARCO when a key stored by [ecmwfr::wf_set_key()] is
 #' available and GeoPressureAPI otherwise. Use [pressurepath_create_arco()] or
@@ -31,8 +34,10 @@
 #' @template ecmwf-key
 #' @param tag A GeoPressureR `tag` object.
 #' @param path A GeoPressureR `path` data.frame.
-#' @param variable ERA5 variables to retrieve. ARCO supports `"altitude"` and
-#'   `"surface_pressure"`; GeoPressureAPI supports additional variables.
+#' @param variable ERA5 variables to retrieve, named as in the
+#'   [ERA5 catalogue](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels),
+#'   plus the derived `"altitude"`. The same names work for every `source`, but the available set
+#'   depends on both `source` and `era5_dataset` — see [pressurepath_variable_available()].
 #' @param solar_dep Solar depression angle used to compute sunrise and sunset, or `NULL` to skip
 #'   this computation.
 #' @param era5_dataset ERA5 product: `"single-levels"` (default), `"land"`, or `"both"` to use

@@ -31,9 +31,15 @@ pressurepath_variable_available <- function(
 ) {
   source <- match.arg(source)
   era5_dataset <- match.arg(era5_dataset)
+  # ARCO derives its list from the store map that drives the reader, so the two cannot drift.
+  available <- if (source == "arco") {
+    era5_arco_variable(era5_dataset)
+  } else {
+    pressurepath_variable[[source]][[era5_dataset]]
+  }
   # `altitude` is derived from surface pressure, temperature and geopotential rather than read as
   # a band, and every backend/product combination can produce it.
-  sort(unique(c("altitude", pressurepath_variable[[source]][[era5_dataset]])))
+  sort(unique(c("altitude", available)))
 }
 
 #' Validate requested variables against the resolved backend and product

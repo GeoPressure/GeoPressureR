@@ -20,8 +20,10 @@ pressurepath_create_arco(
 
 \item{path}{A GeoPressureR \code{path} data.frame.}
 
-\item{variable}{ERA5 variables to retrieve. ARCO supports \code{"altitude"} and
-\code{"surface_pressure"}; GeoPressureAPI supports additional variables.}
+\item{variable}{ERA5 variables to retrieve, named as in the
+\href{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels}{ERA5 catalogue},
+plus the derived \code{"altitude"}. The same names work for every \code{source}, but the available set
+depends on both \code{source} and \code{era5_dataset} — see \code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}}.}
 
 \item{solar_dep}{Solar depression angle used to compute sunrise and sunset, or \code{NULL} to skip
 this computation.}

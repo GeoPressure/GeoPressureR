@@ -26,10 +26,19 @@
   work, and near-misses suggest the intended variable.
 - New `pressurepath_variable_available()` lists the variables a given `source` and `era5_dataset`
   can return.
+- **The ARCO backend now retrieves 20 variables for `era5_dataset = "single-levels"` and 16 for
+  `"land"`**, up from surface pressure alone, using the same variable names as the hosted API.
+  ECMWF splits ERA5-Land across six zarr stores grouped by theme; `era5_arco_store_table()` maps
+  each variable to its store and GRIB short name, so `variable = "u_component_of_wind_10m"` reads
+  the same whichever `source` is used. `era5_dataset = "both"` accepts the 8 variables carried by
+  both products, since it reads ERA5-Land over land and ERA5 over water within one request.
 
 ## Minor
 
 - Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.
+- Document that `total_precipitation`, `surface_solar_radiation_downwards` and
+  `surface_thermal_radiation_downwards` are hourly increments from the API but accumulate from
+  00 UTC from ARCO when `era5_dataset = "land"`.
 - Document the achievable accuracy of pressure-derived altitude: a static per-site offset (median
   3.7 m) plus temporal scatter (median SD 3.1 m), giving ~3 m for relative altitude changes at a
   fixed location and ~10 m mean absolute error for absolute altitude.

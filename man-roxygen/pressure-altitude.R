@@ -46,3 +46,12 @@
 #' of metres in steep terrain — where it is a fixed offset rather than noise. Precision is nearly
 #' independent of flight altitude: de-biased RMSE stays 2–7 m up to 1000 m above the model surface
 #' and about 12 m at 1000–3000 m above it.
+#'
+#' @section A note on accumulated variables:
+#' `total_precipitation`, `surface_solar_radiation_downwards` and
+#' `surface_thermal_radiation_downwards` do **not** mean the same thing across backends when
+#' `era5_dataset = "land"`. GeoPressureAPI serves Earth Engine's ERA5-Land collection, where these
+#' bands are overwritten by their `*_hourly` counterparts and are therefore hourly increments.
+#' ARCO serves ECMWF's own ERA5-Land fields, which accumulate from 00 UTC. For
+#' `era5_dataset = "single-levels"` both are hourly and agree. Take the difference between
+#' consecutive hours if you need increments from ARCO over land.

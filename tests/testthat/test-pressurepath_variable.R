@@ -9,11 +9,19 @@ test_that("each configuration exposes the right number of variables", {
   expect_length(pressurepath_variable_available("api", "both"), 293)
   # 69 ERA5-Land bands + geopotential + altitude
   expect_length(pressurepath_variable_available("api", "land"), 71)
-  # ARCO maps only surface pressure and 2 m temperature
-  expect_equal(
-    pressurepath_variable_available("arco", "land"),
-    c("altitude", "surface_pressure")
-  )
+  # ARCO: 20 single-levels variables, 16 ERA5-Land, plus altitude
+  expect_length(pressurepath_variable_available("arco", "single-levels"), 21)
+  expect_length(pressurepath_variable_available("arco", "land"), 17)
+  # "both" reads land over land and single levels over water within one request, so only
+  # variables carried by both products are safe
+  expect_length(pressurepath_variable_available("arco", "both"), 9)
+  expect_true(all(
+    pressurepath_variable_available("arco", "both") %in%
+      intersect(
+        pressurepath_variable_available("arco", "land"),
+        pressurepath_variable_available("arco", "single-levels")
+      )
+  ))
 })
 
 test_that("altitude is available everywhere", {
@@ -52,7 +60,7 @@ test_that("an unavailable variable names the configuration that would work", {
   )
   expect_snapshot(
     error = TRUE,
-    pressurepath_variable_check(c("altitude", "total_precipitation"), "arco", "land")
+    pressurepath_variable_check(c("altitude", "boundary_layer_height"), "arco", "land")
   )
 })
 
@@ -70,4 +78,41 @@ test_that("a typo suggests the intended variable", {
 test_that("pressurepath_variable_available rejects unknown arguments", {
   expect_error(pressurepath_variable_available("gee", "land"))
   expect_error(pressurepath_variable_available("api", "reanalysis"))
+})
+
+test_that("ARCO uses the same variable vocabulary as the API", {
+  # every ARCO variable must be a name the API would also accept, so `variable` reads the same
+  # whichever backend is used
+  for (d in c("single-levels", "land", "both")) {
+    expect_true(all(
+      pressurepath_variable_available("arco", d) %in%
+        pressurepath_variable_available("api", d)
+    ))
+  }
+})
+
+test_that("ARCO store map resolves to the documented zarr arrays", {
+  f <- era5_arco_array
+  expect_match(
+    as.character(f("u_component_of_wind_10m", "land")),
+    "cadl-arco-geo-008/arco/reanalysis_era5_land/sfc-wind/geoChunked.zarr/u10$"
+  )
+  expect_match(
+    as.character(f("boundary_layer_height", "single-levels")),
+    "cadl-arco-geo-002/arco/reanalysis_era5_single_levels/sfc/geoChunked.zarr/blh$"
+  )
+  expect_match(
+    as.character(f("volumetric_soil_water_layer_3", "land")),
+    "sfc-soil-water/geoChunked.zarr/swvl3$"
+  )
+  # a variable ERA5-Land does not carry must fail loudly rather than build a 404 URL
+  expect_error(f("boundary_layer_height", "land"), "not available from ARCO")
+})
+
+test_that("the store map has no duplicate or unmapped entries", {
+  tbl <- era5_arco_store_table()
+  expect_equal(anyDuplicated(tbl[c("variable", "era5_dataset")]), 0L)
+  expect_equal(sum(tbl$era5_dataset == "single-levels"), 20)
+  expect_equal(sum(tbl$era5_dataset == "land"), 16)
+  expect_true(all(nzchar(tbl$short_name)))
 })

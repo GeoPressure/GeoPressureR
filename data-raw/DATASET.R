@@ -13,10 +13,9 @@ avonet <- utils::read.csv("./data-raw/avonet.csv")
 # "single-levels"; ERA5-Land-only bands are dropped. "land" additionally gains `geopotential`
 # from the custom asset the API attaches.
 #
-# ARCO reads ECMWF's zarr stores at https://arco.datastores.ecmwf.int. Those stores hold 20
-# variables for single-levels and 16 for ERA5-Land, but `era5_arco_read_points()` currently maps
-# only surface pressure and 2 m temperature, so only `surface_pressure` (plus the derived
-# `altitude`) is retrievable. Widening this list means adding the store paths to that mapping.
+# ARCO is NOT listed here: its variables come from `era5_arco_store_table()` in
+# R/era5_arco_store.R, the same map that resolves a variable to its zarr store, so the accepted
+# list and the reader cannot drift apart.
 #
 # `altitude` is derived rather than read, and is handled separately by the check.
 
@@ -388,20 +387,11 @@ pressurepath_variable_api_land <- c(
   "volumetric_soil_water_layer_4"
 )
 
-pressurepath_variable_arco <- c(
-  "surface_pressure"
-)
-
 pressurepath_variable <- list(
   api = list(
     `single-levels` = pressurepath_variable_api_single_levels,
     `both` = pressurepath_variable_api_single_levels,
     land = pressurepath_variable_api_land
-  ),
-  arco = list(
-    `single-levels` = pressurepath_variable_arco,
-    `both` = pressurepath_variable_arco,
-    land = pressurepath_variable_arco
   )
 )
 

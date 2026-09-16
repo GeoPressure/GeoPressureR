@@ -129,6 +129,17 @@ independent of flight altitude: de-biased RMSE stays 2\if{html}{\out{<e2>}}<80><
 and about 12 m at 1000\if{html}{\out{<e2>}}<80><93>3000 m above it.
 }
 
+\section{A note on accumulated variables}{
+
+\code{total_precipitation}, \code{surface_solar_radiation_downwards} and
+\code{surface_thermal_radiation_downwards} do \strong{not} mean the same thing across backends when
+\code{era5_dataset = "land"}. GeoPressureAPI serves Earth Engine's ERA5-Land collection, where these
+bands are overwritten by their \verb{*_hourly} counterparts and are therefore hourly increments.
+ARCO serves ECMWF's own ERA5-Land fields, which accumulate from 00 UTC. For
+\code{era5_dataset = "single-levels"} both are hourly and agree. Take the difference between
+consecutive hours if you need increments from ARCO over land.
+}
+
 \section{Pressure normalisation}{
 
 ERA5 surface pressure is also shifted to the mean tag-pressure level within each elevation-label

@@ -22,13 +22,13 @@
 ---
 
     Code
-      pressurepath_variable_check(c("altitude", "total_precipitation"), "arco",
+      pressurepath_variable_check(c("altitude", "boundary_layer_height"), "arco",
       "land")
     Condition
       Error in `pressurepath_variable_check()`:
-      ! Variable "total_precipitation" is not available with `source = "arco"` and `era5_dataset = "land"`.
-      x "total_precipitation": available with `source = "api"`.
-      i See `pressurepath_variable_available()` for the full list (2 variables for this configuration).
+      ! Variable "boundary_layer_height" is not available with `source = "arco"` and `era5_dataset = "land"`.
+      x "boundary_layer_height": available with `era5_dataset = "single-levels"`.
+      i See `pressurepath_variable_available()` for the full list (17 variables for this configuration).
 
 # a typo suggests the intended variable
 

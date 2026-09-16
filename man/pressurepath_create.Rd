@@ -22,8 +22,10 @@ pressurepath_create(
 
 \item{path}{A GeoPressureR \code{path} data.frame.}
 
-\item{variable}{ERA5 variables to retrieve. ARCO supports \code{"altitude"} and
-\code{"surface_pressure"}; GeoPressureAPI supports additional variables.}
+\item{variable}{ERA5 variables to retrieve, named as in the
+\href{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels}{ERA5 catalogue},
+plus the derived \code{"altitude"}. The same names work for every \code{source}, but the available set
+depends on both \code{source} and \code{era5_dataset} — see \code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}}.}
 
 \item{solar_dep}{Solar depression angle used to compute sunrise and sunset, or \code{NULL} to skip
 this computation.}
@@ -52,12 +54,15 @@ variables. Positions during flights are linearly interpolated between stationary
 }
 \section{Data sources}{
 
-\code{source = "arco"} reads ECMWF's Analysis-Ready Cloud-Optimised (ARCO) archive directly. It is
-optimised for surface pressure and altitude, requires an ECMWF API key and the optional \code{Rarr}
-and \code{ecmwfr} packages, and supports only \code{"surface_pressure"} and \code{"altitude"}.
+\code{source = "arco"} reads ECMWF's Analysis-Ready Cloud-Optimised (ARCO) archive directly. It
+requires an ECMWF API key and the optional \code{Rarr} and \code{ecmwfr} packages. \code{variable} uses the
+same names as the hosted API, but the archive carries fewer of them: 20 for
+\code{era5_dataset = "single-levels"}, 16 for \code{"land"}, and the 8 they share for \code{"both"}, plus the
+derived \code{"altitude"}. Use \code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}} to list them.
 
 \code{source = "api"} uses the hosted GeoPressureAPI. It needs no ECMWF key or \code{Rarr} installation
-and can retrieve the wider set of ERA5 variables listed in \code{pressurepath_variable}.
+and reaches the full Earth Engine band set: 292 variables for \code{era5_dataset = "single-levels"}
+and \code{"both"}, 70 for \code{"land"}.
 
 The default, \code{source = "auto"}, uses ARCO when a key stored by \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}} is
 available and GeoPressureAPI otherwise. Use \code{\link[=pressurepath_create_arco]{pressurepath_create_arco()}} or
@@ -130,6 +135,17 @@ at a fixed location} and \strong{10 m mean absolute error for absolute altitude}
 of metres in steep terrain \if{html}{\out{<e2>}}<80><94> where it is a fixed offset rather than noise. Precision is nearly
 independent of flight altitude: de-biased RMSE stays 2\if{html}{\out{<e2>}}<80><93>7 m up to 1000 m above the model surface
 and about 12 m at 1000\if{html}{\out{<e2>}}<80><93>3000 m above it.
+}
+
+\section{A note on accumulated variables}{
+
+\code{total_precipitation}, \code{surface_solar_radiation_downwards} and
+\code{surface_thermal_radiation_downwards} do \strong{not} mean the same thing across backends when
+\code{era5_dataset = "land"}. GeoPressureAPI serves Earth Engine's ERA5-Land collection, where these
+bands are overwritten by their \verb{*_hourly} counterparts and are therefore hourly increments.
+ARCO serves ECMWF's own ERA5-Land fields, which accumulate from 00 UTC. For
+\code{era5_dataset = "single-levels"} both are hourly and agree. Take the difference between
+consecutive hours if you need increments from ARCO over land.
 }
 
 \section{ECMWF API key}{
