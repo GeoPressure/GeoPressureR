@@ -54,10 +54,11 @@ graph_add_wind <- function(
     lifecycle::deprecate_soft(
       "3.5.4",
       "graph_add_wind(variable)",
-      details = "{.fun graph_add_wind} now always uses {.code c('u', 'v')}."
+      details = "{.fun graph_add_wind} now always uses the two wind components."
     )
-    if (!identical(variable, c("u", "v"))) {
-      cli::cli_abort("{.fun graph_add_wind} only supports {.code variable = c('u', 'v')}.")
+    wind <- c("u_component_of_wind", "v_component_of_wind")
+    if (!identical(era5_variable_canonical(variable, allow_short = TRUE), wind)) {
+      cli::cli_abort("{.fun graph_add_wind} only supports {.code variable = {.str {wind}}}.")
     }
   }
 
@@ -471,8 +472,23 @@ add_wind_graph_values_time <- function(
 
   nc_start <- c(id_lon[1], id_lat[1], id_pres, id_time)
   nc_count <- c(length(id_lon), length(id_lat), n_pres, n_time)
-  u_nc <- ncdf4::ncvar_get(nc, "u", start = nc_start, count = nc_count, collapse_degen = FALSE)
-  v_nc <- ncdf4::ncvar_get(nc, "v", start = nc_start, count = nc_count, collapse_degen = FALSE)
+  # NetCDF short names for the two wind components, from the same registry the rest of the
+  # pipeline uses.
+  wind_nc <- era5_variable_short(c("u_component_of_wind", "v_component_of_wind"))
+  u_nc <- ncdf4::ncvar_get(
+    nc,
+    wind_nc[1],
+    start = nc_start,
+    count = nc_count,
+    collapse_degen = FALSE
+  )
+  v_nc <- ncdf4::ncvar_get(
+    nc,
+    wind_nc[2],
+    start = nc_start,
+    count = nc_count,
+    collapse_degen = FALSE
+  )
 
   if (n_time == 2) {
     w_time <- as.numeric(difftime(

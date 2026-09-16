@@ -34,7 +34,7 @@ Default is to download all flights.}
 \code{"specific_cloud_ice_water_content"}, \code{"specific_cloud_liquid_water_content"},
 \code{"specific_humidity"}, \code{"specific_rain_water_content"}, \code{"specific_snow_water_content"},
 \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"}, \code{"potential_vorticity"},
-\verb{'vorticity"}.}
+\code{"vorticity"}. The same names are used by \code{\link[=edge_add_wind]{edge_add_wind()}}.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as arguments (1) the stationary period identifier and (2) the tag_id.}

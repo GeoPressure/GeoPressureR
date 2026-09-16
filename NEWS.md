@@ -45,6 +45,15 @@
   `surface_pressure` (and so `surface_pressure_norm`) is now attached only when requested, which
   is what the API backend already did.
 
+- **Both halves of the wind pipeline now take the same variable names.** CDS accepts long names
+  (`"u_component_of_wind"`) but writes the NetCDF under GRIB short names (`"u"`), so
+  `tag_download_wind()` spoke one vocabulary and `edge_add_wind()` the other, with nothing
+  connecting them and neither validating its input. `edge_add_wind()` now defaults to and expects
+  the same names as `tag_download_wind()` and translates internally; the short names still work
+  but are deprecated. `tag_download_wind()` validates its `variable` against the sixteen ERA5
+  pressure-level fields, suggesting the right spelling when a short name or a typo is given.
+  The `var` column of `edge_add_wind()` consequently holds long names now.
+
 ## Minor
 
 - Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.

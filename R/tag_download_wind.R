@@ -31,7 +31,7 @@
 #' `"specific_cloud_ice_water_content"`, `"specific_cloud_liquid_water_content"`,
 #' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
 #' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
-#' `'vorticity"`.
+#' `"vorticity"`. The same names are used by [edge_add_wind()].
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as arguments (1) the stationary period identifier and (2) the tag_id.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
@@ -112,7 +112,8 @@ tag_download_wind <- function(
   assertthat::assert_that(is.numeric(include_stap_id))
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
 
-  assertthat::assert_that(is.character(variable))
+  # CDS only understands the long names; reject short ones with the right spelling.
+  variable <- era5_variable_canonical(variable)
 
   # remove the last include_stap_id if it was added by mistake
   if (utils::tail(tag$stap$stap_id, 1) %in% include_stap_id) {
