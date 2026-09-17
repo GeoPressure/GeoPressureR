@@ -56,6 +56,11 @@
 
 ## Minor
 
+- `geopressure_map_mismatch()` now reports *why* a map failed. When the API returns no url for a
+  stapelev, it reports the reason returned by Earth Engine (new `errors` field of the API response)
+  instead of asserting the cause was unavailable ERA5 data — a cause the API already rules out
+  upstream with a 416, so the old message was almost always wrong. A total failure still aborts, a
+  partial one still warns, and both now name the failing stapelev and the server's own explanation.
 - Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.
 - `pressurepath_finalize()` is the single place surface pressure becomes hPa. Both backends hand
   it over in Pa, the unit every ERA5 source uses, and the `surface_pressure_pa` and `date_first`
