@@ -25,7 +25,7 @@ basic plot.}
 \item{map}{optional \code{map} object to plot the path on top of.}
 
 \item{provider}{optional tile provider name (see \code{leaflet::providers}). When \code{NULL}, uses all
-available GeoPressureR basemap layers. See \code{\link[=map_add_tiles]{map_add_tiles()}}.}
+available GeoPressureR basemap layers; see the \emph{Basemap API keys} section.}
 
 \item{provider_options}{tile options. See leaflet::addProviderTiles() and
 leaflet::providerTileOptions().}
@@ -46,6 +46,21 @@ A \code{leaflet} map when \code{plot_leaflet = TRUE}, otherwise a \code{ggplot2}
 \description{
 This function plots a \code{path} data.frame. This function is used in \code{\link[=plot.map]{plot.map()}}.
 }
+\section{Basemap API keys}{
+
+Interactive maps always offer Esri basemaps (gray canvas, imagery and topographic). CARTO,
+Mapbox and MapTiler basemaps are added to the layer control only when their API key is stored
+in your system keyring, which needs to be done once:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{keyring::key_set_with_value("CARTO_API_KEY", password = "<your CARTO API key>")
+keyring::key_set_with_value("MAPBOX_ACCESS_TOKEN", password = "<your Mapbox token>")
+keyring::key_set_with_value("MAPTILER_API_KEY", password = "<your MapTiler API key>")
+}\if{html}{\out{</div>}}
+
+Mapbox access tokens are visible in the browser when a map is rendered. Use a public, read-only
+token rather than a secret token.
+}
+
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>

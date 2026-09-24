@@ -2,13 +2,14 @@
 #'
 #' @description
 #' This function plots a `path` data.frame. This function is used in [plot.map()].
-#
+#'
+#' @template map-tiles
 #' @param path a GeoPressureR `path` data.frame.
 #' @param plot_leaflet logical defining if the plot is an interactive `leaflet` map or a static
 #' basic plot.
 #' @param map optional `map` object to plot the path on top of.
 #' @param provider optional tile provider name (see `leaflet::providers`). When `NULL`, uses all
-#'   available GeoPressureR basemap layers. See [map_add_tiles()].
+#'   available GeoPressureR basemap layers; see the *Basemap API keys* section.
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
 #'   leaflet::providerTileOptions().
 #' @param pad padding of the map in degree lat-lon (only for `plot_leaflet = FALSE`).

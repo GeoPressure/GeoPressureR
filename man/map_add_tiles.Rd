@@ -25,12 +25,14 @@ adds all available GeoPressureR basemap layers.}
 A Leaflet map.
 }
 \description{
-Adds all available GeoPressureR basemap layers to a Leaflet map. CARTO, Mapbox, and MapTiler
-layers are added only when their API key is stored in the system keyring. Esri layers are always
-available as fallbacks.
+Adds all available GeoPressureR basemap layers to a Leaflet map. It is used by \code{\link[=plot.map]{plot.map()}},
+\code{\link[=plot_path]{plot_path()}}, \code{\link[=geopressureviz]{geopressureviz()}} and \code{\link[=geolightviz]{geolightviz()}}.
 }
-\details{
-Store an API key once with \code{\link[keyring:key_set_with_value]{keyring::key_set_with_value()}}:
+\section{Basemap API keys}{
+
+Interactive maps always offer Esri basemaps (gray canvas, imagery and topographic). CARTO,
+Mapbox and MapTiler basemaps are added to the layer control only when their API key is stored
+in your system keyring, which needs to be done once:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{keyring::key_set_with_value("CARTO_API_KEY", password = "<your CARTO API key>")
 keyring::key_set_with_value("MAPBOX_ACCESS_TOKEN", password = "<your Mapbox token>")
@@ -40,4 +42,5 @@ keyring::key_set_with_value("MAPTILER_API_KEY", password = "<your MapTiler API k
 Mapbox access tokens are visible in the browser when a map is rendered. Use a public, read-only
 token rather than a secret token.
 }
+
 \keyword{internal}

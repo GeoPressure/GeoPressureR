@@ -16,8 +16,7 @@
 #' ](https://geopressure.org/GeoPressureManual/geolightviz.html) for an overview
 #' of the app's controls and workflow.
 #'
-#' Basemap layers are configured with [map_add_tiles()].
-#'
+#' @template map-tiles
 #' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
 #' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
 #' @param stapath optional stationary path data.frame (defaults to `tag$stap` when available).
