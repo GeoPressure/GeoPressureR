@@ -1,7 +1,7 @@
 #' Download flight data
 #'
 #' @description
-#' This function downloads data associated to each flight from the [ERA5 hourly pressure levels](https://doi.org/10.24381/cds.bd0915c6)
+#' This function downloads data associated to each flight from the ERA5 hourly pressure levels (\doi{10.24381/cds.bd0915c6})
 #' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and through the [`ecmwfr`
 #' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
 #'
@@ -16,7 +16,7 @@
 #' If CDS reports that queued requests are temporarily limited, reduce `workers` and try again.
 #'
 #' More information [in the GeoPressureManual](
-#' https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html).
+#' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html).
 #'
 #' @template ecmwf-key
 #' @param tag a GeoPressureR `tag` object.

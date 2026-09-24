@@ -102,13 +102,13 @@ metres above mean sea level.
 \strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.} It is the default.
 
 ERA5-Land's \code{surface_pressure} is not the exact hydrostatic image of the orography ERA5-Land
-publishes as \code{geopotential} \if{html}{\out{<e2>}}<80><94> the two disagree by up to ~10 hPa in steep terrain. The
+publishes as \code{geopotential} — the two disagree by up to ~10 hPa in steep terrain. The
 \eqn{z_{ERA5}} term therefore fails to cancel from the relation above and the whole discrepancy
 lands in the retrieved altitude. Measured against 41,653 hourly station-pressure observations
-from 271 NOAA ISD stations (2\if{html}{\out{<e2>}}<80><93>3576 m, Alps, July 2020), compared with surveyed station
+from 271 NOAA ISD stations (2–3576 m, Alps, July 2020), compared with surveyed station
 elevation:\tabular{llll}{
    \code{era5_dataset} \tab bias \tab MAE \tab RMSE \cr
-   \code{"single-levels"} \tab \if{html}{\out{<e2>}}<88><92>0.6 m \tab 9.0 m \tab 27.4 m \cr
+   \code{"single-levels"} \tab −0.6 m \tab 9.0 m \tab 27.4 m \cr
    \code{"land"} / \code{"both"} \tab +2.5 m \tab 55.3 m \tab 76.9 m \cr
 }
 
@@ -132,9 +132,9 @@ very differently. A static per-site offset (median 3.7 m, p90 15 m) reflects sta
 and sub-grid terrain and does not vary in time, while the temporal scatter (median SD 3.1 m,
 p90 7.7 m) is the actual reanalysis error. Expect roughly \strong{3 m for relative altitude changes
 at a fixed location} and \strong{10 m mean absolute error for absolute altitude}, degrading to tens
-of metres in steep terrain \if{html}{\out{<e2>}}<80><94> where it is a fixed offset rather than noise. Precision is nearly
-independent of flight altitude: de-biased RMSE stays 2\if{html}{\out{<e2>}}<80><93>7 m up to 1000 m above the model surface
-and about 12 m at 1000\if{html}{\out{<e2>}}<80><93>3000 m above it.
+of metres in steep terrain — where it is a fixed offset rather than noise. Precision is nearly
+independent of flight altitude: de-biased RMSE stays 2–7 m up to 1000 m above the model surface
+and about 12 m at 1000–3000 m above it.
 }
 
 \section{A note on accumulated variables}{

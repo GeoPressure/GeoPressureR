@@ -590,7 +590,7 @@ This new version consists of a significant revamp of the entire code centred aro
 
 ## Major
 
-- Graph Addition of wind: <https://geopressure.org/GeoPressureR/articles/wind-graph.html>
+- Graph Addition of wind: <https://geopressure.org/GeoPressureManual/trajectory-with-wind.html>
 - Movement model function: converting airspeed/groundspeed to probability.
 
 ## Minor
