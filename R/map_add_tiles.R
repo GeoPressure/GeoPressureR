@@ -22,6 +22,7 @@
 #' @param position position of the basemap layer control.
 #'
 #' @return A Leaflet map.
+#' @keywords internal
 #' @export
 map_add_tiles <- function(
   map,

@@ -40,3 +40,4 @@ keyring::key_set_with_value("MAPTILER_API_KEY", password = "<your MapTiler API k
 Mapbox access tokens are visible in the browser when a map is rendered. Use a public, read-only
 token rather than a secret token.
 }
+\keyword{internal}

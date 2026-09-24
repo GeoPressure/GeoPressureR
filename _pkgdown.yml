@@ -123,7 +123,6 @@ reference:
       - rast.map
       - map_expand
       - map_add_mask_water
-      - map_add_tiles
   - title: Path
     desc: Data.frame of positions defining a bird trajectory.
     contents:
