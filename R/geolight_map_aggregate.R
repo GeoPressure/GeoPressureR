@@ -109,6 +109,7 @@ geolight_map_aggregate <- function(
   # Add parameters
   tag$param$geolight_map$twl_llp <- twl_llp
   tag$param$geolight_map$compute_known <- compute_known
+  tag$param$geolight_map$keep_twl <- keep_twl
 
   # remove mse maps computed by geopressure_map_mismatch()
   if (!keep_twl) {

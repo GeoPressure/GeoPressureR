@@ -187,6 +187,14 @@ tag_stap_daily <- function(
 
   # Store parameters used
   tag$param$tag_stap_daily <- list(
+    stap_long = if (is.character(stap_long)) stap_long else NULL,
+    stap_long_source = if (is.null(stap_long)) {
+      "none"
+    } else if (is.character(stap_long)) {
+      "file_or_id"
+    } else {
+      "in_memory"
+    },
     movement_period = movement_period,
     max_twl_gap = max_twl_gap
   )

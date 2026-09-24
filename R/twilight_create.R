@@ -140,7 +140,7 @@ twilight_create <- function(
   }
 
   tag$twilight <- twilight
-  tag$param$twl_transform_light <- transform_light
+  tag$param$twilight_create$transform_light <- transform_light
   tag$param$twilight_create$twl_offset <- twl_offset
   tag$param$twilight_create$twl_thr <- twl_thr
   tag$param$twilight_create$twl_time_tolerance <- twl_time_tolerance

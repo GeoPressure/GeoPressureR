@@ -117,6 +117,23 @@ graph_add_wind <- function(
   # Update param
   dots <- list(...)
   graph$param$graph_add_wind$thr_as <- thr_as
+  graph$param$graph_add_wind$rounding_interval <- if ("rounding_interval" %in% names(dots)) {
+    dots$rounding_interval
+  } else {
+    formals(add_wind_graph_edge)$rounding_interval
+  }
+  graph$param$graph_add_wind$interp_spatial_linear <- if (
+    "interp_spatial_linear" %in% names(dots)
+  ) {
+    dots$interp_spatial_linear
+  } else {
+    formals(add_wind_graph_edge)$interp_spatial_linear
+  }
+  graph$param$graph_add_wind$pressure_source <- if ("pressure" %in% names(dots)) {
+    "provided"
+  } else {
+    "not_provided"
+  }
 
   # Handle file parameter if provided
   if ("file" %in% names(dots)) {
