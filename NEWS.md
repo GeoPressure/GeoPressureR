@@ -11,6 +11,7 @@
 ## Minor
 
 - [Record more analysis parameters in `param`](https://github.com/GeoPressure/GeoPressureR/commit/bcc2e5fd) for provenance (`geopressure_map()`, `geolight_map()`, `tag_label_auto()`, `tag_stap_daily()`, `graph_add_wind()`).
+- [Document `pressurepath_create_api()` and `pressurepath_create_arco()` on the `pressurepath_create()` page and fix equation rendering](https://github.com/GeoPressure/GeoPressureR/commit/9f414db4) on the pkgdown site.
 - [Improve GeoLightViz labeling controls](https://github.com/GeoPressure/GeoPressureR/commit/247de63f) and [documentation](https://github.com/GeoPressure/GeoPressureR/commit/1275d30e).
 - [Surface the `warning` field returned by GeoPressureAPI](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4) instead of silently discarding it.
 - [Document the accuracy of pressure-derived altitude](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4): ~3 m for relative altitude changes at a fixed location and ~10 m mean absolute error for absolute altitude.
