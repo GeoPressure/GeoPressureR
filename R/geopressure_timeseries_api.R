@@ -1,11 +1,4 @@
-#' Retrieve an ERA5 pressure time series from GeoPressureAPI
-#'
-#' This is the explicit hosted API backend for [geopressure_timeseries()]. See the parent function
-#' for the shared workflow, backend comparison, ECMWF key setup, and output details.
-#'
-#' @inheritParams geopressure_timeseries
-#' @return See [geopressure_timeseries()].
-#' @family pressurepath
+#' @rdname geopressure_timeseries
 #' @export
 geopressure_timeseries_api <- function(
   lat,

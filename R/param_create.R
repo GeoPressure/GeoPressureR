@@ -59,10 +59,15 @@ param_create <- function(id, default = FALSE, ...) {
         margin = formals(geopressure_map)$margin,
         sd = formals(geopressure_map)$sd,
         thr_mask = formals(geopressure_map)$thr_mask,
+        timeout = formals(geopressure_map)$timeout,
+        workers = formals(geopressure_map)$workers,
+        era5_dataset = formals(geopressure_map)$era5_dataset,
         log_linear_pooling_weight = formals(
           geopressure_map
         )$log_linear_pooling_weight,
-        compute_known = formals(geopressure_map)$compute_known
+        compute_known = formals(geopressure_map)$compute_known,
+        keep_mask = formals(geopressure_map)$keep_mask,
+        keep_mse = formals(geopressure_map)$keep_mse
       ),
       twilight_create = list(
         twl_thr = formals(twilight_create)$twl_thr,
@@ -73,6 +78,16 @@ param_create <- function(id, default = FALSE, ...) {
       twilight_label_read = list(
         file = formals(twilight_label_read)$file
       ),
+      tag_label_auto = list(
+        min_duration = formals(tag_label_auto)$min_duration,
+        thr_reclassify = formals(tag_label_auto)$thr_reclassify,
+        post_proc_window = formals(tag_label_auto)$post_proc_window
+      ),
+      tag_stap_daily = list(
+        stap_long = formals(tag_stap_daily)$stap_long,
+        movement_period = formals(tag_stap_daily)$movement_period,
+        max_twl_gap = formals(tag_stap_daily)$max_twl_gap
+      ),
       geolight_map = list(
         twl_calib_adjust = formals(geolight_map)$twl_calib_adjust,
         fitted_location_duration = formals(geolight_map)$fitted_location_duration,
@@ -82,7 +97,8 @@ param_create <- function(id, default = FALSE, ...) {
         refine_fitted_location_scale_km = formals(geolight_map)$refine_fitted_location_scale_km,
         refine_fitted_location_max_iter = formals(geolight_map)$refine_fitted_location_max_iter,
         twl_llp = formals(geolight_map)$twl_llp,
-        compute_known = formals(geolight_map)$compute_known
+        compute_known = formals(geolight_map)$compute_known,
+        keep_twl = formals(geolight_map)$keep_twl
       ),
       graph_create = list(
         thr_likelihood = formals(graph_create)$thr_likelihood,
@@ -111,7 +127,8 @@ param_create <- function(id, default = FALSE, ...) {
         thr_as = formals(graph_add_wind)$thr_as,
         file = formals(edge_add_wind)$file,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
-        interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear
+        interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear,
+        pressure_source = "not_provided"
       ),
       graph_simulation = list(
         nj = formals(graph_simulation)$nj

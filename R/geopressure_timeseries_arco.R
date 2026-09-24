@@ -1,11 +1,4 @@
-#' Retrieve an ERA5 pressure time series from ARCO
-#'
-#' This is the explicit ARCO backend for [geopressure_timeseries()]. See the parent function for
-#' the shared workflow, backend comparison, ECMWF key setup, and output details.
-#'
-#' @inheritParams geopressure_timeseries
-#' @return See [geopressure_timeseries()].
-#' @family pressurepath
+#' @rdname geopressure_timeseries
 #' @export
 geopressure_timeseries_arco <- function(
   lat,
@@ -74,7 +67,7 @@ geopressure_timeseries_arco_impl <- function(
     cli::cli_progress_step("Read {dataset_name} pressure from the ECMWF ARCO archive")
   }
   surface_pressure <- era5_arco_read(
-    variable = "sp",
+    variable = "surface_pressure",
     era5_dataset = era5_dataset,
     lon = query_lon,
     lat = query_lat,
@@ -119,7 +112,7 @@ geopressure_timeseries_arco_impl <- function(
       )
     }
     surface_pressure <- era5_arco_read(
-      variable = "sp",
+      variable = "surface_pressure",
       era5_dataset = era5_dataset,
       lon = query_lon,
       lat = query_lat,
@@ -145,7 +138,7 @@ geopressure_timeseries_arco_impl <- function(
       cli::cli_progress_step("Read {dataset_name} temperature and compute altitude")
     }
     temperature <- era5_arco_read(
-      variable = "t2m",
+      variable = "temperature_2m",
       era5_dataset = era5_dataset,
       lon = query_lon,
       lat = query_lat,
@@ -197,18 +190,7 @@ era5_arco_read <- function(
   arco_client,
   debug
 ) {
-  store <- if (era5_dataset == "land") {
-    switch(
-      variable,
-      sp = "cadl-arco-geo-009/arco/reanalysis_era5_land/sfc-pressure-precipitation",
-      t2m = "cadl-arco-geo-007/arco/reanalysis_era5_land/sfc-2m-temperature"
-    )
-  } else {
-    "cadl-arco-geo-002/arco/reanalysis_era5_single_levels/sfc"
-  }
-  array <- glue::glue(
-    "https://arco.datastores.ecmwf.int/{store}/geoChunked.zarr/{variable}"
-  )
+  array <- era5_arco_array(variable, era5_dataset)
   if (era5_dataset == "land") {
     time_index <- as.integer(as.numeric(date) / 3600 - (-175296) + 1)
     lat_index <- as.integer(round((lat + 90) * 10) + 1)

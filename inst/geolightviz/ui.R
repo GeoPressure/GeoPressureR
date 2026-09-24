@@ -15,12 +15,13 @@ ui <- function() {
         rel = "stylesheet",
         type = "text/css",
         href = "style.css"
-      )
+      ),
+      shiny::tags$script(src = "keyboard_shortcuts.js")
     ),
     shiny::div(
       class = "container-fluid d-flex flex-column vh-100",
       shiny::fluidRow(
-        class = "text-center bg-black align-items-center",
+        class = "gpv-header text-center bg-black align-items-center",
         shiny::column(
           4,
           shiny::div(
@@ -34,10 +35,14 @@ ui <- function() {
             shiny::column(
               2,
               class = "p-0",
-              shiny::actionButton(
-                "previous_position",
-                "<",
-                class = "btn-nav btn-nav-prev"
+              bslib::tooltip(
+                shiny::actionButton(
+                  "previous_position",
+                  "<",
+                  class = "btn-nav btn-nav-prev"
+                ),
+                "Previous stationary period",
+                placement = "bottom"
               )
             ),
             shiny::column(
@@ -53,10 +58,14 @@ ui <- function() {
             shiny::column(
               2,
               class = "p-0",
-              shiny::actionButton(
-                "next_position",
-                ">",
-                class = "btn-nav btn-nav-next"
+              bslib::tooltip(
+                shiny::actionButton(
+                  "next_position",
+                  ">",
+                  class = "btn-nav btn-nav-next"
+                ),
+                "Next stationary period",
+                placement = "bottom"
               )
             )
           )
@@ -69,26 +78,58 @@ ui <- function() {
               "Labeling:",
               class = "section-label"
             ),
-            shiny::actionButton(
-              "label_twilight",
-              "Edit",
-              class = "btn-primary btn-sm",
-              icon = shiny::icon("pen"),
-              width = "70px"
-            ),
-            shiny::actionButton(
-              "save_twilight",
-              "Save",
-              class = "btn-success btn-sm btn-inline-icon",
-              icon = shiny::icon("save"),
-              width = "70px"
-            ),
-            shinyjs::hidden(
-              shiny::downloadButton(
-                "export_twilight",
-                "Export",
-                class = "btn-primary btn-sm",
-                width = "70px"
+            shiny::div(
+              class = "gpv-action-row",
+              shiny::actionButton(
+                "label_twilight",
+                shiny::tags$span("Edit", class = "btn-label"),
+                class = "btn-primary btn-sm gpv-action-btn",
+                icon = shiny::icon("pen"),
+                title = "Start or stop twilight labeling"
+              ),
+              shiny::div(
+                class = "btn-group",
+                bslib::tooltip(
+                  shiny::tags$span(
+                    shiny::actionButton(
+                      "undo_twilight_label",
+                      NULL,
+                      icon = shiny::icon("rotate-left"),
+                      class = "btn-sm bg-secondary gpv-icon-btn",
+                      disabled = TRUE
+                    )
+                  ),
+                  "Undo label",
+                  placement = "bottom"
+                ),
+                bslib::tooltip(
+                  shiny::tags$span(
+                    shiny::actionButton(
+                      "redo_twilight_label",
+                      NULL,
+                      icon = shiny::icon("rotate-right"),
+                      class = "btn-sm bg-secondary gpv-icon-btn",
+                      disabled = TRUE
+                    )
+                  ),
+                  "Redo label",
+                  placement = "bottom"
+                )
+              ),
+              shiny::actionButton(
+                "save_twilight",
+                shiny::tags$span("Save", class = "btn-label"),
+                class = "btn-success btn-sm gpv-action-btn",
+                icon = shiny::icon("save"),
+                title = "Save twilight labels"
+              ),
+              shinyjs::hidden(
+                shiny::downloadButton(
+                  "export_twilight",
+                  shiny::tags$span("Export", class = "btn-label"),
+                  class = "btn-primary btn-sm gpv-action-btn",
+                  title = "Export twilight labels"
+                )
               )
             )
           )
@@ -102,39 +143,54 @@ ui <- function() {
               class = "section-label"
             ),
             shiny::div(
-              class = "btn-group",
-              shiny::actionButton(
-                "add_stap",
-                NULL,
-                icon = shiny::icon("square-plus"),
-                class = "btn-sm bg-secondary"
+              class = "gpv-action-row",
+              shiny::div(
+                class = "btn-group",
+                bslib::tooltip(
+                  shiny::actionButton(
+                    "add_stap",
+                    NULL,
+                    icon = shiny::icon("square-plus"),
+                    class = "btn-sm bg-secondary gpv-icon-btn"
+                  ),
+                  "Add stationary period",
+                  placement = "bottom"
+                ),
+                bslib::tooltip(
+                  shiny::actionButton(
+                    "remove_stap",
+                    NULL,
+                    icon = shiny::icon("square-minus"),
+                    class = "btn-sm bg-secondary gpv-icon-btn"
+                  ),
+                  "Remove stationary period",
+                  placement = "bottom"
+                ),
+                bslib::tooltip(
+                  shiny::actionButton(
+                    "change_range",
+                    NULL,
+                    icon = shiny::icon("pen"),
+                    class = "btn-sm bg-secondary gpv-icon-btn"
+                  ),
+                  "Edit stationary-period range",
+                  placement = "bottom"
+                )
               ),
               shiny::actionButton(
-                "remove_stap",
-                NULL,
-                icon = shiny::icon("square-minus"),
-                class = "btn-sm bg-secondary"
+                "save_stap",
+                shiny::tags$span("Save", class = "btn-label"),
+                class = "btn-success btn-sm gpv-action-btn",
+                icon = shiny::icon("save"),
+                title = "Save stationary periods"
               ),
-              shiny::actionButton(
-                "change_range",
-                NULL,
-                icon = shiny::icon("pen"),
-                class = "btn-sm bg-secondary"
-              )
-            ),
-            shiny::actionButton(
-              "save_stap",
-              "Save",
-              class = "btn-success btn-sm btn-inline-icon",
-              icon = shiny::icon("save"),
-              width = "70px"
-            ),
-            shinyjs::hidden(
-              shiny::downloadButton(
-                "export_stap",
-                "Export",
-                class = "btn-primary btn-sm",
-                width = "70px"
+              shinyjs::hidden(
+                shiny::downloadButton(
+                  "export_stap",
+                  shiny::tags$span("Export", class = "btn-label"),
+                  class = "btn-primary btn-sm gpv-action-btn",
+                  title = "Export stationary periods"
+                )
               )
             )
           )
@@ -144,9 +200,10 @@ ui <- function() {
           class = "p-0",
           shiny::actionButton(
             "show_twilight_histogram",
-            "Likelihood Settings",
+            shiny::tags$span("Likelihood Settings", class = "btn-label"),
             icon = shiny::icon("sliders-h"),
-            class = "bg-secondary"
+            class = "bg-secondary gpv-action-btn",
+            title = "Open likelihood settings"
           )
         )
       ),

@@ -1,3 +1,24 @@
+# GeoPressureR v3.6.2
+
+## Main
+
+- [Document that `era5_dataset = "single-levels"` gives the most accurate altitude](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4) in `pressurepath_create()`, `pressurepath_create_api()`, `pressurepath_create_arco()`, `geopressure_timeseries()` and `geopressure_timeseries_arco()`: against 271 NOAA ISD stations, altitude mean absolute error is 9 m, against 55 m for `"land"` and `"both"`. [Defaults are unchanged](https://github.com/GeoPressure/GeoPressureR/commit/0c7ce5a2) in this release.
+- [Validate `variable` against the resolved backend and ERA5 product](https://github.com/GeoPressure/GeoPressureR/commit/ea95d138), with an error naming a working configuration and suggestions for near-misses, instead of returning all-`NA` columns. Add `pressurepath_variable_available()` to list the variables each `source` and `era5_dataset` can return.
+- [Extend the ARCO backend to 20 ERA5 single-levels and 16 ERA5-Land variables](https://github.com/GeoPressure/GeoPressureR/commit/539a1efb), up from surface pressure alone, using the same variable names as GeoPressureAPI.
+- [Give both pressurepath backends one output contract](https://github.com/GeoPressure/GeoPressureR/commit/a3beca41): columns are now always ordered as `date`, `stap_id`, `pressure_tag`, `label`, `lat`, `lon`, then the requested variables in the order asked for, any other columns, and finally `surface_pressure_norm`, `sunset` and `sunrise`. The ARCO backend no longer adds `surface_pressure` when it is not in `variable`, matching the API backend, and `era5_dataset`, `source` and `variable` are recorded as attributes.
+- [Use one variable vocabulary across the wind pipeline](https://github.com/GeoPressure/GeoPressureR/commit/e03919d6): `edge_add_wind()` now takes the same long names as `tag_download_wind()` (GRIB short names are deprecated) and its `var` column holds long names; `tag_download_wind()` validates `variable`.
+
+## Minor
+
+- [Record more analysis parameters in `param`](https://github.com/GeoPressure/GeoPressureR/commit/bcc2e5fd) for provenance (`geopressure_map()`, `geolight_map()`, `tag_label_auto()`, `tag_stap_daily()`, `graph_add_wind()`).
+- [Document `pressurepath_create_api()` and `pressurepath_create_arco()` on the `pressurepath_create()` page and fix equation rendering](https://github.com/GeoPressure/GeoPressureR/commit/9f414db4) on the pkgdown site, and [likewise `geopressure_timeseries_api()` and `geopressure_timeseries_arco()` on the `geopressure_timeseries()` page](https://github.com/GeoPressure/GeoPressureR/commit/b04a29dd).
+- [Improve GeoLightViz labeling controls](https://github.com/GeoPressure/GeoPressureR/commit/247de63f) and [documentation](https://github.com/GeoPressure/GeoPressureR/commit/1275d30e).
+- [Surface the `warning` field returned by GeoPressureAPI](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4) instead of silently discarding it.
+- [Document the accuracy of pressure-derived altitude](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4): ~3 m for relative altitude changes at a fixed location and ~10 m mean absolute error for absolute altitude.
+- [Document that accumulated ERA5-Land variables differ between backends](https://github.com/GeoPressure/GeoPressureR/commit/539a1efb): hourly increments from the API, accumulated from 00 UTC from ARCO.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.1...v3.6.2>
+
 # GeoPressureR v3.6.1
 
 ## Main
@@ -570,7 +591,7 @@ This new version consists of a significant revamp of the entire code centred aro
 
 ## Major
 
-- Graph Addition of wind: <https://geopressure.org/GeoPressureR/articles/wind-graph.html>
+- Graph Addition of wind: <https://geopressure.org/GeoPressureManual/trajectory-with-wind.html>
 - Movement model function: converting airspeed/groundspeed to probability.
 
 ## Minor

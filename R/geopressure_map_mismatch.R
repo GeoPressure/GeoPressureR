@@ -352,6 +352,7 @@ geopressure_map_mismatch <- function(
     thr_mask = thr_mask,
     timeout = timeout,
     workers = workers,
+    era5_dataset = era5_dataset,
     compute_known = compute_known
   )
 

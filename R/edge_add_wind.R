@@ -19,10 +19,10 @@
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
 #' POSIXt and `value` in hPa. If not provided, uses `graph$pressure`, assuming that argument `graph`
 #'  is a GeoPressureR `tag` object.
-#' @param variable list of the variables to extract from [the ERA5 pressure level
-#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
-#' using the `shortName` notation: `"u"`, `"v"`,  `"t"`, `"cc"`, `"r"`,
-#' `"w"`, `"ciwc"`, `"clwc"`, `"q"`, `"cswc"`, `"d"`, `"z"`, `"o3"`, `"pv"`, `"vo"`.
+#' @param variable variables to extract, named exactly as in [tag_download_wind()] — the files
+#' must of course contain them. The NetCDF stores its arrays under GRIB short names (`"u"` for
+#' `"u_component_of_wind"`) and this function translates; passing those short names still works
+#' but is deprecated.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' match ERA5 native resolution (1hr).
 #' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
@@ -37,7 +37,7 @@
 #' - `pressure` pressure at each time step
 #' - `date` datetime of each time step
 #' - `w` weight for averaging
-#' - `var` variable name
+#' - `var` variable name, as passed to `variable`
 #' - `lat` latitude at each time step
 #' - `lon` longitude at each time step
 #'
@@ -62,7 +62,7 @@ edge_add_wind <- function(
   edge_s,
   edge_t,
   pressure = NULL,
-  variable = c("u", "v"),
+  variable = c("u_component_of_wind", "v_component_of_wind"),
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = lifecycle::deprecated(),
@@ -80,6 +80,10 @@ edge_add_wind <- function(
       details = "{.fun edge_add_wind} now always returns detailed edge/time/variable values. Use {.fun graph_add_wind} for memory-efficient graph-scale wind."
     )
   }
+
+  # Accept the NetCDF short names this function used to take, but carry the canonical CDS names
+  # from here on so `var` in the result matches what `tag_download_wind()` was asked for.
+  variable <- era5_variable_canonical(variable, allow_short = TRUE)
 
   if (!requireNamespace("ncdf4", quietly = TRUE)) {
     cli::cli_abort(c(
@@ -335,7 +339,7 @@ edge_add_wind <- function(
 edge_add_wind_check <- function(
   graph,
   pressure = NULL,
-  variable = c("u", "v"),
+  variable = c("u_component_of_wind", "v_component_of_wind"),
   file = \(stap_id, tag_id) {
     glue::glue(
       "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
@@ -774,11 +778,13 @@ edge_add_wind_values_time <- function(
   )
 
   # Extract a small NetCDF slab: lon x lat x pressure x time for each requested variable.
+  # `variable` holds canonical CDS names; the NetCDF stores the arrays under GRIB short names.
+  short_name <- era5_variable_short(variable)
   var_nc <- vector("list", length(variable))
   for (var_i in seq_len(length(variable))) {
     var_nc[[var_i]] <- ncdf4::ncvar_get(
       nc,
-      variable[var_i],
+      short_name[var_i],
       start = c(id_lon[1], id_lat[1], id_pres, id_time),
       count = c(length(id_lon), length(id_lat), n_pres, n_time),
       collapse_degen = FALSE

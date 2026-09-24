@@ -4,7 +4,13 @@
 \alias{ts2mat}
 \title{Format time series data frame into a matrix}
 \usage{
-ts2mat(ts, sensor = "time series", twl_offset = 0, value = "value", twl_time_tolerance = 180)
+ts2mat(
+  ts,
+  sensor = "time series",
+  twl_offset = 0,
+  value = "value",
+  twl_time_tolerance = 180
+)
 }
 \arguments{
 \item{ts}{data.frame of a \code{tag}, containing at least \code{date} and \code{value}.}

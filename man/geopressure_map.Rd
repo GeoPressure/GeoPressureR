@@ -71,8 +71,11 @@ GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 \item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
 number of workers to the number of \code{stapelev} to query.}
 
-\item{era5_dataset}{ERA5 product: \code{"land"}, \code{"single-levels"}, or \code{"both"} to use ERA5-Land
-over land and global ERA5 elsewhere.}
+\item{era5_dataset}{ERA5 product: \code{"land"} (default) at 0.1 degree resolution,
+\code{"single-levels"} at 0.25 degree resolution, or \code{"both"} to use ERA5-Land over land and
+global ERA5 elsewhere. Unlike altitude in \code{\link[=pressurepath_create]{pressurepath_create()}}, \code{"land"} is right here:
+the pressure mismatch is differential (the mean error is removed at each stationary period),
+so the static ERA5-Land bias cancels and its finer resolution is what the map needs.}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 
@@ -163,11 +166,11 @@ The mismatch maps of all elevation levels belonging to the same stationary perio
 \section{Convert mismatch map into likelihood map}{
 
 
-We convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
+We convert the map of the mean square error \eqn{\mathrm{MSE}} and altitude mask \eqn{z_\mathrm{mask}} computed
 by \code{\link[=geopressure_map_mismatch]{geopressure_map_mismatch()}} into a likelihood map with,
 
-\deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{\frac{nw}{2}}
-\exp \left(-w n \frac{MSE}{2\sigma^2} \right) \left[z_{mask}>T \right],}
+\deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{n w/2}
+\exp \left(-w n \frac{\mathrm{MSE}}{2\sigma^2} \right) \left[z_\mathrm{mask}>T \right],}
 
 where \eqn{\sigma} is the standard deviation (\code{sd}) of pressure and \eqn{T} is the mask threshold
 (\code{thr_mask}).

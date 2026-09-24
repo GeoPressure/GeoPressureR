@@ -34,7 +34,7 @@ Default is to download all flights.}
 \code{"specific_cloud_ice_water_content"}, \code{"specific_cloud_liquid_water_content"},
 \code{"specific_humidity"}, \code{"specific_rain_water_content"}, \code{"specific_snow_water_content"},
 \code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"}, \code{"potential_vorticity"},
-\verb{'vorticity"}.}
+\code{"vorticity"}. The same names are used by \code{\link[=edge_add_wind]{edge_add_wind()}}.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as arguments (1) the stationary period identifier and (2) the tag_id.}
@@ -72,7 +72,7 @@ The path of the downloaded (requested file) or the an R6 object with download/tr
 information
 }
 \description{
-This function downloads data associated to each flight from the \href{https://doi.org/10.24381/cds.bd0915c6}{ERA5 hourly pressure levels}
+This function downloads data associated to each flight from the ERA5 hourly pressure levels (\doi{10.24381/cds.bd0915c6})
 with the \href{https://cds.climate.copernicus.eu/}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
 
 \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level}
@@ -84,7 +84,7 @@ the download more efficient, \href{https://bluegreen-labs.github.io/ecmwfr/artic
 is used to download files in parallel. CDS queue limits vary with the current system workload.
 If CDS reports that queued requests are temporarily limited, reduce \code{workers} and try again.
 
-More information \href{https://geopressure.org/GeoPressureManual/geopressuretemplate-wind.html}{in the GeoPressureManual}.
+More information \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{in the GeoPressureManual}.
 }
 \section{ECMWF API key}{
 

@@ -1,11 +1,4 @@
-#' Create a pressure path from ARCO
-#'
-#' This is the explicit ARCO backend for [pressurepath_create()]. See the parent function for the
-#' shared workflow, backend comparison, ECMWF key setup, and output details.
-#'
-#' @inheritParams pressurepath_create
-#' @return See [pressurepath_create()].
-#' @family pressurepath
+#' @rdname pressurepath_create
 #' @export
 pressurepath_create_arco <- function(
   tag,
@@ -42,6 +35,7 @@ pressurepath_create_arco_impl <- function(
   debug = FALSE
 ) {
   era5_dataset <- match.arg(era5_dataset)
+  pressurepath_variable_check(variable, "arco", era5_dataset)
 
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
   dataset <- rep(era5_dataset, nrow(pressurepath))
@@ -85,7 +79,7 @@ pressurepath_create_arco_impl <- function(
   for (dataset_i in unique(dataset)) {
     id <- dataset == dataset_i
     surface_pressure[id] <- era5_arco_read_points(
-      variable = "sp",
+      variable = "surface_pressure",
       era5_dataset = dataset_i,
       lon = query_lon[id],
       lat = query_lat[id],
@@ -100,7 +94,7 @@ pressurepath_create_arco_impl <- function(
     query_lon[id] <- floor(pressurepath$lon[id] / resolution[id] + 0.5) * resolution[id]
     query_lat[id] <- floor(pressurepath$lat[id] / resolution[id] + 0.5) * resolution[id]
     surface_pressure[id] <- era5_arco_read_points(
-      variable = "sp",
+      variable = "surface_pressure",
       era5_dataset = "single-levels",
       lon = query_lon[id],
       lat = query_lat[id],
@@ -109,15 +103,15 @@ pressurepath_create_arco_impl <- function(
     )
   }
 
-  if ("altitude" %in% variable) {
-    if (!quiet) {
-      cli::cli_progress_step("Read ERA5 temperature and compute altitude")
-    }
-    temperature <- rep(NA_real_, nrow(pressurepath))
+  # `dataset` is final from here on: the "both" fallback above has already moved any point the
+  # land stores could not serve onto single levels, so every variable is read from the same
+  # product as the surface pressure it will sit beside.
+  read_variable <- function(v) {
+    out <- rep(NA_real_, nrow(pressurepath))
     for (dataset_i in unique(dataset)) {
       id <- dataset == dataset_i
-      temperature[id] <- era5_arco_read_points(
-        variable = "t2m",
+      out[id] <- era5_arco_read_points(
+        variable = v,
         era5_dataset = dataset_i,
         lon = query_lon[id],
         lat = query_lat[id],
@@ -125,6 +119,14 @@ pressurepath_create_arco_impl <- function(
         debug = debug
       )
     }
+    out
+  }
+
+  if ("altitude" %in% variable) {
+    if (!quiet) {
+      cli::cli_progress_step("Read ERA5 temperature and compute altitude")
+    }
+    temperature <- read_variable("temperature_2m")
     elevation <- era5_surface_elevation(query_lon, query_lat, dataset, quiet)
     pressurepath$altitude <- pressure_to_altitude(
       pressurepath$pressure_tag * 100,
@@ -133,32 +135,51 @@ pressurepath_create_arco_impl <- function(
       elevation
     )
   }
-  pressurepath$surface_pressure <- surface_pressure / 100
-  pressurepath_finalize(pressurepath, tag, path, preprocess, solar_dep, date_first = TRUE)
+  # Everything else the caller asked for. `surface_pressure` is already in hand and `altitude` is
+  # derived, so neither is re-read; the rest keep their native ERA5 units.
+  extra <- setdiff(variable, c("altitude", "surface_pressure"))
+  if (length(extra) > 0) {
+    if (!quiet) {
+      cli::cli_progress_step("Read {length(extra)} further ERA5 variable{?s} from ARCO")
+    }
+    for (v in extra) {
+      pressurepath[[v]] <- read_variable(v)
+    }
+  }
+
+  # Handed over in Pa; `pressurepath_finalize()` is the single place that converts to hPa. Only
+  # attached when asked for, matching the API backend.
+  if ("surface_pressure" %in% variable) {
+    pressurepath$surface_pressure <- surface_pressure
+  }
+  pressurepath_finalize(
+    pressurepath,
+    tag,
+    path,
+    preprocess,
+    solar_dep,
+    variable = variable,
+    era5_dataset = era5_dataset,
+    source = "arco"
+  )
 }
 
 era5_arco_read_points <- function(variable, era5_dataset, lon, lat, date, debug) {
   out <- rep(NA_real_, length(date))
+  # Geometry depends only on the product: every ERA5-Land store shares one grid and time axis,
+  # and so does every single-levels array. Only the store path varies with the variable.
   if (era5_dataset == "land") {
-    store <- switch(
-      variable,
-      sp = "cadl-arco-geo-009/arco/reanalysis_era5_land/sfc-pressure-precipitation",
-      t2m = "cadl-arco-geo-007/arco/reanalysis_era5_land/sfc-2m-temperature"
-    )
     time_index <- as.integer(as.numeric(date) / 3600 - (-175296) + 1)
     lat_index <- as.integer(round((lat + 90) * 10) + 1)
     lon_index <- ifelse(lon == -180, 3600L, as.integer(round((lon + 179.9) * 10) + 1))
     chunk_shape <- c(33792L, 4L, 8L)
   } else {
-    store <- "cadl-arco-geo-002/arco/reanalysis_era5_single_levels/sfc"
     time_index <- as.integer((as.numeric(date) - (-946771200)) / 3600 + 1)
     lat_index <- as.integer(round((lat + 90) * 4) + 1)
     lon_index <- ifelse(lon == 180, 1L, as.integer(round((lon + 180) * 4) + 1))
     chunk_shape <- c(67584L, 4L, 4L)
   }
-  array <- glue::glue(
-    "https://arco.datastores.ecmwf.int/{store}/geoChunked.zarr/{variable}"
-  )
+  array <- era5_arco_array(variable, era5_dataset)
 
   # Read each physical chunk once when several path cells share it.
   chunks <- split(

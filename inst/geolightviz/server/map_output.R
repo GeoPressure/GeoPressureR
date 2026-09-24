@@ -41,13 +41,17 @@ render_map_output <- function(
           shiny::actionButton(
             "ml_position",
             "Find ML Position",
-            class = "btn-sm",
+            class = "btn-sm gpv-action-btn",
+            icon = shiny::icon("crosshairs"),
+            title = "Find maximum-likelihood position",
             onclick = "event.stopPropagation();"
           ),
           shiny::actionButton(
             "edit_position",
             "Edit Position",
-            class = "btn-sm",
+            class = "btn-sm gpv-action-btn",
+            icon = shiny::icon("pen"),
+            title = "Start or stop position editing",
             onclick = "event.stopPropagation();"
           )
         ),

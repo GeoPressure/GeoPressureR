@@ -47,6 +47,11 @@ tag_label_auto <- function(
   post_proc_window = 2
 ) {
   tag_assert(tag)
+  tag$param$tag_label_auto <- list(
+    min_duration = min_duration,
+    thr_reclassify = thr_reclassify,
+    post_proc_window = post_proc_window
+  )
   if (!assertthat::has_name(tag$pressure, "label")) {
     tag$pressure$label <- ""
   }

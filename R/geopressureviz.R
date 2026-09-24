@@ -20,11 +20,10 @@
 #'
 #' The app `Save` button writes the current path to `./data/interim/{id}-path-geopressureviz.csv`.
 #'
-#' Basemap layers are configured with [map_add_tiles()].
-#'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
 #'
+#' @template map-tiles
 #' @param x One of:
 #' * a GeoPressureR `tag` object;
 #' * a path to an existing `.RData`/`.rda` file;

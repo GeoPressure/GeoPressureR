@@ -196,6 +196,7 @@ graph_simulation <- function(graph, nj = 10, quiet = FALSE) {
 
   # Assign the type of path
   attr(path, "type") <- "simulation"
+  attr(path, "param") <- list(graph_simulation = list(nj = nj))
 
   if (!quiet) {
     cli::cli_progress_done()

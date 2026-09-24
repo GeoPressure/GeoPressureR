@@ -9,7 +9,7 @@ edge_add_wind(
   edge_s,
   edge_t,
   pressure = NULL,
-  variable = c("u", "v"),
+  variable = c("u_component_of_wind", "v_component_of_wind"),
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = lifecycle::deprecated(),
@@ -34,9 +34,10 @@ level (i.e., altitude) of the bird during the flights. This data.frame needs to 
 POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, assuming that argument \code{graph}
 is a GeoPressureR \code{tag} object.}
 
-\item{variable}{list of the variables to extract from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level }
-using the \code{shortName} notation: \code{"u"}, \code{"v"},  \code{"t"}, \code{"cc"}, \code{"r"},
-\code{"w"}, \code{"ciwc"}, \code{"clwc"}, \code{"q"}, \code{"cswc"}, \code{"d"}, \code{"z"}, \code{"o3"}, \code{"pv"}, \code{"vo"}.}
+\item{variable}{variables to extract, named exactly as in \code{\link[=tag_download_wind]{tag_download_wind()}} — the files
+must of course contain them. The NetCDF stores its arrays under GRIB short names (\code{"u"} for
+\code{"u_component_of_wind"}) and this function translates; passing those short names still works
+but is deprecated.}
 
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
@@ -59,7 +60,7 @@ A data.frame with one row per time step, edge, and variable:
 \item \code{pressure} pressure at each time step
 \item \code{date} datetime of each time step
 \item \code{w} weight for averaging
-\item \code{var} variable name
+\item \code{var} variable name, as passed to \code{variable}
 \item \code{lat} latitude at each time step
 \item \code{lon} longitude at each time step
 }

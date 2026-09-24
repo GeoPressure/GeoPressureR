@@ -1,20 +1,9 @@
 #' Add GeoPressureR basemap layers
 #'
-#' Adds all available GeoPressureR basemap layers to a Leaflet map. CARTO, Mapbox, and MapTiler
-#' layers are added only when their API key is stored in the system keyring. Esri layers are always
-#' available as fallbacks.
+#' Adds all available GeoPressureR basemap layers to a Leaflet map. It is used by [plot.map()],
+#' [plot_path()], [geopressureviz()] and [geolightviz()].
 #'
-#' Store an API key once with [keyring::key_set_with_value()]:
-#'
-#' ```r
-#' keyring::key_set_with_value("CARTO_API_KEY", password = "<your CARTO API key>")
-#' keyring::key_set_with_value("MAPBOX_ACCESS_TOKEN", password = "<your Mapbox token>")
-#' keyring::key_set_with_value("MAPTILER_API_KEY", password = "<your MapTiler API key>")
-#' ```
-#'
-#' Mapbox access tokens are visible in the browser when a map is rendered. Use a public, read-only
-#' token rather than a secret token.
-#'
+#' @template map-tiles
 #' @param map a Leaflet map.
 #' @param provider optional single provider passed to [leaflet::addProviderTiles()]. When `NULL`,
 #'   adds all available GeoPressureR basemap layers.
@@ -22,6 +11,7 @@
 #' @param position position of the basemap layer control.
 #'
 #' @return A Leaflet map.
+#' @keywords internal
 #' @export
 map_add_tiles <- function(
   map,

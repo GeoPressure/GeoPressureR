@@ -2,7 +2,7 @@
 % Please edit documentation in R/geolightviz.R
 \name{geolightviz}
 \alias{geolightviz}
-\title{Start the GeoLightViz shiny app}
+\title{Start the GeoLightViz Shiny app}
 \usage{
 geolightviz(
   x,
@@ -34,8 +34,46 @@ When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running th
 When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
 }
 \description{
-Basemap layers are configured with \code{\link[=map_add_tiles]{map_add_tiles()}}.
+GeoLightViz is an interactive tool for reviewing twilight observations and
+preparing light-based geolocation analyses. It displays the light record and
+detected twilight events so that observations affected by shading or other
+light obstructions can be marked as discarded. It can also be used to define
+or edit stationary periods from twilight patterns, which is useful when
+pressure or acceleration data are unavailable. When a map has been defined
+with \code{\link[=tag_set_map]{tag_set_map()}} and stationary periods are available, the app links the
+light plot to a map of twilight likelihoods. You can explore candidate
+locations and tune twilight calibration and likelihood aggregation settings
+with visual feedback. Twilight labels and stationary periods can be saved or
+exported from the app.
 }
+\details{
+See the \href{https://geopressure.org/GeoPressureManual/geolightviz.html}{GeoLightViz chapter of the GeoPressureManual } for an overview
+of the app's controls and workflow.
+}
+\section{Basemap API keys}{
+
+Interactive maps always offer Esri basemaps (gray canvas, imagery and topographic). CARTO,
+Mapbox and MapTiler basemaps are added to the layer control only when their API key is stored
+in your system keyring. Get a key from each provider:
+\itemize{
+\item CARTO: "Get your API key" on \href{https://carto.com/basemaps}{CARTO Basemaps}.
+\item Mapbox: \href{https://account.mapbox.com/access-tokens/}{Access tokens} page of your account
+(see \href{https://docs.mapbox.com/help/getting-started/access-tokens/}{Mapbox documentation}).
+\item MapTiler: \href{https://cloud.maptiler.com/account/keys/}{API keys} page of your MapTiler Cloud
+account (see \href{https://docs.maptiler.com/cloud/api/authentication-key/}{MapTiler documentation}).
+}
+
+Then store each key once:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{keyring::key_set_with_value("CARTO_API_KEY", password = "<your CARTO API key>")
+keyring::key_set_with_value("MAPBOX_ACCESS_TOKEN", password = "<your Mapbox token>")
+keyring::key_set_with_value("MAPTILER_API_KEY", password = "<your MapTiler API key>")
+}\if{html}{\out{</div>}}
+
+Mapbox access tokens are visible in the browser when a map is rendered. Use a public, read-only
+token rather than a secret token.
+}
+
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -46,4 +84,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 })
 geolightviz(tag, run_bg = FALSE, launch_browser = FALSE)
 \dontshow{\}) # examplesIf}
+}
+\seealso{
+\href{https://geopressure.org/GeoPressureManual/geolightviz.html}{GeoPressureManual | GeoLightViz }
 }

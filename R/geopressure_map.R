@@ -67,11 +67,11 @@
 #'
 #' @section Convert mismatch map into likelihood map:
 #'
-#' We convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
+#' We convert the map of the mean square error \eqn{\mathrm{MSE}} and altitude mask \eqn{z_\mathrm{mask}} computed
 #' by [`geopressure_map_mismatch()`] into a likelihood map with,
 #'
-#' \deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{\frac{nw}{2}}
-#' \exp \left(-w n \frac{MSE}{2\sigma^2} \right) \left[z_{mask}>T \right],}
+#' \deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{n w/2}
+#' \exp \left(-w n \frac{\mathrm{MSE}}{2\sigma^2} \right) \left[z_\mathrm{mask}>T \right],}
 #'
 #' where \eqn{\sigma} is the standard deviation (`sd`) of pressure and \eqn{T} is the mask threshold
 #' (`thr_mask`).
@@ -111,7 +111,11 @@
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
-#' @inheritParams pressurepath_create
+#' @param era5_dataset ERA5 product: `"land"` (default) at 0.1 degree resolution,
+#'   `"single-levels"` at 0.25 degree resolution, or `"both"` to use ERA5-Land over land and
+#'   global ERA5 elsewhere. Unlike altitude in [pressurepath_create()], `"land"` is right here:
+#'   the pressure mismatch is differential (the mean error is removed at each stationary period),
+#'   so the static ERA5-Land bias cancels and its finer resolution is what the map needs.
 #'
 #' @return Returns the same GeoPressureR `tag` object including the GeoPressureR `map` object
 #' `tag$map_pressure` containing the likelihood map of each stationary period. See `map_create()`

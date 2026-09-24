@@ -64,10 +64,32 @@ path.
 
 The app \code{Save} button writes the current path to \code{./data/interim/{id}-path-geopressureviz.csv}.
 
-Basemap layers are configured with \code{\link[=map_add_tiles]{map_add_tiles()}}.
-
 Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }
+\section{Basemap API keys}{
+
+Interactive maps always offer Esri basemaps (gray canvas, imagery and topographic). CARTO,
+Mapbox and MapTiler basemaps are added to the layer control only when their API key is stored
+in your system keyring. Get a key from each provider:
+\itemize{
+\item CARTO: "Get your API key" on \href{https://carto.com/basemaps}{CARTO Basemaps}.
+\item Mapbox: \href{https://account.mapbox.com/access-tokens/}{Access tokens} page of your account
+(see \href{https://docs.mapbox.com/help/getting-started/access-tokens/}{Mapbox documentation}).
+\item MapTiler: \href{https://cloud.maptiler.com/account/keys/}{API keys} page of your MapTiler Cloud
+account (see \href{https://docs.maptiler.com/cloud/api/authentication-key/}{MapTiler documentation}).
+}
+
+Then store each key once:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{keyring::key_set_with_value("CARTO_API_KEY", password = "<your CARTO API key>")
+keyring::key_set_with_value("MAPBOX_ACCESS_TOKEN", password = "<your Mapbox token>")
+keyring::key_set_with_value("MAPTILER_API_KEY", password = "<your MapTiler API key>")
+}\if{html}{\out{</div>}}
+
+Mapbox access tokens are visible in the browser when a map is rendered. Use a public, read-only
+token rather than a secret token.
+}
+
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
   geopressureviz("18LX")

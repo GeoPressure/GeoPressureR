@@ -142,7 +142,7 @@ test_that("tag_download_wind() | request generation", {
   tag_download_wind(
     tag,
     include_stap_id = 1,
-    variable = c("var1", "var2"),
+    variable = c("temperature", "specific_humidity"),
     workers = 5,
     file = function(s, t) file.path(tmp, paste0(t, "_", s, ".nc"))
   )
@@ -159,8 +159,8 @@ test_that("tag_download_wind() | request generation", {
   expect_equal(req$area, c(50, -16, 0, 23)) # N, W, S, E
   expect_equal(req$target, "18LX_1.nc")
 
-  # Check variables
-  expect_equal(req$variable, c("var1", "var2"))
+  # Check variables are forwarded verbatim, using names CDS accepts
+  expect_equal(req$variable, c("temperature", "specific_humidity"))
 
   # Check pressure levels (should cover 200-1000)
   expect_true(min(req$pressure_level) <= 200)

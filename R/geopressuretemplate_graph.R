@@ -140,6 +140,7 @@ geopressuretemplate_graph <- function(
           nj = config$graph_simulation$nj,
           quiet = quiet
         )
+        param$graph_simulation <- attr(path_simulation, "param")$graph_simulation
         edge_simulation <- path2edge(path_simulation, graph)
         save_list <- c(save_list, "path_simulation", "edge_simulation")
       }

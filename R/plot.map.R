@@ -14,12 +14,13 @@
 #' projection with a finer resolution. The argument `fac_res_proj` controls the relative change of
 #' resolution between the original map to the projected map.
 #'
+#' @template map-tiles
 #' @param x a GeoPressureR `map` object
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
 #' @param thr_likelihood Threshold to display likelihood values.
 #' @param provider optional tile provider name (see `leaflet::providers`). When `NULL`, uses all
-#'   available GeoPressureR basemap layers. See [map_add_tiles()].
+#'   available GeoPressureR basemap layers; see the *Basemap API keys* section.
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
 #'   leaflet::providerTileOptions().
 #' @param palette color palette name or vector of colors.

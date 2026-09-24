@@ -1,11 +1,4 @@
-#' Create a pressure path with GeoPressureAPI
-#'
-#' This is the explicit hosted API backend for [pressurepath_create()]. See the parent function for
-#' the shared workflow, backend comparison, ECMWF key setup, and output details.
-#'
-#' @inheritParams pressurepath_create
-#' @return See [pressurepath_create()].
-#' @family pressurepath
+#' @rdname pressurepath_create
 #' @export
 pressurepath_create_api <- function(
   tag,
@@ -46,20 +39,12 @@ pressurepath_create_api_impl <- function(
 ) {
   era5_dataset <- match.arg(
     era5_dataset,
-    choices = c("single-levels", "land", "both")
+    choices = c("both", "land", "single-levels")
   )
 
-  # Validate requested variables against the allowed set
-  unknown_vars <- setdiff(variable, c(pressurepath_variable, "altitude"))
-  assertthat::assert_that(
-    length(unknown_vars) == 0,
-    msg = paste0(
-      "Unknown variable(s): ",
-      paste(unknown_vars, collapse = ", "),
-      ". Allowed variables are: ",
-      paste(c(pressurepath_variable, "altitude"), collapse = ", ")
-    )
-  )
+  # Validate against what this ERA5 product actually carries. ERA5-Land has 70 bands against 292
+  # for single levels, so the allowed set is not the same for every value of `era5_dataset`.
+  pressurepath_variable_check(variable, "api", era5_dataset)
 
   # Check workers
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
@@ -108,7 +93,12 @@ pressurepath_create_api_impl <- function(
 
   # Perform the request and convert the response to data.frame
   resp <- httr2::req_perform(req)
-  resp_data <- httr2::resp_body_json(resp, simplifyVector = TRUE)$data
+  resp_body <- httr2::resp_body_json(resp, simplifyVector = TRUE)
+  # GeoPressureAPI flags configurations whose `altitude` cannot be trusted.
+  if (!is.null(resp_body$warning)) {
+    cli::cli_warn(c("!" = "GeoPressureAPI: {resp_body$warning}"))
+  }
+  resp_data <- resp_body$data
 
   # If variable requested does not exist, the API return an empty list, which we
   # convert here as a NA
@@ -143,6 +133,8 @@ pressurepath_create_api_impl <- function(
     path,
     preprocess,
     solar_dep,
-    surface_pressure_pa = TRUE
+    variable = variable,
+    era5_dataset = era5_dataset,
+    source = "api"
   )
 }

@@ -55,7 +55,6 @@ test_that("pressurepath_create() | check flight", {
   pressurepath <- expect_no_error(pressurepath_create(
     tag,
     path_i,
-    era5_dataset = "land",
     quiet = TRUE
   ))
 })
