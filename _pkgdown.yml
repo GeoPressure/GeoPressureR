@@ -139,8 +139,6 @@ reference:
     desc: Data.frame of pressure time series along a path.
     contents:
       - pressurepath_create
-      - pressurepath_create_api
-      - pressurepath_create_arco
       - pressurepath_variable_available
       - plot_pressurepath
       - path2elevation

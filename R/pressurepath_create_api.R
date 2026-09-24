@@ -1,11 +1,4 @@
-#' Create a pressure path with GeoPressureAPI
-#'
-#' This is the explicit hosted API backend for [pressurepath_create()]. See the parent function for
-#' the shared workflow, backend comparison, ECMWF key setup, and output details.
-#'
-#' @inheritParams pressurepath_create
-#' @return See [pressurepath_create()].
-#' @family pressurepath
+#' @rdname pressurepath_create
 #' @export
 pressurepath_create_api <- function(
   tag,

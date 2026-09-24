@@ -67,11 +67,11 @@
 #'
 #' @section Convert mismatch map into likelihood map:
 #'
-#' We convert the map of the mean square error \eqn{MSE} and altitude mask \eqn{z_{mask}} computed
+#' We convert the map of the mean square error \eqn{\mathrm{MSE}} and altitude mask \eqn{z_\mathrm{mask}} computed
 #' by [`geopressure_map_mismatch()`] into a likelihood map with,
 #'
-#' \deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{\frac{nw}{2}}
-#' \exp \left(-w n \frac{MSE}{2\sigma^2} \right) \left[z_{mask}>T \right],}
+#' \deqn{L = \left( \frac{1}{2 \pi \sigma^2}\right)^{n w/2}
+#' \exp \left(-w n \frac{\mathrm{MSE}}{2\sigma^2} \right) \left[z_\mathrm{mask}>T \right],}
 #'
 #' where \eqn{\sigma} is the standard deviation (`sd`) of pressure and \eqn{T} is the mask threshold
 #' (`thr_mask`).

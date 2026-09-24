@@ -2,6 +2,8 @@
 #'
 #' `pressurepath_create()` combines a tag pressure series with a path and retrieves matching ERA5
 #' variables. Positions during flights are linearly interpolated between stationary periods.
+#' `pressurepath_create_arco()` and `pressurepath_create_api()` are shortcuts that force the
+#' corresponding `source`.
 #'
 #' @section Data sources:
 #' `source = "arco"` reads ECMWF's Analysis-Ready Cloud-Optimised (ARCO) archive directly. It
@@ -15,8 +17,8 @@
 #' and `"both"`, 70 for `"land"`.
 #'
 #' The default, `source = "auto"`, uses ARCO when a key stored by [ecmwfr::wf_set_key()] is
-#' available and GeoPressureAPI otherwise. Use [pressurepath_create_arco()] or
-#' [pressurepath_create_api()] to select a backend explicitly.
+#' available and GeoPressureAPI otherwise. Use `pressurepath_create_arco()` or
+#' `pressurepath_create_api()` to select a backend explicitly.
 #'
 #' @section Path and ERA5 processing:
 #' Measurements are retained only when `path` contains the surrounding stationary periods.

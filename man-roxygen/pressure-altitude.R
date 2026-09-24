@@ -1,13 +1,14 @@
 #' @section Pressure-derived altitude:
 #' When altitude is produced, GeoPressureR uses the same barometric relation as
 #' [GeoPressureAPI](https://github.com/GeoPressure/GeoPressureAPI):
-#' \deqn{z_{tag}=z_{ERA5}+\frac{T_{ERA5}}{L_b}\left[\left(
-#' \frac{P_{tag}}{P_{ERA5}}\right)^{-\frac{R L_b}{g M}}-1\right].}
-#' Here, \eqn{P_{tag}} is tag pressure, while \eqn{P_{ERA5}}, \eqn{T_{ERA5}}, and \eqn{z_{ERA5}}
+#' \deqn{z_\mathrm{tag}=z_\mathrm{ERA5}+\frac{T_\mathrm{ERA5}}{L_b}\left[\left(
+#' \frac{P_\mathrm{tag}}{P_\mathrm{ERA5}}\right)^{-R L_b/(g M)}-1\right].}
+#' Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_\mathrm{ERA5}},
+#' and \eqn{z_\mathrm{ERA5}}
 #' are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
 #' is obtained from ERA5 surface geopotential divided by standard gravity. The constants are the
 #' standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
-#' \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s^2, and molar mass of dry air
+#' \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s², and molar mass of dry air
 #' \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
 #' metres above mean sea level.
 #'
@@ -16,7 +17,7 @@
 #'
 #' ERA5-Land's `surface_pressure` is not the exact hydrostatic image of the orography ERA5-Land
 #' publishes as `geopotential` — the two disagree by up to ~10 hPa in steep terrain. The
-#' \eqn{z_{ERA5}} term therefore fails to cancel from the relation above and the whole discrepancy
+#' \eqn{z_\mathrm{ERA5}} term therefore fails to cancel from the relation above and the whole discrepancy
 #' lands in the retrieved altitude. Measured against 41,653 hourly station-pressure observations
 #' from 271 NOAA ISD stations (2–3576 m, Alps, July 2020), compared with surveyed station
 #' elevation:
