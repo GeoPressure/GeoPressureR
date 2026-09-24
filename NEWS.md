@@ -1,71 +1,22 @@
-# GeoPressureR (development version)
+# GeoPressureR v3.6.2
 
 ## Main
 
-- **`era5_dataset` now defaults to `"single-levels"` for altitude retrieval.** ERA5-Land's
-  `surface_pressure` is not the exact hydrostatic image of the orography ERA5-Land publishes as
-  `geopotential` — the two disagree by up to ~10 hPa in steep terrain — so the orography term does
-  not cancel from the barometric relation and the discrepancy lands in `altitude`. Measured against
-  41,653 hourly station-pressure observations from 271 NOAA ISD stations (2–3576 m, Alps, July
-  2020), mean absolute error is **9 m** for `"single-levels"` against **55 m** for `"land"` and
-  `"both"`. Affects `pressurepath_create()`, `pressurepath_create_api()`,
-  `pressurepath_create_arco()`, `geopressure_timeseries()` and `geopressure_timeseries_arco()`.
-- **`era5_dataset = "land"` and `"both"` are deprecated for altitude** and now signal a
-  `lifecycle` deprecation warning when `"altitude"` is requested. They remain fully supported for
-  every other variable, and `geopressure_map()` still defaults to `"land"` because its pressure
-  mismatch is differential and therefore unaffected.
-
-- **`variable` is now validated against the resolved backend and ERA5 product.** The available
-  sets genuinely differ — 292 variables for ERA5 single levels, 70 for ERA5-Land (only 44 shared),
-  and 2 for ARCO — but every request was previously checked against the ERA5 single-levels list
-  alone. Asking for a variable ERA5-Land does not carry made GeoPressureAPI return `200 success`
-  with *every* array empty, which arrived as a `pressurepath` whose ERA5 columns were all `NA`,
-  behind a generic warning. Conversely, 26 ERA5-Land-only variables (`snow_cover`,
-  `total_evaporation`, the `evaporation_from_*` and `*_hourly` fields) were rejected despite
-  working. Requests are now checked up front with an error naming the configuration that would
-  work, and near-misses suggest the intended variable.
-- New `pressurepath_variable_available()` lists the variables a given `source` and `era5_dataset`
-  can return.
-- **The ARCO backend now retrieves 20 variables for `era5_dataset = "single-levels"` and 16 for
-  `"land"`**, up from surface pressure alone, using the same variable names as the hosted API.
-  ECMWF splits ERA5-Land across six zarr stores grouped by theme; `era5_arco_store_table()` maps
-  each variable to its store and GRIB short name, so `variable = "u_component_of_wind_10m"` reads
-  the same whichever `source` is used. `era5_dataset = "both"` accepts the 8 variables carried by
-  both products, since it reads ERA5-Land over land and ERA5 over water within one request.
-
-- **A `pressurepath` now records how it was made.** `era5_dataset`, `source` and `variable` are
-  stored as attributes, alongside the existing `id`, `preprocess`, `sd` and `type`. Altitude
-  differs by tens of metres between ERA5 products, so a saved path has to say which one produced
-  it — and every other object in the package (`tag_set_map()`, `graph_create()`,
-  `graph_set_movement()`, ...) already records its own arguments.
-- **Both backends now return identical column sets, in an identical order**: identifiers,
-  position, the requested variables in the order asked for, anything else the path carried, then
-  the derived columns. Previously ARCO appended `surface_pressure` last and put `date` first,
-  while the API used the request order, so switching `source` silently reshaped the result.
-  `surface_pressure` (and so `surface_pressure_norm`) is now attached only when requested, which
-  is what the API backend already did.
-
-- **Both halves of the wind pipeline now take the same variable names.** CDS accepts long names
-  (`"u_component_of_wind"`) but writes the NetCDF under GRIB short names (`"u"`), so
-  `tag_download_wind()` spoke one vocabulary and `edge_add_wind()` the other, with nothing
-  connecting them and neither validating its input. `edge_add_wind()` now defaults to and expects
-  the same names as `tag_download_wind()` and translates internally; the short names still work
-  but are deprecated. `tag_download_wind()` validates its `variable` against the sixteen ERA5
-  pressure-level fields, suggesting the right spelling when a short name or a typo is given.
-  The `var` column of `edge_add_wind()` consequently holds long names now.
+- [Default `era5_dataset` to `"single-levels"` for altitude retrieval](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4) in `pressurepath_create()`, `pressurepath_create_api()`, `pressurepath_create_arco()`, `geopressure_timeseries()` and `geopressure_timeseries_arco()`. Against 271 NOAA ISD stations, altitude mean absolute error drops from 55 m (`"land"`, `"both"`) to 9 m. `"land"` and `"both"` are now deprecated for `"altitude"` only; `geopressure_map()` keeps `"land"`.
+- [Validate `variable` against the resolved backend and ERA5 product](https://github.com/GeoPressure/GeoPressureR/commit/ea95d138), with an error naming a working configuration and suggestions for near-misses, instead of returning all-`NA` columns. Add `pressurepath_variable_available()` to list the variables each `source` and `era5_dataset` can return.
+- [Extend the ARCO backend to 20 ERA5 single-levels and 16 ERA5-Land variables](https://github.com/GeoPressure/GeoPressureR/commit/539a1efb), up from surface pressure alone, using the same variable names as GeoPressureAPI.
+- [Give both pressurepath backends one output contract](https://github.com/GeoPressure/GeoPressureR/commit/a3beca41): identical columns in identical order, `surface_pressure` attached only when requested, and `era5_dataset`, `source` and `variable` recorded as attributes.
+- [Use one variable vocabulary across the wind pipeline](https://github.com/GeoPressure/GeoPressureR/commit/e03919d6): `edge_add_wind()` now takes the same long names as `tag_download_wind()` (GRIB short names are deprecated) and its `var` column holds long names; `tag_download_wind()` validates `variable`.
 
 ## Minor
 
-- Surface the `warning` field returned by GeoPressureAPI instead of silently discarding it.
-- `pressurepath_finalize()` is the single place surface pressure becomes hPa. Both backends hand
-  it over in Pa, the unit every ERA5 source uses, and the `surface_pressure_pa` and `date_first`
-  flags are gone.
-- Document that `total_precipitation`, `surface_solar_radiation_downwards` and
-  `surface_thermal_radiation_downwards` are hourly increments from the API but accumulate from
-  00 UTC from ARCO when `era5_dataset = "land"`.
-- Document the achievable accuracy of pressure-derived altitude: a static per-site offset (median
-  3.7 m) plus temporal scatter (median SD 3.1 m), giving ~3 m for relative altitude changes at a
-  fixed location and ~10 m mean absolute error for absolute altitude.
+- [Record more analysis parameters in `param`](https://github.com/GeoPressure/GeoPressureR/commit/bcc2e5fd) for provenance (`geopressure_map()`, `geolight_map()`, `tag_label_auto()`, `tag_stap_daily()`, `graph_add_wind()`).
+- [Improve GeoLightViz labeling controls](https://github.com/GeoPressure/GeoPressureR/commit/247de63f) and [documentation](https://github.com/GeoPressure/GeoPressureR/commit/1275d30e).
+- [Surface the `warning` field returned by GeoPressureAPI](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4) instead of silently discarding it.
+- [Document the accuracy of pressure-derived altitude](https://github.com/GeoPressure/GeoPressureR/commit/a293fbc4): ~3 m for relative altitude changes at a fixed location and ~10 m mean absolute error for absolute altitude.
+- [Document that accumulated ERA5-Land variables differ between backends](https://github.com/GeoPressure/GeoPressureR/commit/539a1efb): hourly increments from the API, accumulated from 00 UTC from ARCO.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.1...v3.6.2>
 
 # GeoPressureR v3.6.1
 
