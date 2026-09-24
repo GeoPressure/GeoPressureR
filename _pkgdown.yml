@@ -73,8 +73,6 @@ reference:
     desc: Retrieving time series pressure at a given location.
     contents:
       - geopressure_timeseries
-      - geopressure_timeseries_api
-      - geopressure_timeseries_arco
   - title: GeoLight
     desc: Geopositioning based on light data.
     contents:
