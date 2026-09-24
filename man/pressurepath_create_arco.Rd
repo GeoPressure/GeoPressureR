@@ -9,7 +9,7 @@ pressurepath_create_arco(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "single-levels",
+  era5_dataset = "both",
   preprocess = FALSE,
   quiet = FALSE,
   debug = FALSE
@@ -28,9 +28,9 @@ depends on both \code{source} and \code{era5_dataset} — see \code{\link[=press
 \item{solar_dep}{Solar depression angle used to compute sunrise and sunset, or \code{NULL} to skip
 this computation.}
 
-\item{era5_dataset}{ERA5 product: \code{"single-levels"} (default), \code{"land"}, or \code{"both"} to use
-ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever \code{variable} includes
-\code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
+\item{era5_dataset}{ERA5 product: \code{"both"} (default) to use ERA5-Land over land and global ERA5
+elsewhere, \code{"land"}, or \code{"single-levels"}. Prefer \code{"single-levels"} whenever \code{variable}
+includes \code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
 
 \item{preprocess}{Whether to preprocess pressure with \code{\link[=geopressure_map_preprocess]{geopressure_map_preprocess()}}.}
 

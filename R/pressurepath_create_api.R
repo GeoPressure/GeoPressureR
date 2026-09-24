@@ -12,7 +12,7 @@ pressurepath_create_api <- function(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "single-levels",
+  era5_dataset = "both",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -38,7 +38,7 @@ pressurepath_create_api_impl <- function(
   pressurepath,
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "single-levels",
+  era5_dataset = "both",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -46,9 +46,8 @@ pressurepath_create_api_impl <- function(
 ) {
   era5_dataset <- match.arg(
     era5_dataset,
-    choices = c("single-levels", "land", "both")
+    choices = c("both", "land", "single-levels")
   )
-  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
   # Validate against what this ERA5 product actually carries. ERA5-Land has 70 bands against 292
   # for single levels, so the allowed set is not the same for every value of `era5_dataset`.

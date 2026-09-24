@@ -12,7 +12,7 @@ geopressure_timeseries_arco(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("land", "single-levels")
 )
 }
 \arguments{
@@ -29,9 +29,9 @@ column in hPa. Additional columns are retained.}
 
 \item{debug}{Logical to display request details.}
 
-\item{era5_dataset}{ERA5 product used by ARCO: \code{"single-levels"} (default) at 0.25 degree
-resolution or \code{"land"} at 0.1 degree resolution. Keep the default when \code{pressure} is supplied,
-because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.
+\item{era5_dataset}{ERA5 product used by ARCO: \code{"land"} (default) at 0.1 degree resolution or
+\code{"single-levels"} at 0.25 degree resolution. Prefer \code{"single-levels"} when \code{pressure} is
+supplied, because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.
 GeoPressureAPI uses its own configuration.}
 }
 \value{

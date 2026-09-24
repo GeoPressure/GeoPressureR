@@ -13,7 +13,7 @@ geopressure_timeseries(
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api"),
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("land", "single-levels")
 )
 }
 \arguments{
@@ -32,9 +32,9 @@ column in hPa. Additional columns are retained.}
 
 \item{source}{Data source: \code{"auto"}, \code{"arco"}, or \code{"api"}.}
 
-\item{era5_dataset}{ERA5 product used by ARCO: \code{"single-levels"} (default) at 0.25 degree
-resolution or \code{"land"} at 0.1 degree resolution. Keep the default when \code{pressure} is supplied,
-because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.
+\item{era5_dataset}{ERA5 product used by ARCO: \code{"land"} (default) at 0.1 degree resolution or
+\code{"single-levels"} at 0.25 degree resolution. Prefer \code{"single-levels"} when \code{pressure} is
+supplied, because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.
 GeoPressureAPI uses its own configuration.}
 }
 \value{
@@ -91,7 +91,7 @@ metres above mean sea level.
 
 \section{Choosing \code{era5_dataset}}{
 
-\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.} It is the default.
+\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.}
 
 ERA5-Land's \code{surface_pressure} is not the exact hydrostatic image of the orography ERA5-Land
 publishes as \code{geopotential} — the two disagree by up to ~10 hPa in steep terrain. The
@@ -110,11 +110,9 @@ own, so it carries no independent information about absolute altitude. Substitut
 orography implied by its own surface pressure removes the error exactly and reproduces
 \code{"single-levels"} to 0.1 m.
 
-\code{"land"} and \code{"both"} are retained for backward compatibility and are \strong{deprecated for
-altitude} since GeoPressureR 3.7.0; requesting \code{"altitude"} with either signals a deprecation
-warning. They remain fully supported and appropriate for retrieving other variables at 0.1
-degree resolution, and \code{\link[=geopressure_map]{geopressure_map()}} still defaults to \code{"land"} because its pressure
-mismatch is differential and unaffected.
+\code{"land"} and \code{"both"} remain the defaults for backward compatibility. They are appropriate for
+retrieving other variables at 0.1 degree resolution, and for \code{\link[=geopressure_map]{geopressure_map()}}, whose
+pressure mismatch is differential and unaffected.
 }
 
 \section{Accuracy}{

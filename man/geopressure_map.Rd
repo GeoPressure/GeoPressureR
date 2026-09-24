@@ -73,7 +73,7 @@ number of workers to the number of \code{stapelev} to query.}
 
 \item{era5_dataset}{ERA5 product: \code{"land"} (default) at 0.1 degree resolution,
 \code{"single-levels"} at 0.25 degree resolution, or \code{"both"} to use ERA5-Land over land and
-global ERA5 elsewhere. Unlike \code{\link[=pressurepath_create]{pressurepath_create()}}, \code{"land"} is the right default here:
+global ERA5 elsewhere. Unlike altitude in \code{\link[=pressurepath_create]{pressurepath_create()}}, \code{"land"} is right here:
 the pressure mismatch is differential (the mean error is removed at each stationary period),
 so the static ERA5-Land bias cancels and its finer resolution is what the map needs.}
 

@@ -41,9 +41,9 @@
 #'   column in hPa. Additional columns are retained.
 #' @param start_time,end_time Start and end of the requested interval when `pressure` is `NULL`.
 #' @param source Data source: `"auto"`, `"arco"`, or `"api"`.
-#' @param era5_dataset ERA5 product used by ARCO: `"single-levels"` (default) at 0.25 degree
-#'   resolution or `"land"` at 0.1 degree resolution. Keep the default when `pressure` is supplied,
-#'   because `altitude` is then computed; see the *Choosing `era5_dataset`* section.
+#' @param era5_dataset ERA5 product used by ARCO: `"land"` (default) at 0.1 degree resolution or
+#'   `"single-levels"` at 0.25 degree resolution. Prefer `"single-levels"` when `pressure` is
+#'   supplied, because `altitude` is then computed; see the *Choosing `era5_dataset`* section.
 #'   GeoPressureAPI uses its own configuration.
 #' @param quiet Logical to suppress progress messages.
 #' @param debug Logical to display request details.
@@ -71,7 +71,7 @@ geopressure_timeseries <- function(
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api"),
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("land", "single-levels")
 ) {
   input <- geopressure_timeseries_prepare(
     lat,

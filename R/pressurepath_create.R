@@ -40,9 +40,9 @@
 #'   depends on both `source` and `era5_dataset` — see [pressurepath_variable_available()].
 #' @param solar_dep Solar depression angle used to compute sunrise and sunset, or `NULL` to skip
 #'   this computation.
-#' @param era5_dataset ERA5 product: `"single-levels"` (default), `"land"`, or `"both"` to use
-#'   ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever `variable` includes
-#'   `"altitude"`; see the *Choosing `era5_dataset`* section.
+#' @param era5_dataset ERA5 product: `"both"` (default) to use ERA5-Land over land and global ERA5
+#'   elsewhere, `"land"`, or `"single-levels"`. Prefer `"single-levels"` whenever `variable`
+#'   includes `"altitude"`; see the *Choosing `era5_dataset`* section.
 #' @param preprocess Whether to preprocess pressure with [geopressure_map_preprocess()].
 #' @param workers Number of parallel GeoPressureAPI requests, or `"auto"`.
 #' @param source Data source: `"auto"`, `"arco"`, or `"api"`.
@@ -62,14 +62,14 @@ pressurepath_create <- function(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "single-levels",
+  era5_dataset = "both",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api")
 ) {
-  era5_dataset <- match.arg(era5_dataset, c("single-levels", "land", "both"))
+  era5_dataset <- match.arg(era5_dataset, c("both", "land", "single-levels"))
   assertthat::assert_that(is.logical(quiet))
   source <- ecmwf_select_source(source, quiet)
 

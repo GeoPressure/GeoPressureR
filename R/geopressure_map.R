@@ -113,7 +113,7 @@
 #' @param debug logical to display additional information to debug a request
 #' @param era5_dataset ERA5 product: `"land"` (default) at 0.1 degree resolution,
 #'   `"single-levels"` at 0.25 degree resolution, or `"both"` to use ERA5-Land over land and
-#'   global ERA5 elsewhere. Unlike [pressurepath_create()], `"land"` is the right default here:
+#'   global ERA5 elsewhere. Unlike altitude in [pressurepath_create()], `"land"` is right here:
 #'   the pressure mismatch is differential (the mean error is removed at each stationary period),
 #'   so the static ERA5-Land bias cancels and its finer resolution is what the map needs.
 #'
