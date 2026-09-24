@@ -141,6 +141,7 @@ reference:
       - pressurepath_create
       - pressurepath_create_api
       - pressurepath_create_arco
+      - pressurepath_variable_available
       - plot_pressurepath
       - path2elevation
   - title: GeoPressureTemplate
