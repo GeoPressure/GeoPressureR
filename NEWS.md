@@ -1,3 +1,12 @@
+# GeoPressureR v3.7.0
+
+## Main
+
+- [Default `era5_dataset` to `"single-levels"` for altitude retrieval](https://github.com/GeoPressure/GeoPressureR/commit/0cba60be) in `pressurepath_create()`, `pressurepath_create_api()`, `pressurepath_create_arco()`, `geopressure_timeseries()` and `geopressure_timeseries_arco()`. Scripts relying on the previous default (`"both"` or `"land"`) will get different altitudes, by tens of metres in steep terrain: against 271 NOAA ISD stations, altitude mean absolute error drops from 55 m to 9 m.
+- [Deprecate `era5_dataset = "land"` and `"both"` for altitude](https://github.com/GeoPressure/GeoPressureR/commit/0cba60be): requesting `"altitude"` with either now signals a lifecycle deprecation warning. Both remain fully supported for other variables, and `geopressure_map()` keeps `"land"` as its default because its pressure mismatch is differential.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.2...v3.7.0>
+
 # GeoPressureR v3.6.2
 
 ## Main
