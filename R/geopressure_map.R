@@ -116,7 +116,6 @@
 #'   global ERA5 elsewhere. Unlike [pressurepath_create()], `"land"` is the right default here:
 #'   the pressure mismatch is differential (the mean error is removed at each stationary period),
 #'   so the static ERA5-Land bias cancels and its finer resolution is what the map needs.
-#' @inheritParams pressurepath_create
 #'
 #' @return Returns the same GeoPressureR `tag` object including the GeoPressureR `map` object
 #' `tag$map_pressure` containing the likelihood map of each stationary period. See `map_create()`

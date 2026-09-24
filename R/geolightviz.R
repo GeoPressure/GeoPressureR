@@ -1,4 +1,20 @@
-#' Start the GeoLightViz shiny app
+#' Start the GeoLightViz Shiny app
+#'
+#' GeoLightViz is an interactive tool for reviewing twilight observations and
+#' preparing light-based geolocation analyses. It displays the light record and
+#' detected twilight events so that observations affected by shading or other
+#' light obstructions can be marked as discarded. It can also be used to define
+#' or edit stationary periods from twilight patterns, which is useful when
+#' pressure or acceleration data are unavailable. When a map has been defined
+#' with [tag_set_map()] and stationary periods are available, the app links the
+#' light plot to a map of twilight likelihoods. You can explore candidate
+#' locations and tune twilight calibration and likelihood aggregation settings
+#' with visual feedback. Twilight labels and stationary periods can be saved or
+#' exported from the app.
+#'
+#' See the [GeoLightViz chapter of the GeoPressureManual
+#' ](https://geopressure.org/GeoPressureManual/geolightviz.html) for an overview
+#' of the app's controls and workflow.
 #'
 #' Basemap layers are configured with [map_add_tiles()].
 #'
@@ -14,6 +30,9 @@
 #'
 #' @return When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
 #' When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
+#'
+#' @seealso [GeoPressureManual | GeoLightViz
+#' ](https://geopressure.org/GeoPressureManual/geolightviz.html)
 #'
 #' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
