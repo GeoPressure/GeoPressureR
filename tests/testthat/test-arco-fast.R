@@ -72,3 +72,32 @@ test_that("ARCO pressure path assembles requested variables in memory", {
   expect_equal(attr(out, "source"), "arco")
   expect_equal(attr(out, "variable"), c("altitude", "surface_pressure", "temperature_2m"))
 })
+
+test_that("ARCO point reader groups cells by physical chunk", {
+  skip_if_not_installed("Rarr")
+  reads <- 0L
+  local_mocked_bindings(
+    era5_arco_client = function(...) list(),
+    .package = "GeoPressureR"
+  )
+  local_mocked_bindings(
+    read_zarr_array = function(array, index, s3_client) {
+      reads <<- reads + 1L
+      base::array(
+        rep(index[[3]], each = length(index[[1]]) * length(index[[2]])),
+        dim = lengths(index)
+      )
+    },
+    .package = "Rarr"
+  )
+
+  read_points <- get("era5_arco_read_points", asNamespace("GeoPressureR"))
+  date <- rep(as.POSIXct("2020-01-01 00:00:00", tz = "UTC"), 3)
+  out <- read_points("surface_pressure", "single-levels", c(16, 16.25, 17), rep(46, 3), date, FALSE)
+  expect_equal(out, c(785, 786, 789))
+  expect_equal(reads, 2L)
+
+  out <- read_points("surface_pressure", "land", c(-180, -179.9), rep(46, 2), date[1:2], FALSE)
+  expect_equal(out, c(3600, 1))
+  expect_equal(reads, 4L)
+})
