@@ -13,7 +13,7 @@
 #' metres above mean sea level.
 #'
 #' @section Choosing `era5_dataset`:
-#' **Use `era5_dataset = "single-levels"` whenever altitude is computed.**
+#' **Use `era5_dataset = "single-levels"` whenever altitude is computed.** It is the default.
 #'
 #' ERA5-Land's `surface_pressure` is not the exact hydrostatic image of the orography ERA5-Land
 #' publishes as `geopotential` — the two disagree by up to ~10 hPa in steep terrain. The
@@ -32,9 +32,11 @@
 #' orography implied by its own surface pressure removes the error exactly and reproduces
 #' `"single-levels"` to 0.1 m.
 #'
-#' `"land"` and `"both"` remain the defaults for backward compatibility. They are appropriate for
-#' retrieving other variables at 0.1 degree resolution, and for [geopressure_map()], whose
-#' pressure mismatch is differential and unaffected.
+#' `"land"` and `"both"` are retained for backward compatibility and are **deprecated for
+#' altitude** since GeoPressureR 3.7.0; requesting `"altitude"` with either signals a deprecation
+#' warning. They remain fully supported and appropriate for retrieving other variables at 0.1
+#' degree resolution, and [geopressure_map()] still defaults to `"land"` because its pressure
+#' mismatch is differential and unaffected.
 #'
 #' @section Accuracy:
 #' With `era5_dataset = "single-levels"` the altitude error separates into two parts that behave

@@ -8,7 +8,7 @@ geopressure_timeseries_arco <- function(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("land", "single-levels")
+  era5_dataset = c("single-levels", "land")
 ) {
   geopressure_timeseries(
     lat = lat,
@@ -31,9 +31,10 @@ geopressure_timeseries_arco_impl <- function(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("land", "single-levels")
+  era5_dataset = c("single-levels", "land")
 ) {
   era5_dataset <- match.arg(era5_dataset)
+  era5_dataset_deprecate_altitude(era5_dataset, !is.null(pressure))
   dataset_name <- if (era5_dataset == "land") "ERA5-Land" else "ERA5 single levels"
   resolution <- if (era5_dataset == "land") 0.1 else 0.25
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
