@@ -1,3 +1,17 @@
+# GeoPressureR v3.6.3
+
+## Main
+
+- [Fix wind movement models in `geopressuretemplate()` by keeping the recorded `pressure_source` value out of the wind function arguments](https://github.com/GeoPressure/GeoPressureR/commit/14c569441a1e4d4b065f355c32c57bfdc2003c5d).
+- [Validate graph outputs and simulation count after applying direct template parameter overrides](https://github.com/GeoPressure/GeoPressureR/commit/813a1196ac896d02195200c1002e0ea202f3f3e1).
+- [Use `path_simulation` when creating simulation pressure paths in `geopressuretemplate()`](https://github.com/GeoPressure/GeoPressureR/commit/4a33dd86a8eb7727289ae660ccf9e306fe658bfb).
+
+## Minor
+
+- Add fast, offline regression tests for [template parameter handling](https://github.com/GeoPressure/GeoPressureR/commit/813a1196ac896d02195200c1002e0ea202f3f3e1), [output selection and ARCO processing](https://github.com/GeoPressure/GeoPressureR/commit/4a33dd86a8eb7727289ae660ccf9e306fe658bfb), and [ARCO chunk reuse](https://github.com/GeoPressure/GeoPressureR/commit/50703a5bab9fc9538278f2341b3188705421c2a3).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.2...v3.6.3>
+
 # GeoPressureR v3.6.2
 
 ## Main
