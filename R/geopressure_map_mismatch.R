@@ -170,7 +170,6 @@ geopressure_map_mismatch <- function(
     )
     req_i <- httr2::request(url_i) |>
       httr2::req_timeout(timeout) |>
-      httr2::req_retry(max_tries = 3) |>
       httr2::req_error(body = function(resp) {
         error_body <- trimws(httr2::resp_body_string(resp))
         if (debug) {
