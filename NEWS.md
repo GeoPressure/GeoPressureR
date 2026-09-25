@@ -8,10 +8,7 @@
 
 ## Minor
 
-- [Cover wind parameter forwarding through the complete template entry point with a regression test](https://github.com/GeoPressure/GeoPressureR/commit/14c569441a1e4d4b065f355c32c57bfdc2003c5d).
-- [Check every template parameter block against the arguments accepted by its target function](https://github.com/GeoPressure/GeoPressureR/commit/813a1196ac896d02195200c1002e0ea202f3f3e1).
-- [Add fast in-memory tests for template output dispatch and ARCO time-series and pressure-path processing](https://github.com/GeoPressure/GeoPressureR/commit/4a33dd86a8eb7727289ae660ccf9e306fe658bfb).
-- [Test ARCO point indexing and reuse of physical array chunks](https://github.com/GeoPressure/GeoPressureR/commit/50703a5bab9fc9538278f2341b3188705421c2a3).
+- Add fast, offline regression tests for [template parameter handling](https://github.com/GeoPressure/GeoPressureR/commit/813a1196ac896d02195200c1002e0ea202f3f3e1), [output selection and ARCO processing](https://github.com/GeoPressure/GeoPressureR/commit/4a33dd86a8eb7727289ae660ccf9e306fe658bfb), and [ARCO chunk reuse](https://github.com/GeoPressure/GeoPressureR/commit/50703a5bab9fc9538278f2341b3188705421c2a3).
 
 **Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.2...v3.6.3>
 
