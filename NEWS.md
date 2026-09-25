@@ -1,3 +1,15 @@
+# GeoPressureR v3.6.3
+
+## Main
+
+- [Fix wind movement models in `geopressuretemplate()` by keeping the recorded `pressure_source` value out of the wind function arguments](https://github.com/GeoPressure/GeoPressureR/commit/14c569441a1e4d4b065f355c32c57bfdc2003c5d).
+
+## Minor
+
+- [Cover wind parameter forwarding through the complete template entry point with a regression test](https://github.com/GeoPressure/GeoPressureR/commit/14c569441a1e4d4b065f355c32c57bfdc2003c5d).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.2...v3.6.3>
+
 # GeoPressureR v3.6.2
 
 ## Main
