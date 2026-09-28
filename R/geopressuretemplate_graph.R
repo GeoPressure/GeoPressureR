@@ -74,7 +74,7 @@ geopressuretemplate_graph <- function(
               pressure = tag$pressure,
               quiet = quiet
             ),
-            config$graph_add_wind
+            config$graph_add_wind[names(config$graph_add_wind) != "pressure_source"]
           )
         )
 

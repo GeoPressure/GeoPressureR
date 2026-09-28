@@ -49,7 +49,7 @@ geopressuretemplate_config <- function(
 
     # Validate that the outputs include at least one of the possible output types
     possible_outputs <- c("marginal", "most_likely", "simulation")
-    if (!any(possible_outputs %in% config$geopressuretemplate$outputs)) {
+    if (!any(possible_outputs %in% c$geopressuretemplate$outputs)) {
       cli::cli_abort(c(
         x = "{.var outputs} needs to be provived and contains at least one of
         {.val {possible_outputs}}",
@@ -60,8 +60,8 @@ geopressuretemplate_config <- function(
     # Validate that `nj` is specified if simulation is requested in outputs
     if (
       "simulation" %in%
-        config$geopressuretemplate$outputs &&
-        config$graph_simulation$nj <= 0
+        c$geopressuretemplate$outputs &&
+        c$graph_simulation$nj <= 0
     ) {
       cli::cli_abort(c(
         x = "{.var nj} is required with {.val simulation} in {.var outputs}.",
