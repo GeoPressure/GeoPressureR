@@ -80,7 +80,7 @@ geopressuretemplate_pressurepath <- function(
         config$geopressuretemplate$pressurepath &&
         "path_simulation" %in% save_list
     ) {
-      path_simulation <- get("path_tag")
+      path_simulation <- get("path_simulation")
       pressurepath_simulation <- do.call(
         pressurepath_create,
         c(
