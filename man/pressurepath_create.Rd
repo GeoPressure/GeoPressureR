@@ -128,10 +128,10 @@ When altitude is produced, GeoPressureR uses the same barometric relation as
 Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_\mathrm{ERA5}},
 and \eqn{z_\mathrm{ERA5}}
 are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
-is obtained from ERA5 surface geopotential divided by standard gravity. For pressure paths,
+is obtained from ERA5 surface geopotential divided by standard gravity.
 \code{altitude_formula = "virtual"} (default) uses virtual temperature computed from ERA5 2 m
 dewpoint and a lapse rate varying with season and latitude. \code{altitude_formula = "standard"}
-uses 2 m temperature and \eqn{L_b=-0.0065} K/m, as does \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}.
+uses 2 m temperature and \eqn{L_b=-0.0065} K/m.
 The virtual formula matches \href{https://github.com/GeoPressure/GeoPressureAPI/pull/32}{GeoPressureAPI PR #32},
 based on the \href{https://github.com/GeoPressure/altitude-validation}{altitude validation}.
 The constants are the universal gas constant

@@ -16,7 +16,7 @@ pressure_to_altitude <- function(
     temperature <- temperature *
       (1 + 0.608 * 0.622 * vapour_pressure / (surface_pressure - 0.378 * vapour_pressure))
     date <- as.POSIXlt(date, tz = "UTC")$yday + 1
-    date <- ifelse(lat < 0, (date + 182) %% 365 + 1, date)
+    date <- ifelse(rep_len(lat < 0, max(length(lat), length(date))), (date + 182) %% 365 + 1, date)
     lat <- abs(lat) / 90
     lapse <- pmin(
       pmax(

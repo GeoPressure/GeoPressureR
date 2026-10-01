@@ -8,7 +8,8 @@ geopressure_timeseries_arco <- function(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = "virtual"
 ) {
   geopressure_timeseries(
     lat = lat,
@@ -19,7 +20,8 @@ geopressure_timeseries_arco <- function(
     source = "arco",
     quiet = quiet,
     debug = debug,
-    era5_dataset = era5_dataset
+    era5_dataset = era5_dataset,
+    altitude_formula = altitude_formula
   )
 }
 
@@ -31,7 +33,8 @@ geopressure_timeseries_arco_impl <- function(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = "virtual"
 ) {
   era5_dataset <- match.arg(era5_dataset)
   dataset_name <- if (era5_dataset == "land") "ERA5-Land" else "ERA5 single levels"
@@ -146,13 +149,27 @@ geopressure_timeseries_arco_impl <- function(
       arco_client = arco_client,
       debug = debug
     )
+    dewpoint <- if (altitude_formula == "virtual") {
+      era5_arco_read(
+        variable = "dewpoint_temperature_2m",
+        era5_dataset = era5_dataset,
+        lon = query_lon,
+        lat = query_lat,
+        date = date,
+        arco_client = arco_client,
+        debug = debug
+      )[nearest_time]
+    }
     elevation <- era5_surface_elevation(query_lon, query_lat, era5_dataset, quiet)
     out$altitude <- pressure_to_altitude(
       pressure$value * 100,
       surface_pressure[nearest_time],
       temperature[nearest_time],
       elevation,
-      altitude_formula = "standard"
+      dewpoint = dewpoint,
+      lat = lat,
+      date = requested_date,
+      altitude_formula = altitude_formula
     )
     out <- out[c("date", "surface_pressure", "altitude", "lat", "lon")]
 

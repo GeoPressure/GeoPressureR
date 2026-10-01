@@ -16,7 +16,8 @@ geopressure_timeseries(
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api"),
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = c("virtual", "standard")
 )
 
 geopressure_timeseries_api(
@@ -26,7 +27,9 @@ geopressure_timeseries_api(
   start_time = NULL,
   end_time = NULL,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = "virtual"
 )
 
 geopressure_timeseries_arco(
@@ -37,7 +40,8 @@ geopressure_timeseries_arco(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("single-levels", "land")
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = "virtual"
 )
 }
 \arguments{
@@ -56,10 +60,14 @@ column in hPa. Additional columns are retained.}
 
 \item{source}{Data source: \code{"auto"}, \code{"arco"}, or \code{"api"}.}
 
-\item{era5_dataset}{ERA5 product used by ARCO: \code{"single-levels"} (default) at 0.25 degree
+\item{era5_dataset}{ERA5 product: \code{"single-levels"} (default) at 0.25 degree
 resolution or \code{"land"} at 0.1 degree resolution. Keep the default when \code{pressure} is supplied,
-because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.
-GeoPressureAPI uses its own configuration.}
+because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.}
+
+\item{altitude_formula}{Altitude formula: \code{"virtual"} (default) uses 2 m virtual temperature
+and a lapse rate varying with season and latitude, based on the
+\href{https://github.com/GeoPressure/altitude-validation}{altitude validation}. \code{"standard"} uses
+2 m temperature and -6.5 K/km to reproduce previous results.}
 }
 \value{
 A data.frame containing \code{date}, \code{surface_pressure}, \code{lat}, and \code{lon}. With \code{pressure},
@@ -79,7 +87,7 @@ generally faster for a long time series at one location, supports ERA5-Land and 
 and requires an ECMWF API key plus the optional \code{Rarr} and \code{ecmwfr} packages.
 
 \code{source = "api"} asks the hosted GeoPressureAPI to prepare the data. It needs no ECMWF key or
-\code{Rarr} installation, but depends on that service and supports its fixed ERA5 configuration.
+\code{Rarr} installation, but depends on that service.
 
 The default, \code{source = "auto"}, uses ARCO when a key stored by \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}} is
 available and GeoPressureAPI otherwise. Use \code{geopressure_timeseries_arco()} or
@@ -92,8 +100,8 @@ With ARCO, \code{era5_dataset = "single-levels"} (the default) uses global ERA5 
 and retains locations over water. \code{era5_dataset = "land"} uses ERA5-Land on a 0.1 degree grid;
 it has finer spatial resolution but is masked over oceans, so ocean locations are moved to the
 closest land cell, and it must not be used when \code{pressure} is supplied because \code{altitude} is
-then computed from it (see the \emph{Choosing \code{era5_dataset}} section). GeoPressureAPI chooses its
-ERA5 data internally and moves ocean locations onshore.
+then computed from it (see the \emph{Choosing \code{era5_dataset}} section). GeoPressureAPI uses the same
+dataset choice and moves ocean locations onshore only with ERA5-Land.
 
 Without \code{pressure}, the requested interval is returned hourly. With ARCO and \code{pressure}, each tag
 time is matched to its closest ERA5 hour and restored after matching; no temporal interpolation
@@ -109,10 +117,10 @@ When altitude is produced, GeoPressureR uses the same barometric relation as
 Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_\mathrm{ERA5}},
 and \eqn{z_\mathrm{ERA5}}
 are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
-is obtained from ERA5 surface geopotential divided by standard gravity. For pressure paths,
+is obtained from ERA5 surface geopotential divided by standard gravity.
 \code{altitude_formula = "virtual"} (default) uses virtual temperature computed from ERA5 2 m
 dewpoint and a lapse rate varying with season and latitude. \code{altitude_formula = "standard"}
-uses 2 m temperature and \eqn{L_b=-0.0065} K/m, as does \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}.
+uses 2 m temperature and \eqn{L_b=-0.0065} K/m.
 The virtual formula matches \href{https://github.com/GeoPressure/GeoPressureAPI/pull/32}{GeoPressureAPI PR #32},
 based on the \href{https://github.com/GeoPressure/altitude-validation}{altitude validation}.
 The constants are the universal gas constant

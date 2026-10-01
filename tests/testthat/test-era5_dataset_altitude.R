@@ -12,7 +12,11 @@ test_that("altitude-producing functions default to single-levels", {
 map_request_dataset <- function(...) {
   local_mocked_bindings(
     req_perform = function(req, ...) {
-      rlang::abort(class = "map_request", dataset = req$body$data$dataset)
+      cli::cli_abort(
+        "Captured map request.",
+        class = "map_request",
+        dataset = req$body$data$dataset
+      )
     },
     .package = "httr2"
   )
