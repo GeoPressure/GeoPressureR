@@ -44,9 +44,9 @@ geopressure_timeseries_arco_impl <- function(
 
   if (!is.null(pressure)) {
     requested_date <- as.POSIXct(pressure$date, tz = "UTC")
-    first_hour <- ceiling(min(as.numeric(requested_date)) / 3600)
+    # Nearest hour, as GeoPressureAPI's join picks it.
     requested_hour <- as.POSIXct(
-      pmax(first_hour, ceiling(as.numeric(requested_date) / 3600 - 0.5)) * 3600,
+      ceiling(as.numeric(requested_date) / 3600 - 0.5) * 3600,
       origin = "1970-01-01",
       tz = "UTC"
     )

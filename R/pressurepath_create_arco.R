@@ -65,9 +65,9 @@ pressurepath_create_arco_impl <- function(
     floor(pressurepath$lat / resolution + 0.5) * resolution
   )
   requested_date <- as.POSIXct(pressurepath$date, tz = "UTC")
-  first_hour <- ceiling(min(as.numeric(requested_date)) / 3600)
+  # Nearest hour, as GeoPressureAPI's join picks it.
   requested_hour <- as.POSIXct(
-    pmax(first_hour, ceiling(as.numeric(requested_date) / 3600 - 0.5)) * 3600,
+    ceiling(as.numeric(requested_date) / 3600 - 0.5) * 3600,
     origin = "1970-01-01",
     tz = "UTC"
   )
