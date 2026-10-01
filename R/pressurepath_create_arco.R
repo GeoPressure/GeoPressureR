@@ -8,7 +8,8 @@ pressurepath_create_arco <- function(
   era5_dataset = "single-levels",
   preprocess = FALSE,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 ) {
   pressurepath_create(
     tag = tag,
@@ -19,7 +20,8 @@ pressurepath_create_arco <- function(
     preprocess = preprocess,
     source = "arco",
     quiet = quiet,
-    debug = debug
+    debug = debug,
+    altitude_formula = altitude_formula
   )
 }
 
@@ -32,7 +34,8 @@ pressurepath_create_arco_impl <- function(
   era5_dataset = c("single-levels", "land", "both"),
   preprocess = FALSE,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 ) {
   era5_dataset <- match.arg(era5_dataset)
   pressurepath_variable_check(variable, "arco", era5_dataset)
@@ -132,7 +135,11 @@ pressurepath_create_arco_impl <- function(
       pressurepath$pressure_tag * 100,
       surface_pressure,
       temperature,
-      elevation
+      elevation,
+      dewpoint = if (altitude_formula == "virtual") read_variable("dewpoint_temperature_2m"),
+      lat = pressurepath$lat,
+      date = requested_date,
+      altitude_formula = altitude_formula
     )
   }
   # Everything else the caller asked for. `surface_pressure` is already in hand and `altitude` is

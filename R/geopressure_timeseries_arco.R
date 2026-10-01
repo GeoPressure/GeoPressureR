@@ -151,7 +151,8 @@ geopressure_timeseries_arco_impl <- function(
       pressure$value * 100,
       surface_pressure[nearest_time],
       temperature[nearest_time],
-      elevation
+      elevation,
+      altitude_formula = "standard"
     )
     out <- out[c("date", "surface_pressure", "altitude", "lat", "lon")]
 

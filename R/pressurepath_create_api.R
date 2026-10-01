@@ -9,7 +9,8 @@ pressurepath_create_api <- function(
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 ) {
   pressurepath_create(
     tag = tag,
@@ -21,7 +22,8 @@ pressurepath_create_api <- function(
     workers = workers,
     source = "api",
     quiet = quiet,
-    debug = debug
+    debug = debug,
+    altitude_formula = altitude_formula
   )
 }
 
@@ -35,7 +37,8 @@ pressurepath_create_api_impl <- function(
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 ) {
   era5_dataset <- match.arg(
     era5_dataset,
@@ -61,6 +64,7 @@ pressurepath_create_api_impl <- function(
     time = as.numeric(as.POSIXct(pressurepath$date)),
     variable = variable,
     dataset = era5_dataset,
+    altitudeFormula = altitude_formula,
     pressure = pressurepath$pressure_tag * 100,
     workers = workers
   )

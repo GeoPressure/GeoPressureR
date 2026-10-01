@@ -17,7 +17,8 @@ pressurepath_create(
   workers = "auto",
   quiet = FALSE,
   debug = FALSE,
-  source = c("auto", "arco", "api")
+  source = c("auto", "arco", "api"),
+  altitude_formula = c("virtual", "standard")
 )
 
 pressurepath_create_api(
@@ -29,7 +30,8 @@ pressurepath_create_api(
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 )
 
 pressurepath_create_arco(
@@ -40,7 +42,8 @@ pressurepath_create_arco(
   era5_dataset = "single-levels",
   preprocess = FALSE,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 )
 }
 \arguments{
@@ -69,6 +72,12 @@ ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever \code{v
 \item{debug}{Logical to display request details.}
 
 \item{source}{Data source: \code{"auto"}, \code{"arco"}, or \code{"api"}.}
+
+\item{altitude_formula}{Altitude formula: \code{"virtual"} (default) uses 2 m virtual temperature
+and a lapse rate varying with season and latitude, matching
+\href{https://github.com/GeoPressure/GeoPressureAPI/pull/32}{GeoPressureAPI PR #32}, based on the
+\href{https://github.com/GeoPressure/altitude-validation}{altitude validation}. \code{"standard"} uses
+2 m temperature and a lapse rate of -6.5 K/km to reproduce previous results.}
 }
 \value{
 A \code{pressurepath} data.frame containing tag pressure, coordinates, requested ERA5
@@ -119,8 +128,13 @@ When altitude is produced, GeoPressureR uses the same barometric relation as
 Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_\mathrm{ERA5}},
 and \eqn{z_\mathrm{ERA5}}
 are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
-is obtained from ERA5 surface geopotential divided by standard gravity. The constants are the
-standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
+is obtained from ERA5 surface geopotential divided by standard gravity. For pressure paths,
+\code{altitude_formula = "virtual"} (default) uses virtual temperature computed from ERA5 2 m
+dewpoint and a lapse rate varying with season and latitude. \code{altitude_formula = "standard"}
+uses 2 m temperature and \eqn{L_b=-0.0065} K/m, as does \code{\link[=geopressure_timeseries]{geopressure_timeseries()}}.
+The virtual formula matches \href{https://github.com/GeoPressure/GeoPressureAPI/pull/32}{GeoPressureAPI PR #32},
+based on the \href{https://github.com/GeoPressure/altitude-validation}{altitude validation}.
+The constants are the universal gas constant
 \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s², and molar mass of dry air
 \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
 metres above mean sea level.
