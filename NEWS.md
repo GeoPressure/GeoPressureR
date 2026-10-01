@@ -1,3 +1,17 @@
+# GeoPressureR v3.7.0
+
+## Main
+
+- [Default altitude retrieval to ERA5 `"single-levels"`](https://github.com/GeoPressure/GeoPressureR/commit/ee407f72264fdfbd21e36c2dc0605a7a08df3cc4) in `pressurepath_create()`, `pressurepath_create_api()`, `pressurepath_create_arco()`, `geopressure_timeseries()` and `geopressure_timeseries_arco()`, based on the [altitude validation findings](https://github.com/GeoPressure/altitude-validation). `"land"` and `"both"` remain supported without deprecation warnings. Scripts relying on the previous defaults should specify their dataset explicitly to preserve their results.
+- [Default pressure maps to ERA5 `"single-levels"`](https://github.com/GeoPressure/GeoPressureR/commit/a77ce90ed1770b61384908dedf0e690e5784fa4b) in `geopressure_map()` and `geopressure_map_mismatch()`. Explicit dataset overrides remain supported without deprecation warnings. `tag_set_map()` now defaults to `scale = 4` (0.25°) and warns for higher values, which interpolate ERA5 single-levels data ([#166](https://github.com/GeoPressure/GeoPressureR/issues/166)).
+
+## Minor
+
+- [Report why `geopressure_map_mismatch()` failed](https://github.com/GeoPressure/GeoPressureR/commit/fe260a7f67d49fc97c50bdacb93091d97ac8c0e9). When GeoPressureAPI returns no url for a stapelev, report the reason returned by Earth Engine instead of assuming ERA5 data are unavailable. A total failure still aborts and a partial failure still warns, naming the failing stapelev and the server's explanation.
+- [Match every measurement to its nearest ERA5 hour on the ARCO backends](https://github.com/GeoPressure/GeoPressureR/commit/7f46adbed9cbeafc3d4aa771f0cf4f02e2da3c64) of `pressurepath_create()` and `geopressure_timeseries()`, including the first. Measurements before the first full hour previously used the next hour, matching a GeoPressureAPI bug fixed in [GeoPressureAPI#31](https://github.com/GeoPressure/GeoPressureAPI/pull/31).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.3...v3.7.0>
+
 # GeoPressureR v3.6.3
 
 ## Main
