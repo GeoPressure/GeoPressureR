@@ -128,20 +128,31 @@ geopressure_map_mismatch <- function(
   urls[vapply(urls, is.null, logical(1))] <- NA
   urls <- unlist(urls)
   labels <- unlist(resp_json$data$labels)
+  # Reason reported by the API for each failed url. NULL on older API versions.
+  errors <- resp_json$data$errors
 
   # Check that the urls exist
-  if (all(is.na(urls))) {
-    cli::cli_abort(c(
-      x = "There was no urls returned for all stationary periods.",
-      i = "It is probably due to request(s) made for periods where no data are available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
-    ))
-  } else if (anyNA(urls)) {
-    cli::cli_warn(c(
-      "!" = "There was no urls returned for stationary periods {.val {labels[is.na(urls)]}}.",
-      i = "It is probably due to request(s) made for periods where no data are available. Note that ERA5 data is usually only available on GEE ~3-5 months after."
-    ))
-    labels <- labels[!is.na(urls)]
-    urls <- urls[!is.na(urls)]
+  if (anyNA(urls)) {
+    i_na <- which(is.na(urls))
+    reasons <- unique(unlist(errors[i_na]))
+    # cli interpolates these strings, and a server message may contain braces
+    reasons <- gsub("}", "}}", gsub("{", "{{", reasons, fixed = TRUE), fixed = TRUE)
+    names(reasons) <- rep(">", length(reasons))
+
+    msg <- c(
+      "!" = "No url returned for stapelev {.val {labels[i_na]}}.",
+      reasons,
+      "i" = "Earth Engine failed to compute these maps. A coarser {.arg scale} or a \\
+             lower {.arg max_sample} often helps."
+    )
+
+    if (all(is.na(urls))) {
+      cli::cli_abort(msg)
+    } else {
+      cli::cli_warn(msg)
+    }
+    labels <- labels[-i_na]
+    urls <- urls[-i_na]
   }
 
   # Perform the call in parallel
