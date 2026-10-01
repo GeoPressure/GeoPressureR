@@ -8,7 +8,7 @@ geopressure_map_mismatch <- function(
   thr_mask = 0.9,
   timeout = 300,
   workers = "auto",
-  era5_dataset = "land",
+  era5_dataset = "single-levels",
   compute_known = FALSE,
   keep_mask = TRUE,
   debug = FALSE,

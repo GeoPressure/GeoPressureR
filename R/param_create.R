@@ -61,7 +61,7 @@ param_create <- function(id, default = FALSE, ...) {
         thr_mask = formals(geopressure_map)$thr_mask,
         timeout = formals(geopressure_map)$timeout,
         workers = formals(geopressure_map)$workers,
-        era5_dataset = formals(geopressure_map)$era5_dataset,
+        era5_dataset = "single-levels",
         log_linear_pooling_weight = formals(
           geopressure_map
         )$log_linear_pooling_weight,
