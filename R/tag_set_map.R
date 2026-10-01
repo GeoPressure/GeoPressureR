@@ -23,7 +23,8 @@
 #' computed. Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param scale number of pixels per 1° latitude-longitude. For instance, `scale = 10` for a
 #' resolution of 0.1° (~10km) and `scale=4` for a resolution of 0.25° (~30km). To avoid
-#' interpolating the ERA5 data, the scale should be equal to or smaller than 10. Read more about
+#' interpolating the ERA5 single-levels data, the scale should be equal to or smaller than 4
+#' (the default in `tag_set_map()`). `tag_set_map()` warns for higher values. Read more about
 #' scale on the [Google earth Engine documentation
 #' ](https://developers.google.com/earth-engine/guides/scale).
 #' @param include_stap_id vector of `stap_id` defining which stationary period to model, that is,
@@ -71,7 +72,7 @@
 tag_set_map <- function(
   tag,
   extent,
-  scale = 10,
+  scale = 4,
   known = data.frame(
     stap_id = integer(),
     known_lat = double(),
@@ -92,6 +93,12 @@ tag_set_map <- function(
     extent <- unlist(extent)
   }
   map_expand(extent, scale)
+  if (scale > 4) {
+    cli::cli_warn(c(
+      "The map scale ({scale} pixels per degree) exceeds the ERA5 single-levels resolution.",
+      "i" = "Use {.code scale = 4} or lower to avoid interpolating ERA5 data."
+    ))
+  }
 
   # Check known
   if (is.list(known) && !is.data.frame(known)) {
