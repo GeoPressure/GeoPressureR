@@ -12,7 +12,7 @@ pressurepath_create(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -25,7 +25,7 @@ pressurepath_create_api(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
@@ -37,7 +37,7 @@ pressurepath_create_arco(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   quiet = FALSE,
   debug = FALSE
@@ -56,9 +56,9 @@ depends on both \code{source} and \code{era5_dataset} — see \code{\link[=press
 \item{solar_dep}{Solar depression angle used to compute sunrise and sunset, or \code{NULL} to skip
 this computation.}
 
-\item{era5_dataset}{ERA5 product: \code{"both"} (default) to use ERA5-Land over land and global ERA5
-elsewhere, \code{"land"}, or \code{"single-levels"}. Prefer \code{"single-levels"} whenever \code{variable}
-includes \code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
+\item{era5_dataset}{ERA5 product: \code{"single-levels"} (default), \code{"land"}, or \code{"both"} to use
+ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever \code{variable} includes
+\code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
 
 \item{preprocess}{Whether to preprocess pressure with \code{\link[=geopressure_map_preprocess]{geopressure_map_preprocess()}}.}
 
@@ -128,7 +128,7 @@ metres above mean sea level.
 
 \section{Choosing \code{era5_dataset}}{
 
-\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.}
+\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.} It is the default.
 
 ERA5-Land's \code{surface_pressure} is not the exact hydrostatic image of the orography ERA5-Land
 publishes as \code{geopotential} — the two disagree by up to ~10 hPa in steep terrain. The
@@ -147,9 +147,9 @@ own, so it carries no independent information about absolute altitude. Substitut
 orography implied by its own surface pressure removes the error exactly and reproduces
 \code{"single-levels"} to 0.1 m.
 
-\code{"land"} and \code{"both"} remain the defaults for backward compatibility. They are appropriate for
-retrieving other variables at 0.1 degree resolution, and for \code{\link[=geopressure_map]{geopressure_map()}}, whose
-pressure mismatch is differential and unaffected.
+\code{"land"} and \code{"both"} remain supported. They are appropriate for retrieving other variables
+at 0.1 degree resolution. For altitude, prefer \code{"single-levels"} based on the
+\href{https://github.com/GeoPressure/altitude-validation}{altitude validation}.
 }
 
 \section{Accuracy}{
