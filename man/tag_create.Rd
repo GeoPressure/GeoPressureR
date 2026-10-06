@@ -180,8 +180,10 @@ Each sensor uses this shared reference regardless of its recording start or dura
 \code{time_reference} if the clock was synchronised at another recorded time; correction extends
 linearly to measurements before that reference.
 
-Use one value to correct all sensors, or named lists to specify different shifts and drift
-rates for individual sensors. Sensors omitted from a list receive zero for that correction.
+Corrections apply to every sensor table read from the original data, including additional
+sensor channels supported by future readers. Use one value for all sensors, or named lists for
+sensor-specific shifts and drift rates. Sensors omitted from a list receive zero for that
+correction; entries for sensors absent from the data are ignored.
 Measurement values and sampling order are preserved. Corrected sampling intervals may contain
 fractional seconds; light analysis and actograms use full-day grids, and pressure preprocessing
 selects smoothed observations on an explicit hourly grid.

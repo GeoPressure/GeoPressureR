@@ -245,11 +245,17 @@ test_that("fractional clock corrections do not mask genuine irregular sampling",
   expect_warning(geopressure_map_preprocess(irregular), "not on a regular interval")
 })
 
-test_that("clock correction validates rates and sensor names at tag_create entry", {
+test_that("clock correction validates rate structure at tag_create entry", {
   sensor <- data.frame(date = as.POSIXct("2020-01-01", tz = "UTC") + (0:2) * 1800, value = 1000)
   expect_error(tag_create("clock", pressure_file = sensor, time_drift = -365.25 * 24))
   expect_error(tag_create("clock", pressure_file = sensor, time_drift = c(1, 2)))
-  expect_error(tag_create("clock", pressure_file = sensor, time_drift = list(unknown = 1)))
+  unused <- tag_create(
+    "clock",
+    pressure_file = sensor,
+    time_drift = list(humidity = 1),
+    quiet = TRUE
+  )
+  expect_identical(unused$pressure, sensor)
   expect_error(tag_create("clock", pressure_file = sensor, time_drift = list(light = c(1, 2))))
   expect_error(tag_create("clock", pressure_file = sensor, time_drift = Inf))
   expect_error(tag_create("clock", pressure_file = sensor, time_reference = NA_character_))
@@ -304,4 +310,34 @@ test_that("corrected light and pressure use full-day and whole-hour grids, inclu
       plot_plotly = FALSE
     ))))
   }
+})
+
+
+test_that("new sensor tables receive clock correction and cropping automatically", {
+  reference <- as.POSIXct("2020-01-01", tz = "UTC")
+  sensor <- data.frame(date = reference + (1:2) * 365.25 * 86400, value = 1000)
+  tag <- tag_create("clock", pressure_file = sensor, quiet = TRUE)
+  tag$humidity <- data.frame(date = reference + (0:1) * 365.25 * 86400, value = c(40, 50))
+  corrected <- tag_create_time_correct(tag, time_shift = 2, time_drift = 1, time_reference = NULL)
+  expect_equal(corrected$param$tag_create$time_reference, reference)
+  expect_equal(corrected$humidity$date, tag$humidity$date + c(2, 3) * 3600)
+  expect_equal(corrected$pressure$date, tag$pressure$date + c(3, 4) * 3600)
+  expect_identical(corrected$humidity$value, tag$humidity$value)
+  selected <- tag_create_time_correct(
+    tag,
+    time_shift = list(humidity = 2),
+    time_drift = list(humidity = -0.5),
+    time_reference = NULL
+  )
+  expect_equal(selected$humidity$date, tag$humidity$date + c(2, 1.5) * 3600)
+  expect_identical(selected$pressure, tag$pressure)
+  cropped <- tag_create_crop(
+    corrected,
+    crop_start = sensor$date[1] + 2.5 * 3600,
+    crop_end = NULL,
+    quiet = TRUE
+  )
+  expect_equal(nrow(cropped$humidity), 1)
+  expect_equal(cropped$humidity$date, corrected$humidity$date[2])
+  expect_equal(nrow(cropped$pressure), 2)
 })

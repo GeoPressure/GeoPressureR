@@ -63,8 +63,10 @@
 #' `time_reference` if the clock was synchronised at another recorded time; correction extends
 #' linearly to measurements before that reference.
 #'
-#' Use one value to correct all sensors, or named lists to specify different shifts and drift
-#' rates for individual sensors. Sensors omitted from a list receive zero for that correction.
+#' Corrections apply to every sensor table read from the original data, including additional
+#' sensor channels supported by future readers. Use one value for all sensors, or named lists for
+#' sensor-specific shifts and drift rates. Sensors omitted from a list receive zero for that
+#' correction; entries for sensors absent from the data are ignored.
 #' Measurement values and sampling order are preserved. Corrected sampling intervals may contain
 #' fractional seconds; light analysis and actograms use full-day grids, and pressure preprocessing
 #' selects smoothed observations on an explicit hourly grid.
@@ -205,14 +207,6 @@ tag_create <- function(
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
-  sensors <- c(
-    "pressure",
-    "light",
-    "acceleration",
-    "temperature_external",
-    "temperature_internal",
-    "magnetic"
-  )
   for (correction in list(time_shift, time_drift)) {
     if (is.numeric(correction)) {
       assertthat::assert_that(length(correction) == 1, is.finite(correction))
@@ -220,7 +214,6 @@ tag_create <- function(
       assertthat::assert_that(
         is.list(correction),
         !is.null(names(correction)),
-        all(names(correction) %in% sensors),
         all(vapply(correction, is.numeric, logical(1))),
         all(lengths(correction) == 1),
         all(is.finite(unlist(correction)))
@@ -471,14 +464,7 @@ tag_create_dto <- function(
 #' Correct sensor timestamps with a constant shift and linear drift
 #' @noRd
 tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference) {
-  sensors <- c(
-    "pressure",
-    "light",
-    "acceleration",
-    "temperature_external",
-    "temperature_internal",
-    "magnetic"
-  )
+  sensors <- setdiff(names(tag), "param")
   shift <- drift <- stats::setNames(rep(0, length(sensors)), sensors)
   if (is.numeric(time_shift)) {
     shift[] <- time_shift
@@ -490,7 +476,6 @@ tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference)
   } else {
     drift[names(time_drift)] <- unlist(time_drift)
   }
-  sensors <- intersect(sensors, names(tag))
   if (is.null(time_reference) && any(drift[sensors] != 0)) {
     time_reference <- do.call(min, lapply(tag[sensors], function(sensor) min(sensor$date)))
   }
@@ -513,14 +498,7 @@ tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference)
 #' @noRd
 tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
   has_data <- FALSE
-  for (sensor in c(
-    "pressure",
-    "light",
-    "acceleration",
-    "temperature_internal",
-    "temperature_external",
-    "magnetic"
-  )) {
+  for (sensor in setdiff(names(tag), "param")) {
     if (sensor %in% names(tag)) {
       # Crop time
       if (!is.null(crop_start)) {
