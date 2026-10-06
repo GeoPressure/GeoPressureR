@@ -1,12 +1,15 @@
 #' Create a `tag` object
 #'
 #' @description
-#' Read tracking-device data into a GeoPressureR `tag`, optionally correct sensor clocks, and crop
-#' to the recording period of interest. Pressure is required for the pressure-based workflow;
-#' use `assert_pressure = FALSE` for tags without pressure data.
+#' Read sensor measurements into a GeoPressureR `tag` object. Optionally correct timestamps
+#' for clock offset and drift, then crop to the recording period of interest.
 #'
-#' @details
-#' ## Reading sensor files
+#' @section Workflow:
+#' Data are **read -> corrected -> cropped**. Keep the original files and specify clock
+#' corrections in `tag_create()`. Pressure is required by default; use `assert_pressure = FALSE`
+#' for tags without pressure data.
+#'
+#' @section Sensor files:
 #'
 #' By default, files are read from `./data/raw-tag/{id}` and the manufacturer is detected from
 #' the directory where possible. Set `manufacturer` explicitly when needed, including for PresTag.
@@ -24,7 +27,7 @@
 #' Manufacturer readers detect available sensor files when their arguments are `NULL`.
 #' For SOI, use `NA` to skip a sensor.
 #'
-#' ## Tabular input
+#' @section Tabular input:
 #'
 #' With `manufacturer = "tabular"`, each sensor argument accepts a data.frame, tibble, or CSV path.
 #' Tables need a UTC POSIXct `date` column and a `value` column; pressure values must be in hPa.
@@ -35,11 +38,7 @@
 #' `light.csv`, etc. can be detected automatically from `directory`. Omit optional tabular sensors
 #' with `NULL`. An in-memory `pressure_file` also selects tabular input automatically.
 #'
-#' ## Clock correction and cropping
-#'
-#' Processing follows **read data -> correct timestamps -> crop data**. Keep the original files
-#' and specify corrections here as part of the analysis pipeline.
-#'
+#' @section Clock correction:
 #' - `time_shift` adds a constant offset in hours.
 #' - `time_drift` adds a linear correction in hours per year (365.25 days).
 #' - `time_reference` is the original recorded time at which drift correction is zero. By default,
@@ -51,16 +50,19 @@
 #' share the reference, regardless of recording duration. Drift uses the original timestamps,
 #' before adding the shift, and extends linearly before an explicit reference.
 #'
-#' Cropping uses corrected UTC timestamps: `crop_start` is inclusive and `crop_end` is exclusive.
 #' Correction settings and the reference used for drift are recorded in `tag$param$tag_create`.
 #' When changing corrections, rerun the analysis from the original data and regenerate labels
 #' that rely on exact timestamps, including TRAINSET labels.
+#'
+#' @section Cropping:
+#' Cropping uses corrected UTC timestamps: `crop_start` is inclusive and `crop_end` is exclusive.
+#' Leave either boundary as `NULL` to keep all data on that side.
 #'
 #' @param id Unique tag identifier.
 #' @param manufacturer Data format: `NULL` (automatic), `"soi"`, `"migratetech"`, `"bas"`,
 #'   `"lund"`, `"prestag"`, or `"tabular"`.
 #' @param directory Directory containing the original sensor files.
-#' @param pressure_file Pressure input; tabular values must be in hPa. See Details for input formats.
+#' @param pressure_file Pressure input; tabular values must be in hPa. See Sensor files and Tabular input for input formats.
 #' @param light_file Optional light input.
 #' @param acceleration_file Optional acceleration input.
 #' @param temperature_external_file Optional external or air-temperature input.

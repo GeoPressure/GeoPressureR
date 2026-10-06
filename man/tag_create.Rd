@@ -37,7 +37,7 @@ in UTC. \code{NULL} keeps all earlier data.}
 
 \item{directory}{Directory containing the original sensor files.}
 
-\item{pressure_file}{Pressure input; tabular values must be in hPa. See Details for input formats.}
+\item{pressure_file}{Pressure input; tabular values must be in hPa. See Sensor files and Tabular input for input formats.}
 
 \item{light_file}{Optional light input.}
 
@@ -78,12 +78,18 @@ successive z-axis acceleration differences over 32 measurements at 10 Hz (jiggle
 }
 }
 \description{
-Read tracking-device data into a GeoPressureR \code{tag}, optionally correct sensor clocks, and crop
-to the recording period of interest. Pressure is required for the pressure-based workflow;
-use \code{assert_pressure = FALSE} for tags without pressure data.
+Read sensor measurements into a GeoPressureR \code{tag} object. Optionally correct timestamps
+for clock offset and drift, then crop to the recording period of interest.
 }
-\details{
-\subsection{Reading sensor files}{
+\section{Workflow}{
+
+Data are \strong{read -> corrected -> cropped}. Keep the original files and specify clock
+corrections in \code{tag_create()}. Pressure is required by default; use \code{assert_pressure = FALSE}
+for tags without pressure data.
+}
+
+\section{Sensor files}{
+
 
 By default, files are read from \code{./data/raw-tag/{id}} and the manufacturer is detected from
 the directory where possible. Set \code{manufacturer} explicitly when needed, including for PresTag.
@@ -103,7 +109,8 @@ Manufacturer readers detect available sensor files when their arguments are \cod
 For SOI, use \code{NA} to skip a sensor.
 }
 
-\subsection{Tabular input}{
+\section{Tabular input}{
+
 
 With \code{manufacturer = "tabular"}, each sensor argument accepts a data.frame, tibble, or CSV path.
 Tables need a UTC POSIXct \code{date} column and a \code{value} column; pressure values must be in hPa.
@@ -115,10 +122,8 @@ CSV files use \code{datetime} instead of \code{date}, with UTC timestamps such a
 with \code{NULL}. An in-memory \code{pressure_file} also selects tabular input automatically.
 }
 
-\subsection{Clock correction and cropping}{
+\section{Clock correction}{
 
-Processing follows \strong{read data -> correct timestamps -> crop data}. Keep the original files
-and specify corrections here as part of the analysis pipeline.
 \itemize{
 \item \code{time_shift} adds a constant offset in hours.
 \item \code{time_drift} adds a linear correction in hours per year (365.25 days).
@@ -132,12 +137,17 @@ Sensors omitted from a list receive zero; entries for absent sensors are ignored
 share the reference, regardless of recording duration. Drift uses the original timestamps,
 before adding the shift, and extends linearly before an explicit reference.
 
-Cropping uses corrected UTC timestamps: \code{crop_start} is inclusive and \code{crop_end} is exclusive.
 Correction settings and the reference used for drift are recorded in \code{tag$param$tag_create}.
 When changing corrections, rerun the analysis from the original data and regenerate labels
 that rely on exact timestamps, including TRAINSET labels.
 }
+
+\section{Cropping}{
+
+Cropping uses corrected UTC timestamps: \code{crop_start} is inclusive and \code{crop_end} is exclusive.
+Leave either boundary as \code{NULL} to keep all data on that side.
 }
+
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   # Read available sensors.
