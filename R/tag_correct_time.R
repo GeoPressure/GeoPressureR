@@ -12,13 +12,17 @@
 #' Start the normal workflow from those CSVs with `tag_create(manufacturer = "tabular")`, then
 #' crop, label and analyse the data. Keep the original files and the correction parameters.
 #'
-#' The correction added to each recorded timestamp is `time_shift` plus `time_drift` multiplied
-#' by the elapsed number of months or years since `reference`. Both corrections are in hours;
-#' positive values add time and negative values subtract time, as with `tag_create(time_shift)`.
-#' A month is exactly 30 days and a year is exactly 365.25 days. The same reference and rate apply
-#' to every selected sensor, regardless of its start date or recording duration. The correction
-#' also extends linearly to measurements before the reference. `reference` is expressed in the
-#' timestamp system of the input tag, including any shift already applied when reading it.
+#' The correction added to each recorded timestamp is `time_drift` multiplied by the elapsed
+#' number of years since `reference`. A year is exactly 365.25 days. Positive values add time
+#' and negative values subtract time, as with `tag_create(time_shift)`. Apply any constant offset
+#' with `tag_create(time_shift)` when reading the original files; it is not repeated here.
+#' The same reference and rate apply to every selected sensor, regardless of its start date or
+#' recording duration. By default, the reference is the earliest measurement across all available
+#' sensors, including unselected sensors, and its drift correction is zero. Supply `reference` if
+#' the clock was synchronised at another time. The correction also extends linearly to measurements
+#' before an explicit reference.
+#' `reference` is expressed in the timestamp system of the input tag, including any shift already
+#' applied when reading it.
 #'
 #' Corrected sampling intervals may contain fractional seconds. Light analysis and actograms
 #' match observations to a grid with an integer number of samples per day; pressure preprocessing
@@ -31,13 +35,13 @@
 #' `sensors` and the appropriate reference and rate for each clock.
 #'
 #' @param tag An unlabelled GeoPressureR `tag` object.
-#' @param time_drift Correction in hours per `time_unit`. For example, `-12 / 60` subtracts
-#'   12 minutes per year when `time_unit = "year"`.
+#' @param time_drift Correction in hours per year (365.25 days). For example, `-12 / 60`
+#'   subtracts 12 minutes per year. Convert a rate in hours per 30-day month by multiplying it
+#'   by `365.25 / 30`.
 #' @param reference Recorded timestamp at which the drift correction is zero, as POSIXct or
-#'   character in UTC. At this timestamp, only `time_shift` is added.
-#' @param time_unit Unit of the drift rate: `"year"` (365.25 days) or `"month"` (30 days).
-#' @param time_shift Constant correction added to selected sensor dates, in hours. Default is zero.
-#' @param sensors Character vector of sensors to correct. By default, all available sensors.
+#'   character in UTC. Default (`NULL`) uses the earliest measurement across all available sensors.
+#' @param sensors `"all"` (default) or a character vector of sensors to correct: `"pressure"`,
+#'   `"light"`, `"acceleration"`, `"temperature_external"`, `"temperature_internal"` or `"magnetic"`.
 #'
 #' @return A `tag` with corrected sensor dates and the correction parameters in
 #'   `tag$param$tag_correct_time`. Other sensor columns and unselected sensors are unchanged.
@@ -48,7 +52,10 @@
 #'   value = rep(1000, 49)
 #' )
 #' tag <- tag_create("clock-example", pressure_file = pressure, quiet = TRUE)
-#' corrected <- tag_correct_time(tag, time_drift = -12 / 60, reference = "2025-01-01")
+#' corrected <- tag_correct_time(tag, time_drift = -12 / 60)
+#'
+#' # Alternatively, use the recorded clock synchronisation time as the reference.
+#' corrected <- tag_correct_time(tag, time_drift = -12 / 60, reference = "2024-12-31")
 #'
 #' # Save in a separate directory, keeping fractional seconds.
 #' directory <- tempfile("corrected-raw-tag-")
@@ -64,31 +71,15 @@
 #'
 #' @family tag
 #' @export
-tag_correct_time <- function(
-  tag,
-  time_drift,
-  reference,
-  time_unit = c("year", "month"),
-  time_shift = 0,
-  sensors = c(
-    "pressure",
-    "light",
-    "acceleration",
-    "temperature_external",
-    "temperature_internal",
-    "magnetic"
-  )
-) {
+tag_correct_time <- function(tag, time_drift, reference = NULL, sensors = "all") {
   tag_assert(tag)
   if (
     any(c("label", "stap", "twilight", "setmap", "map_pressure", "map_light") %in% tag_status(tag))
   ) {
     cli::cli_abort("Read an unlabelled tag with {.fun tag_create} before correcting its clock.")
   }
-  time_unit <- match.arg(time_unit)
-  sensors <- match.arg(
-    sensors,
-    choices = c(
+  available <- intersect(
+    c(
       "pressure",
       "light",
       "acceleration",
@@ -96,35 +87,33 @@ tag_correct_time <- function(
       "temperature_internal",
       "magnetic"
     ),
-    several.ok = TRUE
+    names(tag)
   )
-  reference <- as.POSIXct(reference, tz = "UTC")
+  sensors <- if (identical(sensors, "all")) available else intersect(sensors, available)
+  reference <- if (is.null(reference)) {
+    do.call(min, lapply(tag[available], function(sensor) min(sensor$date)))
+  } else {
+    as.POSIXct(reference, tz = "UTC")
+  }
   assertthat::assert_that(
     is.numeric(time_drift),
     length(time_drift) == 1,
     is.finite(time_drift),
-    is.numeric(time_shift),
-    length(time_shift) == 1,
-    is.finite(time_shift),
     length(reference) == 1,
     !is.na(reference)
   )
-  period <- if (time_unit == "year") 365.25 else 30
-  assertthat::assert_that(time_drift > -period * 24)
+  assertthat::assert_that(time_drift > -365.25 * 24)
 
-  for (sensor in intersect(sensors, names(tag))) {
+  for (sensor in sensors) {
     tag[[sensor]]$date[] <- tag[[sensor]]$date +
-      time_shift * 3600 +
       as.numeric(difftime(tag[[sensor]]$date, reference, units = "secs")) *
         time_drift /
-        (period * 24)
+        (365.25 * 24)
   }
   tag$param$tag_correct_time <- list(
     time_drift = time_drift,
     reference = reference,
-    time_unit = time_unit,
-    time_shift = time_shift,
-    sensors = intersect(sensors, names(tag))
+    sensors = sensors
   )
   tag
 }

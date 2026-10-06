@@ -4,30 +4,20 @@
 \alias{tag_correct_time}
 \title{Correct sensor clock drift before starting an analysis}
 \usage{
-tag_correct_time(
-  tag,
-  time_drift,
-  reference,
-  time_unit = c("year", "month"),
-  time_shift = 0,
-  sensors = c("pressure", "light", "acceleration", "temperature_external",
-    "temperature_internal", "magnetic")
-)
+tag_correct_time(tag, time_drift, reference = NULL, sensors = "all")
 }
 \arguments{
 \item{tag}{An unlabelled GeoPressureR \code{tag} object.}
 
-\item{time_drift}{Correction in hours per \code{time_unit}. For example, \code{-12 / 60} subtracts
-12 minutes per year when \code{time_unit = "year"}.}
+\item{time_drift}{Correction in hours per year (365.25 days). For example, \code{-12 / 60}
+subtracts 12 minutes per year. Convert a rate in hours per 30-day month by multiplying it
+by \code{365.25 / 30}.}
 
 \item{reference}{Recorded timestamp at which the drift correction is zero, as POSIXct or
-character in UTC. At this timestamp, only \code{time_shift} is added.}
+character in UTC. Default (\code{NULL}) uses the earliest measurement across all available sensors.}
 
-\item{time_unit}{Unit of the drift rate: \code{"year"} (365.25 days) or \code{"month"} (30 days).}
-
-\item{time_shift}{Constant correction added to selected sensor dates, in hours. Default is zero.}
-
-\item{sensors}{Character vector of sensors to correct. By default, all available sensors.}
+\item{sensors}{\code{"all"} (default) or a character vector of sensors to correct: \code{"pressure"},
+\code{"light"}, \code{"acceleration"}, \code{"temperature_external"}, \code{"temperature_internal"} or \code{"magnetic"}.}
 }
 \value{
 A \code{tag} with corrected sensor dates and the correction parameters in
@@ -45,13 +35,17 @@ and save the corrected sensor tables as CSV files in a separate raw-tag director
 Start the normal workflow from those CSVs with \code{tag_create(manufacturer = "tabular")}, then
 crop, label and analyse the data. Keep the original files and the correction parameters.
 
-The correction added to each recorded timestamp is \code{time_shift} plus \code{time_drift} multiplied
-by the elapsed number of months or years since \code{reference}. Both corrections are in hours;
-positive values add time and negative values subtract time, as with \code{tag_create(time_shift)}.
-A month is exactly 30 days and a year is exactly 365.25 days. The same reference and rate apply
-to every selected sensor, regardless of its start date or recording duration. The correction
-also extends linearly to measurements before the reference. \code{reference} is expressed in the
-timestamp system of the input tag, including any shift already applied when reading it.
+The correction added to each recorded timestamp is \code{time_drift} multiplied by the elapsed
+number of years since \code{reference}. A year is exactly 365.25 days. Positive values add time
+and negative values subtract time, as with \code{tag_create(time_shift)}. Apply any constant offset
+with \code{tag_create(time_shift)} when reading the original files; it is not repeated here.
+The same reference and rate apply to every selected sensor, regardless of its start date or
+recording duration. By default, the reference is the earliest measurement across all available
+sensors, including unselected sensors, and its drift correction is zero. Supply \code{reference} if
+the clock was synchronised at another time. The correction also extends linearly to measurements
+before an explicit reference.
+\code{reference} is expressed in the timestamp system of the input tag, including any shift already
+applied when reading it.
 
 Corrected sampling intervals may contain fractional seconds. Light analysis and actograms
 match observations to a grid with an integer number of samples per day; pressure preprocessing
@@ -69,7 +63,10 @@ pressure <- data.frame(
   value = rep(1000, 49)
 )
 tag <- tag_create("clock-example", pressure_file = pressure, quiet = TRUE)
-corrected <- tag_correct_time(tag, time_drift = -12 / 60, reference = "2025-01-01")
+corrected <- tag_correct_time(tag, time_drift = -12 / 60)
+
+# Alternatively, use the recorded clock synchronisation time as the reference.
+corrected <- tag_correct_time(tag, time_drift = -12 / 60, reference = "2024-12-31")
 
 # Save in a separate directory, keeping fractional seconds.
 directory <- tempfile("corrected-raw-tag-")

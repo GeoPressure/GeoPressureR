@@ -29,11 +29,11 @@ test_that("clock correction preserves sensor data and applies one shared referen
     magnetic_file = magnetic,
     quiet = TRUE
   )
-  corrected <- tag_correct_time(tag, time_drift = 1, reference = reference, time_shift = 2)
+  corrected <- tag_correct_time(tag, time_drift = 1, reference = reference)
   for (name in setdiff(names(tag), "param")) {
     expect_equal(
       as.numeric(corrected[[name]]$date) - as.numeric(tag[[name]]$date),
-      c(3600, 7200, 10800)
+      c(-3600, 0, 3600)
     )
     expect_identical(attributes(corrected[[name]]), attributes(tag[[name]]))
     expect_identical(attributes(corrected[[name]]$date), attributes(tag[[name]]$date))
@@ -45,7 +45,6 @@ test_that("clock correction preserves sensor data and applies one shared referen
   expect_identical(tag$pressure, sensor)
   expect_identical(corrected$param$tag_create, tag$param$tag_create)
   expect_equal(corrected$param$tag_correct_time$reference, reference)
-  expect_equal(corrected$param$tag_correct_time$time_unit, "year")
 })
 
 test_that("sensor selection and different recording durations do not change the drift rate", {
@@ -60,9 +59,8 @@ test_that("sensor selection and different recording durations do not change the 
   )
   corrected <- tag_correct_time(
     tag,
-    time_drift = -1 / 60,
+    time_drift = -1 / 60 * 365.25 / 30,
     reference = reference,
-    time_unit = "month",
     sensors = c("pressure", "light", "magnetic")
   )
   expect_equal(
@@ -74,7 +72,31 @@ test_that("sensor selection and different recording durations do not change the 
   expect_equal(corrected$param$tag_correct_time$sensors, c("pressure", "light"))
 })
 
-test_that("constant correction follows tag_create time_shift and supports light-only tags", {
+test_that("default reference uses the earliest measurement across all sensors", {
+  reference <- as.POSIXct("2020-01-01", tz = "UTC")
+  sensor <- data.frame(date = reference + (0:2) * 365.25 * 86400, value = 1000)
+  tag <- tag_create("clock", pressure_file = sensor, light_file = sensor[2:3, ], quiet = TRUE)
+  corrected <- tag_correct_time(tag, time_drift = 1)
+  expect_equal(corrected$param$tag_correct_time$reference, reference)
+  expect_equal(corrected$pressure$date[1], tag$pressure$date[1])
+  expect_equal(
+    as.numeric(corrected$pressure$date - tag$pressure$date, units = "secs"),
+    c(0, 3600, 7200)
+  )
+  expect_equal(corrected$light$date, corrected$pressure$date[2:3])
+  selected <- tag_correct_time(tag, time_drift = 1, sensors = "light")
+  expect_identical(selected$pressure, tag$pressure)
+  expect_equal(selected$light$date, corrected$light$date)
+  expect_equal(selected$param$tag_correct_time$reference, reference)
+  explicit <- tag_correct_time(tag, time_drift = 1, reference = sensor$date[2])
+  expect_equal(explicit$pressure$date[2], tag$pressure$date[2])
+  expect_equal(
+    as.numeric(explicit$pressure$date - tag$pressure$date, units = "secs"),
+    c(-3600, 0, 3600)
+  )
+})
+
+test_that("clock correction respects tag_create time_shift and supports light-only tags", {
   sensor <- data.frame(date = as.POSIXct("2020-01-01", tz = "UTC") + (0:2) * 300, value = 1)
   tag <- tag_create(
     "clock",
@@ -83,7 +105,6 @@ test_that("constant correction follows tag_create time_shift and supports light-
     assert_pressure = FALSE,
     quiet = TRUE
   )
-  corrected <- tag_correct_time(tag, time_drift = 0, reference = sensor$date[1], time_shift = 2)
   shifted <- tag_create(
     "clock",
     manufacturer = "tabular",
@@ -92,7 +113,9 @@ test_that("constant correction follows tag_create time_shift and supports light-
     time_shift = 2,
     quiet = TRUE
   )
+  corrected <- tag_correct_time(shifted, time_drift = 0)
   expect_identical(corrected$light, shifted$light)
+  expect_equal(corrected$param$tag_correct_time$reference, shifted$light$date[1])
   expect_identical(tag_correct_time(tag, 0, sensor$date[1])$light, tag$light)
 })
 
@@ -125,7 +148,7 @@ test_that("clock correction rejects stale results and rates that reverse time", 
   tag$twilight <- data.frame(twilight = sensor$date[1], rise = TRUE)
   expect_error(tag_correct_time(tag, 1, sensor$date[1]), "unlabelled")
   tag$twilight <- NULL
-  expect_error(tag_correct_time(tag, -30 * 24, sensor$date[1], time_unit = "month"))
+  expect_error(tag_correct_time(tag, -365.25 * 24, sensor$date[1]))
   expect_error(tag_correct_time(tag, c(1, 2), sensor$date[1]))
 })
 
