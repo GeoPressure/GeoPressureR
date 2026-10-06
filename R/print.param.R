@@ -79,7 +79,7 @@ print.param <- function(x, ...) {
   bullets(param$geolight_map, "zenith_prior_mean")
   bullets(param$geolight_map, "zenith_prior_sd")
   bullets(param$geolight_map, "zenith_prior_penalty_weight")
-  bullets(param$geolight_map, "refine_fitted_location_scale_km")
+  bullets(param$geolight_map, "refine_fitted_location_scale")
   bullets(param$geolight_map, "refine_fitted_location_max_iter")
   bullets(param$geolight_map, "twl_llp")
   bullets(param$geolight_map, "keep_twl")

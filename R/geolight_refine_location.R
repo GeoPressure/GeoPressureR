@@ -8,7 +8,7 @@
 #' @param tag A GeoPressureR tag object with twilight, stap, and map settings.
 #' @param path A path data.frame containing `stap_id`, `lon`, and `lat`; all columns are preserved.
 #' @param twl_calib_adjust Smoothing parameter passed to `stats::density()`.
-#' @param scale_km Target grid resolution and movement threshold for convergence, in kilometers.
+#' @param scale Target grid resolution and movement threshold for convergence, in kilometers.
 #' @param max_iter Maximum number of refinement iterations per anchor.
 #' @return `path` with refined `lon` and `lat`.
 #' @noRd
@@ -16,7 +16,7 @@ geolight_refine_location <- function(
   tag,
   path,
   twl_calib_adjust = 1.4,
-  scale_km = 20,
+  scale = 20,
   max_iter = 2
 ) {
   tag_assert(tag, "twilight")
@@ -25,7 +25,7 @@ geolight_refine_location <- function(
   assertthat::assert_that(is.data.frame(path))
   assertthat::assert_that(assertthat::has_name(path, c("stap_id", "lon", "lat")))
   assertthat::assert_that(is.numeric(twl_calib_adjust), length(twl_calib_adjust) == 1L)
-  assertthat::assert_that(is.numeric(scale_km), length(scale_km) == 1L, scale_km > 0)
+  assertthat::assert_that(is.numeric(scale), length(scale) == 1L, scale > 0)
   assertthat::assert_that(is.numeric(max_iter), length(max_iter) == 1L, max_iter >= 1)
 
   extent <- tag$param$tag_set_map$extent
@@ -52,7 +52,7 @@ geolight_refine_location <- function(
       extent = extent,
       map_scale = tag$param$tag_set_map$scale,
       twl_calib_adjust = twl_calib_adjust,
-      scale_km = scale_km,
+      scale = scale,
       max_iter = as.integer(max_iter)
     )
 
@@ -69,6 +69,7 @@ geolight_refine_location <- function(
 #' longitude because fitted longitude is usually better constrained by twilight timing. If the best
 #' grid cell is on the boundary, the search window expands up to a fixed cap.
 #'
+#' @param scale Target grid resolution and movement threshold, in kilometers.
 #' @noRd
 geolight_refine_location_one <- function(
   lon,
@@ -78,14 +79,14 @@ geolight_refine_location_one <- function(
   extent,
   map_scale,
   twl_calib_adjust = 1.4,
-  scale_km = 20,
+  scale = 20,
   max_iter = 2
 ) {
-  scale_local <- geolight_refine_scale(extent, scale_km, map_scale)
-  radius_lat_km <- 200
-  radius_lon_km <- 100
-  max_radius_lat_km <- 500
-  max_radius_lon_km <- 250
+  scale_local <- geolight_refine_scale(extent, scale, map_scale)
+  radius_lat <- 200
+  radius_lon <- 100
+  max_radius_lat <- 500
+  max_radius_lon <- 250
 
   for (i in seq_len(max_iter)) {
     fz <- geolight_refine_density(
@@ -98,8 +99,8 @@ geolight_refine_location_one <- function(
       extent_local <- geolight_refine_extent(
         lon = lon,
         lat = lat,
-        radius_lat_km = radius_lat_km,
-        radius_lon_km = radius_lon_km,
+        radius_lat = radius_lat,
+        radius_lon = radius_lon,
         extent = extent,
         scale = scale_local
       )
@@ -112,12 +113,12 @@ geolight_refine_location_one <- function(
 
       if (
         !refined["boundary"] ||
-          (radius_lat_km >= max_radius_lat_km && radius_lon_km >= max_radius_lon_km)
+          (radius_lat >= max_radius_lat && radius_lon >= max_radius_lon)
       ) {
         break
       }
-      radius_lat_km <- min(max_radius_lat_km, radius_lat_km * 2)
-      radius_lon_km <- min(max_radius_lon_km, radius_lon_km * 2)
+      radius_lat <- min(max_radius_lat, radius_lat * 2)
+      radius_lon <- min(max_radius_lon, radius_lon * 2)
     }
 
     lon_new <- unname(refined["lon"])
@@ -127,24 +128,25 @@ geolight_refine_location_one <- function(
       matrix(c(lon, lat), ncol = 2),
       matrix(c(lon_new, lat_new), ncol = 2)
     )
-    if (move_km <= scale_km) {
+    if (move_km <= scale) {
       return(c(lon = lon_new, lat = lat_new))
     }
 
     lon <- lon_new
     lat <- lat_new
 
-    radius_lat_km <- min(max_radius_lat_km, max(3 * scale_km, 1.5 * move_km))
-    radius_lon_km <- min(max_radius_lon_km, max(1.5 * scale_km, 0.75 * move_km))
+    radius_lat <- min(max_radius_lat, max(3 * scale, 1.5 * move_km))
+    radius_lon <- min(max_radius_lon, max(1.5 * scale, 0.75 * move_km))
   }
 
   c(lon = lon, lat = lat)
 }
 
 #' Select a map scale close to the requested kilometer resolution
+#' @param scale Target grid resolution in kilometers.
 #' @noRd
-geolight_refine_scale <- function(extent, scale_km, map_scale = NULL) {
-  target_scale <- min(8, max(1, 2^ceiling(log2(111.32 / scale_km))))
+geolight_refine_scale <- function(extent, scale, map_scale = NULL) {
+  target_scale <- min(8, max(1, 2^ceiling(log2(111.32 / scale))))
   scales <- unique(c(8, 4, 2, 1, map_scale))
   valid <- vapply(
     scales,
@@ -161,12 +163,13 @@ geolight_refine_scale <- function(extent, scale_km, map_scale = NULL) {
 }
 
 #' Build the local search extent around one anchor
+#' @param radius_lat,radius_lon Search radii in kilometers.
 #' @noRd
-geolight_refine_extent <- function(lon, lat, radius_lat_km, radius_lon_km, extent, scale) {
+geolight_refine_extent <- function(lon, lat, radius_lat, radius_lon, extent, scale) {
   n_lat <- round((extent[4] - extent[3]) * scale)
   n_lon <- round((extent[2] - extent[1]) * scale)
-  radius_lat <- radius_lat_km / 111.32
-  radius_lon <- radius_lon_km / (111.32 * max(cos(lat * .DEG2RAD), 0.1))
+  radius_lat <- radius_lat / 111.32
+  radius_lon <- radius_lon / (111.32 * max(cos(lat * .DEG2RAD), 0.1))
 
   south_cell <- max(0, floor((lat - radius_lat - extent[3]) * scale))
   north_cell <- min(n_lat, ceiling((lat + radius_lat - extent[3]) * scale))
