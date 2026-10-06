@@ -206,7 +206,9 @@ geopressure_map_preprocess <- function(
     # Pressure is an instantaneous parameters
     # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
     # the value at the exact hour
-    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / as.numeric(dt)), ]
+    date_hour <- seq(min(pgi_reg$date), max(pgi_reg$date), by = "hour")
+    pgi_reg <- pgi_reg[round(stats::approx(pgi_reg$date, seq_len(nrow(pgi_reg)), date_hour)$y), ]
+    pgi_reg$date <- date_hour
 
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]

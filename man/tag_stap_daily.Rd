@@ -69,6 +69,7 @@ head(tag$stap)
 Other tag:
 \code{\link[=print.tag]{print.tag()}},
 \code{\link[=read_stap]{read_stap()}},
+\code{\link[=tag_correct_time]{tag_correct_time()}},
 \code{\link[=tag_create]{tag_create()}},
 \code{\link[=tag_set_map]{tag_set_map()}}
 }

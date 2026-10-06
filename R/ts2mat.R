@@ -23,7 +23,8 @@ ts2mat <- function(
   assertthat::assert_that(is.numeric(twl_offset))
 
   res_vec <- as.numeric(diff(ts$date), units = "secs")
-  res <- stats::median(res_vec)
+  # Use a grid that divides a day exactly, including after clock drift correction.
+  res <- 86400 / round(86400 / stats::median(res_vec))
   if (length(unique(res_vec)) != 1) {
     res_counts <- sort(table(res_vec), decreasing = TRUE)
     res_counts_top <- utils::head(res_counts, 5)
