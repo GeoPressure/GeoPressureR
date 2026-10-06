@@ -1,188 +1,126 @@
 #' Create a `tag` object
 #'
 #' @description
-#' Create a GeoPressureR `tag` object from the data collected by a tracking device. The function
-#' can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
-#' well as BAS and PresTag formats, and also accepts manual tabular input. Pressure data is
-#' required for the GeoPressureR workflow but can be allowed to be missing with
-#' `assert_pressure = FALSE`.
+#' Read tracking-device data into a GeoPressureR `tag`, optionally correct sensor clocks, and crop
+#' to the recording period of interest. Pressure is required for the pressure-based workflow;
+#' use `assert_pressure = FALSE` for tags without pressure data.
 #'
 #' @details
-#' The current implementation can read files from the following sources:
-#' - [Swiss Ornithological Institute (`soi`)](https://www.vogelwarte.ch/en/research/bird-migration/geolocators/)
-#'    - `pressure_file = "*.pressure"`
-#'    - `light_file = "*.glf"` (optional)
-#'    - `acceleration_file = "*.acceleration"` (optional)
-#'    - `temperature_internal_file = "*.temperature"` (optional)
-#'    - `temperature_external_file = "*.airtemperature"` (optional)
-#'    - `magnetic_file = "*.magnetic"` (optional)
-#' - [Migrate Technology (`migratetech`)](https://www.migratetech.co.uk/):
-#'    - `pressure_file = "*.deg"`
-#'    - `light_file = "*.lux"` (optional)
-#'    - `acceleration_file = "*.deg"` (optional)
-#' - British Antarctic Survey (`bas`), acquired by Biotrack Ltd in 2011, [renamed Lotek in 2019
-#' ](https://www.lotek.com/about-us/history/). Only works for light data (`assert_pressure = FALSE`)
-#'    - `light_file = "*.lig"`
-#' - Lund CAnMove (`lund`)
-#'    - `pressure_file = "*_press.xlsx"`
-#'    - `light_file = "*_acc.xlsx"` (optional)
-#'    - `acceleration_file = "*_acc.xlsx"` (optional)
-#' - [BitTag/PresTag (`prestag`)](https://geoffreymbrown.github.io/ultralight-tags/)
-#'    - `pressure_file = "*.txt"`
+#' ## Reading sensor files
 #'
-#' You can also enter tabular data manually (`manufacturer = "tabular"`) by providing, for each
-#' sensor argument, either an in-memory table (`data.frame` or tibble) or a CSV path:
-#'   - `pressure_file`: columns `date` and `value` in hPa.
-#'   - `light_file`: (optional) columns `date` and `value`.
-#'   - `acceleration_file`: (optional) columns `date` and `value`.
-#'   - `temperature_external_file`: (optional) columns `date` and `value`.
-#'   - `temperature_internal_file`: (optional) columns `date` and `value`.
-#'   - `magnetic_file`: (optional) columns `date`, `magnetic_x`, `magnetic_y`,
-#'    `magnetic_z`, `acceleration_x`, `acceleration_y` and `acceleration_z`.
+#' By default, files are read from `./data/raw-tag/{id}` and the manufacturer is detected from
+#' the directory where possible. Set `manufacturer` explicitly when needed, including for PresTag.
+#' Sensor file arguments accept a file path or filename pattern, such as `"*.pressure"`.
+#' Supported formats are:
 #'
-#' You can still create a `tag` without pressure data using `assert_pressure = FALSE`. This `tag`
-#' won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
+#' - SOI (`"soi"`): pressure `*.pressure`, light `*.glf`, acceleration `*.acceleration`,
+#'   external temperature `*.temperature` or `*.airtemperature`, internal temperature
+#'   `*.bodytemperature`, and magnetic data `*.magnetic`.
+#' - Migratetech (`"migratetech"`): pressure and acceleration `*.deg`, light `*.lux`.
+#' - BAS (`"bas"`): light `*.lig` only; use `assert_pressure = FALSE`.
+#' - Lund CAnMove (`"lund"`): pressure `*_press.xlsx`, light and acceleration `*_acc.xlsx`.
+#' - PresTag (`"prestag"`): pressure `*.txt`.
 #'
-#' By default `manufacturer = NULL`, the manufacturer is determined automatically from the content
-#' of the `directory`. You can also specify manually the file with a full pathname or the file
-#' extension using a regex expression (e.g., `"*.pressure"` matches any file ending with
-#' `pressure`).
+#' Manufacturer readers detect available sensor files when their arguments are `NULL`.
+#' For SOI, use `NA` to skip a sensor.
 #'
-#' Please create [an issue on Github](https://github.com/GeoPressure/GeoPressureR/issues/new) if you
-#' have data in a format that is not yet supported.
+#' ## Tabular input
 #'
-#' This function can be used to crop the data at specific date, for instance to remove pre-equipment
-#' or post-retrieval data.
+#' With `manufacturer = "tabular"`, each sensor argument accepts a data.frame, tibble, or CSV path.
+#' Tables need a UTC POSIXct `date` column and a `value` column; pressure values must be in hPa.
+#' Magnetic tables instead use the axis columns listed under Value below.
 #'
-#' Sensor clocks are corrected after reading the original data and before cropping. The correction
-#' is `time_shift` plus `time_drift` multiplied by the elapsed years since `time_reference`.
-#' Drift is computed from the original recorded dates before adding the constant shift. A year
-#' is exactly 365.25 days. The default reference is the earliest original measurement across all
-#' available sensors, including sensors with no drift correction, before cropping or shifting.
-#' Each sensor uses this shared reference regardless of its recording start or duration. Provide
-#' `time_reference` if the clock was synchronised at another recorded time; correction extends
-#' linearly to measurements before that reference.
+#' CSV files use `datetime` instead of `date`, with UTC timestamps such as
+#' `"2025-01-01T00:00:00"`; fractional seconds are supported. CSV files named `pressure.csv`,
+#' `light.csv`, etc. can be detected automatically from `directory`. Omit optional tabular sensors
+#' with `NULL`. An in-memory `pressure_file` also selects tabular input automatically.
 #'
-#' Corrections apply to every sensor table read from the original data, including additional
-#' sensor channels supported by future readers. Use one value for all sensors, or named lists for
-#' sensor-specific shifts and drift rates. Sensors omitted from a list receive zero for that
-#' correction; entries for sensors absent from the data are ignored.
-#' Measurement values and sampling order are preserved. Corrected sampling intervals may contain
-#' fractional seconds; light analysis and actograms use full-day grids, and pressure preprocessing
-#' selects smoothed observations on an explicit hourly grid.
+#' ## Clock correction and cropping
 #'
-#' Keep the original files and set the correction in `tag_create()` as part of the reproducible
-#' pipeline. No corrected raw files need to be saved. The corrections and the resolved reference
-#' (when drift is nonzero) are stored in `tag$param$tag_create`. Do not apply the corrections again
-#' if reading data already corrected elsewhere. Changing `time_shift`, `time_drift` or
-#' `time_reference` requires regenerating derived results and may require regenerating TRAINSET
-#' label files because label matching uses exact timestamps.
+#' Processing follows **read data -> correct timestamps -> crop data**. Keep the original files
+#' and specify corrections here as part of the analysis pipeline.
 #'
-#' @param id unique identifier of a tag.
-#' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
-#' `"tabular"`.
-#' @param directory path of the directory where the tag files can be read.
-#' @param pressure_file name of the file with pressure data. Full pathname or finishing with
-#' extensions (e.g., `"*.pressure"`, `"*.deg"` or `"*_press.xlsx"`). For
-#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
-#' CSV path with columns `datetime` and `value`.
-#' @param light_file name of the file with light data. Full pathname or finishing with extensions
-#' (e.g., `"*.glf"`, `"*.lux"` or `"*_acc.xlsx"`). For `manufacturer = "tabular"`, provide an
-#' in-memory table with columns `date` and `value`, or a CSV path with columns `datetime` and
-#' `value`.
-#' @param acceleration_file name of the file with acceleration data. Full pathname or finishing with
-#' extensions (e.g., `"*.acceleration"`, `"*.deg"` or `"*_acc.xlsx"`). For
-#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
-#' CSV path with columns `datetime` and `value`.
-#' @param temperature_external_file name of the file with temperature data. Full pathname or
-#' finishing with extensions (e.g., `"*.temperature"`, `"*.airtemperature"` or `"*.deg"`). External
-#' or air temperature is generally for temperature sensor on directed outward from the bird. For
-#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
-#' CSV path with columns `datetime` and `value`.
-#' @param temperature_internal_file name of the file with temperature data . Full pathname or
-#' finishing with extensions (e.g., `"*.bodytemperature"`). Internal or body temperature is
-#' generally for temperature sensor on directed inward (between bird and tag). For
-#' `manufacturer = "tabular"`, provide an in-memory table with columns `date` and `value`, or a
-#' CSV path with columns `datetime` and `value`.
-#' @param magnetic_file name of the file with magnetic/accelerometer data. Full pathname or
-#' finishing with extensions (e.g., `"*.magnetic"`). For `manufacturer = "tabular"`, provide an
-#' in-memory table with columns `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`,
-#' `acceleration_x`, `acceleration_y` and `acceleration_z`, or a CSV path with `datetime` plus
-#' these sensor columns.
-#' @param time_shift Raw timestamp correction added to sensor dates, in hours. Use a single numeric
-#' value for all sensors or a named list for sensor-specific shifts. Positive values add time.
-#' @param time_drift Linear clock correction in hours per year (365.25 days), added to sensor dates.
-#' Use one numeric value for all sensors or a named list for sensor-specific rates. Positive values
-#' add time and negative values subtract time. For example, `-12 / 60` subtracts 12 minutes per year.
-#' Convert hours per 30-day month to hours per year by multiplying by `365.25 / 30`.
-#' @param time_reference Original recorded timestamp at which the drift correction is zero,
-#' as POSIXct or character in UTC. Default (`NULL`) uses the earliest original measurement across
-#' all available sensors, before shifts or cropping. At this time only `time_shift` is added.
-#' @param crop_start remove all data before this date (POSIXct or character in UTC).
-#' @param crop_end remove all data after this date (POSIXct or character in UTC).
-#' @param quiet logical to hide messages about the progress.
-#' @param assert_pressure logical to check that the return tag has pressure data.
+#' - `time_shift` adds a constant offset in hours.
+#' - `time_drift` adds a linear correction in hours per year (365.25 days).
+#' - `time_reference` is the original recorded time at which drift correction is zero. By default,
+#'   it is the earliest measurement across all sensors, before shifts or cropping.
 #'
-#' @return a GeoPressureR `tag` object containing
-#' - `param` parameter object (see [param_create()])
-#' - `pressure` data.frame with columns: `date` and `value`
-#' - `light` (optional) same structure as pressure
-#' - `temperature_external` (optional) same structure as pressure
-#' - `temperature_internal` (optional) same structure as pressure
-#' - `acceleration` (optional) data.frame with columns: `date`, `value` and optionally
-#'   `mean_acceleration_z`.
-#'    - `value` is the activity computed as the sum of the difference in acceleration on the z-axis
-#'    (i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
-#'    - `mean_acceleration_z` is the mean acceleration on the z axis. In the SOI sensor, it is an
-#'    average over 32 measurements at 10Hz.
-#' - `magnetic` (optional) data.frame with columns: `date`, `magnetic_x`, `magnetic_y`, `magnetic_z`
-#'    , `acceleration_x`, `acceleration_y` and `acceleration_z`
+#' Positive corrections add time; negative corrections subtract time. Each correction accepts
+#' one value for all sensors or a named list, such as `list(pressure = -12 / 60, light = 0)`.
+#' Sensors omitted from a list receive zero; entries for absent sensors are ignored. All sensors
+#' share the reference, regardless of recording duration. Drift uses the original timestamps,
+#' before adding the shift, and extends linearly before an explicit reference.
+#'
+#' Cropping uses corrected UTC timestamps: `crop_start` is inclusive and `crop_end` is exclusive.
+#' Correction settings and the reference used for drift are recorded in `tag$param$tag_create`.
+#' When changing corrections, rerun the analysis from the original data and regenerate labels
+#' that rely on exact timestamps, including TRAINSET labels.
+#'
+#' @param id Unique tag identifier.
+#' @param manufacturer Data format: `NULL` (automatic), `"soi"`, `"migratetech"`, `"bas"`,
+#'   `"lund"`, `"prestag"`, or `"tabular"`.
+#' @param directory Directory containing the original sensor files.
+#' @param pressure_file Pressure input; tabular values must be in hPa. See Details for input formats.
+#' @param light_file Optional light input.
+#' @param acceleration_file Optional acceleration input.
+#' @param temperature_external_file Optional external or air-temperature input.
+#' @param temperature_internal_file Optional internal or body-temperature input.
+#' @param magnetic_file Optional magnetic and acceleration input with axis columns.
+#' @param time_shift Constant correction in hours. A numeric value for all sensors or a named list
+#'   for individual sensors. Default is zero.
+#' @param time_drift Linear correction in hours per year (365.25 days). A numeric value for all
+#'   sensors or a named list for individual sensors. Default is zero; `-12 / 60` subtracts
+#'   12 minutes per year. Convert hours per 30-day month by multiplying by `365.25 / 30`.
+#' @param time_reference Original recorded timestamp at which drift correction is zero, as POSIXct
+#'   or character in UTC. `NULL` uses the earliest measurement across all sensors. Supply a timestamp
+#'   if the clock was synchronised at another time. Only `time_shift` is added at the reference.
+#' @param crop_start Inclusive start of the corrected recording period, as POSIXct or character
+#'   in UTC. `NULL` keeps all earlier data.
+#' @param crop_end Exclusive end of the corrected recording period, as POSIXct or character in UTC.
+#'   `NULL` keeps all later data.
+#' @param quiet Logical; hide progress messages and sampling-interval warnings.
+#' @param assert_pressure Logical; require pressure data in the returned tag.
+#'
+#' @return A GeoPressureR `tag` containing `param` (see [param_create()]) and the available sensor
+#'   tables. Each sensor table has a UTC POSIXct `date` column and the following measurement columns:
+#' - `pressure`: `value` in hPa.
+#' - `light`, `temperature_external`, `temperature_internal`: `value`.
+#' - `acceleration`: `value` and optionally `mean_acceleration_z`. For SOI, `value` is the sum of
+#'   successive z-axis acceleration differences over 32 measurements at 10 Hz (jiggle);
+#'   `mean_acceleration_z` is their mean z-axis acceleration.
+#' - `magnetic`: `magnetic_x`, `magnetic_y`, `magnetic_z`, `acceleration_x`, `acceleration_y`,
+#'   `acceleration_z`.
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   # Read all sensor file
-#'   tag <- tag_create("18LX")
+#'   # Read available sensors.
+#'   tag <- tag_create("18LX", quiet = TRUE)
 #'
-#'   print(tag)
-#'
-#'   # Read only pressure and crop date
+#'   # Crop to the period of interest.
 #'   tag <- tag_create("18LX",
-#'     light_file = NULL,
-#'     acceleration_file = NULL,
-#'     crop_start = "2017-08-01",
-#'     crop_end = "2017-08-05"
+#'     crop_start = "2017-08-01", crop_end = "2017-08-05", quiet = TRUE
 #'   )
 #'
-#'   print(tag)
-#'
-#'   # You can also specify the exact file in case multiple files with the
-#'   # same extension exist in your directory (migratetech data)
+#'   # Select files explicitly when several match the same pattern.
 #'   tag <- tag_create("CB621",
-#'     pressure_file = "CB621_BAR.deg",
-#'     light_file = "CB621.lux",
-#'     acceleration_file = NULL
+#'     pressure_file = "CB621_BAR.deg", light_file = "CB621.lux", quiet = TRUE
 #'   )
 #'
-#'   print(tag)
-#'
-#'   # You can specify the data manually with
-#'   pressure <- data.frame(
-#'     date = as.POSIXct(c(
-#'       "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-#'       "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
-#'     ), tz = "UTC"),
-#'     value = c(1000, 1000, 1000, 1000)
-#'   )
-#'   tag_create(id = "xxx", pressure_file = pressure)
-#'
-#'   # Correct all sensors by -12 minutes/year, then add a constant two-hour shift.
-#'   tag_create("xxx", pressure_file = pressure, time_drift = -12 / 60, time_shift = 2)
-#'
-#'   # Correct only pressure, anchored at an explicit recorded reference time.
-#'   tag_create("xxx", pressure_file = pressure,
-#'     time_drift = list(pressure = -12 / 60), time_reference = "2017-06-20"
+#'   # Correct selected sensors using a shared recorded reference.
+#'   tag <- tag_create("18LX",
+#'     time_shift = list(light = 2), time_drift = list(pressure = -12 / 60),
+#'     time_reference = "2017-06-20", quiet = TRUE
 #'   )
 #' })
+#'
+#' # Read an in-memory table and apply the same correction to all sensors.
+#' pressure <- data.frame(
+#'   date = as.POSIXct("2025-01-01", tz = "UTC") + (0:48) * 1800,
+#'   value = rep(1000, 49)
+#' )
+#' tag <- tag_create("example", pressure_file = pressure,
+#'   time_shift = 2, time_drift = -12 / 60, quiet = TRUE
+#' )
 #'
 #' @family tag
 #' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/tag-object.html#create-tag)
