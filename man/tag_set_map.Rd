@@ -95,7 +95,6 @@ print(tag_custom)
 Other tag:
 \code{\link[=print.tag]{print.tag()}},
 \code{\link[=read_stap]{read_stap()}},
-\code{\link[=tag_correct_time]{tag_correct_time()}},
 \code{\link[=tag_create]{tag_create()}},
 \code{\link[=tag_stap_daily]{tag_stap_daily()}}
 }

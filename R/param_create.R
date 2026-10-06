@@ -42,7 +42,9 @@ param_create <- function(id, default = FALSE, ...) {
         )$temperature_internal_file,
         magnetic_file = formals(tag_create)$magnetic_file,
         assert_pressure = formals(tag_create)$assert_pressure,
-        time_shift = formals(tag_create)$time_shift
+        time_shift = formals(tag_create)$time_shift,
+        time_drift = formals(tag_create)$time_drift,
+        time_reference = formals(tag_create)$time_reference
       ),
       tag_label = list(
         file = formals(tag_label)$file

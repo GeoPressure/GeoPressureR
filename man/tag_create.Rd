@@ -18,7 +18,9 @@ tag_create(
   magnetic_file = NULL,
   assert_pressure = TRUE,
   quiet = FALSE,
-  time_shift = 0
+  time_shift = 0,
+  time_drift = 0,
+  time_reference = NULL
 )
 }
 \arguments{
@@ -71,7 +73,16 @@ these sensor columns.}
 \item{quiet}{logical to hide messages about the progress.}
 
 \item{time_shift}{Raw timestamp correction added to sensor dates, in hours. Use a single numeric
-value for all sensors or a named list for sensor-specific shifts.}
+value for all sensors or a named list for sensor-specific shifts. Positive values add time.}
+
+\item{time_drift}{Linear clock correction in hours per year (365.25 days), added to sensor dates.
+Use one numeric value for all sensors or a named list for sensor-specific rates. Positive values
+add time and negative values subtract time. For example, \code{-12 / 60} subtracts 12 minutes per year.
+Convert hours per 30-day month to hours per year by multiplying by \code{365.25 / 30}.}
+
+\item{time_reference}{Original recorded timestamp at which the drift correction is zero,
+as POSIXct or character in UTC. Default (\code{NULL}) uses the earliest original measurement across
+all available sensors, before shifts or cropping. At this time only \code{time_shift} is added.}
 }
 \value{
 a GeoPressureR \code{tag} object containing
@@ -160,8 +171,27 @@ have data in a format that is not yet supported.
 This function can be used to crop the data at specific date, for instance to remove pre-equipment
 or post-retrieval data.
 
-Changing \code{time_shift} may require regenerating TRAINSET label files because label matching uses
-exact timestamps.
+Sensor clocks are corrected after reading the original data and before cropping. The correction
+is \code{time_shift} plus \code{time_drift} multiplied by the elapsed years since \code{time_reference}.
+Drift is computed from the original recorded dates before adding the constant shift. A year
+is exactly 365.25 days. The default reference is the earliest original measurement across all
+available sensors, including sensors with no drift correction, before cropping or shifting.
+Each sensor uses this shared reference regardless of its recording start or duration. Provide
+\code{time_reference} if the clock was synchronised at another recorded time; correction extends
+linearly to measurements before that reference.
+
+Use one value to correct all sensors, or named lists to specify different shifts and drift
+rates for individual sensors. Sensors omitted from a list receive zero for that correction.
+Measurement values and sampling order are preserved. Corrected sampling intervals may contain
+fractional seconds; light analysis and actograms use full-day grids, and pressure preprocessing
+selects smoothed observations on an explicit hourly grid.
+
+Keep the original files and set the correction in \code{tag_create()} as part of the reproducible
+pipeline. No corrected raw files need to be saved. The corrections and the resolved reference
+(when drift is nonzero) are stored in \code{tag$param$tag_create}. Do not apply the corrections again
+if reading data already corrected elsewhere. Changing \code{time_shift}, \code{time_drift} or
+\code{time_reference} requires regenerating derived results and may require regenerating TRAINSET
+label files because label matching uses exact timestamps.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -199,6 +229,14 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     value = c(1000, 1000, 1000, 1000)
   )
   tag_create(id = "xxx", pressure_file = pressure)
+
+  # Correct all sensors by -12 minutes/year, then add a constant two-hour shift.
+  tag_create("xxx", pressure_file = pressure, time_drift = -12 / 60, time_shift = 2)
+
+  # Correct only pressure, anchored at an explicit recorded reference time.
+  tag_create("xxx", pressure_file = pressure,
+    time_drift = list(pressure = -12 / 60), time_reference = "2017-06-20"
+  )
 })
 
 }
@@ -208,7 +246,6 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 Other tag:
 \code{\link[=print.tag]{print.tag()}},
 \code{\link[=read_stap]{read_stap()}},
-\code{\link[=tag_correct_time]{tag_correct_time()}},
 \code{\link[=tag_set_map]{tag_set_map()}},
 \code{\link[=tag_stap_daily]{tag_stap_daily()}}
 }

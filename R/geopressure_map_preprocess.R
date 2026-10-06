@@ -53,14 +53,15 @@ geopressure_map_preprocess <- function(
     ))
   }
 
-  if (min(diff(as.numeric(pressure$date))) / 60 / 60 > 1) {
+  pressure_interval <- diff(as.numeric(pressure$date))
+  if (min(pressure_interval) / 60 / 60 > 1) {
     cli::cli_abort(c(
       "x" = "The temporal resolution of pressure is greater than {.val {1}} hour.",
       "!" = "A maximal resolution of {.val {1}} hour is required."
     ))
   }
 
-  if (length(unique(diff(pressure$date))) > 1) {
+  if (any(abs(pressure_interval - pressure_interval[1]) > 1e-6)) {
     cli::cli_warn(
       "Pressure data is not on a regular interval. The code should still
     technically work, but it might be the cause of an error later."

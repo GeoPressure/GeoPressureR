@@ -38,6 +38,8 @@ print.param <- function(x, ...) {
   bullets(param$tag_create, "temperature_internal_file")
   bullets(param$tag_create, "magnetic_file")
   bullets(param$tag_create, "time_shift")
+  bullets(param$tag_create, "time_drift")
+  bullets(param$tag_create, "time_reference")
 
   cli::cli_h3("Tag label {.fun tag_label}")
   bullets(param$tag_label, "file")

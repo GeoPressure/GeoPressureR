@@ -54,8 +54,27 @@
 #' This function can be used to crop the data at specific date, for instance to remove pre-equipment
 #' or post-retrieval data.
 #'
-#' Changing `time_shift` may require regenerating TRAINSET label files because label matching uses
-#' exact timestamps.
+#' Sensor clocks are corrected after reading the original data and before cropping. The correction
+#' is `time_shift` plus `time_drift` multiplied by the elapsed years since `time_reference`.
+#' Drift is computed from the original recorded dates before adding the constant shift. A year
+#' is exactly 365.25 days. The default reference is the earliest original measurement across all
+#' available sensors, including sensors with no drift correction, before cropping or shifting.
+#' Each sensor uses this shared reference regardless of its recording start or duration. Provide
+#' `time_reference` if the clock was synchronised at another recorded time; correction extends
+#' linearly to measurements before that reference.
+#'
+#' Use one value to correct all sensors, or named lists to specify different shifts and drift
+#' rates for individual sensors. Sensors omitted from a list receive zero for that correction.
+#' Measurement values and sampling order are preserved. Corrected sampling intervals may contain
+#' fractional seconds; light analysis and actograms use full-day grids, and pressure preprocessing
+#' selects smoothed observations on an explicit hourly grid.
+#'
+#' Keep the original files and set the correction in `tag_create()` as part of the reproducible
+#' pipeline. No corrected raw files need to be saved. The corrections and the resolved reference
+#' (when drift is nonzero) are stored in `tag$param$tag_create`. Do not apply the corrections again
+#' if reading data already corrected elsewhere. Changing `time_shift`, `time_drift` or
+#' `time_reference` requires regenerating derived results and may require regenerating TRAINSET
+#' label files because label matching uses exact timestamps.
 #'
 #' @param id unique identifier of a tag.
 #' @param manufacturer One of `NULL`, `"soi"`, `"migratetech"`, `"bas"`, `"lund"`, `"prestag"` or
@@ -89,7 +108,14 @@
 #' `acceleration_x`, `acceleration_y` and `acceleration_z`, or a CSV path with `datetime` plus
 #' these sensor columns.
 #' @param time_shift Raw timestamp correction added to sensor dates, in hours. Use a single numeric
-#' value for all sensors or a named list for sensor-specific shifts.
+#' value for all sensors or a named list for sensor-specific shifts. Positive values add time.
+#' @param time_drift Linear clock correction in hours per year (365.25 days), added to sensor dates.
+#' Use one numeric value for all sensors or a named list for sensor-specific rates. Positive values
+#' add time and negative values subtract time. For example, `-12 / 60` subtracts 12 minutes per year.
+#' Convert hours per 30-day month to hours per year by multiplying by `365.25 / 30`.
+#' @param time_reference Original recorded timestamp at which the drift correction is zero,
+#' as POSIXct or character in UTC. Default (`NULL`) uses the earliest original measurement across
+#' all available sensors, before shifts or cropping. At this time only `time_shift` is added.
 #' @param crop_start remove all data before this date (POSIXct or character in UTC).
 #' @param crop_end remove all data after this date (POSIXct or character in UTC).
 #' @param quiet logical to hide messages about the progress.
@@ -146,6 +172,14 @@
 #'     value = c(1000, 1000, 1000, 1000)
 #'   )
 #'   tag_create(id = "xxx", pressure_file = pressure)
+#'
+#'   # Correct all sensors by -12 minutes/year, then add a constant two-hour shift.
+#'   tag_create("xxx", pressure_file = pressure, time_drift = -12 / 60, time_shift = 2)
+#'
+#'   # Correct only pressure, anchored at an explicit recorded reference time.
+#'   tag_create("xxx", pressure_file = pressure,
+#'     time_drift = list(pressure = -12 / 60), time_reference = "2017-06-20"
+#'   )
 #' })
 #'
 #' @family tag
@@ -165,10 +199,39 @@ tag_create <- function(
   magnetic_file = NULL,
   assert_pressure = TRUE,
   quiet = FALSE,
-  time_shift = 0
+  time_shift = 0,
+  time_drift = 0,
+  time_reference = NULL
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
+  sensors <- c(
+    "pressure",
+    "light",
+    "acceleration",
+    "temperature_external",
+    "temperature_internal",
+    "magnetic"
+  )
+  for (correction in list(time_shift, time_drift)) {
+    if (is.numeric(correction)) {
+      assertthat::assert_that(length(correction) == 1, is.finite(correction))
+    } else {
+      assertthat::assert_that(
+        is.list(correction),
+        !is.null(names(correction)),
+        all(names(correction) %in% sensors),
+        all(vapply(correction, is.numeric, logical(1))),
+        all(lengths(correction) == 1),
+        all(is.finite(unlist(correction)))
+      )
+    }
+  }
+  assertthat::assert_that(all(unlist(time_drift) > -365.25 * 24))
+  if (!is.null(time_reference)) {
+    time_reference <- as.POSIXct(time_reference, tz = "UTC")
+    assertthat::assert_that(length(time_reference) == 1, !is.na(time_reference))
+  }
   if (!is.null(crop_start) && !is.null(crop_end)) {
     if (as.POSIXct(crop_start, tz = "UTC") >= as.POSIXct(crop_end, tz = "UTC")) {
       cli::cli_abort(c(
@@ -292,7 +355,7 @@ tag_create <- function(
     }
   }
 
-  tag <- tag_create_time_shift(tag, time_shift)
+  tag <- tag_create_time_correct(tag, time_shift, time_drift, time_reference)
 
   # Crop date
   tag <- tag_create_crop(
@@ -303,6 +366,7 @@ tag_create <- function(
   )
 
   tag$param$tag_create$time_shift <- time_shift
+  tag$param$tag_create$time_drift <- time_drift
 
   return(tag)
 }
@@ -404,9 +468,9 @@ tag_create_dto <- function(
   return(sensor_data)
 }
 
-#' Shift sensor data.frame timestamps
+#' Correct sensor timestamps with a constant shift and linear drift
 #' @noRd
-tag_create_time_shift <- function(tag, time_shift) {
+tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference) {
   sensors <- c(
     "pressure",
     "light",
@@ -415,27 +479,33 @@ tag_create_time_shift <- function(tag, time_shift) {
     "temperature_internal",
     "magnetic"
   )
-
+  shift <- drift <- stats::setNames(rep(0, length(sensors)), sensors)
   if (is.numeric(time_shift)) {
-    assertthat::assert_that(length(time_shift) == 1)
-    shift_by_sensor <- stats::setNames(as.list(rep(time_shift, length(sensors))), sensors)
+    shift[] <- time_shift
   } else {
-    assertthat::assert_that(is.list(time_shift))
-    assertthat::assert_that(!is.null(names(time_shift)))
-    assertthat::assert_that(all(names(time_shift) %in% sensors))
-    assertthat::assert_that(all(vapply(time_shift, is.numeric, logical(1))))
-    assertthat::assert_that(all(lengths(time_shift) == 1))
-
-    shift_by_sensor <- stats::setNames(as.list(rep(0, length(sensors))), sensors)
-    shift_by_sensor[names(time_shift)] <- time_shift
+    shift[names(time_shift)] <- unlist(time_shift)
   }
-
+  if (is.numeric(time_drift)) {
+    drift[] <- time_drift
+  } else {
+    drift[names(time_drift)] <- unlist(time_drift)
+  }
+  sensors <- intersect(sensors, names(tag))
+  if (is.null(time_reference) && any(drift[sensors] != 0)) {
+    time_reference <- do.call(min, lapply(tag[sensors], function(sensor) min(sensor$date)))
+  }
   for (sensor in sensors) {
-    if (sensor %in% names(tag)) {
-      tag[[sensor]]$date <- tag[[sensor]]$date + as.numeric(shift_by_sensor[[sensor]]) * 60 * 60
+    if (drift[[sensor]] != 0) {
+      tag[[sensor]]$date[] <- tag[[sensor]]$date +
+        shift[[sensor]] * 3600 +
+        as.numeric(difftime(tag[[sensor]]$date, time_reference, units = "secs")) *
+          drift[[sensor]] /
+          (365.25 * 24)
+    } else {
+      tag[[sensor]]$date[] <- tag[[sensor]]$date + shift[[sensor]] * 3600
     }
   }
-
+  tag$param$tag_create["time_reference"] <- list(time_reference)
   tag
 }
 
@@ -467,10 +537,10 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
 
       if (!quiet) {
         # Check irregular time
-        if (length(unique(diff(tag[[sensor]]$date))) > 1) {
-          dtime <- as.numeric(diff(tag[[sensor]]$date))
+        dtime <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
+        if (any(abs(dtime - dtime[1]) > 1e-6)) {
           cli::cli_warn(
-            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(dtime != dtime[1])]}."
+            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1e-6)]}."
           )
         }
 
