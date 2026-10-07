@@ -37,10 +37,21 @@ trainset_write <- function(
   # Convert to character and ensure that there are no dots (trainset doesn't like them)
   df[[label]] <- gsub("\\.", "-", as.character(df[[label]]))
 
+  # Use millisecond precision for TRAINSET timestamps
+  timestamp <- round(as.numeric(df[[timestamp]]) * 1000)
+
   # Combine the variable
   df_trainset <- data.frame(
     series = df[[series]],
-    timestamp = strftime(df[[timestamp]], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+    timestamp = sprintf(
+      "%s.%03dZ",
+      strftime(
+        as.POSIXct(floor(timestamp / 1000), origin = "1970-01-01", tz = "UTC"),
+        "%Y-%m-%dT%H:%M:%S",
+        tz = "UTC"
+      ),
+      timestamp %% 1000
+    ),
     value = df[[value]],
     label = df[[label]]
   )

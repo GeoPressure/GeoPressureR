@@ -341,3 +341,63 @@ test_that("new sensor tables receive clock correction and cropping automatically
   expect_equal(cropped$humidity$date, corrected$humidity$date[2])
   expect_equal(nrow(cropped$pressure), 2)
 })
+
+test_that("drift-corrected pressure and acceleration labels survive CSV round trips", {
+  sensor <- data.frame(
+    date = as.POSIXct("2025-01-01", tz = "UTC") + (0:48) * 1800,
+    value = 1000
+  )
+  tag <- tag_create(
+    "clock",
+    pressure_file = sensor,
+    acceleration_file = sensor,
+    time_drift = list(pressure = -12 / 60, acceleration = 6 / 60),
+    quiet = TRUE
+  )
+  tag$pressure$label <- rep(c("flight", "discard", "elev_100"), length.out = nrow(sensor))
+  tag$acceleration$label <- rev(tag$pressure$label)
+  file <- tempfile(fileext = ".csv")
+  on.exit(unlink(file))
+  tag_label_write(tag, file, quiet = TRUE)
+  csv <- utils::read.csv(file)
+  expect_true(all(grepl("\\.[0-9]{3}Z$", csv$timestamp)))
+  reloaded <- expect_no_warning(tag_label_read(tag, file))
+  expect_identical(reloaded$pressure, tag$pressure)
+  expect_identical(reloaded$acceleration, tag$acceleration)
+
+  # Genuine timestamp mismatches must still be reported.
+  csv$timestamp[1] <- "2024-12-31T23:59:59.000Z"
+  utils::write.csv(csv, file, row.names = FALSE)
+  expect_warning(tag_label_read(tag, file), "missing 1 timesteps")
+})
+
+test_that("label timestamps retain milliseconds across second boundaries", {
+  sensor <- data.frame(
+    date = as.POSIXct("2025-01-01", tz = "UTC") + c(0.0004, 0.9996, 2.1234),
+    value = 1000
+  )
+  tag <- tag_create("clock", pressure_file = sensor, quiet = TRUE)
+  tag$pressure$label <- c("flight", "discard", "elev_100")
+  file <- tempfile(fileext = ".csv")
+  on.exit(unlink(file))
+  tag_label_write(tag, file, quiet = TRUE)
+  expect_identical(
+    utils::read.csv(file)$timestamp,
+    c(
+      "2025-01-01T00:00:00.000Z",
+      "2025-01-01T00:00:01.000Z",
+      "2025-01-01T00:00:02.123Z"
+    )
+  )
+  reloaded <- expect_no_warning(tag_label_read(tag, file))
+  expect_identical(reloaded$pressure, tag$pressure)
+
+  # Existing whole-second label files remain readable.
+  tag$pressure$date <- as.POSIXct("2025-01-01", tz = "UTC") + 0:2
+  tag_label_write(tag, file, quiet = TRUE)
+  csv <- utils::read.csv(file)
+  csv$timestamp <- sub(".000Z", "Z", csv$timestamp, fixed = TRUE)
+  utils::write.csv(csv, file, row.names = FALSE)
+  reloaded <- expect_no_warning(tag_label_read(tag, file))
+  expect_identical(reloaded$pressure, tag$pressure)
+})
