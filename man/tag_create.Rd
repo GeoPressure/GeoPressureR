@@ -84,7 +84,9 @@ for clock offset and drift, then crop to the recording period of interest.
 \section{Workflow}{
 
 Data are \strong{read -> corrected -> cropped}. Keep the original files and specify clock
-corrections in \code{tag_create()}. Pressure is required by default; use \code{assert_pressure = FALSE}
+corrections in \code{tag_create()}. All sensor timestamps are rounded to the nearest millisecond
+after correction and before cropping, including when no correction is supplied.
+Pressure is required by default; use \code{assert_pressure = FALSE}
 for tags without pressure data.
 }
 

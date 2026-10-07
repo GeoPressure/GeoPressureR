@@ -185,7 +185,7 @@ test_that("clock correction respects tag_create time_shift and supports light-on
       as.numeric(corrected$light$date[3] - shifted$light$date[3], units = "secs") -
         600 / (365.25 * 24)
     ),
-    1e-6
+    0.000501
   )
   expect_null(tag$param$tag_create$time_reference)
 })
@@ -400,4 +400,49 @@ test_that("label timestamps retain milliseconds across second boundaries", {
   utils::write.csv(csv, file, row.names = FALSE)
   reloaded <- expect_no_warning(tag_label_read(tag, file))
   expect_identical(reloaded$pressure, tag$pressure)
+})
+
+test_that("tag creation rounds every sensor to milliseconds before cropping", {
+  sensor <- data.frame(
+    date = as.POSIXct("2025-01-01", tz = "UTC") + c(0.0004, 0.9996, 2.1234),
+    value = 1000
+  )
+  attr(sensor$date, "clock") <- "RTC"
+  magnetic <- sensor
+  for (column in c(
+    "acceleration_x",
+    "acceleration_y",
+    "acceleration_z",
+    "magnetic_x",
+    "magnetic_y",
+    "magnetic_z"
+  )) {
+    magnetic[[column]] <- sensor$value
+  }
+  tag <- tag_create(
+    "clock",
+    pressure_file = sensor,
+    light_file = sensor,
+    acceleration_file = sensor,
+    temperature_external_file = sensor,
+    temperature_internal_file = sensor,
+    magnetic_file = magnetic,
+    quiet = TRUE
+  )
+  for (name in setdiff(names(tag), "param")) {
+    expect_identical(as.numeric(tag[[name]]$date), round(as.numeric(sensor$date) * 1000) / 1000)
+    expect_identical(attributes(tag[[name]]$date), attributes(sensor$date))
+    expect_identical(tag[[name]]$value, sensor$value)
+  }
+  cropped <- tag_create(
+    "clock",
+    pressure_file = sensor,
+    crop_start = "2025-01-01 00:00:01",
+    crop_end = "2025-01-01 00:00:02",
+    quiet = TRUE
+  )
+  expect_identical(
+    as.numeric(cropped$pressure$date),
+    round(as.numeric(sensor$date[2]) * 1000) / 1000
+  )
 })

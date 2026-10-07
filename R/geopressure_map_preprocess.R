@@ -61,7 +61,8 @@ geopressure_map_preprocess <- function(
     ))
   }
 
-  if (any(abs(pressure_interval - pressure_interval[1]) > 1e-6)) {
+  # Allow one millisecond of timestamp rounding and floating-point noise.
+  if (any(abs(pressure_interval - pressure_interval[1]) > 1.001e-3)) {
     cli::cli_warn(
       "Pressure data is not on a regular interval. The code should still
     technically work, but it might be the cause of an error later."

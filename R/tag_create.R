@@ -6,7 +6,9 @@
 #'
 #' @section Workflow:
 #' Data are **read -> corrected -> cropped**. Keep the original files and specify clock
-#' corrections in `tag_create()`. Pressure is required by default; use `assert_pressure = FALSE`
+#' corrections in `tag_create()`. All sensor timestamps are rounded to the nearest millisecond
+#' after correction and before cropping, including when no correction is supplied.
+#' Pressure is required by default; use `assert_pressure = FALSE`
 #' for tags without pressure data.
 #'
 #' @section Sensor files:
@@ -429,6 +431,7 @@ tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference)
     } else {
       tag[[sensor]]$date[] <- tag[[sensor]]$date + shift[[sensor]] * 3600
     }
+    tag[[sensor]]$date[] <- round(as.numeric(tag[[sensor]]$date) * 1000) / 1000
   }
   tag$param$tag_create["time_reference"] <- list(time_reference)
   tag
@@ -456,9 +459,10 @@ tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
       if (!quiet) {
         # Check irregular time
         dtime <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
-        if (any(abs(dtime - dtime[1]) > 1e-6)) {
+        # Allow one millisecond of timestamp rounding and floating-point noise.
+        if (any(abs(dtime - dtime[1]) > 1.001e-3)) {
           cli::cli_warn(
-            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1e-6)]}."
+            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1.001e-3)]}."
           )
         }
 
