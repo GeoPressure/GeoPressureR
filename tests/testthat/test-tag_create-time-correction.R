@@ -446,3 +446,194 @@ test_that("tag creation rounds every sensor to milliseconds before cropping", {
     round(as.numeric(sensor$date[2]) * 1000) / 1000
   )
 })
+
+test_that("derived light grids and twilight labels retain millisecond timestamps", {
+  light <- data.frame(
+    date = as.POSIXct("2025-01-01", tz = "UTC") + (0:900) * 299 + 0.123,
+    value = rep(c(rep(0, 144), rep(10, 144)), length.out = 901)
+  )
+  tag <- tag_create(
+    "clock",
+    manufacturer = "tabular",
+    light_file = light,
+    assert_pressure = FALSE,
+    quiet = TRUE
+  ) |>
+    twilight_create(twl_offset = 0)
+  mat <- ts2mat(tag$light)
+  expect_identical(mat$date, round(mat$date * 1000) / 1000)
+  tag$twilight$label <- rep(c("discard", ""), length.out = nrow(tag$twilight))
+  file <- tempfile(fileext = ".csv")
+  on.exit(unlink(file))
+  twilight_label_write(tag, file, quiet = TRUE)
+  reloaded <- expect_no_warning(twilight_label_read(tag, file))
+  expect_identical(reloaded$twilight, tag$twilight)
+})
+
+test_that("API responses restore millisecond dates before joining pressure measurements", {
+  date <- as.POSIXct("2017-06-20", tz = "UTC") + (0:3) * 3600 + c(0.001, 0.123, 0.456, 0.999)
+  pressure <- data.frame(date = date, value = 1000, label = "", stap_id = 1)
+  httr2::local_mocked_responses(list(
+    httr2::response(
+      headers = list(`content-type` = "application/json"),
+      body = charToRaw(
+        '{"data":{"url":"https://example.com/pressure.csv","distInter":0,"lat":46,"lon":6}}'
+      )
+    ),
+    httr2::response(
+      body = charToRaw(glue::glue(
+        "time,pressure,altitude\n{glue::glue_collapse(glue::glue('{trunc(as.numeric(date))},96000,100'), sep = '\n')}"
+      ))
+    )
+  ))
+  out <- geopressure_timeseries_api(lat = 46, lon = 6, pressure = pressure, quiet = TRUE)
+  expect_identical(out$date, date)
+  expect_true(all(out$surface_pressure == 960))
+  expect_true(all(out$surface_pressure_norm == 1000))
+
+  httr2::local_mocked_responses(list(httr2::response(
+    headers = list(`content-type` = "application/json"),
+    body = charToRaw(jsonlite::toJSON(
+      list(
+        data = list(
+          time = trunc(as.numeric(date)),
+          surface_pressure = rep(96000, 4)
+        )
+      ),
+      auto_unbox = TRUE
+    ))
+  )))
+  path <- data.frame(stap_id = 1, lat = 46, lon = 6)
+  tag <- tag_create("clock", pressure_file = pressure, quiet = TRUE)
+  tag$stap <- data.frame(stap_id = 1, start = date[1], end = date[4])
+  out <- pressurepath_create_api(
+    tag,
+    path,
+    variable = "surface_pressure",
+    solar_dep = NULL,
+    era5_dataset = "single-levels",
+    quiet = TRUE
+  )
+  expect_identical(out$date, date)
+  expect_true(all(out$surface_pressure == 960))
+
+  expect_identical(
+    geopressure_api_restore_date(date, trunc(as.numeric(date[c(1, 3)]))),
+    date[c(1, 3)]
+  )
+  sub_second <- date[1] + c(0, 0.1, 0.2)
+  expect_identical(
+    geopressure_api_restore_date(sub_second, trunc(as.numeric(sub_second))),
+    sub_second
+  )
+  expect_error(
+    geopressure_api_restore_date(sub_second, trunc(as.numeric(sub_second[1]))),
+    "unambiguously"
+  )
+})
+
+test_that("TRAINSET CSV input uses millisecond rounding at tag creation", {
+  file <- tempfile(fileext = ".csv")
+  on.exit(unlink(file))
+  csv <- data.frame(
+    series = "pressure",
+    timestamp = c(
+      "2025-01-01T00:00:00.0004Z",
+      "2025-01-01T00:30:00.1234Z",
+      "2025-01-01T01:00:00.9996Z"
+    ),
+    value = 1000,
+    label = ""
+  )
+  utils::write.csv(csv, file, row.names = FALSE)
+  tag <- csv2tag(file)
+  expected <- as.POSIXct("2025-01-01", tz = "UTC") + c(0, 1800.123, 3601)
+  expect_identical(tag$pressure$date, expected)
+  tag_label_write(tag, file, quiet = TRUE)
+  reloaded <- expect_no_warning(tag_label_read(tag, file))
+  expect_identical(reloaded$pressure$label, tag$pressure$label)
+  expect_identical(reloaded$pressure$date, expected)
+})
+
+test_that("built-in TRAINSET saves millisecond pressure and acceleration labels", {
+  app_dir <- system.file("trainset", package = "GeoPressureR")
+  withr::local_dir(app_dir)
+  library(shiny)
+  library(plotly)
+  library(bslib)
+  sensor <- data.frame(date = as.POSIXct("2025-01-01", tz = "UTC") + (0:48) * 1800, value = 1000)
+  tag <- tag_create(
+    "clock",
+    pressure_file = sensor,
+    acceleration_file = sensor,
+    time_drift = list(pressure = -0.2, acceleration = 0.1),
+    quiet = TRUE
+  )
+  tag$pressure$label <- rep(c("", "flight", "discard"), length.out = 49)
+  tag$acceleration$label <- rev(tag$pressure$label)
+  app <- new.env(parent = globalenv())
+  app$tag <- tag
+  sys.source("utils.R", app)
+  sys.source("server.R", app)
+  file <- tempfile(fileext = ".csv")
+  on.exit(unlink(file))
+  shiny::testServer(app$server, {
+    write_labels_csv(file)
+    reloaded <- expect_no_warning(tag_label_read(tag, file))
+    expect_identical(reloaded$pressure, tag$pressure)
+    expect_identical(reloaded$acceleration, tag$acceleration)
+    payload <- jsonlite::fromJSON(output$ts_plot, simplifyVector = FALSE)
+    chart_time <- unlist(payload$x$data[[1]]$x)
+    expect_identical(as.POSIXct(chart_time, format = "%FT%H:%M:%OS", tz = "UTC"), tag$pressure$date)
+    expect_true(all(grepl("\\.[0-9]{3}Z$", chart_time)))
+    session$setInputs(label_select = "discard")
+    apply_labels_to_points(
+      NULL,
+      selection_range = list(
+        xmin = chart_time[2],
+        xmax = chart_time[2],
+        ymin = 999,
+        ymax = 1001
+      )
+    )
+    expect_identical(reactive_label_pres()[2], "discard")
+  })
+})
+
+test_that("astronomical twilight labels also use millisecond timestamps", {
+  sensor <- data.frame(date = as.POSIXct("2025-01-01", tz = "UTC") + (0:48) * 1800, value = 1000)
+  tag <- tag_create("clock", pressure_file = sensor, quiet = TRUE)
+  path <- data.frame(date = sensor$date[c(1, 49)], lat = 46, lon = 6, stap_id = 1)
+  file <- tempfile(fileext = ".csv")
+  on.exit(unlink(file))
+  for (solar_dep in c(0, 6)) {
+    twl <- path2twilight(path, solar_dep = solar_dep, return_long = FALSE)
+    for (column in c("sunrise", "sunset")) {
+      expect_identical(as.numeric(twl[[column]]), round(as.numeric(twl[[column]]) * 1000) / 1000)
+    }
+    tag$twilight <- path2twilight(path, solar_dep = solar_dep)
+    tag$twilight$label <- "discard"
+    tag$param$twilight_create$twl_offset <- 0
+    twilight_label_write(tag, file, quiet = TRUE)
+    reloaded <- expect_no_warning(twilight_label_read(tag, file))
+    expect_identical(reloaded$twilight, tag$twilight)
+  }
+})
+
+test_that("tag creation warns only when rounding creates timestamp collisions", {
+  sensor <- data.frame(
+    date = as.POSIXct("2025-01-01", tz = "UTC") + c(0.0001, 0.0002, 1.1234),
+    value = c(1000, 1001, 1002)
+  )
+  expect_warning(
+    tag <- tag_create("clock", pressure_file = sensor, quiet = TRUE),
+    "created 1 additional duplicate timestamp for pressure"
+  )
+  expect_equal(nrow(tag$pressure), nrow(sensor))
+  expect_identical(tag$pressure$value, sensor$value)
+  expect_identical(tag$pressure$date[1], tag$pressure$date[2])
+  sensor$date[2] <- sensor$date[1]
+  expect_no_warning(tag_create("clock", pressure_file = sensor, quiet = TRUE))
+  sensor$date[2] <- sensor$date[1] + 0.002
+  expect_no_warning(tag_create("clock", pressure_file = sensor, quiet = TRUE))
+})

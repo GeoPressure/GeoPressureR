@@ -37,21 +37,10 @@ trainset_write <- function(
   # Convert to character and ensure that there are no dots (trainset doesn't like them)
   df[[label]] <- gsub("\\.", "-", as.character(df[[label]]))
 
-  # Use millisecond precision for TRAINSET timestamps
-  timestamp <- round(as.numeric(df[[timestamp]]) * 1000)
-
   # Combine the variable
   df_trainset <- data.frame(
     series = df[[series]],
-    timestamp = sprintf(
-      "%s.%03dZ",
-      strftime(
-        as.POSIXct(floor(timestamp / 1000), origin = "1970-01-01", tz = "UTC"),
-        "%Y-%m-%dT%H:%M:%S",
-        tz = "UTC"
-      ),
-      timestamp %% 1000
-    ),
+    timestamp = trainset_format_time(df[[timestamp]]),
     value = df[[value]],
     label = df[[label]]
   )
@@ -88,4 +77,18 @@ trainset_write <- function(
     cli::cli_bullets(c("v" = "{.file {file}} written successfully."))
   }
   return(file)
+}
+
+# Format UTC timestamps exactly at millisecond precision for CSV and browser output.
+trainset_format_time <- function(date) {
+  time <- round(as.numeric(date) * 1000)
+  sprintf(
+    "%s.%03dZ",
+    strftime(
+      as.POSIXct(floor(time / 1000), origin = "1970-01-01", tz = "UTC"),
+      "%Y-%m-%dT%H:%M:%S",
+      tz = "UTC"
+    ),
+    time %% 1000
+  )
 }

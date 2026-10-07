@@ -229,7 +229,7 @@ stapelev_restyle_levels <- function(settings, difference) {
       proxy,
       "restyle",
       list(
-        x = list(stapelev_ribbon_x(level_data$date)),
+        x = list(trainset_format_time(stapelev_ribbon_x(level_data$date))),
         y = list(stapelev_ribbon_y(fitted, settings$range))
       ),
       list((i - 1L) * 2L)
@@ -238,7 +238,7 @@ stapelev_restyle_levels <- function(settings, difference) {
       proxy,
       "restyle",
       list(
-        x = list(level_data$date),
+        x = list(trainset_format_time(level_data$date)),
         y = list(fitted),
         hovertemplate = list(
           if (difference) {
@@ -573,7 +573,7 @@ output$stapelev_proposal_plot <- plotly::renderPlotly({
     }
     p <- p |>
       plotly::add_ribbons(
-        x = level_data$date,
+        x = trainset_format_time(level_data$date),
         ymin = fitted - settings$range,
         ymax = fitted + settings$range,
         name = paste(display_label, "range"),
@@ -583,7 +583,7 @@ output$stapelev_proposal_plot <- plotly::renderPlotly({
         showlegend = FALSE
       ) |>
       plotly::add_lines(
-        x = level_data$date,
+        x = trainset_format_time(level_data$date),
         y = fitted,
         name = display_label,
         line = list(color = color, width = 1),
@@ -604,14 +604,14 @@ output$stapelev_proposal_plot <- plotly::renderPlotly({
   view <- if (difference) "difference" else "pressure"
   p |>
     plotly::add_lines(
-      x = proposal_plot$date,
+      x = trainset_format_time(proposal_plot$date),
       y = logger,
       name = "Logger pressure",
       line = list(color = "#999999", width = 1),
       hoverinfo = "skip"
     ) |>
     plotly::add_markers(
-      x = proposal_plot$date,
+      x = trainset_format_time(proposal_plot$date),
       y = logger,
       text = hover_label,
       name = "Proposed labels",

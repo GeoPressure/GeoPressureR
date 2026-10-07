@@ -85,7 +85,8 @@ for clock offset and drift, then crop to the recording period of interest.
 
 Data are \strong{read -> corrected -> cropped}. Keep the original files and specify clock
 corrections in \code{tag_create()}. All sensor timestamps are rounded to the nearest millisecond
-after correction and before cropping, including when no correction is supplied.
+after correction and before cropping, including when no correction is supplied. A warning
+identifies sensors where rounding makes distinct timestamps identical; all measurements are kept.
 Pressure is required by default; use \code{assert_pressure = FALSE}
 for tags without pressure data.
 }

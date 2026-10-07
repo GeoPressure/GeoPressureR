@@ -63,7 +63,7 @@ apply_current_styling <- function(
 
 restyle_xy <- function(plot_proxy, curve, x, y, row_index, text = NULL, extra = NULL) {
   base_payload <- list(
-    x = list(x),
+    x = list(trainset_format_time(x)),
     y = list(y),
     customdata = list(row_index)
   )
@@ -142,7 +142,7 @@ zoom_to_window <- function(start, end, lag_x_hours = 12, lag_y = 5) {
   xmin <- start - lag_x
   xmax <- end + lag_x
 
-  layout_update <- list("xaxis.range" = list(xmin, xmax))
+  layout_update <- list("xaxis.range" = as.list(trainset_format_time(c(xmin, xmax))))
 
   active_series <- active_series_or_default()
   if (active_series == "acceleration" && has_acceleration) {

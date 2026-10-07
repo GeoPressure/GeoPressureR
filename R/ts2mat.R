@@ -69,6 +69,9 @@ ts2mat <- function(
   closest <- which.min(abs(date - ts$date[1]))
   date <- date - (date[closest] - ts$date[1])
 
+  # Keep derived grid timestamps at the same precision as sensor timestamps.
+  date[] <- round(as.numeric(date) * 1000) / 1000
+
   # Match the observation on the new grid
   # Convert to numeric for faster computation
   date_num <- as.numeric(date)

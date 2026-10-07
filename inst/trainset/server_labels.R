@@ -116,8 +116,8 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
   point_indices <- NULL
   if (!is.null(selection_range)) {
     series_data <- if (active_series == "pressure") pressure_data else acceleration_data
-    xmin <- as.POSIXct(selection_range$xmin, tz = time_tz)
-    xmax <- as.POSIXct(selection_range$xmax, tz = time_tz)
+    xmin <- as.POSIXct(sub("T", " ", selection_range$xmin, fixed = TRUE), tz = time_tz)
+    xmax <- as.POSIXct(sub("T", " ", selection_range$xmax, fixed = TRUE), tz = time_tz)
     ymin <- if (active_series == "acceleration" && !is.null(selection_range$y2min)) {
       selection_range$y2min
     } else {

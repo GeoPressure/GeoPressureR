@@ -149,7 +149,7 @@ server <- function(input, output, session) {
     update_state_tag_labels()
     out <- data.frame(
       series = character(0),
-      timestamp = character(0),
+      date = as.POSIXct(character(0), tz = "UTC"),
       value = numeric(0),
       label = character(0)
     )
@@ -159,7 +159,7 @@ server <- function(input, output, session) {
         out,
         data.frame(
           series = "pressure",
-          timestamp = strftime(state$tag$pressure$date[i], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+          date = state$tag$pressure$date[i],
           value = state$tag$pressure$value[i],
           label = gsub("\\.", "-", as.character(state$tag$pressure$label[i]))
         )
@@ -171,13 +171,13 @@ server <- function(input, output, session) {
         out,
         data.frame(
           series = "acceleration",
-          timestamp = strftime(state$tag$acceleration$date[i], "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+          date = state$tag$acceleration$date[i],
           value = state$tag$acceleration$value[i],
           label = gsub("\\.", "-", as.character(state$tag$acceleration$label[i]))
         )
       )
     }
-    utils::write.csv(out, file = path, row.names = FALSE)
+    getFromNamespace("trainset_write", "GeoPressureR")(out, file = path, quiet = TRUE)
     state$labels_dirty <- FALSE
   }
 

@@ -7,7 +7,8 @@
 #' @section Workflow:
 #' Data are **read -> corrected -> cropped**. Keep the original files and specify clock
 #' corrections in `tag_create()`. All sensor timestamps are rounded to the nearest millisecond
-#' after correction and before cropping, including when no correction is supplied.
+#' after correction and before cropping, including when no correction is supplied. A warning
+#' identifies sensors where rounding makes distinct timestamps identical; all measurements are kept.
 #' Pressure is required by default; use `assert_pressure = FALSE`
 #' for tags without pressure data.
 #'
@@ -290,7 +291,21 @@ tag_create <- function(
     }
   }
 
+  distinct_times <- vapply(
+    tag[setdiff(names(tag), "param")],
+    function(sensor) length(unique(sensor$date)),
+    integer(1)
+  )
   tag <- tag_create_time_correct(tag, time_shift, time_drift, time_reference)
+  for (sensor in names(distinct_times)) {
+    collisions <- distinct_times[[sensor]] - length(unique(tag[[sensor]]$date))
+    if (collisions > 0) {
+      cli::cli_warn(c(
+        "!" = "Millisecond rounding created {.val {collisions}} additional duplicate timestamp{?s} for {.field {sensor}}.",
+        "i" = "All measurements are retained, but timestamp-based label matching cannot distinguish them."
+      ))
+    }
+  }
 
   # Crop date
   tag <- tag_create_crop(

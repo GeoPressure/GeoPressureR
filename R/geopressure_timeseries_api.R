@@ -137,6 +137,7 @@ geopressure_timeseries_api_impl <- function(
         "The returned data.frame is had a different number of element than the requested pressure."
       )
     }
+    out$date <- geopressure_api_restore_date(pressure$date, as.numeric(out$date))
 
     if (!quiet) {
       cli::cli_progress_step("Compute normalized ERA5 pressure")
@@ -176,4 +177,18 @@ geopressure_timeseries_api_impl <- function(
     }
   }
   return(out)
+}
+
+# Restore original dates after the API truncates timestamps to whole seconds.
+geopressure_api_restore_date <- function(date, time) {
+  if (length(time) == length(date)) {
+    return(date)
+  }
+  # Missing responses cannot be matched safely when several measurements share one second.
+  if (anyDuplicated(trunc(as.numeric(date)))) {
+    cli::cli_abort(
+      "The API returned fewer measurements and truncated timestamps; sub-second measurements cannot be matched unambiguously."
+    )
+  }
+  date[match(time, trunc(as.numeric(date)))]
 }

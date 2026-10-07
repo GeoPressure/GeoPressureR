@@ -1,5 +1,7 @@
 # Utility functions for GeoPressure trainset Shiny app
 
+trainset_format_time <- getFromNamespace("trainset_format_time", "GeoPressureR")
+
 get_plot_styles <- function(
   active_series,
   label_pres = NULL,

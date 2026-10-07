@@ -117,7 +117,7 @@ pressurepath_create_api_impl <- function(
   }
 
   # Convert time to date
-  out$time <- as.POSIXct(out$time, origin = "1970-01-01", tz = "UTC")
+  out$time <- geopressure_api_restore_date(pressurepath$date, out$time)
   names(out)[names(out) == "time"] <- "date"
 
   # Add out to pressurepath
