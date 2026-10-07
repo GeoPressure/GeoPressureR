@@ -560,7 +560,6 @@ test_that("built-in TRAINSET saves millisecond pressure and acceleration labels"
   withr::local_dir(app_dir)
   library(shiny)
   library(plotly)
-  library(bslib)
   sensor <- data.frame(date = as.POSIXct("2025-01-01", tz = "UTC") + (0:48) * 1800, value = 1000)
   tag <- tag_create(
     "clock",
