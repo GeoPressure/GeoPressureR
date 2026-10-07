@@ -13,6 +13,7 @@
 
 ## Minor
 
+- [Keep TRAINSET measurement and elevation-proposal charts on date axes](https://github.com/GeoPressure/GeoPressureR/commit/9f38c312), preserving millisecond timestamps while displaying readable automatic date/time ticks at each zoom level.
 - Add fast, offline regression tests for [template parameter handling](https://github.com/GeoPressure/GeoPressureR/commit/813a1196ac896d02195200c1002e0ea202f3f3e1), [output selection and ARCO processing](https://github.com/GeoPressure/GeoPressureR/commit/4a33dd86a8eb7727289ae660ccf9e306fe658bfb), and [ARCO chunk reuse](https://github.com/GeoPressure/GeoPressureR/commit/50703a5bab9fc9538278f2341b3188705421c2a3).
 
 - [Reorganize `tag_create()` help into workflow, sensor files, tabular input, clock correction and cropping sections](https://github.com/GeoPressure/GeoPressureR/commit/22405915).
