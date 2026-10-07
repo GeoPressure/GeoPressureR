@@ -623,7 +623,7 @@ output$stapelev_proposal_plot <- plotly::renderPlotly({
       }
     ) |>
     plotly::layout(
-      xaxis = list(title = "Time"),
+      xaxis = list(title = "Time", type = "date"),
       yaxis = list(title = if (difference) "Pressure difference (hPa)" else "Pressure (hPa)"),
       hovermode = "closest",
       meta = list(

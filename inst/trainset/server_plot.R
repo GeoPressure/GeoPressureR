@@ -354,6 +354,7 @@ output$ts_plot <- plotly::renderPlotly({
   layout_config <- list(
     xaxis = list(
       title = "Time",
+      type = "date",
       range = time_range,
       rangeselector = list(
         buttons = list(

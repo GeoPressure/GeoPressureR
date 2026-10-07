@@ -582,9 +582,26 @@ test_that("built-in TRAINSET saves millisecond pressure and acceleration labels"
     expect_identical(reloaded$pressure, tag$pressure)
     expect_identical(reloaded$acceleration, tag$acceleration)
     payload <- jsonlite::fromJSON(output$ts_plot, simplifyVector = FALSE)
+    expect_identical(payload$x$layout$xaxis$type, "date")
     chart_time <- unlist(payload$x$data[[1]]$x)
     expect_identical(as.POSIXct(chart_time, format = "%FT%H:%M:%OS", tz = "UTC"), tag$pressure$date)
     expect_true(all(grepl("\\.[0-9]{3}Z$", chart_time)))
+    state$stapelev_proposal <- data.frame(
+      date = tag$pressure$date,
+      pressure_tag = 1000,
+      surface_pressure = 1000,
+      residual = 0,
+      label = ""
+    )
+    stapelev_classification_settings(list(
+      offsets = 0,
+      windows = matrix(range(as.numeric(tag$pressure$date)), nrow = 1),
+      range = 2,
+      continuity = 0
+    ))
+    session$flushReact()
+    proposal <- jsonlite::fromJSON(output$stapelev_proposal_plot, simplifyVector = FALSE)
+    expect_identical(proposal$x$layout$xaxis$type, "date")
     session$setInputs(label_select = "discard")
     apply_labels_to_points(
       NULL,
