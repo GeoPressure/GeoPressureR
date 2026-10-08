@@ -54,7 +54,8 @@ geopressure_map_preprocess <- function(
   }
 
   pressure_interval <- diff(as.numeric(pressure$date))
-  if (min(pressure_interval) / 60 / 60 > 1) {
+  # Allow the small stretch of hourly intervals introduced by clock drift correction.
+  if (min(pressure_interval) > 3600 * 1.001) {
     cli::cli_abort(c(
       "x" = "The temporal resolution of pressure is greater than {.val {1}} hour.",
       "!" = "A maximal resolution of {.val {1}} hour is required."

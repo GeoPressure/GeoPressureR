@@ -97,8 +97,9 @@ ts2mat <- function(
   use_next <- delta2 < delta1
   closest_idx <- ifelse(use_next, idx + 1, idx)
 
-  # Mask values beyond twl_time_tolerance
-  closest_idx[(pmin(delta1, delta2) > twl_time_tolerance)] <- NA
+  # Mask values beyond twl_time_tolerance, or half the grid step so that drift-corrected samples
+  # sliding against the exact grid are not dropped
+  closest_idx[(pmin(delta1, delta2) > max(twl_time_tolerance, res / 2))] <- NA
 
   # Final values
   value <- rep(NA, length(date_num))
