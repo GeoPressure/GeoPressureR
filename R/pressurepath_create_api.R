@@ -48,6 +48,7 @@ pressurepath_create_api_impl <- function(
   # Validate against what this ERA5 product actually carries. ERA5-Land has 70 bands against 292
   # for single levels, so the allowed set is not the same for every value of `era5_dataset`.
   pressurepath_variable_check(variable, "api", era5_dataset)
+  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
   # Check workers
   assertthat::assert_that(is.numeric(workers) | workers == "auto")

@@ -1,3 +1,26 @@
+# ERA5-Land surface pressure is not hydrostatically consistent with the orography ERA5-Land
+# publishes, so altitude retrieved from it is wrong by tens to hundreds of metres. The
+# deprecation must fire for that combination only.
+
+test_that("altitude with ERA5-Land is deprecated", {
+  for (dataset in c("land", "both")) {
+    expect_snapshot(
+      era5_dataset_deprecate_altitude(dataset, TRUE),
+      variant = dataset
+    )
+  }
+})
+
+test_that("ERA5-Land stays silent when altitude is not requested", {
+  expect_no_warning(expect_false(era5_dataset_deprecate_altitude("land", FALSE)))
+  expect_no_warning(expect_false(era5_dataset_deprecate_altitude("both", FALSE)))
+})
+
+test_that("single-levels never warns", {
+  expect_no_warning(expect_false(era5_dataset_deprecate_altitude("single-levels", TRUE)))
+  expect_no_warning(expect_false(era5_dataset_deprecate_altitude("single-levels", FALSE)))
+})
+
 test_that("altitude-producing functions default to single-levels", {
   # The API backend sends `dataset` explicitly in the request body, so the server-side
   # default never applies to GeoPressureR: these defaults are what users actually get.
