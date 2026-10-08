@@ -93,8 +93,8 @@ test_that("geolight refinement uses local target-resolution grids", {
   extent_local <- geolight_refine_extent(
     lon = 17,
     lat = 49,
-    radius_lat_km = 200,
-    radius_lon_km = 100,
+    radius_lat = 200,
+    radius_lon = 100,
     extent = extent,
     scale = geolight_refine_scale(extent, 20)
   )
@@ -114,13 +114,13 @@ test_that("geolight_map_calibrate() refines fitted locations when requested", {
   tag <- expect_no_error(geolight_map_calibrate(
     tag,
     fitted_location_duration = 0,
-    refine_fitted_location_scale_km = 20,
+    refine_fitted_location_scale = 20,
     refine_fitted_location_max_iter = 2,
     quiet = TRUE
   ))
 
   assert_twl_calib(tag)
-  expect_equal(tag$param$geolight_map$refine_fitted_location_scale_km, 20)
+  expect_equal(tag$param$geolight_map$refine_fitted_location_scale, 20)
   expect_equal(tag$param$geolight_map$refine_fitted_location_max_iter, 2)
 
   calib_stap <- tag$param$geolight_map$twl_calib$calib_stap

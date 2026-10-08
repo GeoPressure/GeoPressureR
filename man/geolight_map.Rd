@@ -15,7 +15,7 @@ geolight_map(
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-05,
-  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_scale = 20,
   refine_fitted_location_max_iter = 2,
   twl_llp = function(n) log(n)/n,
   compute_known = FALSE,
@@ -38,7 +38,7 @@ geolight_map_calibrate(
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-05,
-  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_scale = 20,
   refine_fitted_location_max_iter = 2,
   quiet = FALSE
 )
@@ -63,7 +63,7 @@ Default is \code{Inf} (disabled).}
 \item{zenith_prior_penalty_weight}{Weight controlling how strongly automatically fitted
 calibration locations are pulled toward \code{zenith_prior_mean}.}
 
-\item{refine_fitted_location_scale_km}{Target spatial resolution, in kilometers, for fitted
+\item{refine_fitted_location_scale}{Target spatial resolution, in kilometers, for fitted
 calibration-anchor refinement. This also defines the movement threshold for convergence.}
 
 \item{refine_fitted_location_max_iter}{Maximum number of fitted-location refinement iterations.

@@ -245,7 +245,7 @@ initial_styles <- get_plot_styles(
   acc_has_lines = acc_has_lines_initial
 )
 
-time_range <- list(time_min, time_max)
+time_range <- as.list(trainset_format_time(c(time_min, time_max)))
 
 output$ts_plot <- plotly::renderPlotly({
   p <- plotly::plot_ly()
@@ -254,7 +254,7 @@ output$ts_plot <- plotly::renderPlotly({
     p <- p |>
       plotly::add_trace(
         data = pressure_overview,
-        x = ~date,
+        x = ~ trainset_format_time(date),
         y = ~value,
         type = "scatter",
         mode = "lines",
@@ -276,7 +276,7 @@ output$ts_plot <- plotly::renderPlotly({
           label = initial_pressure_detail$label,
           row_index = initial_pressure_detail$row_index
         ),
-        x = ~date,
+        x = ~ trainset_format_time(date),
         y = ~value,
         type = "scattergl",
         mode = "lines",
@@ -298,7 +298,7 @@ output$ts_plot <- plotly::renderPlotly({
           label = initial_pressure_detail$label,
           row_index = initial_pressure_detail$row_index
         ),
-        x = ~date,
+        x = ~ trainset_format_time(date),
         y = ~value,
         type = "scattergl",
         mode = "markers",
@@ -325,7 +325,7 @@ output$ts_plot <- plotly::renderPlotly({
           value = initial_acc_detail$value,
           row_index = initial_acc_detail$row_index
         ),
-        x = ~date,
+        x = ~ trainset_format_time(date),
         y = ~value,
         type = "scattergl",
         mode = acc_mode,
@@ -354,6 +354,7 @@ output$ts_plot <- plotly::renderPlotly({
   layout_config <- list(
     xaxis = list(
       title = "Time",
+      type = "date",
       range = time_range,
       rangeselector = list(
         buttons = list(

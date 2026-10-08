@@ -42,7 +42,9 @@ param_create <- function(id, default = FALSE, ...) {
         )$temperature_internal_file,
         magnetic_file = formals(tag_create)$magnetic_file,
         assert_pressure = formals(tag_create)$assert_pressure,
-        time_shift = formals(tag_create)$time_shift
+        time_shift = formals(tag_create)$time_shift,
+        time_drift = formals(tag_create)$time_drift,
+        time_reference = formals(tag_create)$time_reference
       ),
       tag_label = list(
         file = formals(tag_label)$file
@@ -94,7 +96,7 @@ param_create <- function(id, default = FALSE, ...) {
         zenith_prior_mean = formals(geolight_map)$zenith_prior_mean,
         zenith_prior_sd = formals(geolight_map)$zenith_prior_sd,
         zenith_prior_penalty_weight = formals(geolight_map)$zenith_prior_penalty_weight,
-        refine_fitted_location_scale_km = formals(geolight_map)$refine_fitted_location_scale_km,
+        refine_fitted_location_scale = formals(geolight_map)$refine_fitted_location_scale,
         refine_fitted_location_max_iter = formals(geolight_map)$refine_fitted_location_max_iter,
         twl_llp = formals(geolight_map)$twl_llp,
         compute_known = formals(geolight_map)$compute_known,

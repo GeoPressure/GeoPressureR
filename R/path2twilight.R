@@ -168,6 +168,10 @@ path2twilight <- function(
     )$time
   }
 
+  for (column in c("sunrise", "sunset")) {
+    twl[[column]][] <- round(as.numeric(twl[[column]]) * 1000) / 1000
+  }
+
   if (return_long) {
     out <- data.frame(
       date = c(twl$date, twl$date),

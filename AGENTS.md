@@ -63,6 +63,17 @@ x |> f() |> g() |> h()
 - Do not refactor unrelated code.
 - Do not reorder code unless required.
 
+### Argument units
+- Use descriptive argument names without unit suffixes throughout public and internal functions;
+  document units explicitly in roxygen
+  `@param` descriptions (e.g., `time_shift` in hours, `twl_time_tolerance` in seconds).
+- Use a fixed unit consistent with related arguments; do not add a unit-selection argument unless
+  callers need to choose units.
+- For rates, document both the numerator and denominator and any fixed duration convention
+  (e.g., `time_drift` in hours per year, with a year defined as 365.25 days).
+- Keep argument names, call sites, stored parameter keys, tests and documentation aligned when
+  renaming an argument. Explicitly flag public argument and configuration-key changes.
+
 
 ## Validation and checks
 - Input validation belongs **only at public function entry points**.

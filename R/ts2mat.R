@@ -23,8 +23,10 @@ ts2mat <- function(
   assertthat::assert_that(is.numeric(twl_offset))
 
   res_vec <- as.numeric(diff(ts$date), units = "secs")
-  res <- stats::median(res_vec)
-  if (length(unique(res_vec)) != 1) {
+  # Use a grid that divides a day exactly, including after clock drift correction.
+  res <- 86400 / round(86400 / stats::median(res_vec))
+  # Allow one millisecond of timestamp rounding and floating-point noise.
+  if (any(abs(res_vec - res_vec[1]) > 1.001e-3)) {
     res_counts <- sort(table(res_vec), decreasing = TRUE)
     res_counts_top <- utils::head(res_counts, 5)
     res_summary <- paste(
@@ -67,6 +69,9 @@ ts2mat <- function(
   closest <- which.min(abs(date - ts$date[1]))
   date <- date - (date[closest] - ts$date[1])
 
+  # Keep derived grid timestamps at the same precision as sensor timestamps.
+  date[] <- round(as.numeric(date) * 1000) / 1000
+
   # Match the observation on the new grid
   # Convert to numeric for faster computation
   date_num <- as.numeric(date)
@@ -92,8 +97,9 @@ ts2mat <- function(
   use_next <- delta2 < delta1
   closest_idx <- ifelse(use_next, idx + 1, idx)
 
-  # Mask values beyond twl_time_tolerance
-  closest_idx[(pmin(delta1, delta2) > twl_time_tolerance)] <- NA
+  # Mask values beyond twl_time_tolerance, or half the grid step so that drift-corrected samples
+  # sliding against the exact grid are not dropped
+  closest_idx[(pmin(delta1, delta2) > max(twl_time_tolerance, res / 2))] <- NA
 
   # Final values
   value <- rep(NA, length(date_num))

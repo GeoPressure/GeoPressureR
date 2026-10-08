@@ -53,14 +53,17 @@ geopressure_map_preprocess <- function(
     ))
   }
 
-  if (min(diff(as.numeric(pressure$date))) / 60 / 60 > 1) {
+  pressure_interval <- diff(as.numeric(pressure$date))
+  # Allow hourly intervals stretched by clock drift correction (1% is ~88 h per year).
+  if (min(pressure_interval) > 3600 * 1.01) {
     cli::cli_abort(c(
       "x" = "The temporal resolution of pressure is greater than {.val {1}} hour.",
       "!" = "A maximal resolution of {.val {1}} hour is required."
     ))
   }
 
-  if (length(unique(diff(pressure$date))) > 1) {
+  # Allow one millisecond of timestamp rounding and floating-point noise.
+  if (any(abs(pressure_interval - pressure_interval[1]) > 1.001e-3)) {
     cli::cli_warn(
       "Pressure data is not on a regular interval. The code should still
     technically work, but it might be the cause of an error later."
@@ -206,7 +209,9 @@ geopressure_map_preprocess <- function(
     # Pressure is an instantaneous parameters
     # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
     # the value at the exact hour
-    pgi_reg <- pgi_reg[seq(1, nrow(pgi_reg), by = 1 / as.numeric(dt)), ]
+    date_hour <- seq(min(pgi_reg$date), max(pgi_reg$date), by = "hour")
+    pgi_reg <- pgi_reg[round(stats::approx(pgi_reg$date, seq_len(nrow(pgi_reg)), date_hour)$y), ]
+    pgi_reg$date <- date_hour
 
     # Remove time without measure
     pgi_reg <- pgi_reg[!is.na(pgi_reg$stap_id), ]
