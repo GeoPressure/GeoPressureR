@@ -52,6 +52,8 @@ test_that("pressurepath_create() | check flight", {
   path_i <- subset(path, stap_id %in% i_s)
   # pressure <- subset(tag$pressure, stap_id %in% i_s)
 
+  # The default era5_dataset ("single-levels") is what matters here; ERA5-Land is
+  # supported for altitude; single-levels is recommended.
   pressurepath <- expect_no_error(pressurepath_create(
     tag,
     path_i,

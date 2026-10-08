@@ -11,19 +11,19 @@
 #' and requires an ECMWF API key plus the optional `Rarr` and `ecmwfr` packages.
 #'
 #' `source = "api"` asks the hosted GeoPressureAPI to prepare the data. It needs no ECMWF key or
-#' `Rarr` installation, but depends on that service and supports its fixed ERA5 configuration.
+#' `Rarr` installation, but depends on that service.
 #'
 #' The default, `source = "auto"`, uses ARCO when a key stored by [ecmwfr::wf_set_key()] is
 #' available and GeoPressureAPI otherwise. Use `geopressure_timeseries_arco()` or
 #' `geopressure_timeseries_api()` to select a backend explicitly.
 #'
 #' @section ERA5 datasets and matching:
-#' With ARCO, `era5_dataset = "single-levels"` uses global ERA5 on a 0.25 degree grid and retains
-#' locations over water. `era5_dataset = "land"` (the default) uses ERA5-Land on a 0.1 degree grid;
+#' With ARCO, `era5_dataset = "single-levels"` (the default) uses global ERA5 on a 0.25 degree grid
+#' and retains locations over water. `era5_dataset = "land"` uses ERA5-Land on a 0.1 degree grid;
 #' it has finer spatial resolution but is masked over oceans, so ocean locations are moved to the
 #' closest land cell, and it must not be used when `pressure` is supplied because `altitude` is
-#' then computed from it (see the *Choosing `era5_dataset`* section). GeoPressureAPI chooses its
-#' ERA5 data internally and moves ocean locations onshore.
+#' then computed from it (see the *Choosing `era5_dataset`* section). GeoPressureAPI uses the same
+#' dataset choice and moves ocean locations onshore only with ERA5-Land.
 #'
 #' Without `pressure`, the requested interval is returned hourly. With ARCO and `pressure`, each tag
 #' time is matched to its closest ERA5 hour and restored after matching; no temporal interpolation
@@ -43,10 +43,13 @@
 #'   column in hPa. Additional columns are retained.
 #' @param start_time,end_time Start and end of the requested interval when `pressure` is `NULL`.
 #' @param source Data source: `"auto"`, `"arco"`, or `"api"`.
-#' @param era5_dataset ERA5 product used by ARCO: `"land"` (default) at 0.1 degree resolution or
-#'   `"single-levels"` at 0.25 degree resolution. Prefer `"single-levels"` when `pressure` is
-#'   supplied, because `altitude` is then computed; see the *Choosing `era5_dataset`* section.
-#'   GeoPressureAPI uses its own configuration.
+#' @param era5_dataset ERA5 product: `"single-levels"` (default) at 0.25 degree
+#'   resolution or `"land"` at 0.1 degree resolution. Keep the default when `pressure` is supplied,
+#'   because `altitude` is then computed; see the *Choosing `era5_dataset`* section.
+#' @param altitude_formula Altitude formula: `"virtual"` (default) uses 2 m virtual temperature
+#'   and a lapse rate varying with season and latitude, based on the
+#'   [altitude validation](https://github.com/GeoPressure/altitude-validation). `"standard"` uses
+#'   2 m temperature and -6.5 K/km to reproduce previous results.
 #' @param quiet Logical to suppress progress messages.
 #' @param debug Logical to display request details.
 #'
@@ -73,8 +76,11 @@ geopressure_timeseries <- function(
   quiet = FALSE,
   debug = FALSE,
   source = c("auto", "arco", "api"),
-  era5_dataset = c("land", "single-levels")
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = c("virtual", "standard")
 ) {
+  altitude_formula <- match.arg(altitude_formula)
+  era5_dataset <- match.arg(era5_dataset)
   input <- geopressure_timeseries_prepare(
     lat,
     lon,
@@ -98,7 +104,8 @@ geopressure_timeseries <- function(
       end_time = end_time,
       quiet = quiet,
       debug = debug,
-      era5_dataset = era5_dataset
+      era5_dataset = era5_dataset,
+      altitude_formula = altitude_formula
     ))
   }
 
@@ -109,7 +116,9 @@ geopressure_timeseries <- function(
     start_time = start_time,
     end_time = end_time,
     quiet = quiet,
-    debug = debug
+    debug = debug,
+    era5_dataset = era5_dataset,
+    altitude_formula = altitude_formula
   )
 }
 

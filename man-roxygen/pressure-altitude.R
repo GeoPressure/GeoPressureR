@@ -6,14 +6,19 @@
 #' Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_\mathrm{ERA5}},
 #' and \eqn{z_\mathrm{ERA5}}
 #' are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
-#' is obtained from ERA5 surface geopotential divided by standard gravity. The constants are the
-#' standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
+#' is obtained from ERA5 surface geopotential divided by standard gravity.
+#' `altitude_formula = "virtual"` (default) uses virtual temperature computed from ERA5 2 m
+#' dewpoint and a lapse rate varying with season and latitude. `altitude_formula = "standard"`
+#' uses 2 m temperature and \eqn{L_b=-0.0065} K/m.
+#' The virtual formula matches [GeoPressureAPI PR #32](https://github.com/GeoPressure/GeoPressureAPI/pull/32),
+#' based on the [altitude validation](https://github.com/GeoPressure/altitude-validation).
+#' The constants are the universal gas constant
 #' \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s², and molar mass of dry air
 #' \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
 #' metres above mean sea level.
 #'
 #' @section Choosing `era5_dataset`:
-#' **Use `era5_dataset = "single-levels"` whenever altitude is computed.**
+#' **Use `era5_dataset = "single-levels"` whenever altitude is computed.** It is the default.
 #'
 #' ERA5-Land's `surface_pressure` is not the exact hydrostatic image of the orography ERA5-Land
 #' publishes as `geopotential` — the two disagree by up to ~10 hPa in steep terrain. The
@@ -32,9 +37,9 @@
 #' orography implied by its own surface pressure removes the error exactly and reproduces
 #' `"single-levels"` to 0.1 m.
 #'
-#' `"land"` and `"both"` remain the defaults for backward compatibility. They are appropriate for
-#' retrieving other variables at 0.1 degree resolution, and for [geopressure_map()], whose
-#' pressure mismatch is differential and unaffected.
+#' `"land"` and `"both"` remain supported. They are appropriate for retrieving other variables
+#' at 0.1 degree resolution. For altitude, prefer `"single-levels"` based on the
+#' [altitude validation](https://github.com/GeoPressure/altitude-validation).
 #'
 #' @section Accuracy:
 #' With `era5_dataset = "single-levels"` the altitude error separates into two parts that behave
