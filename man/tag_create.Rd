@@ -54,7 +54,8 @@ in UTC. \code{NULL} keeps all earlier data.}
 \item{quiet}{Logical; hide progress messages and sampling-interval warnings.}
 
 \item{time_shift}{Constant correction in hours. A numeric value for all sensors or a named list
-for individual sensors. Default is zero.}
+for individual sensors (\code{pressure}, \code{light}, \code{acceleration}, \code{temperature_external},
+\code{temperature_internal}, \code{magnetic}). Default is zero.}
 
 \item{time_drift}{Linear correction in hours per year (365.25 days). A numeric value for all
 sensors or a named list for individual sensors. Default is zero; \code{-12 / 60} subtracts

@@ -72,7 +72,8 @@
 #' @param temperature_internal_file Optional internal or body-temperature input.
 #' @param magnetic_file Optional magnetic and acceleration input with axis columns.
 #' @param time_shift Constant correction in hours. A numeric value for all sensors or a named list
-#'   for individual sensors. Default is zero.
+#'   for individual sensors (`pressure`, `light`, `acceleration`, `temperature_external`,
+#'   `temperature_internal`, `magnetic`). Default is zero.
 #' @param time_drift Linear correction in hours per year (365.25 days). A numeric value for all
 #'   sensors or a named list for individual sensors. Default is zero; `-12 / 60` subtracts
 #'   12 minutes per year. Convert hours per 30-day month by multiplying by `365.25 / 30`.
@@ -157,6 +158,17 @@ tag_create <- function(
       assertthat::assert_that(
         is.list(correction),
         !is.null(names(correction)),
+        all(
+          names(correction) %in%
+            c(
+              "pressure",
+              "light",
+              "acceleration",
+              "temperature_external",
+              "temperature_internal",
+              "magnetic"
+            )
+        ),
         all(vapply(correction, is.numeric, logical(1))),
         all(lengths(correction) == 1),
         all(is.finite(unlist(correction)))

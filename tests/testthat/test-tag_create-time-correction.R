@@ -249,10 +249,11 @@ test_that("clock correction validates rate structure at tag_create entry", {
   sensor <- data.frame(date = as.POSIXct("2020-01-01", tz = "UTC") + (0:2) * 1800, value = 1000)
   expect_error(tag_create("clock", pressure_file = sensor, time_drift = -365.25 * 24))
   expect_error(tag_create("clock", pressure_file = sensor, time_drift = c(1, 2)))
+  expect_error(tag_create("clock", pressure_file = sensor, time_drift = list(presure = 1)))
   unused <- tag_create(
     "clock",
     pressure_file = sensor,
-    time_drift = list(humidity = 1),
+    time_drift = list(light = 1),
     quiet = TRUE
   )
   expect_identical(unused$pressure, sensor)
