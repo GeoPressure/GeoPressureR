@@ -13,7 +13,8 @@
 #' @param transform_light logical to use a log transformation of light
 #' @param twl_time_tolerance Maximum allowed time difference in seconds between observations
 #'   and the regular grid. Observations beyond this threshold will be set to NA. Default is 180
-#'   seconds (3 minutes).
+#'   seconds (3 minutes). Half the sampling interval is always allowed, so that drift-corrected
+#'   timestamps sliding against the grid are kept.
 #'
 #' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)

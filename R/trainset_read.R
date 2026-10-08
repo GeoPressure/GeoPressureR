@@ -42,7 +42,7 @@ trainset_read <- function(
   df[[label]] <- ""
 
   # Find the corresponding time
-  id_match <- match(as.numeric(df[[timestamp]]), as.numeric((csv$date)))
+  id_match <- match(as.numeric(df[[timestamp]]), as.numeric(csv$date))
 
   # use label only if not NA (missing, see below for warning message)
   df[[label]][!is.na(id_match)] <- csv$label[id_match[!is.na(id_match)]]
@@ -107,7 +107,7 @@ trainset_read_raw <- function(file) {
   csv$label[is.na(csv$label)] <- ""
 
   # Convert to date format
-  csv$date <- as.POSIXct(csv$timestamp, format = "%FT%T", tz = "UTC")
+  csv$date <- as.POSIXct(csv$timestamp, format = "%FT%H:%M:%OS", tz = "UTC")
 
   csv
 }

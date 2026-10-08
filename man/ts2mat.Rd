@@ -24,7 +24,8 @@ provided, it uses the middle of all nights.}
 
 \item{twl_time_tolerance}{Maximum allowed time difference in seconds between observations
 and the regular grid. Observations beyond this threshold will be set to NA. Default is 180
-seconds (3 minutes).}
+seconds (3 minutes). Half the sampling interval is always allowed, so that drift-corrected
+timestamps sliding against the grid are kept.}
 }
 \value{
 A data.frame with columns \code{date} and \code{value}.

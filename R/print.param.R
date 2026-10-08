@@ -38,6 +38,8 @@ print.param <- function(x, ...) {
   bullets(param$tag_create, "temperature_internal_file")
   bullets(param$tag_create, "magnetic_file")
   bullets(param$tag_create, "time_shift")
+  bullets(param$tag_create, "time_drift")
+  bullets(param$tag_create, "time_reference")
 
   cli::cli_h3("Tag label {.fun tag_label}")
   bullets(param$tag_label, "file")
@@ -79,7 +81,7 @@ print.param <- function(x, ...) {
   bullets(param$geolight_map, "zenith_prior_mean")
   bullets(param$geolight_map, "zenith_prior_sd")
   bullets(param$geolight_map, "zenith_prior_penalty_weight")
-  bullets(param$geolight_map, "refine_fitted_location_scale_km")
+  bullets(param$geolight_map, "refine_fitted_location_scale")
   bullets(param$geolight_map, "refine_fitted_location_max_iter")
   bullets(param$geolight_map, "twl_llp")
   bullets(param$geolight_map, "keep_twl")

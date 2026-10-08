@@ -50,7 +50,7 @@
 #' @param zenith_prior_sd Gaussian prior standard deviation for the fitted zenith angle (degrees).
 #' @param zenith_prior_penalty_weight Weight controlling how strongly automatically fitted
 #' calibration locations are pulled toward `zenith_prior_mean`.
-#' @param refine_fitted_location_scale_km Target spatial resolution, in kilometers, for fitted
+#' @param refine_fitted_location_scale Target spatial resolution, in kilometers, for fitted
 #' calibration-anchor refinement. This also defines the movement threshold for convergence.
 #' @param refine_fitted_location_max_iter Maximum number of fitted-location refinement iterations.
 #' Use `0` to disable refinement. In practice, `2` iterations is usually sufficient.
@@ -104,7 +104,7 @@ geolight_map <- function(
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-5,
-  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_scale = 20,
   refine_fitted_location_max_iter = 2,
   twl_llp = \(n) log(n) / n,
   compute_known = FALSE,
@@ -118,7 +118,7 @@ geolight_map <- function(
     zenith_prior_mean = zenith_prior_mean,
     zenith_prior_sd = zenith_prior_sd,
     zenith_prior_penalty_weight = zenith_prior_penalty_weight,
-    refine_fitted_location_scale_km = refine_fitted_location_scale_km,
+    refine_fitted_location_scale = refine_fitted_location_scale,
     refine_fitted_location_max_iter = refine_fitted_location_max_iter,
     quiet = quiet
   )

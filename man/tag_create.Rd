@@ -18,188 +18,170 @@ tag_create(
   magnetic_file = NULL,
   assert_pressure = TRUE,
   quiet = FALSE,
-  time_shift = 0
+  time_shift = 0,
+  time_drift = 0,
+  time_reference = NULL
 )
 }
 \arguments{
-\item{id}{unique identifier of a tag.}
+\item{id}{Unique tag identifier.}
 
-\item{manufacturer}{One of \code{NULL}, \code{"soi"}, \code{"migratetech"}, \code{"bas"}, \code{"lund"}, \code{"prestag"} or
-\code{"tabular"}.}
+\item{manufacturer}{Data format: \code{NULL} (automatic), \code{"soi"}, \code{"migratetech"}, \code{"bas"},
+\code{"lund"}, \code{"prestag"}, or \code{"tabular"}.}
 
-\item{crop_start}{remove all data before this date (POSIXct or character in UTC).}
+\item{crop_start}{Inclusive start of the corrected recording period, as POSIXct or character
+in UTC. \code{NULL} keeps all earlier data.}
 
-\item{crop_end}{remove all data after this date (POSIXct or character in UTC).}
+\item{crop_end}{Exclusive end of the corrected recording period, as POSIXct or character in UTC.
+\code{NULL} keeps all later data.}
 
-\item{directory}{path of the directory where the tag files can be read.}
+\item{directory}{Directory containing the original sensor files.}
 
-\item{pressure_file}{name of the file with pressure data. Full pathname or finishing with
-extensions (e.g., \code{"*.pressure"}, \code{"*.deg"} or \code{"*_press.xlsx"}). For
-\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
-CSV path with columns \code{datetime} and \code{value}.}
+\item{pressure_file}{Pressure input; tabular values must be in hPa. See Sensor files and Tabular input for input formats.}
 
-\item{light_file}{name of the file with light data. Full pathname or finishing with extensions
-(e.g., \code{"*.glf"}, \code{"*.lux"} or \code{"*_acc.xlsx"}). For \code{manufacturer = "tabular"}, provide an
-in-memory table with columns \code{date} and \code{value}, or a CSV path with columns \code{datetime} and
-\code{value}.}
+\item{light_file}{Optional light input.}
 
-\item{acceleration_file}{name of the file with acceleration data. Full pathname or finishing with
-extensions (e.g., \code{"*.acceleration"}, \code{"*.deg"} or \code{"*_acc.xlsx"}). For
-\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
-CSV path with columns \code{datetime} and \code{value}.}
+\item{acceleration_file}{Optional acceleration input.}
 
-\item{temperature_external_file}{name of the file with temperature data. Full pathname or
-finishing with extensions (e.g., \code{"*.temperature"}, \code{"*.airtemperature"} or \code{"*.deg"}). External
-or air temperature is generally for temperature sensor on directed outward from the bird. For
-\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
-CSV path with columns \code{datetime} and \code{value}.}
+\item{temperature_external_file}{Optional external or air-temperature input.}
 
-\item{temperature_internal_file}{name of the file with temperature data . Full pathname or
-finishing with extensions (e.g., \code{"*.bodytemperature"}). Internal or body temperature is
-generally for temperature sensor on directed inward (between bird and tag). For
-\code{manufacturer = "tabular"}, provide an in-memory table with columns \code{date} and \code{value}, or a
-CSV path with columns \code{datetime} and \code{value}.}
+\item{temperature_internal_file}{Optional internal or body-temperature input.}
 
-\item{magnetic_file}{name of the file with magnetic/accelerometer data. Full pathname or
-finishing with extensions (e.g., \code{"*.magnetic"}). For \code{manufacturer = "tabular"}, provide an
-in-memory table with columns \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z},
-\code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}, or a CSV path with \code{datetime} plus
-these sensor columns.}
+\item{magnetic_file}{Optional magnetic and acceleration input with axis columns.}
 
-\item{assert_pressure}{logical to check that the return tag has pressure data.}
+\item{assert_pressure}{Logical; require pressure data in the returned tag.}
 
-\item{quiet}{logical to hide messages about the progress.}
+\item{quiet}{Logical; hide progress messages and sampling-interval warnings.}
 
-\item{time_shift}{Raw timestamp correction added to sensor dates, in hours. Use a single numeric
-value for all sensors or a named list for sensor-specific shifts.}
+\item{time_shift}{Constant correction in hours. A numeric value for all sensors or a named list
+for individual sensors (\code{pressure}, \code{light}, \code{acceleration}, \code{temperature_external},
+\code{temperature_internal}, \code{magnetic}). Default is zero.}
+
+\item{time_drift}{Linear correction in hours per year (365.25 days). A numeric value for all
+sensors or a named list for individual sensors. Default is zero; \code{-12 / 60} subtracts
+12 minutes per year. Convert hours per 30-day month by multiplying by \code{365.25 / 30}.}
+
+\item{time_reference}{Original recorded timestamp at which drift correction is zero, as POSIXct
+or character in UTC. \code{NULL} uses the earliest measurement across all sensors. Supply a timestamp
+if the clock was synchronised at another time. Only \code{time_shift} is added at the reference.}
 }
 \value{
-a GeoPressureR \code{tag} object containing
+A GeoPressureR \code{tag} containing \code{param} (see \code{\link[=param_create]{param_create()}}) and the available sensor
+tables. Each sensor table has a UTC POSIXct \code{date} column and the following measurement columns:
 \itemize{
-\item \code{param} parameter object (see \code{\link[=param_create]{param_create()}})
-\item \code{pressure} data.frame with columns: \code{date} and \code{value}
-\item \code{light} (optional) same structure as pressure
-\item \code{temperature_external} (optional) same structure as pressure
-\item \code{temperature_internal} (optional) same structure as pressure
-\item \code{acceleration} (optional) data.frame with columns: \code{date}, \code{value} and optionally
-\code{mean_acceleration_z}.
-\itemize{
-\item \code{value} is the activity computed as the sum of the difference in acceleration on the z-axis
-(i.e. jiggle). In the SOI sensor, it is summarised from 32 measurements at 10Hz
-\item \code{mean_acceleration_z} is the mean acceleration on the z axis. In the SOI sensor, it is an
-average over 32 measurements at 10Hz.
-}
-\item \code{magnetic} (optional) data.frame with columns: \code{date}, \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}
-, \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}
+\item \code{pressure}: \code{value} in hPa.
+\item \code{light}, \code{temperature_external}, \code{temperature_internal}: \code{value}.
+\item \code{acceleration}: \code{value} and optionally \code{mean_acceleration_z}. For SOI, \code{value} is the sum of
+successive z-axis acceleration differences over 32 measurements at 10 Hz (jiggle);
+\code{mean_acceleration_z} is their mean z-axis acceleration.
+\item \code{magnetic}: \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}, \code{acceleration_x}, \code{acceleration_y},
+\code{acceleration_z}.
 }
 }
 \description{
-Create a GeoPressureR \code{tag} object from the data collected by a tracking device. The function
-can read data formatted according to three manufacturers SOI, Migratetech or Lund CAnMove, as
-well as BAS and PresTag formats, and also accepts manual tabular input. Pressure data is
-required for the GeoPressureR workflow but can be allowed to be missing with
-\code{assert_pressure = FALSE}.
+Read sensor measurements into a GeoPressureR \code{tag} object. Optionally correct timestamps
+for clock offset and drift, then crop to the recording period of interest.
 }
-\details{
-The current implementation can read files from the following sources:
-\itemize{
-\item \href{https://www.vogelwarte.ch/en/research/bird-migration/geolocators/}{Swiss Ornithological Institute (\code{soi})}
-\itemize{
-\item \code{pressure_file = "*.pressure"}
-\item \code{light_file = "*.glf"} (optional)
-\item \code{acceleration_file = "*.acceleration"} (optional)
-\item \code{temperature_internal_file = "*.temperature"} (optional)
-\item \code{temperature_external_file = "*.airtemperature"} (optional)
-\item \code{magnetic_file = "*.magnetic"} (optional)
-}
-\item \href{https://www.migratetech.co.uk/}{Migrate Technology (\code{migratetech})}:
-\itemize{
-\item \code{pressure_file = "*.deg"}
-\item \code{light_file = "*.lux"} (optional)
-\item \code{acceleration_file = "*.deg"} (optional)
-}
-\item British Antarctic Survey (\code{bas}), acquired by Biotrack Ltd in 2011, \href{https://www.lotek.com/about-us/history/}{renamed Lotek in 2019 }. Only works for light data (\code{assert_pressure = FALSE})
-\itemize{
-\item \code{light_file = "*.lig"}
-}
-\item Lund CAnMove (\code{lund})
-\itemize{
-\item \code{pressure_file = "*_press.xlsx"}
-\item \code{light_file = "*_acc.xlsx"} (optional)
-\item \code{acceleration_file = "*_acc.xlsx"} (optional)
-}
-\item \href{https://geoffreymbrown.github.io/ultralight-tags/}{BitTag/PresTag (\code{prestag})}
-\itemize{
-\item \code{pressure_file = "*.txt"}
-}
+\section{Workflow}{
+
+Data are \strong{read -> corrected -> cropped}. Keep the original files and specify clock
+corrections in \code{tag_create()}. All sensor timestamps are rounded to the nearest millisecond
+after correction and before cropping, including when no correction is supplied. A warning
+identifies sensors where rounding makes distinct timestamps identical; all measurements are kept.
+Pressure is required by default; use \code{assert_pressure = FALSE}
+for tags without pressure data.
 }
 
-You can also enter tabular data manually (\code{manufacturer = "tabular"}) by providing, for each
-sensor argument, either an in-memory table (\code{data.frame} or tibble) or a CSV path:
+\section{Sensor files}{
+
+
+By default, files are read from \code{./data/raw-tag/{id}} and the manufacturer is detected from
+the directory where possible. Set \code{manufacturer} explicitly when needed, including for PresTag.
+Sensor file arguments accept a file path or filename pattern, such as \code{"*.pressure"}.
+Supported formats are:
 \itemize{
-\item \code{pressure_file}: columns \code{date} and \code{value} in hPa.
-\item \code{light_file}: (optional) columns \code{date} and \code{value}.
-\item \code{acceleration_file}: (optional) columns \code{date} and \code{value}.
-\item \code{temperature_external_file}: (optional) columns \code{date} and \code{value}.
-\item \code{temperature_internal_file}: (optional) columns \code{date} and \code{value}.
-\item \code{magnetic_file}: (optional) columns \code{date}, \code{magnetic_x}, \code{magnetic_y},
-\code{magnetic_z}, \code{acceleration_x}, \code{acceleration_y} and \code{acceleration_z}.
+\item SOI (\code{"soi"}): pressure \verb{*.pressure}, light \verb{*.glf}, acceleration \verb{*.acceleration},
+external temperature \verb{*.temperature} or \verb{*.airtemperature}, internal temperature
+\verb{*.bodytemperature}, and magnetic data \verb{*.magnetic}.
+\item Migratetech (\code{"migratetech"}): pressure and acceleration \verb{*.deg}, light \verb{*.lux}.
+\item BAS (\code{"bas"}): light \verb{*.lig} only; use \code{assert_pressure = FALSE}.
+\item Lund CAnMove (\code{"lund"}): pressure \verb{*_press.xlsx}, light and acceleration \verb{*_acc.xlsx}.
+\item PresTag (\code{"prestag"}): pressure \verb{*.txt}.
 }
 
-You can still create a \code{tag} without pressure data using \code{assert_pressure = FALSE}. This \code{tag}
-won't be able to run the traditional GeoPressureR workflow, but you can still do some analysis.
-
-By default \code{manufacturer = NULL}, the manufacturer is determined automatically from the content
-of the \code{directory}. You can also specify manually the file with a full pathname or the file
-extension using a regex expression (e.g., \code{"*.pressure"} matches any file ending with
-\code{pressure}).
-
-Please create \href{https://github.com/GeoPressure/GeoPressureR/issues/new}{an issue on Github} if you
-have data in a format that is not yet supported.
-
-This function can be used to crop the data at specific date, for instance to remove pre-equipment
-or post-retrieval data.
-
-Changing \code{time_shift} may require regenerating TRAINSET label files because label matching uses
-exact timestamps.
+Manufacturer readers detect available sensor files when their arguments are \code{NULL}.
+For SOI, use \code{NA} to skip a sensor.
 }
+
+\section{Tabular input}{
+
+
+With \code{manufacturer = "tabular"}, each sensor argument accepts a data.frame, tibble, or CSV path.
+Tables need a UTC POSIXct \code{date} column and a \code{value} column; pressure values must be in hPa.
+Magnetic tables instead use the axis columns listed under Value below.
+
+CSV files use \code{datetime} instead of \code{date}, with UTC timestamps such as
+\code{"2025-01-01T00:00:00"}; fractional seconds are supported. CSV files named \code{pressure.csv},
+\code{light.csv}, etc. can be detected automatically from \code{directory}. Omit optional tabular sensors
+with \code{NULL}. An in-memory \code{pressure_file} also selects tabular input automatically.
+}
+
+\section{Clock correction}{
+
+\itemize{
+\item \code{time_shift} adds a constant offset in hours.
+\item \code{time_drift} adds a linear correction in hours per year (365.25 days).
+\item \code{time_reference} is the original recorded time at which drift correction is zero. By default,
+it is the earliest measurement across all sensors, before shifts or cropping.
+}
+
+Positive corrections add time; negative corrections subtract time. Each correction accepts
+one value for all sensors or a named list, such as \code{list(pressure = -12 / 60, light = 0)}.
+Sensors omitted from a list receive zero; entries for absent sensors are ignored. All sensors
+share the reference, regardless of recording duration. Drift uses the original timestamps,
+before adding the shift, and extends linearly before an explicit reference.
+
+Correction settings and the reference used for drift are recorded in \code{tag$param$tag_create}.
+When changing corrections, rerun the analysis from the original data and regenerate labels
+that rely on exact timestamps, including TRAINSET labels.
+}
+
+\section{Cropping}{
+
+Cropping uses corrected UTC timestamps: \code{crop_start} is inclusive and \code{crop_end} is exclusive.
+Leave either boundary as \code{NULL} to keep all data on that side.
+}
+
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-  # Read all sensor file
-  tag <- tag_create("18LX")
+  # Read available sensors.
+  tag <- tag_create("18LX", quiet = TRUE)
 
-  print(tag)
-
-  # Read only pressure and crop date
+  # Crop to the period of interest.
   tag <- tag_create("18LX",
-    light_file = NULL,
-    acceleration_file = NULL,
-    crop_start = "2017-08-01",
-    crop_end = "2017-08-05"
+    crop_start = "2017-08-01", crop_end = "2017-08-05", quiet = TRUE
   )
 
-  print(tag)
-
-  # You can also specify the exact file in case multiple files with the
-  # same extension exist in your directory (migratetech data)
+  # Select files explicitly when several match the same pattern.
   tag <- tag_create("CB621",
-    pressure_file = "CB621_BAR.deg",
-    light_file = "CB621.lux",
-    acceleration_file = NULL
+    pressure_file = "CB621_BAR.deg", light_file = "CB621.lux", quiet = TRUE
   )
 
-  print(tag)
-
-  # You can specify the data manually with
-  pressure <- data.frame(
-    date = as.POSIXct(c(
-      "2017-06-20 00:00:00 UTC", "2017-06-20 01:00:00 UTC",
-      "2017-06-20 02:00:00 UTC", "2017-06-20 03:00:00 UTC"
-    ), tz = "UTC"),
-    value = c(1000, 1000, 1000, 1000)
+  # Correct selected sensors using a shared recorded reference.
+  tag <- tag_create("18LX",
+    time_shift = list(light = 2), time_drift = list(pressure = -12 / 60),
+    time_reference = "2017-06-20", quiet = TRUE
   )
-  tag_create(id = "xxx", pressure_file = pressure)
 })
+
+# Read an in-memory table and apply the same correction to all sensors.
+pressure <- data.frame(
+  date = as.POSIXct("2025-01-01", tz = "UTC") + (0:48) * 1800,
+  value = rep(1000, 49)
+)
+tag <- tag_create("example", pressure_file = pressure,
+  time_shift = 2, time_drift = -12 / 60, quiet = TRUE
+)
 
 }
 \seealso{

@@ -8,7 +8,7 @@ geolight_map_calibrate <- function(
   zenith_prior_mean = 93,
   zenith_prior_sd = 1.3,
   zenith_prior_penalty_weight = 1e-5,
-  refine_fitted_location_scale_km = 20,
+  refine_fitted_location_scale = 20,
   refine_fitted_location_max_iter = 2,
   quiet = FALSE
 ) {
@@ -42,7 +42,7 @@ geolight_map_calibrate <- function(
       tag = tag,
       path = stap[fitted_idx, ],
       twl_calib_adjust = twl_calib_adjust,
-      scale_km = refine_fitted_location_scale_km,
+      scale = refine_fitted_location_scale,
       max_iter = refine_fitted_location_max_iter
     )
 
@@ -71,7 +71,7 @@ geolight_map_calibrate <- function(
   tag$param$geolight_map$zenith_prior_mean <- zenith_prior_mean
   tag$param$geolight_map$zenith_prior_sd <- zenith_prior_sd
   tag$param$geolight_map$zenith_prior_penalty_weight <- zenith_prior_penalty_weight
-  tag$param$geolight_map$refine_fitted_location_scale_km <- refine_fitted_location_scale_km
+  tag$param$geolight_map$refine_fitted_location_scale <- refine_fitted_location_scale
   tag$param$geolight_map$refine_fitted_location_max_iter <- refine_fitted_location_max_iter
   tag$param$geolight_map$twl_calib <- twl_calib
 
