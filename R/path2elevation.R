@@ -1,33 +1,27 @@
 #' Download ground elevation along a path
 #'
 #' @description
-#' This function is a wrapper of the GeoPressureAPI elevationPath entry point. It queries the ground
-#' elevation from SRTM ([SRTM90_V4](
-#' https://developers.google.com/earth-engine/datasets/catalog/CGIAR_SRTM90_V4)) along a polyline
-#' specify by `path`.
+#' This function queries the [GeoPressureAPI elevationPath endpoint](https://github.com/GeoPressure/GeoPressureAPI#3-ground-elevation-along-a-path) for ground elevation along a path, using precomputed Copernicus GLO DEM elevation percentiles.
 #'
-#' Because the position are often defined on a relative coarse scale (e.g., 0.25° ~ 29km),
-#' you can request the elevation at a specify resolution defined by `scale` and return pre-defined
-#' `percentile` of the elevation at this resolution.
+#' Consecutive path positions are connected by geodesic segments. Each segment is sampled from its start at a fixed distance interval controlled by `sampling_scale`. At each sample, the API reads the requested percentile bands from an elevation raster selected using `scale`. These percentiles describe variation in terrain elevation within a grid cell.
 #'
-#' The returned data.frame provide the ground elevation along the path with a resolution defined by
-#' `sampling_scale`.
+#' Missing positions between known positions are interpolated separately in longitude and latitude using cumulative flight duration from `start` and `end`. Missing positions before the first or after the last known position are excluded with a warning.
 #'
-#' @param path a GeoPressureR `path` data.frame
-#' @param scale spatial resolution of the SRTM to use to query the elevation. `scale` is defined as
-#' the number of pixels per 1° latitude-longitude (see `tag_set_map()` for details). Native
-#' resolution of SRTM is 30m.
-#' @param sampling_scale spatial resolution of the point along the polyline on which the SRTM is
-#' estimated. Same unit as `scale`.
-#' @param percentile percentile of the ground elevation distribution found within each grid cell
-#' of the SRTM at the resolution defined by `scale`. `50` corresponds to the median.
+#' The result is a spatial profile without timestamps. Its fractional `stap_id` values describe distance along each segment, whereas [find_stap()] uses elapsed flight time. Interpolating elevation onto a pressure path using `stap_id` therefore assumes constant speed along each segment.
+#'
+#' The API rounds elevation to whole meters and replaces missing DEM values with zero, so a returned zero can represent either zero elevation or missing data.
+#'
+#' @param path A GeoPressureR `path` data.frame with `lon`, `lat`, `stap_id`, `start`, and `end` columns. Coordinates are in degrees, times are POSIXct, and `stap_id` is numbered `1, ..., nrow(path)` in chronological order.
+#' @param scale Elevation grid resolution in pixels per degree (e.g., `4` corresponds to `0.25°`). The API selects the available precomputed raster with the smallest resolution factor greater than or equal to `scale` and samples it at approximately `111139 / scale` meters.
+#' @param sampling_scale Sampling density along each path segment, with a distance interval of `111139 / sampling_scale` meters (about 27.8 km for `4`). Defaults to `scale`; increasing it adds samples without changing the elevation grid resolution.
+#' @param percentile Elevation percentiles to retrieve within each grid cell. The API provides `10, 20, ..., 90`; `50` is the median. Other values have no precomputed band and return empty arrays.
 #' @param debug logical to display additional information to debug a request
 #'
 #' @return A data.frame containing
-#' - `stap_id` numeric value corresponding to the ratio of distance between position of known stap
-#' - `lon`
-#' - `lat`
-#' - `distance` distance in km along the path starting at the first stap_id
+#' - `stap_id` stationary-period ID plus the fraction of segment distance traveled toward the next position (e.g., `2.5` is halfway from position 2 to 3)
+#' - `lon`, `lat` sampled raster coordinates in degrees, rounded to three decimal places; these can differ from the exact positions on the polyline
+#' - `distance` cumulative geodesic distance in km from the first retained path position
+#' - `X<percentile>` ground elevation in meters for each requested percentile (e.g., `X10`, `X50`, and `X90` by default)
 #'
 #' @examples
 #' # Create a path
@@ -64,6 +58,23 @@
 #' lines(elevation$distance, elevation$X90, lty = 5)
 #' id <- elevation$stap_id %% 1 == 0
 #' points(elevation$distance[id], elevation$X90[id], col = "red")
+#'
+#' \dontrun{
+#' # Starting from a labelled tag with likelihood maps
+#' path <- tag2path(tag)
+#' pressurepath <- pressurepath_create(tag, path)
+#' elevation <- path2elevation(path)
+#'
+#' # Map median ground elevation to pressure samples, assuming constant flight speed
+#' pressurepath$ground_elevation <- stats::approx(
+#'   x = elevation$stap_id,
+#'   y = elevation$X50,
+#'   xout = pressurepath$stap_id
+#' )$y
+#'
+#' # Altitude above median ground level (meters)
+#' pressurepath$altitude_agl <- pressurepath$altitude - pressurepath$ground_elevation
+#' }
 #'
 #' @family path
 #' @export
