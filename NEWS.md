@@ -9,6 +9,8 @@
 
 ## Minor
 
+- [Clarify `path2elevation()` computation and returned columns](https://github.com/GeoPressure/GeoPressureR/commit/03b6ab798b4b5f62048bceeffa0249bf0c882713): document Copernicus DEM percentiles, elevation grid resolution versus sampling distance, missing positions and DEM values, and distance-based fractional `stap_id`. Add an example mapping median ground elevation onto a pressure path and computing altitude above ground level, assuming constant speed along each flight segment.
+
 - [Add offline virtual-altitude regression tests](https://github.com/GeoPressure/GeoPressureR/commit/6a715dddecf04e73cd9c6d2441cc127d88fb6082) for numerical parity, seasons and hemispheres, standard-formula reproducibility, API parameters, dewpoint retrieval and output structure. Replace the map-default test's `rlang::abort()` with `cli::cli_abort()`.
 
 - [Report why `geopressure_map_mismatch()` failed](https://github.com/GeoPressure/GeoPressureR/commit/fe260a7f67d49fc97c50bdacb93091d97ac8c0e9). When GeoPressureAPI returns no url for a stapelev, report the reason returned by Earth Engine instead of assuming ERA5 data are unavailable. A total failure still aborts and a partial failure still warns, naming the failing stapelev and the server's explanation.
