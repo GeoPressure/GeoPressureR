@@ -19,7 +19,7 @@ path2elevation(
 
 \item{sampling_scale}{Sampling density along each path segment, with a distance interval of `111139 / sampling_scale` meters (about 27.8 km for `4`). Defaults to `scale`; increasing it adds samples without changing the elevation grid resolution.}
 
-\item{percentile}{Elevation percentiles to retrieve within each grid cell. The API provides `10, 20, ..., 90`; `50` is the median. Other values have no precomputed band and return empty arrays.}
+\item{percentile}{Elevation percentiles to retrieve within each grid cell. The API provides `10, 20, ..., 90`; `50` is the median. Only these values are supported; other values are rejected before querying the API.}
 
 \item{debug}{logical to display additional information to debug a request}
 }

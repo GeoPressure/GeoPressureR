@@ -14,7 +14,7 @@
 #' @param path A GeoPressureR `path` data.frame with `lon`, `lat`, `stap_id`, `start`, and `end` columns. Coordinates are in degrees, times are POSIXct, and `stap_id` is numbered `1, ..., nrow(path)` in chronological order.
 #' @param scale Elevation grid resolution in pixels per degree (e.g., `4` corresponds to `0.25°`). The API selects the available precomputed raster with the smallest resolution factor greater than or equal to `scale` and samples it at approximately `111139 / scale` meters.
 #' @param sampling_scale Sampling density along each path segment, with a distance interval of `111139 / sampling_scale` meters (about 27.8 km for `4`). Defaults to `scale`; increasing it adds samples without changing the elevation grid resolution.
-#' @param percentile Elevation percentiles to retrieve within each grid cell. The API provides `10, 20, ..., 90`; `50` is the median. Other values have no precomputed band and return empty arrays.
+#' @param percentile Elevation percentiles to retrieve within each grid cell. The API provides `10, 20, ..., 90`; `50` is the median. Only these values are supported; other values are rejected before querying the API.
 #' @param debug logical to display additional information to debug a request
 #'
 #' @return A data.frame containing
@@ -96,8 +96,7 @@ path2elevation <- function(
   assertthat::assert_that(is.numeric(sampling_scale))
   assertthat::assert_that(sampling_scale > 0)
   assertthat::assert_that(all(is.numeric(percentile)))
-  assertthat::assert_that(all(percentile > 0))
-  assertthat::assert_that(all(percentile < 100))
+  assertthat::assert_that(all(percentile %in% seq(10, 90, 10)))
   assertthat::assert_that(is.logical(debug))
 
   # 1. Interpolation of !include
@@ -148,7 +147,7 @@ path2elevation <- function(
     lat = path_c$lat,
     scale = scale,
     samplingScale = sampling_scale,
-    percentile = percentile
+    percentile = I(percentile)
   )
 
   if (debug) {
