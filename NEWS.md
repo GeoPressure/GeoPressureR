@@ -9,6 +9,8 @@
 
 ## Minor
 
+- [Validate `path2elevation()` percentiles before querying the API](https://github.com/GeoPressure/GeoPressureR/commit/e992eb4fca3fba36f97ea42b98632e373a9e203c): accept only `10, 20, ..., 90` and preserve a JSON array when requesting a single percentile. Unsupported values now fail locally instead of causing a response conversion error.
+
 - [Clarify `path2elevation()` computation and returned columns](https://github.com/GeoPressure/GeoPressureR/commit/03b6ab798b4b5f62048bceeffa0249bf0c882713): document Copernicus DEM percentiles, elevation grid resolution versus sampling distance, missing positions and DEM values, and distance-based fractional `stap_id`. Add an example mapping median ground elevation onto a pressure path and computing altitude above ground level, assuming constant speed along each flight segment.
 
 - [Add offline virtual-altitude regression tests](https://github.com/GeoPressure/GeoPressureR/commit/6a715dddecf04e73cd9c6d2441cc127d88fb6082) for numerical parity, seasons and hemispheres, standard-formula reproducibility, API parameters, dewpoint retrieval and output structure. Replace the map-default test's `rlang::abort()` with `cli::cli_abort()`.
