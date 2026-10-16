@@ -167,6 +167,14 @@ pressurepath_prepare <- function(tag, path, preprocess, quiet) {
     sequence[id],
     rule = 1
   )$y
+  # Flight rows (fractional stap_id) have no match in `path`; they belong to the
+  # same single trajectory, so carry its index `j` over.
+  if ("j" %in% names(pressurepath)) {
+    j <- unique(path$j[!is.na(path$j)])
+    if (length(j) == 1) {
+      pressurepath$j <- j
+    }
+  }
   pressurepath
 }
 
