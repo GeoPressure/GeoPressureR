@@ -2,7 +2,7 @@
 
 ## Minor
 
-- Keep the trajectory index `j` on the flight rows of `pressurepath_create()` output. Rows between two stationary periods (fractional `stap_id`) found no match in `path` and were left with `j = NA`, so joins on `type` and `j` silently dropped them (GeoPressureR <= 3.6.3). Every published GeoLocator Data Package with `pressurepaths` is affected; GeoLocatoR repairs them on read.
+- [Keep the trajectory index `j` on the flight rows of `pressurepath_create()` output](https://github.com/GeoPressure/GeoPressureR/commit/d21ff5978f60b71cb154a655e721b0b37c8a9ea2). Rows between two stationary periods (fractional `stap_id`) found no match in `path` and were left with `j = NA`, so joins on `type` and `j` silently dropped them (GeoPressureR <= 3.6.3). Every published GeoLocator Data Package with `pressurepaths` is affected; GeoLocatoR repairs them on read.
 
 **Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.3...v3.6.4>
 
