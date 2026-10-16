@@ -1,3 +1,18 @@
+# GeoPressureR v3.6.5
+
+## Main
+
+- [Run examples offline from a shipped 18LX fixture](https://github.com/GeoPressure/GeoPressureR/commit/54c257c5048225f513f2c8fedd410cc80bfdce87). The precomputed output of `geopressuretemplate("18LX")` is now included in `inst/extdata/data/interim/18LX.RData` (regenerated with `data-raw/fixtures.R`) and loaded with `load_interim()` in examples, so `R CMD check` no longer queries GeoPressureAPI and example time drops from about 6 minutes to under 30 seconds. Examples that need GeoPressureAPI (`geopressure_map()`, `geopressure_timeseries()`, `pressurepath_create()`, `path2elevation()`) run only on the pkgdown site, and the examples of `load_interim()`, `path2edge()`, `graph_assert()`, `ts2mat()`, `speed2bearing()` and `windsupport()` now run.
+- [Split tests into offline, online and full levels](https://github.com/GeoPressure/GeoPressureR/commit/9450e082e89a4eaef2e6ae3d30e59f5ca112a0ee) selected with the `GEOPRESSURER_TEST` environment variable (default `"offline"`). `R CMD check` runs the offline level on all platforms, the coverage workflow adds tests querying GeoPressureAPI, ARCO and elevation (`"online"`), and the `"full"` level reruns the fixture workflow, the Shiny apps and the CDS wind downloads.
+- [Make trajectories visible on dark basemaps](https://github.com/GeoPressure/GeoPressureR/commit/9767cfad1f5afb03538aed1ba89875bd30d68fe3): `plot_path()` draws the leaflet trajectory in grey, with a fainter dashed line across missing positions, and `plot.map()` [opens on the first stationary period without known position](https://github.com/GeoPressure/GeoPressureR/commit/6f813606b66ca316216875246024ed98c3f756e2).
+
+## Minor
+
+- [Cancel superseded pull-request CI runs](https://github.com/GeoPressure/GeoPressureR/commit/f25ec937256e1731d3c7a133776f75f33ba59a55).
+- [Silence progress messages in examples](https://github.com/GeoPressure/GeoPressureR/commit/14d2f4acfabcb8d149fdb2fdb69e7e0af02a8ac8) with `quiet = TRUE`.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.4...v3.6.5>
+
 # GeoPressureR v3.6.4
 
 ## Main
