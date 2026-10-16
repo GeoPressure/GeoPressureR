@@ -60,3 +60,12 @@ test_that("pressurepath_create() | check flight", {
     quiet = TRUE
   ))
 })
+
+test_that("pressurepath_prepare() | flight rows keep the trajectory index j", {
+  path_j <- path
+  path_j$j <- 1L
+  pp <- pressurepath_prepare(tag, path_j, preprocess = FALSE, quiet = TRUE)
+  flight <- pp$stap_id != round(pp$stap_id)
+  expect_true(any(flight))
+  expect_true(all(pp$j == 1L))
+})

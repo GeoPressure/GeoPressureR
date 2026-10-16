@@ -18,7 +18,15 @@
 - [Report why `geopressure_map_mismatch()` failed](https://github.com/GeoPressure/GeoPressureR/commit/fe260a7f67d49fc97c50bdacb93091d97ac8c0e9). When GeoPressureAPI returns no url for a stapelev, report the reason returned by Earth Engine instead of assuming ERA5 data are unavailable. A total failure still aborts and a partial failure still warns, naming the failing stapelev and the server's explanation.
 - [Match every measurement to its nearest ERA5 hour on the ARCO backends](https://github.com/GeoPressure/GeoPressureR/commit/7f46adbed9cbeafc3d4aa771f0cf4f02e2da3c64) of `pressurepath_create()` and `geopressure_timeseries()`, including the first. Measurements before the first full hour previously used the next hour, matching a GeoPressureAPI bug fixed in [GeoPressureAPI#31](https://github.com/GeoPressure/GeoPressureAPI/pull/31).
 
-**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.3...v3.7.0>
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.4...v3.7.0>
+
+# GeoPressureR v3.6.4
+
+## Main
+
+- [Keep the trajectory index `j` on the flight rows of `pressurepath_create()` output](https://github.com/GeoPressure/GeoPressureR/commit/d21ff5978f60b71cb154a655e721b0b37c8a9ea2). Rows between two stationary periods (fractional `stap_id`) found no match in `path` and were left with `j = NA`, so joins on `type` and `j` silently dropped them (GeoPressureR <= 3.6.3). Every published GeoLocator Data Package with `pressurepaths` is affected; [GeoLocatoR repairs them on read](https://github.com/GeoPressure/GeoLocatoR/commit/cc2c217), and [GeoLocator-DP v1.2 requires `j`](https://github.com/GeoPressure/GeoLocator-DP/commit/68d4622).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.3...v3.6.4>
 
 # GeoPressureR v3.6.3
 
