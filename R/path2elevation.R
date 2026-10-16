@@ -23,7 +23,7 @@
 #' - `distance` cumulative geodesic distance in km from the first retained path position
 #' - `X<percentile>` ground elevation in meters for each requested percentile (e.g., `X10`, `X50`, and `X90` by default)
 #'
-#' @examples
+#' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' # Create a path
 #' path <- data.frame(
 #'   lon = c(8.47, 9.41, 9.01, -0.91, 14.24, 27.30, 34.39, 30.00),
@@ -59,10 +59,11 @@
 #' id <- elevation$stap_id %% 1 == 0
 #' points(elevation$distance[id], elevation$X90[id], col = "red")
 #'
-#' \dontrun{
-#' # Starting from a labelled tag with likelihood maps
-#' path <- tag2path(tag)
-#' pressurepath <- pressurepath_create(tag, path)
+#' # Starting from the most likely path and its pressurepath computed with `geopressuretemplate()`
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   path <- load_interim("18LX", var = "path_most_likely")
+#'   pressurepath <- load_interim("18LX", var = "pressurepath_most_likely")
+#' })
 #' elevation <- path2elevation(path)
 #'
 #' # Map median ground elevation to pressure samples, assuming constant flight speed
@@ -74,7 +75,6 @@
 #'
 #' # Altitude above median ground level (meters)
 #' pressurepath$altitude_agl <- pressurepath$altitude - pressurepath$ground_elevation
-#' }
 #'
 #' @family path
 #' @export

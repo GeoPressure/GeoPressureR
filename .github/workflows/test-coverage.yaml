@@ -10,11 +10,17 @@ name: test-coverage
 
 permissions: read-all
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Include tests querying GeoPressureAPI, ARCO and elevation (see tests/testthat/setup.R)
+      GEOPRESSURER_TEST: online
 
     steps:
       - uses: actions/checkout@v6

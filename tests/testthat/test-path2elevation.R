@@ -1,6 +1,8 @@
 library(testthat)
 library(GeoPressureR)
 
+skip_if_test_level_below("online")
+
 # Small synthetic case
 path <- data.frame(
   lon = c(8.47, 9.41, 9.01, -0.91, 14.24, 27.30, 34.39, 30.00),

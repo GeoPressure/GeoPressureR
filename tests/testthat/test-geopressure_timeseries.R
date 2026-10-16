@@ -1,6 +1,8 @@
 library(testthat)
 library(GeoPressureR)
 
+skip_if_test_level_below("online")
+
 # Small synthetic case
 tag_sm <- structure(list(), class = "tag")
 tag_sm$pressure <- data.frame(

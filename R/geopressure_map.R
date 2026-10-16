@@ -123,7 +123,7 @@
 #' `tag$map_pressure_mask` maps, as well as `tag$stap$nb_sample`, indicating the number of
 #' datapoints used to compute the MSE.
 #'
-#' @examples
+#' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label(quiet = TRUE) |>

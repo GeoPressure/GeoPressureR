@@ -1,6 +1,8 @@
 library(testthat)
 library(GeoPressureR)
 
+skip_if_test_level_below("full")
+
 test_with_extdata()
 
 start_bg_app <- function(fun, timeout = 15) {
@@ -44,12 +46,7 @@ make_shiny_test_data <- local({
       twilight_create() |>
       twilight_label_read()
 
-    tag_map <- tag_labelled |>
-      tag_set_map(
-        extent = c(-16, 23, 0, 50),
-        scale = 4
-      ) |>
-      geopressure_map(quiet = TRUE)
+    tag_map <- load_interim("18LX", var = "tag")
 
     cache <<- list(
       tag_labelled = tag_labelled,

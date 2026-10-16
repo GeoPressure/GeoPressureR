@@ -204,8 +204,15 @@ stored token with \code{\link[ecmwfr:wf_get_key]{ecmwfr::wf_get_key()}} for all 
 }
 
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
-pressurepath <- pressurepath_create(tag, path)
+\dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- load_interim("18LX", var = "tag")
+  path <- load_interim("18LX", var = "path_most_likely")
+})
+
+pressurepath <- pressurepath_create(tag, path, quiet = TRUE)
+
+plot_pressurepath(pressurepath)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

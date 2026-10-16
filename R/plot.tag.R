@@ -46,26 +46,15 @@
 #' plot(tag, type = "twilight")
 #' plot(tag, type = "actogram")
 #'
-#' # After you compute any likelihood map, the default will
-#' # become this map (i.e., `type = "map"`)
-#' tag <- tag_set_map(tag,
-#'   extent = c(-16, 23, 0, 50),
-#'   scale = 4,
-#'   known = data.frame(
-#'     stap_id = 1,
-#'     known_lon = 17.05,
-#'     known_lat = 48.9
-#'   )
-#' ) |>
-#'   geopressure_map(quiet = TRUE)
+#' # After you compute any likelihood map, the default will become this map (i.e., `type = "map"`).
+#' # When both pressure and light likelihood are present, the default is to display their product,
+#' # equivalent to `type = c("map_pressure", "map_light")`
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- load_interim("18LX", var = "tag")
+#' })
 #' plot(tag)
-#' # The likelihood map of light can be display with
-#' tag <- geolight_map(tag, quiet = TRUE)
+#' plot(tag, type = "map_pressure")
 #' plot(tag, type = "map_light")
-#' # When both pressure and light likelihood are present,
-#' # the default is to display their products, equivalent
-#' # to choose `type = c("map_pressure", "map_light")`
-#' plot(tag)
 #' @family tag plot_tag
 #'
 #' @export

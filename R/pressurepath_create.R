@@ -59,8 +59,15 @@
 #' @return A `pressurepath` data.frame containing tag pressure, coordinates, requested ERA5
 #'   variables, normalised surface pressure, and optional sunrise and sunset times.
 #'
-#' @examplesIf FALSE
-#' pressurepath <- pressurepath_create(tag, path)
+#' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- load_interim("18LX", var = "tag")
+#'   path <- load_interim("18LX", var = "path_most_likely")
+#' })
+#'
+#' pressurepath <- pressurepath_create(tag, path, quiet = TRUE)
+#'
+#' plot_pressurepath(pressurepath)
 #'
 #' @family pressurepath
 #' @export

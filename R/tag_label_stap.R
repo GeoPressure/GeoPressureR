@@ -23,7 +23,7 @@
 #'   tag <- tag_create("18LX", quiet = TRUE) |>
 #'     tag_label_read()
 #'
-#'   tag <- tag_label_stap(tag)
+#'   tag <- tag_label_stap(tag, quiet = TRUE)
 #'
 #'   str(tag)
 #'

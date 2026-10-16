@@ -189,9 +189,9 @@ plot_path_leaflet <- function(
   polyline <- merge_params(
     list(
       stroke = TRUE,
-      color = "black",
+      color = "#9E9E9E",
       weight = 5,
-      opacity = 0.7,
+      opacity = 0.8,
       dashArray = NULL
     ),
     polyline
@@ -242,12 +242,12 @@ plot_path_leaflet <- function(
   # Get number of path
   unique_j <- unique(path$j)
 
-  # Plot trajectory of all available point in grey
+  # Plot trajectory bridging missing positions as a fainter dashed line
   if (nrow(path_full) < nrow(path)) {
     polyline_full <- polyline
     # polyline_full$weight <- polyline_full$weight/2
     polyline_full$opacity <- polyline_full$opacity / 2
-    polyline_full$color <- "grey"
+    polyline_full$dashArray <- "4 8"
 
     for (j in unique_j) {
       layer_group <- if (is.null(group)) {
@@ -270,7 +270,7 @@ plot_path_leaflet <- function(
     }
   }
 
-  # Overlay with trajectory of consecutive position in black.
+  # Overlay with trajectory of consecutive positions.
   for (j in unique_j) {
     layer_group <- if (is.null(group)) {
       path$j[path$j == j][1]

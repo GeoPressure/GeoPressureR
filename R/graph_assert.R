@@ -7,8 +7,16 @@
 #' or `"full"`.
 #'
 #' @return logical indicating whether the `graph` object fulfil the condition.
-#' @examplesIf FALSE
-#'   graph_assert(graph, "movement")
+#' @examples
+#' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- load_interim("18LX", var = "tag")
+#' })
+#' graph <- graph_create(tag, quiet = TRUE)
+#' graph_assert(graph)
+#'
+#' graph <- graph_set_movement(graph)
+#' graph_assert(graph, "movement")
 #' @export
 graph_assert <- function(graph, condition = "graph") {
   status <- graph_status(graph)

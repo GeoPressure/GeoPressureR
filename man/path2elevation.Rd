@@ -13,35 +13,38 @@ path2elevation(
 )
 }
 \arguments{
-\item{path}{A GeoPressureR `path` data.frame with `lon`, `lat`, `stap_id`, `start`, and `end` columns. Coordinates are in degrees, times are POSIXct, and `stap_id` is numbered `1, ..., nrow(path)` in chronological order.}
+\item{path}{A GeoPressureR \code{path} data.frame with \code{lon}, \code{lat}, \code{stap_id}, \code{start}, and \code{end} columns. Coordinates are in degrees, times are POSIXct, and \code{stap_id} is numbered \verb{1, ..., nrow(path)} in chronological order.}
 
-\item{scale}{Elevation grid resolution in pixels per degree (e.g., `4` corresponds to `0.25°`). The API selects the available precomputed raster with the smallest resolution factor greater than or equal to `scale` and samples it at approximately `111139 / scale` meters.}
+\item{scale}{Elevation grid resolution in pixels per degree (e.g., \code{4} corresponds to \verb{0.25°}). The API selects the available precomputed raster with the smallest resolution factor greater than or equal to \code{scale} and samples it at approximately \code{111139 / scale} meters.}
 
-\item{sampling_scale}{Sampling density along each path segment, with a distance interval of `111139 / sampling_scale` meters (about 27.8 km for `4`). Defaults to `scale`; increasing it adds samples without changing the elevation grid resolution.}
+\item{sampling_scale}{Sampling density along each path segment, with a distance interval of \code{111139 / sampling_scale} meters (about 27.8 km for \code{4}). Defaults to \code{scale}; increasing it adds samples without changing the elevation grid resolution.}
 
-\item{percentile}{Elevation percentiles to retrieve within each grid cell. The API provides `10, 20, ..., 90`; `50` is the median. Only these values are supported; other values are rejected before querying the API.}
+\item{percentile}{Elevation percentiles to retrieve within each grid cell. The API provides \verb{10, 20, ..., 90}; \code{50} is the median. Only these values are supported; other values are rejected before querying the API.}
 
 \item{debug}{logical to display additional information to debug a request}
 }
 \value{
 A data.frame containing
-- `stap_id` stationary-period ID plus the fraction of segment distance traveled toward the next position (e.g., `2.5` is halfway from position 2 to 3)
-- `lon`, `lat` sampled raster coordinates in degrees, rounded to three decimal places; these can differ from the exact positions on the polyline
-- `distance` cumulative geodesic distance in km from the first retained path position
-- `X<percentile>` ground elevation in meters for each requested percentile (e.g., `X10`, `X50`, and `X90` by default)
+\itemize{
+\item \code{stap_id} stationary-period ID plus the fraction of segment distance traveled toward the next position (e.g., \code{2.5} is halfway from position 2 to 3)
+\item \code{lon}, \code{lat} sampled raster coordinates in degrees, rounded to three decimal places; these can differ from the exact positions on the polyline
+\item \code{distance} cumulative geodesic distance in km from the first retained path position
+\item \verb{X<percentile>} ground elevation in meters for each requested percentile (e.g., \code{X10}, \code{X50}, and \code{X90} by default)
+}
 }
 \description{
-This function queries the [GeoPressureAPI elevationPath endpoint](https://github.com/GeoPressure/GeoPressureAPI#3-ground-elevation-along-a-path) for ground elevation along a path, using precomputed Copernicus GLO DEM elevation percentiles.
+This function queries the \href{https://github.com/GeoPressure/GeoPressureAPI#3-ground-elevation-along-a-path}{GeoPressureAPI elevationPath endpoint} for ground elevation along a path, using precomputed Copernicus GLO DEM elevation percentiles.
 
-Consecutive path positions are connected by geodesic segments. Each segment is sampled from its start at a fixed distance interval controlled by `sampling_scale`. At each sample, the API reads the requested percentile bands from an elevation raster selected using `scale`. These percentiles describe variation in terrain elevation within a grid cell.
+Consecutive path positions are connected by geodesic segments. Each segment is sampled from its start at a fixed distance interval controlled by \code{sampling_scale}. At each sample, the API reads the requested percentile bands from an elevation raster selected using \code{scale}. These percentiles describe variation in terrain elevation within a grid cell.
 
-Missing positions between known positions are interpolated separately in longitude and latitude using cumulative flight duration from `start` and `end`. Missing positions before the first or after the last known position are excluded with a warning.
+Missing positions between known positions are interpolated separately in longitude and latitude using cumulative flight duration from \code{start} and \code{end}. Missing positions before the first or after the last known position are excluded with a warning.
 
-The result is a spatial profile without timestamps. Its fractional `stap_id` values describe distance along each segment, whereas [find_stap()] uses elapsed flight time. Interpolating elevation onto a pressure path using `stap_id` therefore assumes constant speed along each segment.
+The result is a spatial profile without timestamps. Its fractional \code{stap_id} values describe distance along each segment, whereas \code{\link[=find_stap]{find_stap()}} uses elapsed flight time. Interpolating elevation onto a pressure path using \code{stap_id} therefore assumes constant speed along each segment.
 
 The API rounds elevation to whole meters and replaces missing DEM values with zero, so a returned zero can represent either zero elevation or missing data.
 }
 \examples{
+\dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}
 # Create a path
 path <- data.frame(
   lon = c(8.47, 9.41, 9.01, -0.91, 14.24, 27.30, 34.39, 30.00),
@@ -77,10 +80,11 @@ lines(elevation$distance, elevation$X90, lty = 5)
 id <- elevation$stap_id \%\% 1 == 0
 points(elevation$distance[id], elevation$X90[id], col = "red")
 
-\dontrun{
-# Starting from a labelled tag with likelihood maps
-path <- tag2path(tag)
-pressurepath <- pressurepath_create(tag, path)
+# Starting from the most likely path and its pressurepath computed with `geopressuretemplate()`
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  path <- load_interim("18LX", var = "path_most_likely")
+  pressurepath <- load_interim("18LX", var = "pressurepath_most_likely")
+})
 elevation <- path2elevation(path)
 
 # Map median ground elevation to pressure samples, assuming constant flight speed
@@ -92,8 +96,7 @@ pressurepath$ground_elevation <- stats::approx(
 
 # Altitude above median ground level (meters)
 pressurepath$altitude_agl <- pressurepath$altitude - pressurepath$ground_elevation
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other path:

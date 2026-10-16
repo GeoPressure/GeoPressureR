@@ -34,7 +34,10 @@ A data.frame with columns \code{date} and \code{value}.
 Format time series data frame into a matrix
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
-  mat <- ts2mat(tag$pressure)
-\dontshow{\}) # examplesIf}
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- tag_create("18LX", quiet = TRUE)
+})
+
+mat <- ts2mat(tag$pressure)
+str(mat)
 }

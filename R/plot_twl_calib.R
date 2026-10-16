@@ -32,14 +32,14 @@
 #'     ) |>
 #'     twilight_create() |>
 #'     twilight_label_read() |>
-#'     geolight_map_calibrate()
+#'     geolight_map_calibrate(quiet = TRUE)
 #' })
 #'
 #' # Histogram + kernel density
 #' plot_twl_calib(tag)
 #'
 #' # With fitted location duration of 5 days minimum
-#' tag <- geolight_map_calibrate(tag, fitted_location_duration = 5)
+#' tag <- geolight_map_calibrate(tag, fitted_location_duration = 5, quiet = TRUE)
 #'
 #' # Path-based diagnostic (uses tag$twilight)
 #' path <- tag$stap[, c("stap_id", "start", "end")]

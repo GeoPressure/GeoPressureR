@@ -185,6 +185,7 @@ significantly.
 }
 
 \examples{
+\dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_create("18LX", quiet = TRUE) |>
     tag_label(quiet = TRUE) |>
@@ -212,7 +213,7 @@ tag <- geopressure_map_likelihood(tag,
 )
 
 plot(tag, type = "map_pressure")
-
+\dontshow{\}) # examplesIf}
 }
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
