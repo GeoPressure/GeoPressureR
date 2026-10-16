@@ -54,7 +54,7 @@
 #'   it also retains the input columns, renames `value` to `pressure_tag`, and adds
 #'   `surface_pressure_norm` and `altitude`.
 #'
-#' @examplesIf FALSE
+#' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' geopressure_timeseries(
 #'   lat = 46,
 #'   lon = 6,

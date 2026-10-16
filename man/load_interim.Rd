@@ -40,7 +40,13 @@ This is a convenience function to quickly restore saved objects (e.g., \code{tag
 \code{path_most_likely}) for a given tag \code{id} or directly from a file path.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
-  load_interim("18LX", var = c("tag", "graph"))
-\dontshow{\}) # examplesIf}
+# Inside a GeoPressureR project, the tag id reads `./data/interim/{id}.RData`
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- load_interim("18LX", var = "tag")
+})
+
+# A file path can also be used, and several objects are returned as a named list
+file <- system.file("extdata/data/interim/18LX.RData", package = "GeoPressureR")
+out <- load_interim(file, var = c("path_most_likely", "marginal"))
+names(out)
 }

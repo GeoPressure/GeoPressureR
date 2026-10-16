@@ -8,15 +8,9 @@
 #' @return `map` is returned invisibly and unchanged
 #'
 #' @examples
+#' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   tag <- tag_create("18LX", quiet = TRUE) |>
-#'     tag_label(quiet = TRUE) |>
-#'     tag_label(quiet = TRUE) |>
-#'     tag_set_map(
-#'       extent = c(-16, 23, 0, 50),
-#'       scale = 4
-#'     ) |>
-#'     geopressure_map(quiet = TRUE)
+#'   tag <- load_interim("18LX", var = "tag")
 #' })
 #'
 #' print(tag$map_pressure)

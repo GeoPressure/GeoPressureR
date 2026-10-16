@@ -42,7 +42,5 @@ computes the trigonometric angle of the speed vector with \code{Arg()} and conve
 bearing (North = 0° instead of 90°).
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
-  windsupport(windspeed = 5 + 2i, groundspeed = 10 + 0i)
-\dontshow{\}) # examplesIf}
+windsupport(windspeed = 5 + 2i, groundspeed = 10 + 0i)
 }

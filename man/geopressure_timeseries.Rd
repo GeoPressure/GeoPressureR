@@ -187,7 +187,7 @@ stored token with \code{\link[ecmwfr:wf_get_key]{ecmwfr::wf_get_key()}} for all 
 }
 
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
+\dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}
 geopressure_timeseries(
   lat = 46,
   lon = 6,

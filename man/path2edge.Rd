@@ -40,9 +40,13 @@ Retrieve the edges in a \code{graph} corresponding to the flight transition defi
 edges can be useful to extract flight information specific to a path.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
-  edge <- path2edge(path, tag)
-\dontshow{\}) # examplesIf}
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- load_interim("18LX", var = "tag")
+  path <- load_interim("18LX", var = "path_most_likely")
+})
+
+edge <- path2edge(path, tag)
+head(edge)
 }
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html#extract-flight-information}{GeoPressureManual}

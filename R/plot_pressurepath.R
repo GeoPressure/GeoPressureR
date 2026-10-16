@@ -12,17 +12,10 @@
 #' @return a plot or ggplotly object.
 #'
 #' @examples
+#' # Load the pressurepath of the most likely path computed with `geopressuretemplate()`
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
+#'   pressurepath <- load_interim("18LX", var = "pressurepath_most_likely")
 #' })
-#'
-#' path <- data.frame(
-#'   stap_id = tag$stap$stap_id,
-#'   lat = c(48.5, 32.5, 30.5, 49.5, 41.6),
-#'   lon = c(17.5, 13.5, 16.5, 21.5, 12.7)
-#' )
-#'
-#' pressurepath <- pressurepath_create(tag, path = path, quiet = TRUE)
 #'
 #' plot_pressurepath(pressurepath)
 #'

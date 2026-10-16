@@ -8,17 +8,9 @@
 #' @return `graph` is returned invisibly and unchanged
 #'
 #' @examples
+#' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   tag <- tag_create("18LX", quiet = TRUE) |>
-#'     tag_label(quiet = TRUE) |>
-#'     twilight_create() |>
-#'     twilight_label_read() |>
-#'     tag_set_map(
-#'       extent = c(-16, 23, 0, 50),
-#'       known = data.frame(stap_id = 1, known_lon = 17.05, known_lat = 48.9)
-#'     ) |>
-#'     geopressure_map(quiet = TRUE) |>
-#'     geolight_map(quiet = TRUE)
+#'   tag <- load_interim("18LX", var = "tag")
 #' })
 #'
 #' graph <- graph_create(tag, quiet = TRUE)

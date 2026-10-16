@@ -19,7 +19,13 @@ logical indicating whether the \code{graph} object fulfil the condition.
 This function check the condition of a \code{graph} object.
 }
 \examples{
-\dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
-  graph_assert(graph, "movement")
-\dontshow{\}) # examplesIf}
+# Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  tag <- load_interim("18LX", var = "tag")
+})
+graph <- graph_create(tag, quiet = TRUE)
+graph_assert(graph)
+
+graph <- graph_set_movement(graph)
+graph_assert(graph, "movement")
 }
