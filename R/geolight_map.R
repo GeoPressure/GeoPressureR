@@ -84,11 +84,11 @@
 #' plot(tag, type = "twilight")
 #'
 #' # Calibrate twilight to zenith angle and visualize
-#' tag <- geolight_map_calibrate(tag)
+#' tag <- geolight_map_calibrate(tag, quiet = TRUE)
 #' plot_twl_calib(tag)
 #'
 #' # Compute likelihood for each twilight and visualize
-#' tag <- geolight_map_likelihood(tag)
+#' tag <- geolight_map_likelihood(tag, quiet = TRUE)
 #' plot(tag, type = "map_light_twl")
 #'
 #' # Aggregate twilights to stationary periods and visualize

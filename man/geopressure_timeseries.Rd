@@ -192,7 +192,8 @@ geopressure_timeseries(
   lat = 46,
   lon = 6,
   start_time = "2020-01-01",
-  end_time = "2020-01-02"
+  end_time = "2020-01-02",
+  quiet = TRUE
 )
 \dontshow{\}) # examplesIf}
 }

@@ -59,7 +59,8 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   tag <- tag_stap_daily(
     tag,
     stap_long = tag$param$id,
-    movement_period = "night"
+    movement_period = "night",
+    quiet = TRUE
   )
 })
 

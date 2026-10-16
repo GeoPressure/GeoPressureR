@@ -33,7 +33,7 @@ graph <- graph_create(tag, quiet = TRUE)
 graph <- graph_set_movement(graph)
 
 # Compute marginal
-marginal <- graph_marginal(graph)
+marginal <- graph_marginal(graph, quiet = TRUE)
 
 plot(marginal)
 
