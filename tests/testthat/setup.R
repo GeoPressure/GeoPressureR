@@ -53,3 +53,20 @@ test_path_extdata <- function() {
 test_with_extdata <- function(env = parent.frame()) {
   withr::local_dir(test_path_extdata(), .local_envir = env)
 }
+
+
+#' Skip tests above the requested test level
+#'
+#' Tests are grouped in cumulative levels selected with the `GEOPRESSURER_TEST` environment
+#' variable: `"offline"` (default, no network access), `"online"` (adds GeoPressureAPI, ARCO and
+#' elevation queries) and `"full"` (adds the complete workflow, Shiny apps and CDS wind downloads).
+#'
+#' @param level Minimum level required to run the test.
+skip_if_test_level_below <- function(level) {
+  levels <- c("offline", "online", "full")
+  current <- Sys.getenv("GEOPRESSURER_TEST", "offline")
+  skip_if(
+    match(current, levels) < match(level, levels),
+    glue::glue("{level} test (set GEOPRESSURER_TEST={level})")
+  )
+}

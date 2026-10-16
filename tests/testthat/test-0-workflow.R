@@ -2,9 +2,17 @@ library(testthat)
 library(GeoPressureR)
 
 test_that("workflow | full", {
+  skip_if_test_level_below("full")
   test_with_extdata()
 
-  geopressuretemplate("18LX", quiet = TRUE)
+  # Rerun the workflow of data-raw/fixtures.R and check it reproduces the shipped fixture
+  path_fixture <- load_interim("18LX", var = "path_most_likely")
+  geopressuretemplate("18LX", tag_set_map = list(scale = 2), quiet = TRUE)
+  expect_equal(load_interim("18LX", var = "path_most_likely"), path_fixture)
+})
+
+test_that("workflow | plots", {
+  test_with_extdata()
 
   save_list <- load_interim("18LX")
   tag <- get("tag")
@@ -63,6 +71,7 @@ test_that("workflow | full", {
 })
 
 test_that("workflow | Missing pressure value", {
+  skip_if_test_level_below("online")
   test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag$pressure <- subset(tag$pressure, stap_id == 3 | stap_id == 4)
@@ -94,6 +103,7 @@ test_that("workflow | Missing pressure value", {
 
 
 test_that("workflow | with elev_", {
+  skip_if_test_level_below("online")
   test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE)
   tag <- tag_label(
@@ -108,6 +118,7 @@ test_that("workflow | with elev_", {
 
 
 test_that("workflow | modelled fewer", {
+  skip_if_test_level_below("online")
   test_with_extdata()
   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
   tag <- tag_set_map(

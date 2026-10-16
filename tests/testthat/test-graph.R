@@ -4,18 +4,7 @@ library(GeoPressureR)
 # Set working directory
 test_with_extdata()
 
-tag <- tag_create("18LX", quiet = TRUE) |>
-  tag_label(quiet = TRUE) |>
-  tag_set_map(
-    extent = c(-16, 23, 0, 50),
-    scale = 1,
-    known = data.frame(
-      stap_id = 1,
-      known_lon = 17.05,
-      known_lat = 48.9
-    )
-  ) |>
-  geopressure_map(quiet = TRUE)
+tag <- load_interim("18LX", var = "tag")
 
 graph <- graph_create(tag, quiet = TRUE)
 
@@ -42,13 +31,13 @@ test_that("Check create_graph() for map_pressure", {
     nrow = dim(tag$map_pressure)[1],
     ncol = dim(tag$map_pressure)[2]
   )
-  expect_no_error(graph_create(tag_tmp, quiet = TRUE))
+  expect_no_error(graph_create(tag_tmp, likelihood = "map_pressure", quiet = TRUE))
 
   # map of prob NA or NULL return an error
   tag_tmp <- tag
   tag_tmp$map_pressure[[2]][TRUE] <- NA
   expect_error(
-    graph_create(tag_tmp, quiet = TRUE),
+    graph_create(tag_tmp, likelihood = "map_pressure", quiet = TRUE),
     "*is invalid for the stationary *"
   )
 })

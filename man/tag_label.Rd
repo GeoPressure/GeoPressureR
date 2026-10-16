@@ -63,7 +63,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
   print(tag)
 
-  tag <- tag_label(tag)
+  tag <- tag_label(tag, quiet = TRUE)
 
   print(tag)
 

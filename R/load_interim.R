@@ -19,8 +19,16 @@
 #'   the character vector of object names loaded (as in [base::load()]). Otherwise, if a single
 #'   object name is requested, invisibly returns that object; if multiple names are requested,
 #'   invisibly returns a named list of those objects.
-#' @examplesIf FALSE
-#'   load_interim("18LX", var = c("tag", "graph"))
+#' @examples
+#' # Inside a GeoPressureR project, the tag id reads `./data/interim/{id}.RData`
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- load_interim("18LX", var = "tag")
+#' })
+#'
+#' # A file path can also be used, and several objects are returned as a named list
+#' file <- system.file("extdata/data/interim/18LX.RData", package = "GeoPressureR")
+#' out <- load_interim(file, var = c("path_most_likely", "marginal"))
+#' names(out)
 #' @export
 load_interim <- function(
   x,

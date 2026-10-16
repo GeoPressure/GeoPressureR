@@ -35,14 +35,9 @@
 #' @return a plot or leaflet object.
 #'
 #' @examples
+#' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   tag <- tag_create("18LX", quiet = TRUE) |>
-#'     tag_label(quiet = TRUE) |>
-#'     tag_set_map(
-#'       extent = c(-16, 23, 0, 50),
-#'       scale = 4
-#'     ) |>
-#'     geopressure_map(quiet = TRUE)
+#'   tag <- load_interim("18LX", var = "tag")
 #' })
 #'
 #' plot(tag$map_pressure)
@@ -211,6 +206,11 @@ plot.map <- function(
           )
         }
       }
+    }
+
+    # Open on the first stationary period without known position, whose likelihood is informative
+    if (length(id_known) > 0 && length(id_known) < sum(map$stap$include)) {
+      lmap <- leaflet::hideGroup(lmap, grp[id_known])
     }
 
     lmap <- leaflet::addLayersControl(

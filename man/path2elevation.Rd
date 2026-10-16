@@ -49,6 +49,7 @@ The returned data.frame provide the ground elevation along the path with a resol
 \code{sampling_scale}.
 }
 \examples{
+\dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}
 # Create a path
 path <- data.frame(
   lon = c(8.47, 9.41, 9.01, -0.91, 14.24, 27.30, 34.39, 30.00),
@@ -83,7 +84,7 @@ lines(elevation$distance, elevation$X10, lty = 5)
 lines(elevation$distance, elevation$X90, lty = 5)
 id <- elevation$stap_id \%\% 1 == 0
 points(elevation$distance[id], elevation$X90[id], col = "red")
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other path:

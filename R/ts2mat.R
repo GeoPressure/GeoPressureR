@@ -5,8 +5,13 @@
 #' @param value column name to extract
 #' @inheritParams twilight_create
 #' @return A data.frame with columns `date` and `value`.
-#' @examplesIf FALSE
-#'   mat <- ts2mat(tag$pressure)
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- tag_create("18LX", quiet = TRUE)
+#' })
+#'
+#' mat <- ts2mat(tag$pressure)
+#' str(mat)
 #' @export
 ts2mat <- function(
   ts,

@@ -1,6 +1,8 @@
 library(testthat)
 library(GeoPressureR)
 
+skip_if_test_level_below("online")
+
 # Set working directory
 test_with_extdata()
 

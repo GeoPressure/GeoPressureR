@@ -29,8 +29,14 @@
 #' `as = gs - ws` in complex number to keep the vectorial additive properties. If graph provided.
 #' @family path
 #' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
-#' @examplesIf FALSE
-#'   edge <- path2edge(path, tag)
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   tag <- load_interim("18LX", var = "tag")
+#'   path <- load_interim("18LX", var = "path_most_likely")
+#' })
+#'
+#' edge <- path2edge(path, tag)
+#' head(edge)
 #' @export
 path2edge <- function(path, tag_graph) {
   assertthat::assert_that(is.data.frame(path))
