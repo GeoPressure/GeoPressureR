@@ -8,85 +8,54 @@ test_with_extdata()
 
 tag <- geopressuretemplate_tag("18LX", quiet = TRUE)
 
-test_that("tag_download_wind() | special setting", {
-  tmp <- tag_download_wind(
+test_that("tag_download_wind() | download all flights", {
+  tag_download_wind(
     tag,
-    variable = c("u_component_of_wind", "v_component_of_wind", "temperature"),
-    include_stap_id = 1
+    variable = c("u_component_of_wind", "v_component_of_wind", "temperature")
   )
-
-  edge_add_wind_check(tag)
+  expect_true(all(file.exists(glue::glue(
+    "./data/wind/18LX/18LX_{utils::head(tag$stap$stap_id, -1)}.nc"
+  ))))
+  expect_no_error(edge_add_wind_check(tag))
 })
-
 
 graph <- graph_create(tag, quiet = TRUE)
 
-graph_5 <- graph_add_wind(
-  graph,
-  pressure = tag$pressure,
-  rounding_interval = 5
-)
+test_that("graph_add_wind() | default", {
+  graph_w <- graph_add_wind(graph, pressure = tag$pressure, quiet = TRUE)
+  expect_length(graph_w$ws, length(graph$s))
+  expect_true(all(is.finite(graph_w$ws)))
+})
 
-graph_30 <- graph_add_wind(
-  graph,
-  pressure = tag$pressure,
-  rounding_interval = 30
-)
+test_that("graph_add_wind() | rounding_interval and spatial interpolation", {
+  graph_1 <- graph_add_wind(graph, pressure = tag$pressure, rounding_interval = 1, quiet = TRUE)
+  graph_60 <- graph_add_wind(graph, pressure = tag$pressure, rounding_interval = 60, quiet = TRUE)
+  expect_lt(stats::median(abs(graph_60$ws - graph_1$ws)), 5)
 
-graph_60 <- graph_add_wind(
-  graph,
-  pressure = tag$pressure,
-  rounding_interval = 60
-)
+  graph_nn <- graph_add_wind(
+    graph,
+    pressure = tag$pressure,
+    rounding_interval = 60,
+    interp_spatial_linear = FALSE,
+    quiet = TRUE
+  )
+  expect_lt(stats::median(abs(graph_nn$ws - graph_60$ws)), 5)
+})
 
-graph_1 <- graph_add_wind(
-  graph,
-  pressure = tag$pressure,
-  rounding_interval = 1
-)
+test_that("edge_add_wind() | along most likely path", {
+  graph_w <- graph_add_wind(graph, pressure = tag$pressure, quiet = TRUE)
+  graph_w <- graph_set_movement(graph_w, bird = bird_create("Acrocephalus arundinaceus"))
+  path_most_likely <- graph_most_likely(graph_w, quiet = TRUE)
+  edge_most_likely <- path2edge(path_most_likely, graph_w)
 
-plot(abs(graph_1$ws), abs(graph_5$ws - graph_1$ws))
-plot(abs(graph_1$ws), abs(graph_30$ws - graph_1$ws))
-plot(abs(graph_1$ws), abs(graph_60$ws - graph_1$ws))
-
-sd(abs(graph_30$ws - graph_1$ws))
-hist(abs(graph_30$ws - graph_1$ws))
-
-
-graph2 <- graph_add_wind(
-  graph,
-  pressure = tag$pressure,
-  rounding_interval = 60,
-  interp_spatial_linear = FALSE
-)
-
-graph3 <- graph_add_wind(
-  graph,
-  pressure = tag$pressure,
-  rounding_interval = 60,
-  interp_spatial_linear = TRUE
-)
-
-plot(abs(graph3$ws), abs(graph2$ws))
-
-
-###
-
-graph <- graph_add_wind(graph, pressure = tag$pressure)
-graph <- graph_set_movement(
-  graph,
-  bird = bird_create("Acrocephalus arundinaceus")
-)
-path_most_likely <- graph_most_likely(graph)
-path_simulation <- graph_simulation(graph)
-
-
-edge_most_likely <- path2edge(path_most_likely, graph)
-edge_simulation <- path2edge(path_simulation, graph)
-
-edge_add_wind(
-  graph,
-  edge_s = edge_most_likely$s,
-  edge_t = edge_most_likely$t,
-  pressure = tag$pressure
-)
+  edge <- edge_add_wind(
+    graph_w,
+    edge_s = edge_most_likely$s,
+    edge_t = edge_most_likely$t,
+    pressure = tag$pressure,
+    variable = c("u_component_of_wind", "v_component_of_wind", "temperature"),
+    quiet = TRUE
+  )
+  expect_true(all(c("edge_id", "val", "var") %in% names(edge)))
+  expect_setequal(unique(edge$var), c("u_component_of_wind", "v_component_of_wind", "temperature"))
+})

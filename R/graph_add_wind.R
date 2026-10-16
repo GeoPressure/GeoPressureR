@@ -179,7 +179,7 @@ add_wind_graph_edge <- function(
     ))
   }
 
-  variable <- c("u", "v")
+  variable <- c("u_component_of_wind", "v_component_of_wind")
   ms_to_kmh <- 3.6
   tag_id <- graph$param$id
   if (is.null(pressure) && inherits(graph, "tag")) {

@@ -380,9 +380,9 @@ edge_add_wind_check <- function(
       }
       nc <- ncdf4::nc_open(file_path)
 
-      # Check that the variables are present
+      # Check that the variables are present; the NetCDF stores them under GRIB short names
       available_variable <- names(nc$var)
-      tmp <- !(variable %in% available_variable)
+      tmp <- !(era5_variable_short(variable) %in% available_variable)
       if (any(tmp)) {
         cli::cli_abort(c(
           x = "Wind file does not contains the variable{?s}: {.var {variable[tmp]}}.",
