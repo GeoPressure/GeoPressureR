@@ -67,7 +67,7 @@ dir.create(file.path(work_dir, "tile"), showWarnings = FALSE)
 tile_list_file <- file.path(work_dir, "tileList.txt")
 if (!file.exists(tile_list_file)) {
   httr2::request(glue::glue("{base_url}/tileList.txt")) |>
-    httr2::req_retry(max_tries = 5) |>
+    httr2::req_retry(max_tries = 5, retry_on_failure = TRUE) |>
     httr2::req_perform(path = tile_list_file)
 }
 tile_name <- readLines(tile_list_file)
@@ -161,14 +161,16 @@ download_tile <- function(lo, la) {
   }
   reqs <- lapply(basename(f[todo]), \(n) {
     httr2::request(glue::glue("{base_url}/{sub('.tif$', '', n)}/{n}")) |>
-      httr2::req_retry(max_tries = 5)
+      httr2::req_retry(max_tries = 5, retry_on_failure = TRUE)
   })
   part <- glue::glue("{f[todo]}.part")
   resp <- httr2::req_perform_parallel(reqs, paths = part, on_error = "continue", progress = FALSE)
   ok <- vapply(resp, inherits, logical(1), "httr2_response")
   file.rename(part[ok], f[todo][ok])
   if (!all(ok)) {
-    cli::cli_abort("Failed to download {sum(!ok)} tile{?s}; rerun the script to resume.")
+    cli::cli_abort(
+      "Failed to download {.file {basename(f[todo][!ok])}}; rerun the script to resume."
+    )
   }
 }
 
