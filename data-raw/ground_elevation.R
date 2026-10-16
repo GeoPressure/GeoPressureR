@@ -41,6 +41,11 @@
 # Running
 # - Requires only R with terra, httr2, glue and cli. `parallel::mclapply()` forks, so on
 #   Windows set `cores <- 1`.
+# - Keep the computer usable: run at background priority, which on Apple silicon also keeps the
+#   workers on efficiency cores and lowers their disk priority:
+#     taskpolicy -b Rscript data-raw/ground_elevation.R            # macOS
+#     nice -n 19 ionice -c 3 Rscript data-raw/ground_elevation.R   # Linux
+#   A tile takes ~1 s of CPU, so `cores = 4` already keeps up with a ~100 Mbit/s download.
 # - Resumable: per-tile results are saved in `work_dir` as soon as computed and skipped on rerun;
 #   raw tiles are deleted once no longer needed (at most two 1° latitude bands on disk, ~4 GB).
 # - Full run: ~130 GB downloaded, 1-3 h depending on bandwidth. Set `region` to test on a small
@@ -53,7 +58,7 @@
 
 region <- NULL # c(W, E, S, N) in integer degrees, e.g. c(5, 10, 44, 48); NULL for the globe
 work_dir <- file.path(tools::R_user_dir("GeoPressureR", "cache"), "ground-elevation-build")
-cores <- max(1, parallel::detectCores() - 2)
+cores <- 4 # parallel workers; more mainly competes with other programs for little gain
 scales <- c(1, 2, 4, 5, 10)
 probs <- c(0, seq(0.1, 0.9, 0.1), 1)
 band_names <- c("min", glue::glue("p{seq(10, 90, 10)}"), "max")
@@ -176,6 +181,12 @@ download_tile <- function(lo, la) {
 
 out_file <- \(type, lo, la) file.path(work_dir, "tile", glue::glue("{type}_{lo}_{la}.rds"))
 
+# Write via a temporary file so an interrupted run never leaves a truncated result behind
+save_out <- function(x, file) {
+  saveRDS(x, glue::glue("{file}.tmp"))
+  file.rename(glue::glue("{file}.tmp"), file)
+}
+
 # Process latitude bands south to north. Band `la` computes the map-grid statistics of its tiles
 # and the ERA5 cells centred on lat la to la + 0.75, which also need band la - 1.
 lon_range <- if (is.null(region)) c(-180, 179) else c(region[1], region[2] - 1)
@@ -202,12 +213,12 @@ for (la in seq(lat_range[1], lat_range[2])) {
 
     parallel::mclapply(
       map_todo,
-      \(lo) saveRDS(tile_stat(lo, la), out_file("map", lo, la)),
+      \(lo) save_out(tile_stat(lo, la), out_file("map", lo, la)),
       mc.cores = cores
     )
     parallel::mclapply(
       era5_todo,
-      \(lo) saveRDS(era5_stat(lo, la), out_file("era5", lo, la)),
+      \(lo) save_out(era5_stat(lo, la), out_file("era5", lo, la)),
       mc.cores = cores
     )
     missing <- c(
