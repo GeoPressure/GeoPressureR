@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Include tests querying GeoPressureAPI, ARCO and elevation (see tests/testthat/setup.R)
+      GEOPRESSURER_TEST: online
 
     steps:
       - uses: actions/checkout@v6

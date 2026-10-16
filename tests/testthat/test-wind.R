@@ -1,7 +1,7 @@
 library(testthat)
 library(GeoPressureR)
 
-skip("skip graph_add_wind")
+skip_if_test_level_below("full")
 
 # Set working directory
 test_with_extdata()
