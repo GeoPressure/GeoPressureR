@@ -12,12 +12,13 @@ pressurepath_create(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
   debug = FALSE,
-  source = c("auto", "arco", "api")
+  source = c("auto", "arco", "api"),
+  altitude_formula = c("virtual", "standard")
 )
 
 pressurepath_create_api(
@@ -25,11 +26,12 @@ pressurepath_create_api(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   workers = "auto",
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 )
 
 pressurepath_create_arco(
@@ -37,10 +39,11 @@ pressurepath_create_arco(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 )
 }
 \arguments{
@@ -56,9 +59,9 @@ depends on both \code{source} and \code{era5_dataset} — see \code{\link[=press
 \item{solar_dep}{Solar depression angle used to compute sunrise and sunset, or \code{NULL} to skip
 this computation.}
 
-\item{era5_dataset}{ERA5 product: \code{"both"} (default) to use ERA5-Land over land and global ERA5
-elsewhere, \code{"land"}, or \code{"single-levels"}. Prefer \code{"single-levels"} whenever \code{variable}
-includes \code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
+\item{era5_dataset}{ERA5 product: \code{"single-levels"} (default), \code{"land"}, or \code{"both"} to use
+ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever \code{variable} includes
+\code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.}
 
 \item{preprocess}{Whether to preprocess pressure with \code{\link[=geopressure_map_preprocess]{geopressure_map_preprocess()}}.}
 
@@ -69,6 +72,11 @@ includes \code{"altitude"}; see the \emph{Choosing \code{era5_dataset}} section.
 \item{debug}{Logical to display request details.}
 
 \item{source}{Data source: \code{"auto"}, \code{"arco"}, or \code{"api"}.}
+
+\item{altitude_formula}{Altitude formula: \code{"virtual"} (default) uses 2 m virtual temperature
+and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
+\href{https://github.com/GeoPressure/altitude-validation}{altitude validation}. \code{"standard"} uses
+2 m temperature and a lapse rate of -6.5 K/km to reproduce previous results.}
 }
 \value{
 A \code{pressurepath} data.frame containing tag pressure, coordinates, requested ERA5
@@ -119,8 +127,13 @@ When altitude is produced, GeoPressureR uses the same barometric relation as
 Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_\mathrm{ERA5}},
 and \eqn{z_\mathrm{ERA5}}
 are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
-is obtained from ERA5 surface geopotential divided by standard gravity. The constants are the
-standard temperature lapse rate \eqn{L_b=-0.0065} K/m, universal gas constant
+is obtained from ERA5 surface geopotential divided by standard gravity.
+\code{altitude_formula = "virtual"} (default) uses the virtual temperature computed from ERA5 2 m
+dewpoint, and the temperature lapse rate of the GPT3 empirical troposphere model
+(\href{https://doi.org/10.1007/s00190-017-1066-2}{Landskron & Böhm 2018}), a mean, annual and
+semi-annual cycle on a 1° grid, downloaded once from TU Wien and cached.
+\code{altitude_formula = "standard"} uses 2 m temperature and \eqn{L_b=-0.0065} K/m.
+The constants are the universal gas constant
 \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s², and molar mass of dry air
 \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
 metres above mean sea level.
@@ -128,7 +141,7 @@ metres above mean sea level.
 
 \section{Choosing \code{era5_dataset}}{
 
-\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.}
+\strong{Use \code{era5_dataset = "single-levels"} whenever altitude is computed.} It is the default.
 
 ERA5-Land's \code{surface_pressure} is not the exact hydrostatic image of the orography ERA5-Land
 publishes as \code{geopotential} — the two disagree by up to ~10 hPa in steep terrain. The
@@ -147,21 +160,30 @@ own, so it carries no independent information about absolute altitude. Substitut
 orography implied by its own surface pressure removes the error exactly and reproduces
 \code{"single-levels"} to 0.1 m.
 
-\code{"land"} and \code{"both"} remain the defaults for backward compatibility. They are appropriate for
-retrieving other variables at 0.1 degree resolution, and for \code{\link[=geopressure_map]{geopressure_map()}}, whose
-pressure mismatch is differential and unaffected.
+\code{"land"} and \code{"both"} remain supported. They are appropriate for retrieving other variables
+at 0.1 degree resolution. For altitude, prefer \code{"single-levels"} based on the
+\href{https://github.com/GeoPressure/altitude-validation}{altitude validation}.
 }
 
 \section{Accuracy}{
 
-With \code{era5_dataset = "single-levels"} the altitude error separates into two parts that behave
-very differently. A static per-site offset (median 3.7 m, p90 15 m) reflects station metadata
-and sub-grid terrain and does not vary in time, while the temporal scatter (median SD 3.1 m,
-p90 7.7 m) is the actual reanalysis error. Expect roughly \strong{3 m for relative altitude changes
-at a fixed location} and \strong{10 m mean absolute error for absolute altitude}, degrading to tens
-of metres in steep terrain — where it is a fixed offset rather than noise. Precision is nearly
-independent of flight altitude: de-biased RMSE stays 2–7 m up to 1000 m above the model surface
-and about 12 m at 1000–3000 m above it.
+The \href{https://github.com/GeoPressure/altitude-validation}{altitude validation} evaluates the
+conversion against weather stations, GNSS and Swiss stations with documented barometer heights,
+and radiosondes, for a perfect pressure reading with \code{era5_dataset = "single-levels"} and the
+default \code{altitude_formula = "virtual"}:
+\itemize{
+\item \strong{Absolute altitude on the ground} is a fixed offset per site: median 2.6 m (p90 11 m), with
+a temporal scatter (SD) of 3.7 m around it, growing to tens of metres in steep terrain where
+the 0.25° orography departs from the real one.
+\item \strong{Altitude changes at one site} are therefore more reliable than absolute altitudes.
+\item \strong{Height above the ground in flight} is nearly unbiased (−4 m at 1–1.5 km), but its scatter
+grows with height (RMSE 20 m at 1–1.5 km and 43 m at 2–3 km). Over the heights birds fly,
+the mean absolute error is 13.1 m, against 16.4 m with \code{"standard"}, which places birds too
+low by 1–1.5\% of their height.
+}
+
+The tag's own sensor adds to these: \code{altitude} is computed from the raw tag pressure, so an
+absolute sensor offset of 1 hPa shifts it by about 8 m near the ground.
 }
 
 \section{A note on accumulated variables}{

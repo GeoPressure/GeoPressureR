@@ -7,7 +7,9 @@ geopressure_timeseries_api <- function(
   start_time = NULL,
   end_time = NULL,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  era5_dataset = c("single-levels", "land"),
+  altitude_formula = "virtual"
 ) {
   geopressure_timeseries(
     lat = lat,
@@ -17,7 +19,9 @@ geopressure_timeseries_api <- function(
     end_time = end_time,
     source = "api",
     quiet = quiet,
-    debug = debug
+    debug = debug,
+    era5_dataset = era5_dataset,
+    altitude_formula = altitude_formula
   )
 }
 
@@ -28,10 +32,12 @@ geopressure_timeseries_api_impl <- function(
   start_time = NULL,
   end_time = NULL,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  era5_dataset = "single-levels",
+  altitude_formula = "virtual"
 ) {
   # Format query
-  body <- list(lon = lon, lat = lat)
+  body <- list(lon = lon, lat = lat, dataset = era5_dataset, altitudeFormula = altitude_formula)
   if (!is.null(pressure)) {
     body$time <- as.numeric(as.POSIXct(pressure$date))
     body$pressure <- pressure$value * 100

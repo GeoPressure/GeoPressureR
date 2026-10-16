@@ -40,12 +40,15 @@ era5_surface_elevation <- function(
       }
     }
     geopotential <- terra::rast(geopotential_file)
-    terra::ext(geopotential) <- if (dataset_i == "land") {
-      c(-0.05, 359.95, -90.05, 90.05)
-    } else {
-      c(-0.125, 359.875, -90.125, 90.125)
+    # Recent GDAL already serves the grid on -180..180; rotating it again shifts it by 180°.
+    if (terra::xmax(geopotential) > 180) {
+      terra::ext(geopotential) <- if (dataset_i == "land") {
+        c(-0.05, 359.95, -90.05, 90.05)
+      } else {
+        c(-0.125, 359.875, -90.125, 90.125)
+      }
+      geopotential <- terra::rotate(geopotential)
     }
-    geopotential <- terra::rotate(geopotential)
     elevation[id] <- terra::extract(geopotential, cbind(lon[id], lat[id]))[[1]] / 9.80665
   }
   elevation

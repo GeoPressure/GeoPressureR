@@ -111,11 +111,10 @@
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
-#' @param era5_dataset ERA5 product: `"land"` (default) at 0.1 degree resolution,
-#'   `"single-levels"` at 0.25 degree resolution, or `"both"` to use ERA5-Land over land and
-#'   global ERA5 elsewhere. Unlike altitude in [pressurepath_create()], `"land"` is right here:
-#'   the pressure mismatch is differential (the mean error is removed at each stationary period),
-#'   so the static ERA5-Land bias cancels and its finer resolution is what the map needs.
+#' @param era5_dataset ERA5 product: `"single-levels"` (default, recommended) at 0.25 degree
+#'   resolution, `"land"` at 0.1 degree resolution, or `"both"` to use ERA5-Land over land and
+#'   global ERA5 elsewhere. `"land"` is only worth it for maps finer than `scale = 4` (see
+#'   [tag_set_map()]).
 #'
 #' @return Returns the same GeoPressureR `tag` object including the GeoPressureR `map` object
 #' `tag$map_pressure` containing the likelihood map of each stationary period. See `map_create()`
@@ -168,7 +167,7 @@ geopressure_map <- function(
   log_linear_pooling_weight = \(n) log(n) / n,
   timeout = 300,
   workers = "auto",
-  era5_dataset = "land",
+  era5_dataset = "single-levels",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
