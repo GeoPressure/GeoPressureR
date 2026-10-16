@@ -53,8 +53,11 @@ pressurepath_create_arco_impl <- function(
         httr2::req_perform(path = lsm_file)
     }
     land <- terra::rast(lsm_file)
-    terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
-    land <- terra::rotate(land)
+    # Recent GDAL already serves the grid on -180..180; rotating it again shifts it by 180°.
+    if (terra::xmax(land) > 180) {
+      terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
+      land <- terra::rotate(land)
+    }
     land_lon <- floor(pressurepath$lon / 0.1 + 0.5) * 0.1
     land_lat <- floor(pressurepath$lat / 0.1 + 0.5) * 0.1
     land_value <- terra::extract(land, cbind(land_lon, land_lat))[[1]]

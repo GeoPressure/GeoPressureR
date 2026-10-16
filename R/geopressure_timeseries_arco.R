@@ -91,8 +91,11 @@ geopressure_timeseries_arco_impl <- function(
         httr2::req_perform(path = lsm_file)
     }
     land <- terra::rast(lsm_file)
-    terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
-    land <- terra::rotate(land)
+    # Recent GDAL already serves the grid on -180..180; rotating it again shifts it by 180°.
+    if (terra::xmax(land) > 180) {
+      terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
+      land <- terra::rotate(land)
+    }
     radius <- 10
     radius_lon <- min(180, radius / abs(cos(lat * pi / 180)))
     candidate <- terra::crop(
