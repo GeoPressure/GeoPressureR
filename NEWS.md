@@ -8,6 +8,7 @@
 
 ## Minor
 
+- [Fix wind support for NetCDF files currently returned by the CDS](https://github.com/GeoPressure/GeoPressureR/commit/ecc4f02fb7f5c4c16a75fabac72ceb85eec2c408): `edge_add_wind()` and `graph_add_wind()` failed on downloaded wind files because the CDS now stores variables under their GRIB short names (`u`, `v`, `t`).
 - [Cancel superseded pull-request CI runs](https://github.com/GeoPressure/GeoPressureR/commit/f25ec937256e1731d3c7a133776f75f33ba59a55).
 - [Silence progress messages in examples](https://github.com/GeoPressure/GeoPressureR/commit/14d2f4acfabcb8d149fdb2fdb69e7e0af02a8ac8) with `quiet = TRUE`.
 
