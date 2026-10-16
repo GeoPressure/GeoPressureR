@@ -141,6 +141,7 @@ pressurepath_create_arco_impl <- function(
       temperature,
       elevation,
       dewpoint = if (altitude_formula == "virtual") read_variable("dewpoint_temperature_2m"),
+      lon = pressurepath$lon,
       lat = pressurepath$lat,
       date = requested_date,
       altitude_formula = altitude_formula

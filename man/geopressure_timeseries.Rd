@@ -65,7 +65,7 @@ resolution or \code{"land"} at 0.1 degree resolution. Keep the default when \cod
 because \code{altitude} is then computed; see the \emph{Choosing \code{era5_dataset}} section.}
 
 \item{altitude_formula}{Altitude formula: \code{"virtual"} (default) uses 2 m virtual temperature
-and a lapse rate varying with season and latitude, based on the
+and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
 \href{https://github.com/GeoPressure/altitude-validation}{altitude validation}. \code{"standard"} uses
 2 m temperature and -6.5 K/km to reproduce previous results.}
 }
@@ -118,11 +118,11 @@ Here, \eqn{P_\mathrm{tag}} is tag pressure, while \eqn{P_\mathrm{ERA5}}, \eqn{T_
 and \eqn{z_\mathrm{ERA5}}
 are ERA5 surface pressure, 2 m temperature, and model-surface elevation. Model-surface elevation
 is obtained from ERA5 surface geopotential divided by standard gravity.
-\code{altitude_formula = "virtual"} (default) uses virtual temperature computed from ERA5 2 m
-dewpoint and a lapse rate varying with season and latitude. \code{altitude_formula = "standard"}
-uses 2 m temperature and \eqn{L_b=-0.0065} K/m.
-The virtual formula matches \href{https://github.com/GeoPressure/GeoPressureAPI/pull/32}{GeoPressureAPI PR #32},
-based on the \href{https://github.com/GeoPressure/altitude-validation}{altitude validation}.
+\code{altitude_formula = "virtual"} (default) uses the virtual temperature computed from ERA5 2 m
+dewpoint, and the temperature lapse rate of the GPT3 empirical troposphere model
+(\href{https://doi.org/10.1007/s00190-017-1066-2}{Landskron & Böhm 2018}), a mean, annual and
+semi-annual cycle on a 1° grid, downloaded once from TU Wien and cached.
+\code{altitude_formula = "standard"} uses 2 m temperature and \eqn{L_b=-0.0065} K/m.
 The constants are the universal gas constant
 \eqn{R=8.31432} J/(mol K), standard gravity \eqn{g=9.80665} m/s², and molar mass of dry air
 \eqn{M=0.0289644} kg/mol. Pressure is converted to Pa internally and altitude is returned in
@@ -157,14 +157,23 @@ at 0.1 degree resolution. For altitude, prefer \code{"single-levels"} based on t
 
 \section{Accuracy}{
 
-With \code{era5_dataset = "single-levels"} the altitude error separates into two parts that behave
-very differently. A static per-site offset (median 3.7 m, p90 15 m) reflects station metadata
-and sub-grid terrain and does not vary in time, while the temporal scatter (median SD 3.1 m,
-p90 7.7 m) is the actual reanalysis error. Expect roughly \strong{3 m for relative altitude changes
-at a fixed location} and \strong{10 m mean absolute error for absolute altitude}, degrading to tens
-of metres in steep terrain — where it is a fixed offset rather than noise. Precision is nearly
-independent of flight altitude: de-biased RMSE stays 2–7 m up to 1000 m above the model surface
-and about 12 m at 1000–3000 m above it.
+The \href{https://github.com/GeoPressure/altitude-validation}{altitude validation} evaluates the
+conversion against weather stations, GNSS and Swiss stations with documented barometer heights,
+and radiosondes, for a perfect pressure reading with \code{era5_dataset = "single-levels"} and the
+default \code{altitude_formula = "virtual"}:
+\itemize{
+\item \strong{Absolute altitude on the ground} is a fixed offset per site: median 2.6 m (p90 11 m), with
+a temporal scatter (SD) of 3.7 m around it, growing to tens of metres in steep terrain where
+the 0.25° orography departs from the real one.
+\item \strong{Altitude changes at one site} are therefore more reliable than absolute altitudes.
+\item \strong{Height above the ground in flight} is nearly unbiased (−4 m at 1–1.5 km), but its scatter
+grows with height (RMSE 20 m at 1–1.5 km and 43 m at 2–3 km). Over the heights birds fly,
+the mean absolute error is 13.1 m, against 16.4 m with \code{"standard"}, which places birds too
+low by 1–1.5\% of their height.
+}
+
+The tag's own sensor adds to these: \code{altitude} is computed from the raw tag pressure, so an
+absolute sensor offset of 1 hPa shifts it by about 8 m near the ground.
 }
 
 \section{A note on accumulated variables}{

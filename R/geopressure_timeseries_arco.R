@@ -171,6 +171,7 @@ geopressure_timeseries_arco_impl <- function(
       temperature[nearest_time],
       elevation,
       dewpoint = dewpoint,
+      lon = lon,
       lat = lat,
       date = requested_date,
       altitude_formula = altitude_formula

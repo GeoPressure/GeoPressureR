@@ -47,7 +47,7 @@
 #'   resolution or `"land"` at 0.1 degree resolution. Keep the default when `pressure` is supplied,
 #'   because `altitude` is then computed; see the *Choosing `era5_dataset`* section.
 #' @param altitude_formula Altitude formula: `"virtual"` (default) uses 2 m virtual temperature
-#'   and a lapse rate varying with season and latitude, based on the
+#'   and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
 #'   [altitude validation](https://github.com/GeoPressure/altitude-validation). `"standard"` uses
 #'   2 m temperature and -6.5 K/km to reproduce previous results.
 #' @param quiet Logical to suppress progress messages.

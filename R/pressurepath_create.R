@@ -46,8 +46,7 @@
 #'   ERA5-Land over land and global ERA5 elsewhere. Keep the default whenever `variable` includes
 #'   `"altitude"`; see the *Choosing `era5_dataset`* section.
 #' @param altitude_formula Altitude formula: `"virtual"` (default) uses 2 m virtual temperature
-#'   and a lapse rate varying with season and latitude, matching
-#'   [GeoPressureAPI PR #32](https://github.com/GeoPressure/GeoPressureAPI/pull/32), based on the
+#'   and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
 #'   [altitude validation](https://github.com/GeoPressure/altitude-validation). `"standard"` uses
 #'   2 m temperature and a lapse rate of -6.5 K/km to reproduce previous results.
 #' @param preprocess Whether to preprocess pressure with [geopressure_map_preprocess()].

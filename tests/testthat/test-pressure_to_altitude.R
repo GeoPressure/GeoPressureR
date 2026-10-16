@@ -1,5 +1,7 @@
-test_that("virtual altitude matches the independent GeoPressureAPI reference", {
-  # Reference values computed independently from PR #32, including leap dates and both poles.
+test_that("virtual altitude uses virtual temperature and the GPT3 lapse rate", {
+  # Reference values computed independently, with a lapse rate varying with latitude in place of
+  # GPT3 (offline), including leap dates and both poles.
+  local_mocked_bindings(gpt3_lapse_rate = \(lon, lat, date) -0.006 + lat / 1e5)
   lat <- c(46.95, 46.95, 0, -33.87, -33.87, 90, -90, -46, 46)
   date <- as.POSIXct(
     c(
@@ -16,21 +18,24 @@ test_that("virtual altitude matches the independent GeoPressureAPI reference", {
     tz = "UTC"
   )
   expect_equal(
-    pressure_to_altitude(90000, 100000, 288, 500, 280, lat, date),
+    pressure_to_altitude(90000, 100000, 288, 500, 280, 7, lat, date),
     c(
-      1387.298550585463,
-      1382.959077983491,
-      1382.389533885315,
-      1385.927270830295,
-      1382.856547552899,
-      1388.800294606306,
-      1388.800294606306,
-      1383.009395068535,
-      1386.592042419869
+      1383.984043248338,
+      1383.984043248338,
+      1383.346185518581,
+      1382.886412862621,
+      1382.886412862621,
+      1384.569456595767,
+      1382.125172427254,
+      1382.721830347394,
+      1383.971130553562
     ),
     tolerance = 1e-10
   )
-  expect_equal(pressure_to_altitude(100000, 100000, 288, 500, 280, lat, date), rep(500, 9))
+  expect_equal(pressure_to_altitude(100000, 100000, 288, 500, 280, 7, lat, date), rep(500, 9))
+  # A lapse rate of 0 (isothermal column) is kept off the 0/0 of the barometric equation
+  local_mocked_bindings(gpt3_lapse_rate = \(lon, lat, date) 0)
+  expect_equal(pressure_to_altitude(90000, 100000, 288, 500, 280, 7, 0, date[1]), 1391.530456779907)
   expect_equal(
     pressure_to_altitude(90000, 100000, 288, 500, altitude_formula = "standard"),
     1379.358946332310,
@@ -55,6 +60,7 @@ test_that("ARCO time series defaults to virtual and preserves its output structu
       )
     },
     era5_surface_elevation = function(...) 500,
+    gpt3_lapse_rate = \(lon, lat, date) -0.006 + lat / 1e5,
     .package = "GeoPressureR"
   )
   pressure <- data.frame(
@@ -62,7 +68,7 @@ test_that("ARCO time series defaults to virtual and preserves its output structu
     value = c(900, 900)
   )
   virtual <- geopressure_timeseries_arco_impl(46.95, 7.45, pressure, quiet = TRUE)
-  expect_equal(virtual$altitude, c(1387.298550585463, 1382.959077983491), tolerance = 1e-10)
+  expect_equal(virtual$altitude, rep(1383.984043248338, 2), tolerance = 1e-10)
   expect_true("dewpoint_temperature_2m" %in% reads)
   expect_identical(virtual$date, pressure$date)
   expect_false("dewpoint_temperature_2m" %in% names(virtual))
@@ -95,6 +101,7 @@ test_that("ARCO pressure paths use virtual at the original coordinates and dates
       )
     },
     era5_surface_elevation = function(lon, ...) rep(500, length(lon)),
+    gpt3_lapse_rate = \(lon, lat, date) -0.006 + lat / 1e5,
     .package = "GeoPressureR"
   )
   pressurepath <- data.frame(
@@ -108,7 +115,7 @@ test_that("ARCO pressure paths use virtual at the original coordinates and dates
   tag <- list(param = list(id = "test", geopressure_map = list(sd = 1)))
   path <- data.frame(stap_id = 1L, lon = 16, lat = 46)
   virtual <- pressurepath_create_arco_impl(tag, path, pressurepath, solar_dep = NULL, quiet = TRUE)
-  expect_equal(virtual$altitude, c(1387.298550585463, 1385.927270830295), tolerance = 1e-10)
+  expect_equal(virtual$altitude, c(1383.984043248338, 1382.886412862621), tolerance = 1e-10)
   expect_true("dewpoint_temperature_2m" %in% reads)
   expect_false("dewpoint_temperature_2m" %in% names(virtual))
   reads <- character()
