@@ -209,9 +209,8 @@ plot.map <- function(
     }
 
     # Open on the first stationary period without known position, whose likelihood is informative
-    known <- map$stap$include & !is.na(map$stap$known_lat)
-    if (!all(known[map$stap$include])) {
-      lmap <- leaflet::hideGroup(lmap, grp[known])
+    if (length(id_known) > 0 && length(id_known) < sum(map$stap$include)) {
+      lmap <- leaflet::hideGroup(lmap, grp[id_known])
     }
 
     lmap <- leaflet::addLayersControl(
