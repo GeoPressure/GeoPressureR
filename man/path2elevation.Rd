@@ -2,7 +2,7 @@
 % Please edit documentation in R/path2elevation.R
 \name{path2elevation}
 \alias{path2elevation}
-\title{Download ground elevation along a path}
+\title{Ground elevation along a path}
 \usage{
 path2elevation(
   path,
@@ -15,33 +15,50 @@ path2elevation(
 \arguments{
 \item{path}{A GeoPressureR \code{path} data.frame with \code{lon}, \code{lat}, \code{stap_id}, \code{start}, and \code{end} columns. Coordinates are in degrees, times are POSIXct, and \code{stap_id} is numbered \verb{1, ..., nrow(path)} in chronological order.}
 
-\item{scale}{Elevation grid resolution in pixels per degree (e.g., \code{4} corresponds to \verb{0.25°}). The API selects the available precomputed raster with the smallest resolution factor greater than or equal to \code{scale} and samples it at approximately \code{111139 / scale} meters.}
+\item{scale}{Elevation grid resolution in pixels per degree (e.g., \code{4} corresponds to \verb{0.25°}),
+matching \code{scale} of \code{\link[=tag_set_map]{tag_set_map()}} so that cells coincide with the map grid. The finest
+available grid not coarser than \code{scale} is used among \verb{1, 2, 4, 5, 10} (e.g., \code{3} uses \code{4}),
+and \code{10} above it.}
 
 \item{sampling_scale}{Sampling density along each path segment, with a distance interval of \code{111139 / sampling_scale} meters (about 27.8 km for \code{4}). Defaults to \code{scale}; increasing it adds samples without changing the elevation grid resolution.}
 
-\item{percentile}{Elevation percentiles to retrieve within each grid cell. The API provides \verb{10, 20, ..., 90}; \code{50} is the median. Only these values are supported; other values are rejected before querying the API.}
+\item{percentile}{Elevation percentiles to retrieve within each grid cell, among
+\verb{0, 10, 20, ..., 90, 100}; \code{0} is the minimum, \code{50} the median and \code{100} the maximum.}
 
-\item{debug}{logical to display additional information to debug a request}
+\item{debug}{logical to display additional information, such as the elevation file used.}
 }
 \value{
 A data.frame containing
 \itemize{
 \item \code{stap_id} stationary-period ID plus the fraction of segment distance traveled toward the next position (e.g., \code{2.5} is halfway from position 2 to 3)
-\item \code{lon}, \code{lat} sampled raster coordinates in degrees, rounded to three decimal places; these can differ from the exact positions on the polyline
-\item \code{distance} cumulative geodesic distance in km from the first retained path position
+\item \code{lon}, \code{lat} centre of the grid cell read, in degrees, rounded to three decimal places; these differ from the exact positions on the polyline
+\item \code{distance} cumulative geodesic (WGS84) distance in km from the first retained path position
 \item \verb{X<percentile>} ground elevation in meters for each requested percentile (e.g., \code{X10}, \code{X50}, and \code{X90} by default)
 }
 }
 \description{
-This function queries the \href{https://github.com/GeoPressure/GeoPressureAPI#3-ground-elevation-along-a-path}{GeoPressureAPI elevationPath endpoint} for ground elevation along a path, using precomputed Copernicus GLO DEM elevation percentiles.
+This function returns ground elevation along a path from precomputed statistics of the
+\href{https://registry.opendata.aws/copernicus-dem/}{Copernicus DEM GLO-90} (90 m): the minimum,
+the 10th to 90th percentiles and the maximum of the DEM pixels within each grid cell. These
+statistics describe the range of terrain elevation the bird can fly over within a cell.
 
-Consecutive path positions are connected by geodesic segments. Each segment is sampled from its start at a fixed distance interval controlled by \code{sampling_scale}. At each sample, the API reads the requested percentile bands from an elevation raster selected using \code{scale}. These percentiles describe variation in terrain elevation within a grid cell.
+The statistics are computed by
+\href{https://github.com/GeoPressure/GeoPressureR/blob/main/data-raw/ground_elevation.R}{\code{data-raw/ground_elevation.R}}
+on the map grids of \code{\link[=tag_set_map]{tag_set_map()}} (\code{scale} 1, 2, 4, 5 and 10) and published as the
+\href{https://github.com/GeoPressure/GeoPressureR/releases/tag/ground-elevation-v1}{\code{ground-elevation-v1} release}.
+The file of the requested \code{scale} (0.4 MB for \code{scale = 1}, 6 MB for \code{4}, 9 MB for \code{5}, 33 MB
+for \code{10}) is downloaded once on first use and cached in \code{tools::R_user_dir("GeoPressureR", "cache")}; later calls are local.
+
+Consecutive path positions are connected by great-circle segments. Each segment is sampled
+from its start at a fixed distance interval controlled by \code{sampling_scale}, and the last
+position is added. Each sample reads the requested statistics of the grid cell containing it.
 
 Missing positions between known positions are interpolated separately in longitude and latitude using cumulative flight duration from \code{start} and \code{end}. Missing positions before the first or after the last known position are excluded with a warning.
 
 The result is a spatial profile without timestamps. Its fractional \code{stap_id} values describe distance along each segment, whereas \code{\link[=find_stap]{find_stap()}} uses elapsed flight time. Interpolating elevation onto a pressure path using \code{stap_id} therefore assumes constant speed along each segment.
 
-The API rounds elevation to whole meters and replaces missing DEM values with zero, so a returned zero can represent either zero elevation or missing data.
+Elevation is rounded to whole meters above the EGM2008 geoid. Sea is \code{0}, and coastal cells
+include sea pixels as ground the bird can fly over.
 }
 \examples{
 \dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}

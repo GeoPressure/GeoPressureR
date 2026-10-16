@@ -45,6 +45,15 @@ test_that("path2elevation() | default output", {
   ))
 })
 
+test_that("path2elevation() | minimum, maximum and scale selection", {
+  elevation <- path2elevation(path, scale = 3, percentile = c(0, 50, 100))
+  expect_named(elevation, c("X0", "X50", "X100", "distance", "lat", "lon", "stap_id"))
+  expect_true(all(elevation$X0 <= elevation$X50 & elevation$X50 <= elevation$X100))
+  # `scale = 3` reads the 0.25° grid: the first sample is the centre of its cell
+  expect_equal(c(elevation$lon[1], elevation$lat[1]), c(8.375, 48.875))
+  expect_equal(range(elevation$stap_id), c(1, 8))
+})
+
 # test_that("path2elevation() | change default", {
 #   elevation <- path2elevation(path, scale = 1)
 #   elevation <- path2elevation(path, sampling_scale = 1)
