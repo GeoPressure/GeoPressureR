@@ -198,7 +198,7 @@ plot_path_leaflet <- function(
   )
 
   if (is.null(map)) {
-    map <- leaflet::leaflet(height = 600) |>
+    map <- leaflet::leaflet(height = "100vh") |>
       map_add_tiles(provider = provider, provider_options = provider_options)
   }
 
