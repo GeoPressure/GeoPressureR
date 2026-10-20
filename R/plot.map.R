@@ -123,7 +123,7 @@ plot.map <- function(
       "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}"
     )
 
-    lmap <- leaflet::leaflet(height = 600) |>
+    lmap <- leaflet::leaflet(height = "100vh") |>
       map_add_tiles(provider = provider, provider_options = provider_options)
 
     # Compute the resolution for the projection to web Mercator
