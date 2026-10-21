@@ -16,8 +16,10 @@ test_that("ARCO time series matches tag times without a remote read", {
   )
   out <- impl(46.37, 16.37, pressure = pressure, quiet = TRUE, era5_dataset = "single-levels")
   expect_equal(out$date, pressure$date)
-  expect_equal(out$surface_pressure, c(1001, 1002))
-  expect_equal(out$surface_pressure_norm, c(990, 991))
+  # 00:15 takes the 00:00 image and 01:45 the 02:00 one: three hours are read, and the second
+  # point gets the third.
+  expect_equal(out$surface_pressure, c(1001, 1003))
+  expect_equal(out$surface_pressure_norm, c(989.5, 991.5))
   expect_true(all(is.finite(out$altitude)))
 
   out <- impl(
@@ -37,7 +39,7 @@ test_that("ARCO pressure path assembles requested variables in memory", {
     era5_arco_read_points = function(variable, era5_dataset, lon, lat, date, debug) {
       expect_equal(era5_dataset, "single-levels")
       expect_equal(lon, c(16, 16.25))
-      expect_equal(format(date, "%H:%M"), c("01:00", "02:00"))
+      expect_equal(format(date, "%H:%M"), c("00:00", "02:00"))
       if (variable == "surface_pressure") c(100000, 100100) else c(280, 281)
     },
     era5_surface_elevation = function(lon, ...) rep(0, length(lon)),

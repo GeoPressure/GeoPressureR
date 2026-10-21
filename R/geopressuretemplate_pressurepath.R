@@ -92,8 +92,9 @@ geopressuretemplate_pressurepath <- function(
     }
 
     # Save the outputs to the specified file
+    # Rerunning on a file that already holds a pressurepath would otherwise list it twice
     save(
-      list = save_list,
+      list = unique(save_list),
       file = file
     )
   }

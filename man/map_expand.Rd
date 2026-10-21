@@ -12,7 +12,8 @@ computed. Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S
 
 \item{scale}{number of pixels per 1° latitude-longitude. For instance, \code{scale = 10} for a
 resolution of 0.1° (~10km) and \code{scale=4} for a resolution of 0.25° (~30km). To avoid
-interpolating the ERA5 data, the scale should be equal to or smaller than 10. Read more about
+interpolating the ERA5 single-levels data, the scale should be equal to or smaller than 4
+(the default in \code{tag_set_map()}). \code{tag_set_map()} warns for higher values. Read more about
 scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google earth Engine documentation }.}
 }
 \value{
