@@ -24,32 +24,33 @@ tag_create_soi <- function(
       if (!is.null(setting_path)) {
         tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
 
-        if (tag$param$soi_settings$RecordingStop != "timestamp invalid") {
-          # Check for drift
-          stop_time_ref <- as.POSIXct(strptime(
-            tag$param$soi_settings$StopTimeReference,
-            tz = "UTC",
-            format = "%d.%m.%Y %H:%M:%S"
-          ))
-          stop_time_rtc <- as.POSIXct(strptime(
-            tag$param$soi_settings$StopTimeRTC,
-            tz = "UTC",
-            format = "%d.%m.%Y %H:%M:%S"
-          ))
-
-          tag$param$drift <- abs(as.numeric(difftime(
-            stop_time_ref,
+        # Check for drift: tag clock (StopTimeRTC) minus computer clock (StopTimeReference) at
+        # download, in minutes. Positive when the tag clock is ahead.
+        settings_time <- function(key) {
+          x <- tag$param$soi_settings[[key]]
+          if (!is.character(x) || length(x) != 1) {
+            return(as.POSIXct(NA))
+          }
+          as.POSIXct(strptime(x, tz = "UTC", format = "%d.%m.%Y %H:%M:%S"))
+        }
+        stop_time_ref <- settings_time("StopTimeReference")
+        stop_time_rtc <- settings_time("StopTimeRTC")
+        recording_valid <- !identical(
+          tag$param$soi_settings$RecordingStop,
+          "timestamp invalid"
+        )
+        if (recording_valid && !is.na(stop_time_ref) && !is.na(stop_time_rtc)) {
+          tag$param$drift <- as.numeric(difftime(
             stop_time_rtc,
+            stop_time_ref,
             units = "mins"
-          )))
-          if (tag$param$drift > 30) {
+          ))
+          if (abs(tag$param$drift) > 30) {
             cli::cli_warn(c(
-              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(tag$param$drift)} which seems suspicious.",
+              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$drift))} which seems suspicious.",
               ">" = "Check for error (e.g. timezone)"
             ))
           }
-        } else {
-          tag$param$drift <- NULL
         }
       }
     },
@@ -105,6 +106,7 @@ tag_create_soi <- function(
       quiet = quiet
     )
     names(tag$acceleration) <- c("date", "value", "mean_acceleration_z")
+    tag$acceleration <- tag_create_soi_gap(tag$acceleration)
     tag$acceleration$value[tag$acceleration$value < 0] <- NA
   }
 
@@ -157,6 +159,8 @@ tag_create_soi <- function(
       col = 3,
       quiet = quiet
     )
+    # Body temperature cannot be below about 0.3 °C, so -2 can only be a gap
+    tag$temperature_internal <- tag_create_soi_gap(tag$temperature_internal)
   }
 
   # Read magnetism
@@ -189,6 +193,18 @@ tag_create_soi <- function(
   return(tag)
 }
 
+#' Set SOI decoder gaps to NA
+#'
+#' The SOI decoder writes `-2` in every column of rows it could not reconstruct. Rows where all
+#' measurement columns are `-2` are set to `NA`.
+#' @noRd
+tag_create_soi_gap <- function(sensor_data) {
+  cols <- setdiff(names(sensor_data), "date")
+  gap <- Reduce(`&`, lapply(sensor_data[cols], function(x) !is.na(x) & x == -2))
+  sensor_data[gap, cols] <- NA
+  sensor_data
+}
+
 #' Correct magnetic data from SOI data
 #'
 #' @description
@@ -210,6 +226,7 @@ tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
 
   mag <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
   names(mag) <- c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
+  mag <- tag_create_soi_gap(mag)
 
   # Detect hardware version
   if (is.list(hw_version)) {

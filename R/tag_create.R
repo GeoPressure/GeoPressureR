@@ -16,8 +16,8 @@
 #'
 #' By default, files are read from `./data/raw-tag/{id}` and the manufacturer is detected from
 #' the directory where possible. Set `manufacturer` explicitly when needed, including for PresTag.
-#' Sensor file arguments accept a file path or filename pattern, such as `"*.pressure"`.
-#' Supported formats are:
+#' Sensor file arguments accept a file path or the end of a filename, where `*` matches any
+#' characters and case is ignored, such as `"*.pressure"`. Supported formats are:
 #'
 #' - SOI (`"soi"`): pressure `*.pressure`, light `*.glf`, acceleration `*.acceleration`,
 #'   external temperature `*.temperature` or `*.airtemperature`, internal temperature
@@ -29,6 +29,38 @@
 #'
 #' Manufacturer readers detect available sensor files when their arguments are `NULL`.
 #' For SOI, use `NA` to skip a sensor.
+#'
+#' @section SOI sensor data:
+#' SOI files are text exports of the SOI *GeoLocator* decoder: six header lines followed by
+#' `dd.mm.yyyy HH:MM` rows in UTC. Each sensor is sampled every `BaseLoggingInterval` ×
+#' `<sensor>LoggingInterval` minutes, as configured with BirdTagManager and recorded in the
+#' `*.settings` file (read into `tag$param$soi_settings`); a sensor interval of 0 means the sensor
+#' was off. The tag only stores a value when it changes, and the decoder repeats it until the next
+#' change. Rows that the decoder could not reconstruct are written as `-2` in all columns; they are
+#' set to `NA`, except in `temperature_external`, where they cannot be told apart from a −2 °C
+#' measurement.
+#'
+#' - `pressure` (`*.pressure`): hPa, with 1 hPa resolution (about 8 m of altitude).
+#' - `light` (`*.glf`): raw sensor counts stored as a floating-point code (2^exponent ×
+#'   mantissa, up to about 4.2 × 10^6), not lux.
+#' - `acceleration` (`*.acceleration`): `value` is the activity, the sum of absolute differences
+#'   of successive z-axis acceleration over 32 measurements at 10 Hz (0–127, unitless);
+#'   `mean_acceleration_z` is the mean z-axis acceleration of the same measurements (−64 to 63,
+#'   raw counts), a proxy for body pitch.
+#' - `temperature_external` (`*.temperature` or `*.AirTemperature`): air temperature in °C from
+#'   the pressure sensor, with 1 °C resolution between −15 and 48 °C.
+#' - `temperature_internal` (`*.BodyTemperature`, hardware v2.4 and later): temperature in °C
+#'   inside the tag, with about 1 °C resolution.
+#' - `magnetic` (`*.magnetic`): single 3-axis magnetometer and accelerometer measurements,
+#'   converted to Gauss and g and rotated to the forward-right-down frame according to the
+#'   hardware version in `*.settings` (LSM303D up to v2.3, LSM303AGR from v2.4). Without
+#'   `*.settings`, magnetic data are not read.
+#'
+#' The decoder does not correct clock drift. `*.settings` records the tag clock
+#' (`StopTimeRTC`) and the computer clock (`StopTimeReference`) at download, and their difference
+#' is stored in `tag$param$drift` in minutes: positive when the tag clock is ahead. To correct a
+#' linear drift, use `time_drift` (e.g. `-tag$param$drift / 60` divided by the deployment
+#' duration in years) with `time_reference` set to `StarttimeRTC`, when the clock was set.
 #'
 #' @section Tabular input:
 #'
@@ -90,12 +122,12 @@
 #' @return A GeoPressureR `tag` containing `param` (see [param_create()]) and the available sensor
 #'   tables. Each sensor table has a UTC POSIXct `date` column and the following measurement columns:
 #' - `pressure`: `value` in hPa.
-#' - `light`, `temperature_external`, `temperature_internal`: `value`.
-#' - `acceleration`: `value` and optionally `mean_acceleration_z`. For SOI, `value` is the sum of
-#'   successive z-axis acceleration differences over 32 measurements at 10 Hz (jiggle);
-#'   `mean_acceleration_z` is their mean z-axis acceleration.
-#' - `magnetic`: `magnetic_x`, `magnetic_y`, `magnetic_z`, `acceleration_x`, `acceleration_y`,
-#'   `acceleration_z`.
+#' - `light`: `value`, in units of the manufacturer (raw counts for SOI, lux for Migratetech).
+#' - `temperature_external`, `temperature_internal`: `value` in °C.
+#' - `acceleration`: `value` (activity) and optionally `mean_acceleration_z`. See SOI sensor data
+#'   for their definition on SOI tags.
+#' - `magnetic`: `magnetic_x`, `magnetic_y`, `magnetic_z` in Gauss, and `acceleration_x`,
+#'   `acceleration_y`, `acceleration_z` in g, in the forward-right-down frame.
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -349,11 +381,13 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     return(NULL)
   }
 
-  # Find files in directory ending with `file`
+  # Find files in directory ending with `file`, read as a case-insensitive wildcard pattern
+  # (e.g. `"*.airtemperature"` matches `"18LX.AirTemperature"` but not `"18LX.BodyTemperature"`)
   path <- list.files(
     directory,
-    pattern = glue::glue(file, "$"),
-    full.names = TRUE
+    pattern = sub("^\\^", "", utils::glob2rx(file, trim.head = FALSE, trim.tail = FALSE)),
+    full.names = TRUE,
+    ignore.case = TRUE
   )
 
   # Remove temporary file and those with word "test"

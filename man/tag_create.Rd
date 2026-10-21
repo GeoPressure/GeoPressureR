@@ -70,12 +70,12 @@ A GeoPressureR \code{tag} containing \code{param} (see \code{\link[=param_create
 tables. Each sensor table has a UTC POSIXct \code{date} column and the following measurement columns:
 \itemize{
 \item \code{pressure}: \code{value} in hPa.
-\item \code{light}, \code{temperature_external}, \code{temperature_internal}: \code{value}.
-\item \code{acceleration}: \code{value} and optionally \code{mean_acceleration_z}. For SOI, \code{value} is the sum of
-successive z-axis acceleration differences over 32 measurements at 10 Hz (jiggle);
-\code{mean_acceleration_z} is their mean z-axis acceleration.
-\item \code{magnetic}: \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z}, \code{acceleration_x}, \code{acceleration_y},
-\code{acceleration_z}.
+\item \code{light}: \code{value}, in units of the manufacturer (raw counts for SOI, lux for Migratetech).
+\item \code{temperature_external}, \code{temperature_internal}: \code{value} in °C.
+\item \code{acceleration}: \code{value} (activity) and optionally \code{mean_acceleration_z}. See SOI sensor data
+for their definition on SOI tags.
+\item \code{magnetic}: \code{magnetic_x}, \code{magnetic_y}, \code{magnetic_z} in Gauss, and \code{acceleration_x},
+\code{acceleration_y}, \code{acceleration_z} in g, in the forward-right-down frame.
 }
 }
 \description{
@@ -97,8 +97,8 @@ for tags without pressure data.
 
 By default, files are read from \code{./data/raw-tag/{id}} and the manufacturer is detected from
 the directory where possible. Set \code{manufacturer} explicitly when needed, including for PresTag.
-Sensor file arguments accept a file path or filename pattern, such as \code{"*.pressure"}.
-Supported formats are:
+Sensor file arguments accept a file path or the end of a filename, where \code{*} matches any
+characters and case is ignored, such as \code{"*.pressure"}. Supported formats are:
 \itemize{
 \item SOI (\code{"soi"}): pressure \verb{*.pressure}, light \verb{*.glf}, acceleration \verb{*.acceleration},
 external temperature \verb{*.temperature} or \verb{*.airtemperature}, internal temperature
@@ -111,6 +111,41 @@ external temperature \verb{*.temperature} or \verb{*.airtemperature}, internal t
 
 Manufacturer readers detect available sensor files when their arguments are \code{NULL}.
 For SOI, use \code{NA} to skip a sensor.
+}
+
+\section{SOI sensor data}{
+
+SOI files are text exports of the SOI \emph{GeoLocator} decoder: six header lines followed by
+\verb{dd.mm.yyyy HH:MM} rows in UTC. Each sensor is sampled every \code{BaseLoggingInterval} ×
+\verb{<sensor>LoggingInterval} minutes, as configured with BirdTagManager and recorded in the
+\verb{*.settings} file (read into \code{tag$param$soi_settings}); a sensor interval of 0 means the sensor
+was off. The tag only stores a value when it changes, and the decoder repeats it until the next
+change. Rows that the decoder could not reconstruct are written as \code{-2} in all columns; they are
+set to \code{NA}, except in \code{temperature_external}, where they cannot be told apart from a −2 °C
+measurement.
+\itemize{
+\item \code{pressure} (\verb{*.pressure}): hPa, with 1 hPa resolution (about 8 m of altitude).
+\item \code{light} (\verb{*.glf}): raw sensor counts stored as a floating-point code (2^exponent ×
+mantissa, up to about 4.2 × 10^6), not lux.
+\item \code{acceleration} (\verb{*.acceleration}): \code{value} is the activity, the sum of absolute differences
+of successive z-axis acceleration over 32 measurements at 10 Hz (0–127, unitless);
+\code{mean_acceleration_z} is the mean z-axis acceleration of the same measurements (−64 to 63,
+raw counts), a proxy for body pitch.
+\item \code{temperature_external} (\verb{*.temperature} or \verb{*.AirTemperature}): air temperature in °C from
+the pressure sensor, with 1 °C resolution between −15 and 48 °C.
+\item \code{temperature_internal} (\verb{*.BodyTemperature}, hardware v2.4 and later): temperature in °C
+inside the tag, with about 1 °C resolution.
+\item \code{magnetic} (\verb{*.magnetic}): single 3-axis magnetometer and accelerometer measurements,
+converted to Gauss and g and rotated to the forward-right-down frame according to the
+hardware version in \verb{*.settings} (LSM303D up to v2.3, LSM303AGR from v2.4). Without
+\verb{*.settings}, magnetic data are not read.
+}
+
+The decoder does not correct clock drift. \verb{*.settings} records the tag clock
+(\code{StopTimeRTC}) and the computer clock (\code{StopTimeReference}) at download, and their difference
+is stored in \code{tag$param$drift} in minutes: positive when the tag clock is ahead. To correct a
+linear drift, use \code{time_drift} (e.g. \code{-tag$param$drift / 60} divided by the deployment
+duration in years) with \code{time_reference} set to \code{StarttimeRTC}, when the clock was set.
 }
 
 \section{Tabular input}{
