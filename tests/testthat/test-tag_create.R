@@ -430,6 +430,66 @@ test_that("tag_create_soi() | airtemperature fallback and optional sensors", {
   ))
 })
 
+test_that("tag_create_soi() | decoder file names, gaps and drift", {
+  dir_tmp <- tempfile("gpr-soi-")
+  dir.create(dir_tmp, recursive = TRUE)
+  on.exit(unlink(dir_tmp, recursive = TRUE), add = TRUE)
+  file.copy(list.files("./data/raw-tag/18LX", full.names = TRUE), dir_tmp)
+  file.copy(list.files("./data/raw-tag/14DM", full.names = TRUE), dir_tmp)
+
+  # Write the temperature files with the capitalised extensions of the SOI decoder (FW >= 2.4)
+  file_temp <- list.files(dir_tmp, pattern = "\\.temperature$", full.names = TRUE)
+  lines <- readLines(file_temp, warn = FALSE)
+  writeLines(lines, sub("\\.temperature$", ".AirTemperature", file_temp))
+  lines_body <- lines
+  lines_body[8] <- sub("\\t *-?[0-9.]+$", "\t -2.0", lines_body[8])
+  writeLines(lines_body, sub("\\.temperature$", ".BodyTemperature", file_temp))
+  file.remove(file_temp)
+
+  # Add decoder gap rows (-2 in all columns)
+  file_acc <- list.files(dir_tmp, pattern = "\\.acceleration$", full.names = TRUE)
+  lines <- readLines(file_acc, warn = FALSE)
+  lines[8] <- sub("\\t.*$", "\t  -2\t  -2", lines[8])
+  writeLines(lines, file_acc)
+  file_mag <- list.files(dir_tmp, pattern = "\\.magnetic$", full.names = TRUE)
+  lines <- readLines(file_mag, warn = FALSE)
+  lines[8] <- sub("\\t.*$", paste(rep("\t  -2", 7), collapse = ""), lines[8])
+  writeLines(lines, file_mag)
+
+  tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
+
+  expect_match(tag$param$tag_create$temperature_external_file, "\\.AirTemperature$")
+  expect_match(tag$param$tag_create$temperature_internal_file, "\\.BodyTemperature$")
+  expect_true(is.na(tag$temperature_internal$value[2]))
+  expect_false(anyNA(tag$temperature_external$value))
+  expect_true(is.na(tag$acceleration$value[2]))
+  expect_true(is.na(tag$acceleration$mean_acceleration_z[2]))
+  expect_false(anyNA(tag$acceleration$mean_acceleration_z[-2]))
+  expect_true(all(is.na(tag$magnetic[2, setdiff(names(tag$magnetic), "date")])))
+  expect_false(anyNA(tag$magnetic[-2, ]))
+
+  # 14DM: tag clock (StopTimeRTC 06:02:38) one minute ahead of StopTimeReference (06:01:38)
+  expect_equal(tag$param$drift, 1)
+})
+
+test_that("tag_create_soi() | drift sign and missing settings keys", {
+  dir_tmp <- tempfile("gpr-soi-")
+  dir.create(dir_tmp, recursive = TRUE)
+  on.exit(unlink(dir_tmp, recursive = TRUE), add = TRUE)
+  file.copy(list.files("./data/raw-tag/18LX", full.names = TRUE), dir_tmp)
+
+  settings <- '{"StopTimeRTC":"30.06.2016 06:00:38","StopTimeReference":"30.06.2016 06:03:38"}'
+  writeLines(settings, file.path(dir_tmp, "18LX.settings"))
+  tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
+  expect_equal(tag$param$drift, -3)
+
+  writeLines('{"GDL-ID":"18LX"}', file.path(dir_tmp, "18LX.settings"))
+  expect_no_message(
+    tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
+  )
+  expect_null(tag$param$drift)
+})
+
 test_that("param_create() | default", {
   expect_no_error(param_create(id = "18LX", extent = c(0, 0, 1, 1)))
   expect_no_error(param_create(id = "18LX", default = TRUE))
