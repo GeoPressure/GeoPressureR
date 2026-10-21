@@ -28,6 +28,7 @@
 ^[.]?air[.]toml$
 ^\.vscode$
 ^jarl\.yml$
+^jarl\.toml$
 ^codex\.md$
 ^AGENTS\.md$
 ^assets$

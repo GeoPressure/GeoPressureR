@@ -1,0 +1,3 @@
+[lint.undesirable_operator]
+# Allow `<<-`, used deliberately to update state from closures; keep `:::` and `->>` banned
+operators = ["->>", ":::"]
