@@ -485,8 +485,9 @@ test_that("tag_create_soi() | drift sign and missing settings keys", {
 
   writeLines('{"GDL-ID":"18LX"}', file.path(dir_tmp, "18LX.settings"))
   expect_no_message(
-    tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
+    tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
   )
+  tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
   expect_null(tag$param$drift)
 })
 
