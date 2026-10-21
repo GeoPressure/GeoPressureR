@@ -1,3 +1,18 @@
+# GeoPressureR v3.6.6
+
+## Main
+
+- [Read the air and body temperature of SOI tags with firmware 2.4 and later](https://github.com/GeoPressure/GeoPressureR/commit/4bd304d924ce3c52e685c59368a1957b0c52927a) in `tag_create()`. The SOI decoder names these files `*.AirTemperature` and `*.BodyTemperature`, which the case-sensitive file detection missed, so they were silently skipped. Sensor file arguments are now matched as case-insensitive wildcard patterns (`*` matches any characters), and `"*.temperature"` no longer matches `*.BodyTemperature`.
+- [Set SOI decoder gaps to `NA`](https://github.com/GeoPressure/GeoPressureR/commit/4bd304d924ce3c52e685c59368a1957b0c52927a). The decoder writes `-2` in every column of rows it could not reconstruct. These rows are now `NA` in `acceleration` (including `mean_acceleration_z`), `temperature_internal` and `magnetic`, where they previously appeared as measurements (magnetic gap rows became near-zero vectors). In `temperature_external`, `-2` cannot be told apart from a −2 °C measurement and is kept.
+
+## Minor
+
+- [Store the SOI clock drift with its sign](https://github.com/GeoPressure/GeoPressureR/commit/4bd304d924ce3c52e685c59368a1957b0c52927a): `tag$param$drift` is the tag clock minus the reference clock at download, in minutes, positive when the tag clock is ahead (previously its absolute value). The drift is skipped instead of failing when `*.settings` lacks `RecordingStop` or the stop times.
+- [Document the meaning, units and resolution of each SOI sensor](https://github.com/GeoPressure/GeoPressureR/commit/4bd304d924ce3c52e685c59368a1957b0c52927a) in `tag_create()`, and how to correct the SOI clock drift with `time_drift`.
+- [Fill interactive maps to the viewport height](https://github.com/GeoPressure/GeoPressureR/commit/46a8258fcf4dfb406dd00363c492c05fe484522a) in `plot.map()` and `plot_path()`.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.5...v3.6.6>
+
 # GeoPressureR v3.6.5
 
 ## Main
