@@ -212,7 +212,9 @@ geopressure_map_preprocess <- function(
     # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
     # the value at the exact hour
     date_hour <- seq(min(pgi_reg$date), max(pgi_reg$date), by = "hour")
-    pgi_reg <- pgi_reg[round(stats::approx(pgi_reg$date, seq_len(nrow(pgi_reg)), date_hour)$y), ]
+    if (nrow(pgi_reg) > 1) {
+      pgi_reg <- pgi_reg[round(stats::approx(pgi_reg$date, seq_len(nrow(pgi_reg)), date_hour)$y), ]
+    }
     pgi_reg$date <- date_hour
 
     # Remove time without measure
