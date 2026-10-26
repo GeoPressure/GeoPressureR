@@ -29,6 +29,43 @@ test_that("tag_label_auto() | default and edge cases", {
   expect_true("label" %in% names(tag_no_acc$pressure))
 })
 
+test_that("tag_label_auto() | non-finite acceleration gaps", {
+  withr::local_seed(1)
+  tag_gap <- tag
+  tag_gap$acceleration <- data.frame(
+    date = as.POSIXct("2026-01-01", tz = "UTC") + seq_len(132) * 60,
+    value = c(
+      NA,
+      NaN,
+      Inf,
+      -Inf,
+      rep(c(1, 2), 20),
+      NA,
+      NaN,
+      rep(c(90, 100), 20),
+      Inf,
+      -Inf,
+      rep(c(1, 2), 20),
+      NA,
+      NaN,
+      Inf,
+      -Inf
+    )
+  )
+
+  labelled <- tag_label_auto(tag_gap)
+  expect_identical(labelled$acceleration[c("date", "value")], tag_gap$acceleration)
+  expect_identical(labelled$acceleration$label, c(rep("", 46), rep("flight", 40), rep("", 46)))
+  expect_s3_class(plot(tag_gap, type = "acceleration"), "plotly")
+  expect_s3_class(plot(tag_gap, type = "acceleration", plot_plotly = FALSE), "ggplot")
+
+  tag_gap$acceleration$value[is.finite(tag_gap$acceleration$value)] <- 0
+  tag_gap$acceleration$value[!is.finite(tag_gap$acceleration$value)] <- NA_real_
+  expect_warning(labelled <- tag_label_auto(tag_gap), "All acceleration values are zero")
+  expect_identical(labelled$acceleration[c("date", "value")], tag_gap$acceleration)
+  expect_identical(labelled$acceleration$label, rep("", 132))
+})
+
 
 test_that("tag_label_write() | default", {
   expect_error(tag_label_write("not a tag", quiet = TRUE))

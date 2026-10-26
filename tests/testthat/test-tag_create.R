@@ -465,6 +465,9 @@ test_that("tag_create_soi() | decoder file names, gaps and drift", {
   expect_true(is.na(tag$acceleration$value[2]))
   expect_true(is.na(tag$acceleration$mean_acceleration_z[2]))
   expect_false(anyNA(tag$acceleration$mean_acceleration_z[-2]))
+  expect_no_error(tag_label_auto(tag))
+  expect_s3_class(plot(tag, type = "acceleration"), "plotly")
+  expect_s3_class(plot(tag, type = "acceleration", plot_plotly = FALSE), "ggplot")
   expect_true(all(is.na(tag$magnetic[2, setdiff(names(tag$magnetic), "date")])))
   expect_false(anyNA(tag$magnetic[-2, ]))
 
