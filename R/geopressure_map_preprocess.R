@@ -196,8 +196,10 @@ geopressure_map_preprocess <- function(
         c(FALSE, !is.na(pgi_reg$value), FALSE),
         rep(1 / n, n)
       )
-      pgi_reg$value[is.na(pgi_reg$value)] <- 0
-      smooth <- stats::filter(c(0, pgi_reg$value, 0), rep(1 / n, n))
+      smooth <- stats::filter(
+        c(0, replace(pgi_reg$value, is.na(pgi_reg$value), 0), 0),
+        rep(1 / n, n)
+      )
 
       tmp <- smooth / smoothna
       tmp <- tmp[seq(2, length(tmp) - 1)]
