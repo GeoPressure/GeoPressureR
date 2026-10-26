@@ -1,3 +1,15 @@
+# GeoPressureR v3.6.7
+
+## Main
+
+- [Fix missing acceleration readings in flight labelling and actograms, and prevent missing pressure windows from becoming 0 hPa](https://github.com/GeoPressure/GeoPressureR/commit/fd2989c27003c7d06ce9277052314a95fdea74f0).
+
+## Minor
+
+- [Add regression tests for sensor gaps, flight markers and pressure smoothing](https://github.com/GeoPressure/GeoPressureR/commit/fd2989c27003c7d06ce9277052314a95fdea74f0).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.6...v3.6.7>
+
 # GeoPressureR v3.6.6
 
 ## Main
