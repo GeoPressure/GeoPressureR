@@ -1,3 +1,15 @@
+# GeoPressureR v3.6.8
+
+## Main
+
+- [Fix pressure preprocessing for short stationary periods that contain a single hourly reading](https://github.com/GeoPressure/GeoPressureR/commit/a0f8c44f201a704f4c116f9a2fcad080ed156878).
+
+## Minor
+
+- [Add a regression test for short stationary periods](https://github.com/GeoPressure/GeoPressureR/commit/a0f8c44f201a704f4c116f9a2fcad080ed156878).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.7...v3.6.8>
+
 # GeoPressureR v3.6.7
 
 ## Main
