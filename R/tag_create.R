@@ -428,12 +428,21 @@ tag_create_dto <- function(
   date_format = "%d.%m.%Y %H:%M",
   quiet = FALSE
 ) {
-  data_raw <- utils::read.delim(
-    sensor_path,
-    skip = skip,
-    sep = "",
-    header = FALSE
-  )
+  con <- file(sensor_path, open = "r")
+  on.exit(close(con))
+  readLines(con, n = skip)
+  line <- readLines(con, n = 1)
+  while (length(line) > 0 && !nzchar(trimws(line))) {
+    line <- readLines(con, n = 1)
+  }
+
+  if (length(line) == 0) {
+    cli::cli_warn("The file {.file {sensor_path}} contains no measurements.")
+    data_raw <- as.data.frame(matrix(nrow = 0, ncol = max(2, col)))
+  } else {
+    pushBack(line, con)
+    data_raw <- utils::read.delim(con, sep = "", header = FALSE)
+  }
 
   # Remove Invalid byte: FD from migratech
   data_raw <- data_raw[!data_raw[, 1] == "Invalid", ]

@@ -1,3 +1,9 @@
+# GeoPressureR development version
+
+## Minor
+
+- Warn and continue when a sensor data file contains no measurements.
+
 # GeoPressureR v3.6.8
 
 ## Main
