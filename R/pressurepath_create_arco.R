@@ -5,10 +5,11 @@ pressurepath_create_arco <- function(
   path = tag2path(tag),
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = "both",
+  era5_dataset = "single-levels",
   preprocess = FALSE,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 ) {
   pressurepath_create(
     tag = tag,
@@ -19,7 +20,8 @@ pressurepath_create_arco <- function(
     preprocess = preprocess,
     source = "arco",
     quiet = quiet,
-    debug = debug
+    debug = debug,
+    altitude_formula = altitude_formula
   )
 }
 
@@ -29,13 +31,15 @@ pressurepath_create_arco_impl <- function(
   pressurepath,
   variable = c("altitude", "surface_pressure"),
   solar_dep = 0,
-  era5_dataset = c("both", "land", "single-levels"),
+  era5_dataset = c("single-levels", "land", "both"),
   preprocess = FALSE,
   quiet = FALSE,
-  debug = FALSE
+  debug = FALSE,
+  altitude_formula = "virtual"
 ) {
   era5_dataset <- match.arg(era5_dataset)
   pressurepath_variable_check(variable, "arco", era5_dataset)
+  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
   dataset <- rep(era5_dataset, nrow(pressurepath))
@@ -49,8 +53,11 @@ pressurepath_create_arco_impl <- function(
         httr2::req_perform(path = lsm_file)
     }
     land <- terra::rast(lsm_file)
-    terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
-    land <- terra::rotate(land)
+    # Recent GDAL already serves the grid on -180..180; rotating it again shifts it by 180°.
+    if (terra::xmax(land) > 180) {
+      terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
+      land <- terra::rotate(land)
+    }
     land_lon <- floor(pressurepath$lon / 0.1 + 0.5) * 0.1
     land_lat <- floor(pressurepath$lat / 0.1 + 0.5) * 0.1
     land_value <- terra::extract(land, cbind(land_lon, land_lat))[[1]]
@@ -65,9 +72,9 @@ pressurepath_create_arco_impl <- function(
     floor(pressurepath$lat / resolution + 0.5) * resolution
   )
   requested_date <- as.POSIXct(pressurepath$date, tz = "UTC")
-  first_hour <- ceiling(min(as.numeric(requested_date)) / 3600)
+  # Nearest hour, as GeoPressureAPI's join picks it.
   requested_hour <- as.POSIXct(
-    pmax(first_hour, ceiling(as.numeric(requested_date) / 3600 - 0.5)) * 3600,
+    ceiling(as.numeric(requested_date) / 3600 - 0.5) * 3600,
     origin = "1970-01-01",
     tz = "UTC"
   )
@@ -132,7 +139,12 @@ pressurepath_create_arco_impl <- function(
       pressurepath$pressure_tag * 100,
       surface_pressure,
       temperature,
-      elevation
+      elevation,
+      dewpoint = if (altitude_formula == "virtual") read_variable("dewpoint_temperature_2m"),
+      lon = pressurepath$lon,
+      lat = pressurepath$lat,
+      date = requested_date,
+      altitude_formula = altitude_formula
     )
   }
   # Everything else the caller asked for. `surface_pressure` is already in hand and `altitude` is

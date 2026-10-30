@@ -16,7 +16,7 @@ geopressure_map(
   log_linear_pooling_weight = function(n) log(n)/n,
   timeout = 300,
   workers = "auto",
-  era5_dataset = "land",
+  era5_dataset = "single-levels",
   keep_mask = FALSE,
   keep_mse = FALSE,
   compute_known = FALSE,
@@ -38,7 +38,7 @@ geopressure_map_mismatch(
   thr_mask = 0.9,
   timeout = 300,
   workers = "auto",
-  era5_dataset = "land",
+  era5_dataset = "single-levels",
   compute_known = FALSE,
   keep_mask = TRUE,
   debug = FALSE,
@@ -71,11 +71,10 @@ GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 \item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
 number of workers to the number of \code{stapelev} to query.}
 
-\item{era5_dataset}{ERA5 product: \code{"land"} (default) at 0.1 degree resolution,
-\code{"single-levels"} at 0.25 degree resolution, or \code{"both"} to use ERA5-Land over land and
-global ERA5 elsewhere. Unlike altitude in \code{\link[=pressurepath_create]{pressurepath_create()}}, \code{"land"} is right here:
-the pressure mismatch is differential (the mean error is removed at each stationary period),
-so the static ERA5-Land bias cancels and its finer resolution is what the map needs.}
+\item{era5_dataset}{ERA5 product: \code{"single-levels"} (default, recommended) at 0.25 degree
+resolution, \code{"land"} at 0.1 degree resolution, or \code{"both"} to use ERA5-Land over land and
+global ERA5 elsewhere. \code{"land"} is only worth it for maps finer than \code{scale = 4} (see
+\code{\link[=tag_set_map]{tag_set_map()}}).}
 
 \item{keep_mask}{logical defining if the mask map is returned in \code{tag}.}
 

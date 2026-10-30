@@ -2,7 +2,7 @@
 % Please edit documentation in R/path2elevation.R
 \name{path2elevation}
 \alias{path2elevation}
-\title{Download ground elevation along a path}
+\title{Ground elevation along a path}
 \usage{
 path2elevation(
   path,
@@ -13,40 +13,52 @@ path2elevation(
 )
 }
 \arguments{
-\item{path}{a GeoPressureR \code{path} data.frame}
+\item{path}{A GeoPressureR \code{path} data.frame with \code{lon}, \code{lat}, \code{stap_id}, \code{start}, and \code{end} columns. Coordinates are in degrees, times are POSIXct, and \code{stap_id} is numbered \verb{1, ..., nrow(path)} in chronological order.}
 
-\item{scale}{spatial resolution of the SRTM to use to query the elevation. \code{scale} is defined as
-the number of pixels per 1° latitude-longitude (see \code{tag_set_map()} for details). Native
-resolution of SRTM is 30m.}
+\item{scale}{Elevation grid resolution in pixels per degree (e.g., \code{4} corresponds to \verb{0.25°}),
+matching \code{scale} of \code{\link[=tag_set_map]{tag_set_map()}} so that cells coincide with the map grid. The finest
+available grid not coarser than \code{scale} is used among \verb{1, 2, 4, 5, 10} (e.g., \code{3} uses \code{4}),
+and \code{10} above it.}
 
-\item{sampling_scale}{spatial resolution of the point along the polyline on which the SRTM is
-estimated. Same unit as \code{scale}.}
+\item{sampling_scale}{Sampling density along each path segment, with a distance interval of \code{111139 / sampling_scale} meters (about 27.8 km for \code{4}). Defaults to \code{scale}; increasing it adds samples without changing the elevation grid resolution.}
 
-\item{percentile}{percentile of the ground elevation distribution found within each grid cell
-of the SRTM at the resolution defined by \code{scale}. \code{50} corresponds to the median.}
+\item{percentile}{Elevation percentiles to retrieve within each grid cell, among
+\verb{0, 10, 20, ..., 90, 100}; \code{0} is the minimum, \code{50} the median and \code{100} the maximum.}
 
-\item{debug}{logical to display additional information to debug a request}
+\item{debug}{logical to display additional information, such as the elevation file used.}
 }
 \value{
 A data.frame containing
 \itemize{
-\item \code{stap_id} numeric value corresponding to the ratio of distance between position of known stap
-\item \code{lon}
-\item \code{lat}
-\item \code{distance} distance in km along the path starting at the first stap_id
+\item \code{stap_id} stationary-period ID plus the fraction of segment distance traveled toward the next position (e.g., \code{2.5} is halfway from position 2 to 3)
+\item \code{lon}, \code{lat} centre of the grid cell read, in degrees, rounded to three decimal places; these differ from the exact positions on the polyline
+\item \code{distance} cumulative geodesic (WGS84) distance in km from the first retained path position
+\item \verb{X<percentile>} ground elevation in meters for each requested percentile (e.g., \code{X10}, \code{X50}, and \code{X90} by default)
 }
 }
 \description{
-This function is a wrapper of the GeoPressureAPI elevationPath entry point. It queries the ground
-elevation from SRTM (\href{https://developers.google.com/earth-engine/datasets/catalog/CGIAR_SRTM90_V4}{SRTM90_V4}) along a polyline
-specify by \code{path}.
+This function returns ground elevation along a path from precomputed statistics of the
+\href{https://registry.opendata.aws/copernicus-dem/}{Copernicus DEM GLO-90} (90 m): the minimum,
+the 10th to 90th percentiles and the maximum of the DEM pixels within each grid cell. These
+statistics describe the range of terrain elevation the bird can fly over within a cell.
 
-Because the position are often defined on a relative coarse scale (e.g., 0.25° ~ 29km),
-you can request the elevation at a specify resolution defined by \code{scale} and return pre-defined
-\code{percentile} of the elevation at this resolution.
+The statistics are computed by
+\href{https://github.com/GeoPressure/GeoPressureR/blob/main/data-raw/ground_elevation.R}{\code{data-raw/ground_elevation.R}}
+on the map grids of \code{\link[=tag_set_map]{tag_set_map()}} (\code{scale} 1, 2, 4, 5 and 10) and published as the
+\href{https://github.com/GeoPressure/GeoPressureR/releases/tag/ground-elevation-v1}{\code{ground-elevation-v1} release}.
+The file of the requested \code{scale} (0.4 MB for \code{scale = 1}, 6 MB for \code{4}, 9 MB for \code{5}, 33 MB
+for \code{10}) is downloaded once on first use and cached in \code{tools::R_user_dir("GeoPressureR", "cache")}; later calls are local.
 
-The returned data.frame provide the ground elevation along the path with a resolution defined by
-\code{sampling_scale}.
+Consecutive path positions are connected by great-circle segments. Each segment is sampled
+from its start at a fixed distance interval controlled by \code{sampling_scale}, and the last
+position is added. Each sample reads the requested statistics of the grid cell containing it.
+
+Missing positions between known positions are interpolated separately in longitude and latitude using cumulative flight duration from \code{start} and \code{end}. Missing positions before the first or after the last known position are excluded with a warning.
+
+The result is a spatial profile without timestamps. Its fractional \code{stap_id} values describe distance along each segment, whereas \code{\link[=find_stap]{find_stap()}} uses elapsed flight time. Interpolating elevation onto a pressure path using \code{stap_id} therefore assumes constant speed along each segment.
+
+Elevation is rounded to whole meters above the EGM2008 geoid. Sea is \code{0}, and coastal cells
+include sea pixels as ground the bird can fly over.
 }
 \examples{
 \dontshow{if (interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")) withAutoprint(\{ # examplesIf}
@@ -84,6 +96,23 @@ lines(elevation$distance, elevation$X10, lty = 5)
 lines(elevation$distance, elevation$X90, lty = 5)
 id <- elevation$stap_id \%\% 1 == 0
 points(elevation$distance[id], elevation$X90[id], col = "red")
+
+# Starting from the most likely path and its pressurepath computed with `geopressuretemplate()`
+withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+  path <- load_interim("18LX", var = "path_most_likely")
+  pressurepath <- load_interim("18LX", var = "pressurepath_most_likely")
+})
+elevation <- path2elevation(path)
+
+# Map median ground elevation to pressure samples, assuming constant flight speed
+pressurepath$ground_elevation <- stats::approx(
+  x = elevation$stap_id,
+  y = elevation$X50,
+  xout = pressurepath$stap_id
+)$y
+
+# Altitude above median ground level (meters)
+pressurepath$altitude_agl <- pressurepath$altitude - pressurepath$ground_elevation
 \dontshow{\}) # examplesIf}
 }
 \seealso{

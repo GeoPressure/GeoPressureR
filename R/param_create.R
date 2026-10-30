@@ -63,7 +63,7 @@ param_create <- function(id, default = FALSE, ...) {
         thr_mask = formals(geopressure_map)$thr_mask,
         timeout = formals(geopressure_map)$timeout,
         workers = formals(geopressure_map)$workers,
-        era5_dataset = formals(geopressure_map)$era5_dataset,
+        era5_dataset = "single-levels",
         log_linear_pooling_weight = formals(
           geopressure_map
         )$log_linear_pooling_weight,
@@ -138,7 +138,8 @@ param_create <- function(id, default = FALSE, ...) {
       pressurepath_create = list(
         variable = formals(pressurepath_create)$variable,
         solar_dep = formals(pressurepath_create)$solar_dep,
-        era5_dataset = formals(pressurepath_create)$era5_dataset
+        era5_dataset = formals(pressurepath_create)$era5_dataset,
+        altitude_formula = "virtual"
       ),
       GeoPressureR_version = utils::packageVersion("GeoPressureR")
     )
