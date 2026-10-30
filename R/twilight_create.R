@@ -70,10 +70,13 @@ twilight_create <- function(
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.null(twl_offset)) {
-    twl_offset <- twilight_create_guess_offset(
-      light,
-      twl_thr = twl_thr,
-      twl_time_tolerance = twl_time_tolerance
+    twl_offset <- withCallingHandlers(
+      twilight_create_guess_offset(
+        light,
+        twl_thr = twl_thr,
+        twl_time_tolerance = twl_time_tolerance
+      ),
+      geopressurer_irregular_resolution = function(w) invokeRestart("muffleWarning")
     )
   }
 

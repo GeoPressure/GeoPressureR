@@ -47,11 +47,14 @@ ts2mat <- function(
         "{res_summary}, and {length(res_counts) - length(res_counts_top)} more"
       )
     }
-    cli::cli_warn(c(
-      x = "Temporal resolution of the {.field {sensor}} data is not constant.",
-      i = "Most common resolutions: {res_summary}",
-      i = "Will use a regular resolution of {format_minutes(res / 60)}."
-    ))
+    cli::cli_warn(
+      c(
+        x = "Temporal resolution of the {.field {sensor}} data is not constant.",
+        i = "Most common resolutions: {res_summary}",
+        i = "Will use a regular resolution of {format_minutes(res / 60)}."
+      ),
+      class = "geopressurer_irregular_resolution"
+    )
   }
 
   # Pad time to start and finish at 00:00
