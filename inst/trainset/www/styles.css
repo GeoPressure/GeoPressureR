@@ -1,11 +1,9 @@
-/* Body and general layout */
 body {
   margin: 0;
   padding: 0;
   overflow: hidden;
 }
 
-/* Remove default Bootstrap/fluidPage padding */
 .container-fluid {
   padding-left: 0 !important;
   padding-right: 0 !important;
@@ -13,7 +11,6 @@ body {
   margin-right: 0 !important;
 }
 
-/* Custom header styling */
 .custom-header {
   background-color: #3c8dbc;
   color: white;
@@ -37,7 +34,6 @@ body {
   gap: 20px;
 }
 
-/* Control group styling */
 .control-group {
   display: flex;
   align-items: center;
@@ -59,25 +55,21 @@ body {
   margin: 0;
 }
 
-/* Plot container */
 .plot-container {
   height: calc(100vh - 50px);
   padding: 0;
   margin: 0;
 }
 
-/* Keep the overview trace in the range slider, but out of the main plot. */
 #ts_plot .cartesianlayer .subplot.xy .scatterlayer > .trace:first-child {
   display: none;
 }
 
-/* When compute button is hidden, round the right corners of stap_id_next */
 .input-group:has(#compute_stap_btn[style*="display: none"]) #stap_id_next {
   border-top-right-radius: 0.375rem;
   border-bottom-right-radius: 0.375rem;
 }
 
-/* Keep Selectize inputs rounded (override Selectize/Bootstrap) */
 #div-group-label .selectize-input {
   border-top-left-radius: 0.375rem !important;
   border-bottom-left-radius: 0.375rem !important;
@@ -114,7 +106,6 @@ body {
   word-wrap: break-word;
 }
 
-/* Full-screen workspace for automatic stapelev proposals. */
 .stapelev-modal .modal-dialog {
   width: 100vw;
   max-width: none;
@@ -151,62 +142,6 @@ body {
 .stapelev-plot-column {
   height: 100%;
   min-height: 0;
-}
-
-.stapelev-controls {
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-  border-left: 1px solid #dee2e6;
-  background: #f8f9fa;
-}
-
-.stapelev-control-content {
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.stapelev-controls .selectize-control,
-.stapelev-controls .selectize-input {
-  width: 100% !important;
-}
-
-.stapelev-controls .shiny-input-container:has(#stapelev_query_id),
-.stapelev-controls #stapelev_query_id + .selectize-control {
-  width: 100% !important;
-}
-
-.stapelev-inline-input {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.stapelev-inline-input label {
-  margin: 0;
-  white-space: nowrap;
-}
-
-.stapelev-inline-input .form-group {
-  flex: 1;
-  margin: 0;
-}
-
-.stapelev-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.stapelev-actions .btn {
-  flex: 1;
-}
-
-.stapelev-actions .stapelev-cancel {
-  flex: 0 0 auto;
-}
-
-.stapelev-delete-placeholder {
-  width: 34px;
 }
 
 .stapelev-switch .form-group,
@@ -261,34 +196,283 @@ body {
   transform: translateX(1rem);
 }
 
-.stapelev-update-controls .shiny-html-output {
+.stapelev-horizontal {
   display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.stapelev-update-controls #stapelev_update {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  white-space: nowrap;
+.stapelev-main-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
 }
 
-.stapelev-offset-row {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.stapelev-offset-row .label-dot {
-  margin: 0;
-}
-
-.stapelev-offset-label {
-  min-width: 3.5rem;
+.stapelev-popover summary {
+  cursor: pointer;
   font-size: 0.875rem;
 }
 
-.stapelev-offset-row .form-group {
-  margin-bottom: 0;
+.stapelev-popover-body {
+  padding-top: 12px;
+  max-width: 500px;
+}
+
+.stapelev-init-fields {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.stapelev-init-fields .shiny-input-container {
+  width: 125px;
+  margin: 0;
+}
+
+.stapelev-info {
+  color: #7b8791;
+  font-size: 12px;
+  cursor: help;
+  display: inline-block;
+  margin-left: 3px;
+}
+
+.stapelev-info:focus {
+  outline: 2px solid #86b7fe;
+}
+
+.stapelev-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: white;
+}
+
+.stapelev-table th {
+  font-weight: 500;
+  color: #53616d;
+  text-align: left;
+  padding: 6px;
+  background: #edf1f4;
+  white-space: nowrap;
+}
+
+.stapelev-table .shiny-input-container {
+  margin: 0;
+  width: 90px;
+}
+
+.stapelev-table input[type=number] {
+  padding: 5px 7px;
+  height: 32px;
+  font-size: 13px;
+}
+
+.stapelev-table .checkbox {
+  margin: 0;
+}
+
+.stapelev-table td:first-child {
+  width: 32px;
+}
+
+.stapelev-table td:first-child .shiny-input-container {
+  width: 24px;
+}
+
+.stapelev-table td:nth-child(2) {
+  white-space: nowrap;
+}
+
+.stapelev-date {
+  display: inline-block;
+  font-size: 11px;
+  margin-left: 7px;
+  vertical-align: middle;
+  color: #53616d;
+}
+
+.stapelev-table .label-dot {
+  margin: 0 6px 0 0;
+  display: inline-block;
+}
+
+.stapelev-table select {
+  height: 32px;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.stapelev-day-toggle .checkbox label {
+  font-size: 12px;
+}
+
+.stapelev-adjust-bar #stapelev_fit_status {
+  font-size: 12px;
+  margin: 0;
+}
+
+.stapelev-table th:nth-child(3), .stapelev-table td:nth-child(3),
+.stapelev-table th:nth-child(4), .stapelev-table td:nth-child(4) {
+  background: #eef5fb;
+}
+
+.stapelev-table th:nth-child(5), .stapelev-table td:nth-child(5),
+.stapelev-table th:nth-child(6), .stapelev-table td:nth-child(6) {
+  background: #eef6f2;
+}
+
+.stapelev-table th:nth-child(7), .stapelev-table td:nth-child(7),
+.stapelev-table th:nth-child(8), .stapelev-table td:nth-child(8) {
+  background: #fcf5e9;
+}
+
+.stapelev-table .stapelev-group-head th {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px;
+  border-bottom: 1px solid #dce2e8;
+  background: #f2f4f6;
+}
+
+.stapelev-table .stapelev-group-head th:nth-child(2) {
+  background: #e2eef8;
+}
+
+.stapelev-table .stapelev-group-head th:nth-child(3) {
+  background: #e0efe6;
+}
+
+.stapelev-table .stapelev-group-head th:nth-child(4) {
+  background: #f6ebd7;
+}
+
+.stapelev-table td:nth-child(4) .shiny-input-container {
+  width: 100px;
+}
+
+.stapelev-table td:nth-child(6) .shiny-input-container {
+  width: 82px;
+}
+
+.stapelev-table td:nth-child(3) {
+  white-space: nowrap;
+  min-width: 90px;
+}
+
+.stapelev-table td {
+  padding: 4px 6px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e1e6ea;
+}
+
+.stapelev-horizontal .stapelev-plot-column {
+  flex: 1 1 0;
+  min-height: 200px;
+  width: 100%;
+  padding: 0;
+}
+
+.stapelev-inline-switch {
+  margin-left: auto;
+}
+
+.stapelev-inline-switch .shiny-input-container {
+  width: auto;
+  margin: 0;
+}
+
+.stapelev-inline-switch .checkbox {
+  margin: 0;
+}
+
+.stapelev-adjust-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding-top: 5px;
+}
+
+.stapelev-modal .modal-header {
+  padding: 8px 12px;
+}
+
+.stapelev-modal .modal-title {
+  font-size: 18px;
+}
+
+.stapelev-help-tooltip {
+  position: fixed;
+  z-index: 10000;
+  width: max-content;
+  max-width: min(360px, calc(100vw - 16px));
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #243340;
+  color: white;
+  box-shadow: 0 3px 12px #0003;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: normal;
+  pointer-events: none;
+}
+
+.stapelev-help-tooltip[hidden] {
+  display: none;
+}
+
+.stapelev-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+  position: relative;
+}
+
+.stapelev-popover {
+  border: 1px solid #dce2e8;
+  border-radius: 5px;
+  background: white;
+  padding: 6px 10px;
+  position: relative;
+}
+
+.stapelev-popover[open] > .stapelev-popover-body {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 1100;
+  width: 320px;
+  max-width: calc(100vw - 30px);
+  padding: 14px;
+  border: 1px solid #dce2e8;
+  border-radius: 6px;
+  background: white;
+  box-shadow: 0 4px 16px #0002;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.stapelev-popover-body .shiny-input-container {
+  width: 100%;
+  margin: 0;
+}
+
+.stapelev-horizontal .stapelev-top {
+  flex: 0 0 auto;
+  max-height: none;
+  overflow: visible;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dce2e8;
+  padding: 6px;
+}
+
+.stapelev-table-scroll {
+  overflow: auto;
+  max-height: 30vh;
 }

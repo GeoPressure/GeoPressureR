@@ -19,6 +19,7 @@ ui <- shiny::fluidPage(
     shiny::tags$script(src = "plot_controls.js"),
     shiny::tags$script(src = "plotly_events.js"),
     shiny::tags$script(src = "stapelev_range_bars.js"),
+    shiny::tags$script(src = "stapelev_help.js"),
     shiny::tags$script(shiny::HTML(
       "
       Shiny.addCustomMessageHandler('updateTitle', function(title) {
@@ -164,9 +165,17 @@ ui <- shiny::fluidPage(
           shinyjs::hidden(
             shiny::actionButton(
               "undo_stapelev_btn",
-              "Undo auto",
+              "Undo",
               class = "btn btn-warning btn-sm",
               icon = shiny::icon("rotate-left")
+            )
+          ),
+          shinyjs::hidden(
+            shiny::actionButton(
+              "redo_labels_btn",
+              "Redo",
+              class = "btn btn-warning btn-sm",
+              icon = shiny::icon("rotate-right")
             )
           )
         )
