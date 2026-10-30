@@ -419,17 +419,7 @@ show_stapelev_modal <- function() {
   ) {
     draft <- NULL
   }
-  query_id <- length(bundles)
-  if (!is.null(draft)) {
-    query_id <- match(
-      draft$query_requested_at,
-      vapply(bundles, function(x) as.numeric(x$requested_at), numeric(1))
-    )
-    if (is.na(query_id)) {
-      query_id <- length(bundles)
-      draft <- NULL
-    }
-  }
+  query_id <- which.max(vapply(bundles, function(x) as.numeric(x$cached_at), numeric(1)))
   compute_stapelev_proposal(query_id)
   full_window <- range(as.numeric(state$stapelev_proposal$date))
   settings <- if (is.null(draft)) {
