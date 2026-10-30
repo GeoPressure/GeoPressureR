@@ -65,8 +65,8 @@ tag_create_migratetech <- function(
         date_format = "%d/%m/%Y %H:%M:%S",
         quiet = quiet
       )
-      # convert Pa in hPa
-      tag$pressure$value <- tag$pressure$value / 100
+      # Convert Pa to hPa and remove floating-point division artifacts
+      tag$pressure$value <- signif(tag$pressure$value / 100, 15)
     }
 
     # Read acceleration

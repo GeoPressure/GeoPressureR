@@ -453,7 +453,7 @@ tag_create_dto <- function(
 
   if (anyNA(sensor_data$value)) {
     cli::cli_abort(c(
-      x = "Invalid data in {.file {sensor_path)} at line(s): {skip + which(is.na(sensor_data$value))}",
+      x = "Invalid data in {.file {sensor_path}} at line(s): {skip + which(is.na(sensor_data$value))}",
       i = "Check and fix the corresponding lines"
     ))
   }
