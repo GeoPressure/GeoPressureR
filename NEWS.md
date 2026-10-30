@@ -7,6 +7,7 @@
 ## Minor
 
 - [Add a regression test for short stationary periods](https://github.com/GeoPressure/GeoPressureR/commit/a0f8c44f201a704f4c116f9a2fcad080ed156878).
+- [Remove floating-point artifacts when importing Migrate Technology pressure data](https://github.com/GeoPressure/GeoPressureR/commit/95ba83979216c2f55872130b9cfa7de7e3920abf) in `tag_create()`: retain 15 significant digits after converting Pa to hPa, preserving measurement precision and avoiding spurious decimal digits in datapackage exports.
 
 **Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.7...v3.6.8>
 
