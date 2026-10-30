@@ -196,8 +196,10 @@ geopressure_map_preprocess <- function(
         c(FALSE, !is.na(pgi_reg$value), FALSE),
         rep(1 / n, n)
       )
-      pgi_reg$value[is.na(pgi_reg$value)] <- 0
-      smooth <- stats::filter(c(0, pgi_reg$value, 0), rep(1 / n, n))
+      smooth <- stats::filter(
+        c(0, replace(pgi_reg$value, is.na(pgi_reg$value), 0), 0),
+        rep(1 / n, n)
+      )
 
       tmp <- smooth / smoothna
       tmp <- tmp[seq(2, length(tmp) - 1)]
@@ -210,7 +212,9 @@ geopressure_map_preprocess <- function(
     # (https://confluence.ecmwf.int/display/CKB/Parameters+valid+at+the+specified+time), so we take
     # the value at the exact hour
     date_hour <- seq(min(pgi_reg$date), max(pgi_reg$date), by = "hour")
-    pgi_reg <- pgi_reg[round(stats::approx(pgi_reg$date, seq_len(nrow(pgi_reg)), date_hour)$y), ]
+    if (nrow(pgi_reg) > 1) {
+      pgi_reg <- pgi_reg[round(stats::approx(pgi_reg$date, seq_len(nrow(pgi_reg)), date_hour)$y), ]
+    }
     pgi_reg$date <- date_hour
 
     # Remove time without measure

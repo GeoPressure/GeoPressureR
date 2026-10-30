@@ -213,3 +213,24 @@ range_indices_sorted <- function(time_num, xmin, xmax) {
   }
   seq.int(lo, hi)
 }
+
+# Drop redundant per-point metadata only after Plotly has built its traces.
+trainset_compact_plot <- function(p) {
+  p$preRenderHook <- function(p, ...) {
+    p <- plotly::plotly_build(p, ...)
+    for (i in seq_along(p$x$data)) {
+      for (field in c("hovertemplate", "hoverinfo")) {
+        value <- p$x$data[[i]][[field]]
+        if (length(value) > 1L && length(unique(value)) == 1L) {
+          p$x$data[[i]][[field]] <- value[1]
+        }
+      }
+    }
+    if (identical(p$x$layout$xaxis$type, "date")) {
+      p$x$layout$xaxis$categoryarray <- NULL
+      p$x$layout$xaxis$categoryorder <- NULL
+    }
+    p
+  }
+  p
+}

@@ -34,3 +34,6 @@
 ^assets$
 ^\.era5-venv$
 ^man-roxygen$
+^benchmarks$
+
+^\.git$

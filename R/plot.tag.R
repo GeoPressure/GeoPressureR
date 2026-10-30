@@ -708,6 +708,7 @@ plot_tag_actogram <- function(
   tag_assert(tag, "acceleration")
 
   acc <- tag$acceleration
+  acc$value[!is.finite(acc$value)] <- NA_real_
 
   # Use by order of priority: (1) twl_offset provided in this function, (2)
   # tag$param$twilight_create$twl_offset, (3) guess from light data
@@ -720,7 +721,7 @@ plot_tag_actogram <- function(
     acc_label <- acc
     acc_label$value <- as.numeric(acc$label == "flight")
     matl <- ts2mat(acc_label, sensor = "acceleration", twl_offset = twl_offset)
-    mat$value[matl$value == 1] <- max(acc$value) + 1
+    mat$value[matl$value == 1] <- max(c(0, acc$value), na.rm = TRUE) + 1
   }
 
   # Convert to long format data.frame to be able to plot with ggplot

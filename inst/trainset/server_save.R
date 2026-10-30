@@ -23,7 +23,7 @@ shiny::observe({
         fileext = ".csv",
         tmpdir = label_dir
       )
-      write_labels_csv(tmp)
+      write_labels_csv(tmp, mark_saved = FALSE)
 
       # Atomic-ish replace: rename over the previous backup.
       if (file.exists(backup_file)) {

@@ -65,7 +65,7 @@ tag_label_auto <- function(
     assertthat::assert_that(is.numeric(min_duration))
     assertthat::assert_that(min_duration > 0)
 
-    if (all(tag$acceleration$value == 0)) {
+    if (all(tag$acceleration$value == 0, na.rm = TRUE)) {
       warning("All acceleration values are zero. No flight detected.")
       tag$acceleration$label <- ""
       return(tag)
@@ -73,12 +73,12 @@ tag_label_auto <- function(
 
     # Run a 2 class k mean clustering
     km <- stats::kmeans(
-      tag$acceleration$value[tag$acceleration$value > 0],
+      tag$acceleration$value[is.finite(tag$acceleration$value) & tag$acceleration$value > 0],
       centers = 2
     )
 
     # classify all datapoints belonging to the high value cluster
-    act_mig <- tag$acceleration$value > mean(km$centers)
+    act_mig <- is.finite(tag$acceleration$value) & tag$acceleration$value > mean(km$centers)
 
     # group continous activites (low or high) with and ID
     act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
@@ -104,7 +104,7 @@ tag_label_auto <- function(
     thr_0 <- min(centers) + thr_reclassify * abs(diff(centers))
 
     # Classify these as NA for now
-    is_flight[thr_0 < tag$acceleration$value & !is_flight] <- NA
+    is_flight[is.finite(tag$acceleration$value) & thr_0 < tag$acceleration$value & !is_flight] <- NA
 
     # Find if the previous and next (non-NA) is a flight or not.
     prev_isna <- stats::approx(
