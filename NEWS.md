@@ -11,7 +11,7 @@
 
 ## Minor
 
-- [Validate `path2elevation()` percentiles before querying the API](https://github.com/GeoPressure/GeoPressureR/commit/e992eb4fca3fba36f97ea42b98632e373a9e203c): accept only `10, 20, ..., 90` and preserve a JSON array when requesting a single percentile. Unsupported values now fail locally instead of causing a response conversion error.
+- Validate `path2elevation()` percentiles locally before reading the precomputed terrain grid. Supported values are `0, 10, ..., 100`; unsupported values fail with an actionable error.
 
 - [Clarify `path2elevation()` computation and returned columns](https://github.com/GeoPressure/GeoPressureR/commit/03b6ab798b4b5f62048bceeffa0249bf0c882713): document Copernicus DEM percentiles, elevation grid resolution versus sampling distance, missing positions and DEM values, and distance-based fractional `stap_id`. Add an example mapping median ground elevation onto a pressure path and computing altitude above ground level, assuming constant speed along each flight segment.
 
@@ -20,7 +20,7 @@
 - [Report why `geopressure_map_mismatch()` failed](https://github.com/GeoPressure/GeoPressureR/commit/fe260a7f67d49fc97c50bdacb93091d97ac8c0e9). When GeoPressureAPI returns no url for a stapelev, report the reason returned by Earth Engine instead of assuming ERA5 data are unavailable. A total failure still aborts and a partial failure still warns, naming the failing stapelev and the server's explanation.
 - [Match every measurement to its nearest ERA5 hour on the ARCO backends](https://github.com/GeoPressure/GeoPressureR/commit/7f46adbed9cbeafc3d4aa771f0cf4f02e2da3c64) of `pressurepath_create()` and `geopressure_timeseries()`, including the first. Measurements before the first full hour previously used the next hour, matching a GeoPressureAPI bug fixed in [GeoPressureAPI#31](https://github.com/GeoPressure/GeoPressureAPI/pull/31).
 
-**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.6...v3.7.0>
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.8...v3.7.0>
 
 # GeoPressureR v3.6.6
 
