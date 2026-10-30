@@ -139,7 +139,7 @@ geolightviz_normalize_stap_id <- function(stapath) {
   }
 
   cli::cli_warn(
-    "GeoLightViz renumbered {.field stap_id} to {.val 1}:{.val {n}} for navigation and editing compatibility."
+    "GeoLightViz renumbered {.field stap_id} from 1 to {n} for navigation and editing compatibility."
   )
   stapath$stap_id <- seq_len(n)
 
