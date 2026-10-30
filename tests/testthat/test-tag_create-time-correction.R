@@ -594,12 +594,18 @@ test_that("built-in TRAINSET saves millisecond pressure and acceleration labels"
       residual = 0,
       label = ""
     )
-    stapelev_classification_settings(list(
-      offsets = 0,
+    settings <- list(
+      offsets = stats::setNames(0, ""),
       windows = matrix(range(as.numeric(tag$pressure$date)), nrow = 1),
       range = 2,
-      continuity = 0
-    ))
+      continuity = 0,
+      gap = 0,
+      discard_solar = "none",
+      solar_angle = -6
+    )
+    state$stapelev_solar_elevation <- rep(0, nrow(tag$pressure))
+    stapelev_set_levels(settings)
+    stapelev_classification_settings(settings)
     session$flushReact()
     proposal <- jsonlite::fromJSON(output$stapelev_proposal_plot, simplifyVector = FALSE)
     expect_identical(proposal$x$layout$xaxis$type, "date")

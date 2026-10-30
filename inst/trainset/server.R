@@ -128,13 +128,65 @@ server <- function(input, output, session) {
     stapelev_proposal = NULL,
     stapelev_drafts = list(),
     stapelev_stap_id = NULL,
-    stapelev_undo = NULL
+    label_undo = list(),
+    label_redo = list()
   )
 
   reactive_label_pres <- shiny::reactiveVal(pressure_data$label)
   reactive_label_acc <- shiny::reactiveVal(acceleration_data$label)
 
   trainset_debug <- isTRUE(shiny::getShinyOption("trainset_debug"))
+
+  apply_label_edit <- function(series, idx, value) {
+    labels <- if (series == "pressure") reactive_label_pres() else reactive_label_acc()
+    changed <- labels[idx] != value
+    idx <- idx[changed]
+    value <- rep_len(value, length(changed))[changed]
+    if (!length(idx)) {
+      return(invisible(NULL))
+    }
+    state$label_undo <- c(
+      state$label_undo,
+      list(list(series = series, idx = idx, before = labels[idx], after = value))
+    )
+    state$label_redo <- list()
+    labels[idx] <- value
+    if (series == "pressure") {
+      reactive_label_pres(labels)
+    } else {
+      reactive_label_acc(labels)
+    }
+    state$labels_dirty <- TRUE
+    shinyjs::show("undo_stapelev_btn")
+    shinyjs::hide("redo_labels_btn")
+  }
+
+  restore_label_edit <- function(redo) {
+    history <- if (redo) state$label_redo else state$label_undo
+    if (!length(history)) {
+      return(invisible(NULL))
+    }
+    edit <- history[[length(history)]]
+    if (redo) {
+      state$label_redo <- head(history, -1L)
+      state$label_undo <- c(state$label_undo, list(edit))
+    } else {
+      state$label_undo <- head(history, -1L)
+      state$label_redo <- c(state$label_redo, list(edit))
+    }
+    labels <- if (edit$series == "pressure") reactive_label_pres() else reactive_label_acc()
+    labels[edit$idx] <- if (redo) edit$after else edit$before
+    if (edit$series == "pressure") {
+      reactive_label_pres(labels)
+    } else {
+      reactive_label_acc(labels)
+    }
+    state$labels_dirty <- TRUE
+    shinyjs::toggle("undo_stapelev_btn", condition = length(state$label_undo) > 0L)
+    shinyjs::toggle("redo_labels_btn", condition = length(state$label_redo) > 0L)
+    refresh_stap_state()
+    refresh_detail_traces(state$view_xmin, state$view_xmax)
+  }
 
   update_state_tag_labels <- function() {
     if (has_pressure) {
@@ -145,7 +197,7 @@ server <- function(input, output, session) {
     }
   }
 
-  write_labels_csv <- function(path) {
+  write_labels_csv <- function(path, mark_saved = TRUE) {
     update_state_tag_labels()
     out <- data.frame(
       series = character(0),
@@ -178,7 +230,7 @@ server <- function(input, output, session) {
       )
     }
     getFromNamespace("trainset_write", "GeoPressureR")(out, file = path, quiet = TRUE)
-    state$labels_dirty <- FALSE
+    if (mark_saved) state$labels_dirty <- FALSE
   }
 
   session$onFlushed(

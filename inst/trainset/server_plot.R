@@ -413,7 +413,8 @@ output$ts_plot <- plotly::renderPlotly({
         setupPlotlyEventHandlers(el);
       }
     "
-    )
+    ) |>
+    trainset_compact_plot()
 })
 
 shiny::observeEvent(input$plotly_relayout_xrange, {

@@ -151,19 +151,7 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
   point_indices <- unique(point_indices)
   point_indices <- point_indices[point_indices > 0]
 
-  if (active_series == "pressure" && has_pressure) {
-    current_labels <- reactive_label_pres()
-    current_labels[point_indices] <- selected_label
-    reactive_label_pres(current_labels)
-  } else if (active_series == "acceleration" && has_acceleration) {
-    current_labels <- reactive_label_acc()
-    current_labels[point_indices] <- selected_label
-    reactive_label_acc(current_labels)
-  }
-
-  state$labels_dirty <- TRUE
-  state$stapelev_undo <- NULL
-  shinyjs::hide("undo_stapelev_btn")
+  apply_label_edit(active_series, point_indices, selected_label)
 
   label_action <- if (isTRUE(ctrl_pressed)) {
     "Cleared labels from"

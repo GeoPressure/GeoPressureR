@@ -1,3 +1,19 @@
+# GeoPressureR v3.6.8
+
+## Main
+
+- [Redesign automatic elevation labeling in TRAINSET](https://github.com/GeoPressure/GeoPressureR/commit/84150047) with a compact table, user-defined levels and time ranges, per-level pressure tolerances, day/night selection and optional continuity filtering. Initialize offsets from shared settings or adjust checked levels, then preview before replacing the selected stationary period’s non-flight labels.
+
+## Minor
+
+- [Restore unfinished elevation proposals from local drafts and add shared Undo/Redo](https://github.com/GeoPressure/GeoPressureR/commit/84150047) for manual and automatic label edits. Automatic backups no longer mark unsaved edits as saved.
+- [Reduce TRAINSET plot payloads](https://github.com/GeoPressure/GeoPressureR/commit/84150047) by removing repeated hover metadata and redundant date-axis categories, preserving plotted measurements and selection indices.
+- [Fix pressure preprocessing for short stationary periods that contain a single hourly reading](https://github.com/GeoPressure/GeoPressureR/commit/a0f8c44f201a704f4c116f9a2fcad080ed156878), with a regression test covering these periods.
+- [Remove floating-point artifacts when importing Migrate Technology pressure data](https://github.com/GeoPressure/GeoPressureR/commit/95ba83979216c2f55872130b9cfa7de7e3920abf) in `tag_create()`: retain 15 significant digits after converting Pa to hPa, preserving measurement precision and avoiding spurious decimal digits in datapackage exports.
+- [Warn and continue when a sensor data file contains no measurements](https://github.com/GeoPressure/GeoPressureR/commit/6d1dd2f1).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.6.7...v3.6.8>
+
 # GeoPressureR v3.6.7
 
 ## Main

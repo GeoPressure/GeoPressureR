@@ -43,3 +43,6 @@ docs/
 # GeopressureViz
 inst/geopressureviz/geopressureviz.RData
 inst/geopressureviz/rsconnect
+
+# Local review tooling, bird fixtures, saved labels and generated results
+/benchmarks/
