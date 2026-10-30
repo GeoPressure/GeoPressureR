@@ -19,13 +19,15 @@
 #' @template map-tiles
 #' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
 #' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
-#' @param stapath optional stationary path data.frame (defaults to `tag$stap` when available).
+#' @param stapath Optional stationary path data.frame with `start` and `end` columns.
+#'   Defaults to `tag$stap` when available. Use `read_stap(tag$param$id)` to load a path from
+#'   `./data/stap-label/{id}.csv`.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' Rstudio.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
 #' @param quiet logical, currently unused.
-#' @param ... currently unused.
+#' @param ... Unused; extra arguments are rejected.
 #'
 #' @return When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
 #' When \code{run_bg = FALSE}, the return value of \code{shiny::runApp()}.
@@ -42,6 +44,9 @@
 #' })
 #' geolightviz(tag, run_bg = FALSE, launch_browser = FALSE)
 #'
+#' # Load stationary periods from ./data/stap-label/{id}.csv in a GeoPressureR project
+#' geolightviz(tag, stapath = read_stap(tag$param$id))
+#'
 #' @export
 geolightviz <- function(
   x,
@@ -51,6 +56,10 @@ geolightviz <- function(
   quiet = FALSE,
   ...
 ) {
+  if (...length() > 0) {
+    cli::cli_abort("{.arg ...} must be empty; extra arguments are not supported.")
+  }
+
   if (inherits(x, "tag")) {
     tag <- x
   } else if (is.character(x) && length(x) == 1) {
@@ -59,9 +68,45 @@ geolightviz <- function(
       var = "tag",
       envir = environment()
     )
+  } else {
+    cli::cli_abort("{.arg x} must be a tag object, an ID, or an .Rdata file.")
   }
 
   tag_assert(tag, "twilight")
+  tag_assert(tag, "light")
+
+  for (name in c("stapath", "tag$stap")) {
+    periods <- if (name == "stapath") stapath else tag$stap
+    if (is.null(periods)) {
+      next
+    }
+    if (!is.data.frame(periods)) {
+      cli::cli_abort(
+        "{.val {name}} must be a data frame of stationary periods or {.code NULL}."
+      )
+    }
+    if (!all(c("start", "end") %in% names(periods))) {
+      cli::cli_abort(
+        "{.val {name}} must contain {.field start} and {.field end} columns."
+      )
+    }
+    if (!inherits(periods$start, "POSIXct") || !inherits(periods$end, "POSIXct")) {
+      cli::cli_abort(
+        "{.field start} and {.field end} in {.val {name}} must be POSIXct datetimes."
+      )
+    }
+    if (
+      anyNA(periods$start) ||
+        anyNA(periods$end) ||
+        any(periods$start > periods$end) ||
+        is.unsorted(periods$start) ||
+        any(utils::head(periods$end, -1) > utils::tail(periods$start, -1))
+    ) {
+      cli::cli_abort(
+        "Stationary periods in {.val {name}} must have ordered, non-overlapping start and end times without missing values."
+      )
+    }
+  }
 
   if (!is.null(stapath)) {
     stapath <- geolightviz_normalize_stap_id(stapath)
@@ -130,6 +175,7 @@ geolightviz <- function(
 #' @noRd
 geolightviz_normalize_stap_id <- function(stapath) {
   if (!("stap_id" %in% names(stapath))) {
+    stapath$stap_id <- seq_len(nrow(stapath))
     return(stapath)
   }
 

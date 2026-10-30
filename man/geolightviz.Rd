@@ -17,7 +17,9 @@ geolightviz(
 \item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
 unique identifier \code{id} with a \code{.Rdata} file located in \code{"./data/interim/{id}.RData"}.}
 
-\item{stapath}{optional stationary path data.frame (defaults to \code{tag$stap} when available).}
+\item{stapath}{Optional stationary path data.frame with \code{start} and \code{end} columns.
+Defaults to \code{tag$stap} when available. Use \code{read_stap(tag$param$id)} to load a path from
+\verb{./data/stap-label/\{id\}.csv}.}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
 Rstudio.}
@@ -27,7 +29,7 @@ allowing you to continue using the R console. If false, the app blocks the conso
 
 \item{quiet}{logical, currently unused.}
 
-\item{...}{currently unused.}
+\item{...}{Unused; extra arguments are rejected.}
 }
 \value{
 When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
@@ -83,6 +85,9 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     twilight_label_read()
 })
 geolightviz(tag, run_bg = FALSE, launch_browser = FALSE)
+
+# Load stationary periods from ./data/stap-label/{id}.csv in a GeoPressureR project
+geolightviz(tag, stapath = read_stap(tag$param$id))
 \dontshow{\}) # examplesIf}
 }
 \seealso{
