@@ -77,18 +77,15 @@ server <- function(input, output, session) {
     if (is.null(input$map_source)) {
       return(NA)
     }
-    r <- rast.map(maps[[input$map_source]])
-    # Robust normalization across all layers. `terra::minmax()` returns per-layer ranges,
-    # and `diff(minmax)` is not "max-min" for multi-layer rasters.
-    r_min <- suppressWarnings(terra::global(r, "min", na.rm = TRUE)[1, 1])
-    r_max <- suppressWarnings(terra::global(r, "max", na.rm = TRUE)[1, 1])
-    if (!is.finite(r_min) || !is.finite(r_max) || r_max <= r_min) {
-      r_norm <- r
-    } else {
-      r_norm <- (r - r_min) / (r_max - r_min)
-    }
+    map <- maps[[input$map_source]]
+    map$data <- lapply(map$data, function(m) {
+      if (is.null(m)) {
+        return(m)
+      }
+      m / sum(m, na.rm = TRUE)
+    })
     terra::project(
-      r_norm,
+      rast.map(map),
       "epsg:3857",
       method = "near",
       res = res_proj,

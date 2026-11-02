@@ -3,6 +3,7 @@
 ## Minor
 
 - Rename the `tag_stap_daily()` output column `stap0` to `stap_long`. Scripts using `tag$stap$stap0` should use `tag$stap$stap_long` instead.
+- Fix GeoPressureViz display of marginal maps with very small values by normalizing each stationary period before projection, consistent with `plot.map()`.
 
 # GeoPressureR v3.7.0
 
