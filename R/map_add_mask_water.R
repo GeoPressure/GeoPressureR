@@ -83,7 +83,8 @@ map_add_mask_water <- function(map, ne_scale = "medium", land_threshold = 0) {
 #'
 #' @param extent Numeric vector of length 4: c(W, E, S, N) in degrees
 #' @param scale Numeric scale factor (pixels per degree)
-#' @param ne_scale Natural Earth resolution: 10, 50, or 110. Default is 50.
+#' @param ne_scale Natural Earth resolution: `"small"`, `"medium"` or `"large"` (or 110, 50, 10).
+#' @param land_threshold Land fraction at or below which a cell is water.
 #'
 #' @return Logical matrix where TRUE = water, FALSE = land
 #'
@@ -134,19 +135,12 @@ mask_water <- function(extent, scale, ne_scale = "medium", land_threshold = 0) {
     crs = "EPSG:4326"
   )
 
-  # Rasterize land polygons
-  # touches=TRUE marks a cell as land if polygon touches it at all
-  # This ensures islands are captured even if cell center is in water
-  r_land <- terra::rasterize(
-    land_vect,
-    r_template,
-    field = 1,
-    touches = TRUE,
-    background = 0
-  )
+  # Rasterize the fraction of each cell covered by land polygons (0 to 1)
+  r_land <- terra::rasterize(land_vect, r_template, cover = TRUE, background = 0)
 
-  # Convert to matrix and return logical when land fraction is at or below land_threshold
-  land_fraction <- terra::as.matrix(r_land, wide = TRUE)
+  # Convert to matrix (capped at 1 where polygons overlap) and mark as water when the land fraction
+  # is at or below land_threshold
+  land_fraction <- pmin(terra::as.matrix(r_land, wide = TRUE), 1)
 
   land_fraction <= land_threshold
 }
