@@ -4,14 +4,7 @@
 \alias{geolightviz}
 \title{Start the GeoLightViz Shiny app}
 \usage{
-geolightviz(
-  x,
-  stapath = NULL,
-  launch_browser = TRUE,
-  run_bg = TRUE,
-  quiet = FALSE,
-  ...
-)
+geolightviz(x, stapath = NULL, launch_browser = TRUE, run_bg = TRUE, ...)
 }
 \arguments{
 \item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
@@ -26,8 +19,6 @@ RStudio.}
 
 \item{run_bg}{If true (by default), the app runs in a background R process using \code{callr::r_bg()},
 allowing you to continue using the R console. If false, the app blocks the console until closed.}
-
-\item{quiet}{logical, currently unused.}
 
 \item{...}{Unused; extra arguments are rejected.}
 }

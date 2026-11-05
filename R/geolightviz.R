@@ -26,7 +26,6 @@
 #' RStudio.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
-#' @param quiet logical, currently unused.
 #' @param ... Unused; extra arguments are rejected.
 #'
 #' @return When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
@@ -53,7 +52,6 @@ geolightviz <- function(
   stapath = NULL,
   launch_browser = TRUE,
   run_bg = TRUE,
-  quiet = FALSE,
   ...
 ) {
   if (...length() > 0) {
@@ -116,15 +114,6 @@ geolightviz <- function(
 
   # Build light and twilight traces for the app.
   light_trace <- light_matrix(tag)
-
-  # Build map grid for known-position bounds checks.
-  g <- NULL
-  if (GeoPressureR::tag_assert(tag, "setmap", "logical")) {
-    g <- GeoPressureR::map_expand(
-      tag$param$tag_set_map$extent,
-      tag$param$tag_set_map$scale
-    )
-  }
 
   twl <- prepare_twilight(
     tag,
@@ -198,40 +187,8 @@ geolightviz_normalize_stap_id <- function(stapath) {
 }
 
 #' @noRd
-prepare_twilight <- function(tag, ref, compute_known = NULL) {
-  tag_assert(tag, "twilight")
+prepare_twilight <- function(tag, ref) {
   twl <- tag$twilight
-
-  # Add inclusion mask consistent with GeoPressureR::geolight_map()
-  twl_include <- tryCatch(
-    twilight_include(tag$twilight),
-    error = function(e) NULL
-  )
-  if (!is.null(twl_include) && "include" %in% names(twl_include)) {
-    twl$include <- twl_include$include
-  } else {
-    twl$include <- rep(FALSE, nrow(twl))
-  }
-
-  if (is.null(compute_known)) {
-    if (
-      "geolight_map" %in% names(tag$param) && "compute_known" %in% names(tag$param$geolight_map)
-    ) {
-      compute_known <- tag$param$geolight_map[["compute_known"]]
-    } else {
-      compute_known <- FALSE
-    }
-  }
-
-  if (!compute_known && "stap" %in% names(tag) && "known_lat" %in% names(tag$stap)) {
-    if (!("stap_id" %in% names(twl))) {
-      twl$stap_id <- find_stap(tag$stap, twl$twilight)
-    }
-    known_stap_id <- tag$stap$stap_id[
-      !is.na(tag$stap$known_lat) & !is.na(tag$stap$known_lon)
-    ]
-    twl$include <- twl$include & !(twl$stap_id %in% known_stap_id)
-  }
 
   # twl$date <- as.Date(twl$twilight)
   twl$plottime <- time2plottime(twl$twilight, ref = ref)

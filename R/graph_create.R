@@ -314,7 +314,7 @@ graph_create <- function(
           the distance between the center to fix this issue.",
         ">" = "Consider using a grid with a higher resolution."
       ))
-      gs_bearing <- graph_create_bearing(
+      gs_bearing <- haversine_bearing(
         cbind(s_lon[fallback$s_idx], s_lat[fallback$s_idx]),
         cbind(t_lon[fallback$t_idx], t_lat[fallback$t_idx])
       )

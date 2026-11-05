@@ -172,15 +172,6 @@ geopressureviz <- function(
   # Assign the type of path
   attr(path, "type") <- "geopressureviz"
 
-  # out <- tryCatch(edge_add_wind_check(tag), error = function(e) e)
-  # if(any(class(out) == "error")){
-  #   file_wind <- NULL
-  # } else {
-  #   geopressure_wd <- getwd()
-  #   file_wind <- \(stap_id) glue::glue("{geopressure_wd}{file(stap_id)}")
-  # }
-  file_wind <- NULL
-
   deps <- c("shiny", "shinyjs", "shinyWidgets", if (run_bg) "callr")
   deps_missing <- deps[!vapply(deps, requireNamespace, logical(1), quietly = TRUE)]
   if (length(deps_missing)) {
@@ -200,7 +191,6 @@ geopressureviz <- function(
         map_type_key = map_type_key,
         pressurepath = pressurepath,
         path = path,
-        file_wind = file_wind,
         stop_on_session_end = FALSE
       ),
       launch_browser = launch_browser,
@@ -218,7 +208,6 @@ geopressureviz <- function(
       map_type_key = map_type_key,
       pressurepath = pressurepath,
       path = path,
-      file_wind = file_wind,
       stop_on_session_end = TRUE
     ),
     launch_browser = launch_browser

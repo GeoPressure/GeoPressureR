@@ -214,3 +214,58 @@ stapelev_initialize_offsets <- function(proposal, windows, range, eligible) {
   }
   offsets
 }
+
+stapelev_query_label <- function(bundle, i) {
+  lat_suffix <- if (bundle$returned_lat >= 0) "N" else "S"
+  lon_suffix <- if (bundle$returned_lon >= 0) "E" else "W"
+  requested <- format(bundle$requested_at, "%Y-%m-%d %H:%M UTC", tz = "UTC")
+  glue::glue(
+    "{i} · {sprintf('%.3f', abs(bundle$returned_lat))}° {lat_suffix}, ",
+    "{sprintf('%.3f', abs(bundle$returned_lon))}° {lon_suffix} · {requested}"
+  )
+}
+
+stapelev_fitted_data <- function(proposal) {
+  hour <- floor(as.numeric(proposal$date) / 3600) * 3600
+  i <- !duplicated(hour)
+  data.frame(
+    date = as.POSIXct(hour[i], origin = "1970-01-01", tz = "UTC"),
+    surface_pressure = proposal$surface_pressure[i]
+  )
+}
+
+stapelev_ribbon_y <- function(fitted, range) {
+  if (!length(fitted)) {
+    return(fitted)
+  }
+  lower <- fitted - range
+  c(lower, lower[length(lower)], rev(fitted + range))
+}
+
+stapelev_ribbon_x <- function(date) {
+  if (!length(date)) {
+    return(date)
+  }
+  c(date, date[length(date)], rev(date))
+}
+
+stapelev_level_data <- function(fitted_data, window) {
+  if (!all(is.finite(window))) {
+    return(fitted_data[FALSE, ])
+  }
+  date_num <- as.numeric(fitted_data$date)
+  x <- sort(unique(c(
+    window[1],
+    date_num[date_num > window[1] & date_num < window[2]],
+    window[2]
+  )))
+  data.frame(
+    date = as.POSIXct(x, origin = "1970-01-01", tz = "UTC"),
+    surface_pressure = stats::approx(
+      date_num,
+      fitted_data$surface_pressure,
+      xout = x,
+      rule = 2
+    )$y
+  )
+}
