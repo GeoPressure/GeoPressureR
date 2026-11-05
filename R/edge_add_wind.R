@@ -567,7 +567,7 @@ edge_add_wind_segment_coords <- function(edge_s, edge_t, g, st_id, ratio_stap, i
 
 
 #' @noRd
-edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, rounding_interval) {
+edge_add_wind_query_times <- function(fl_s, i_fl, rounding_interval) {
   # Query times cover the whole flight by rounding start down and end up to the requested interval.
   t_s <- as.POSIXct(
     trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
@@ -581,7 +581,13 @@ edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, ro
     origin = "1970-01-01",
     tz = "UTC"
   )
-  t_q <- seq(from = t_s, to = t_e, by = 60 * rounding_interval)
+  seq(from = t_s, to = t_e, by = 60 * rounding_interval)
+}
+
+
+#' @noRd
+edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, rounding_interval) {
+  t_q <- edge_add_wind_query_times(fl_s, i_fl, rounding_interval)
 
   # Linearly interpolate position along the straight segment at each query time.
   dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
@@ -746,14 +752,19 @@ edge_add_wind_values_time <- function(
   )
 
   # Read only the spatial bounding box needed for the edge positions at this query time.
-  id_lon <- which(
-    lon >= (min(lon_int_i) - dlon) &
-      (max(lon_int_i) + dlon) >= lon
-  )
-  id_lat <- which(
-    lat >= (min(lat_int_i) - dlat) &
-      (max(lat_int_i) + dlat) >= lat
-  )
+  if (interp_spatial_linear) {
+    id_lon <- which(
+      lon >= (min(lon_int_i) - dlon) &
+        (max(lon_int_i) + dlon) >= lon
+    )
+    id_lat <- which(
+      lat >= (min(lat_int_i) - dlat) &
+        (max(lat_int_i) + dlat) >= lat
+    )
+  } else {
+    id_lon <- seq.int(min(lon_int_ind_i), max(lon_int_ind_i))
+    id_lat <- seq.int(min(lat_int_ind_i), max(lat_int_ind_i))
+  }
 
   # Extract a small NetCDF slab: lon x lat x pressure x time for each requested variable.
   # `variable` holds canonical CDS names; the NetCDF stores the arrays under GRIB short names.

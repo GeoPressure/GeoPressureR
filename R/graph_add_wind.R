@@ -278,7 +278,7 @@ graph_add_wind_edge <- function(
       lon_s <- lon_edge_s + ratio_stap[i_fl] * (lon_edge_t - lon_edge_s)
       lat_e <- lat_edge_s + ratio_stap[i_fl + 1] * (lat_edge_t - lat_edge_s)
       lon_e <- lon_edge_s + ratio_stap[i_fl + 1] * (lon_edge_t - lon_edge_s)
-      t_q <- graph_add_wind_query_times(fl_s, i_fl, rounding_interval)
+      t_q <- edge_add_wind_query_times(fl_s, i_fl, rounding_interval)
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
       dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
       dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
@@ -303,7 +303,7 @@ graph_add_wind_edge <- function(
           lat_ind_i <- match(round(lat_i * 4) / 4, lat)
           lon_ind_i <- match(round(lon_i * 4) / 4, lon)
         }
-        out <- graph_add_wind_values_time(
+        out <- edge_add_wind_values_time(
           pressure,
           t_q[i_time],
           pres,
@@ -318,12 +318,13 @@ graph_add_wind_edge <- function(
           lon_ind_i,
           interp_spatial_linear,
           nc,
+          variable,
           i_s,
           i_fl,
           fl_s
-        )
-        u_fl <- u_fl + out$u * w[i_time]
-        v_fl <- v_fl + out$v * w[i_time]
+        )$value
+        u_fl <- u_fl + out[[1]] * w[i_time]
+        v_fl <- v_fl + out[[2]] * w[i_time]
       }
 
       # Combine multiple flights inside this stap transition into one mean wind per edge.
@@ -387,203 +388,4 @@ graph_add_wind_edge <- function(
   }
 
   ws
-}
-
-
-#' Graph wind query times
-#'
-#' @noRd
-graph_add_wind_query_times <- function(fl_s, i_fl, rounding_interval) {
-  t_s <- as.POSIXct(
-    trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
-      (60 * rounding_interval),
-    origin = "1970-01-01",
-    tz = "UTC"
-  )
-  t_e <- as.POSIXct(
-    ceiling(as.numeric(fl_s$end[i_fl]) / (60 * rounding_interval)) *
-      (60 * rounding_interval),
-    origin = "1970-01-01",
-    tz = "UTC"
-  )
-
-  seq(from = t_s, to = t_e, by = 60 * rounding_interval)
-}
-
-
-#' Interpolate u/v wind for graph edges at one query time
-#'
-#' @noRd
-graph_add_wind_values_time <- function(
-  pressure,
-  t_q_i,
-  pres,
-  time,
-  lat,
-  lon,
-  dlat,
-  dlon,
-  lat_i,
-  lon_i,
-  lat_ind_i,
-  lon_ind_i,
-  interp_spatial_linear,
-  nc,
-  i_s,
-  i_fl,
-  fl_s
-) {
-  p_q <- stats::approx(
-    pressure$date,
-    pressure$value,
-    t_q_i,
-    rule = 2
-  )$y
-  if (p_q >= pres[1]) {
-    id_pres <- 1
-    n_pres <- 1
-    if (p_q > pres[1] && pres[1] != 1000) {
-      cli::cli_warn(c(
-        "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
-        "i" = "Stationary period: {i_s}",
-        "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
-        "i" = "Date: {format(t_q_i, '%Y-%m-%d %H:%M:%S')}",
-        "i" = "Pressure: {round(p_q, 2)} hPa",
-        "i" = "Highest available level: {pres[1]} hPa",
-        "i" = "Pressure difference: {round(p_q - pres[1], 2)} hPa"
-      ))
-    }
-  } else if (p_q <= pres[length(pres)]) {
-    id_pres <- length(pres)
-    n_pres <- 1
-    if (p_q < pres[length(pres)]) {
-      cli::cli_warn(
-        "Pressure is below the lowest level. This should never happen!"
-      )
-    }
-  } else {
-    id_pres <- max(which(pres >= p_q))
-    n_pres <- 2
-  }
-
-  id_time <- findInterval(t_q_i, time)
-  n_time <- ifelse(
-    id_time == length(time) | time[id_time] == t_q_i,
-    1,
-    2
-  )
-
-  if (interp_spatial_linear) {
-    id_lon <- which(
-      lon >= (min(lon_i) - dlon) &
-        (max(lon_i) + dlon) >= lon
-    )
-    id_lat <- which(
-      lat >= (min(lat_i) - dlat) &
-        (max(lat_i) + dlat) >= lat
-    )
-  } else {
-    id_lon <- seq.int(min(lon_ind_i), max(lon_ind_i))
-    id_lat <- seq.int(min(lat_ind_i), max(lat_ind_i))
-  }
-
-  nc_start <- c(id_lon[1], id_lat[1], id_pres, id_time)
-  nc_count <- c(length(id_lon), length(id_lat), n_pres, n_time)
-  # NetCDF short names for the two wind components, from the same registry the rest of the
-  # pipeline uses.
-  wind_nc <- era5_variable_short(c("u_component_of_wind", "v_component_of_wind"))
-  u_nc <- ncdf4::ncvar_get(
-    nc,
-    wind_nc[1],
-    start = nc_start,
-    count = nc_count,
-    collapse_degen = FALSE
-  )
-  v_nc <- ncdf4::ncvar_get(
-    nc,
-    wind_nc[2],
-    start = nc_start,
-    count = nc_count,
-    collapse_degen = FALSE
-  )
-
-  if (n_time == 2) {
-    w_time <- as.numeric(difftime(
-      t_q_i,
-      time[id_time],
-      units = "hours"
-    )) /
-      as.numeric(difftime(
-        time[id_time + 1],
-        time[id_time],
-        units = "hours"
-      ))
-    u_nc <- array(
-      u_nc[,,, 1] + w_time * (u_nc[,,, 2] - u_nc[,,, 1]),
-      dim = c(length(id_lon), length(id_lat), n_pres)
-    )
-    v_nc <- array(
-      v_nc[,,, 1] + w_time * (v_nc[,,, 2] - v_nc[,,, 1]),
-      dim = c(length(id_lon), length(id_lat), n_pres)
-    )
-  } else {
-    u_nc <- array(u_nc[,,, 1], dim = c(length(id_lon), length(id_lat), n_pres))
-    v_nc <- array(v_nc[,,, 1], dim = c(length(id_lon), length(id_lat), n_pres))
-  }
-
-  if (n_pres == 2) {
-    w_pres <- (p_q - pres[id_pres]) /
-      (pres[id_pres + 1] - pres[id_pres])
-    u_nc <- array(
-      u_nc[,, 1] + w_pres * (u_nc[,, 2] - u_nc[,, 1]),
-      dim = c(length(id_lon), length(id_lat))
-    )
-    v_nc <- array(
-      v_nc[,, 1] + w_pres * (v_nc[,, 2] - v_nc[,, 1]),
-      dim = c(length(id_lon), length(id_lat))
-    )
-  } else {
-    u_nc <- array(u_nc[,, 1], dim = c(length(id_lon), length(id_lat)))
-    v_nc <- array(v_nc[,, 1], dim = c(length(id_lon), length(id_lat)))
-  }
-
-  if (interp_spatial_linear) {
-    ll_i <- (round(lat_i, 1) + 90) *
-      10 *
-      10000 +
-      (round(lon_i, 1) + 180) * 10 +
-      1
-    ll_uniq <- unique(ll_i)
-    lat_uniq <- ((ll_uniq - 1) %/% 10000) / 10 - 90
-    lon_uniq <- ((ll_uniq - 1) %% 10000) / 10 - 180
-    id_uniq <- match(ll_i, ll_uniq)
-    u <- pracma::interp2(
-      rev(lat[id_lat]),
-      lon[id_lon],
-      u_nc[, rev(seq_len(ncol(u_nc)))],
-      lat_uniq,
-      lon_uniq,
-      method = "linear"
-    )
-    v <- pracma::interp2(
-      rev(lat[id_lat]),
-      lon[id_lon],
-      v_nc[, rev(seq_len(ncol(v_nc)))],
-      lat_uniq,
-      lon_uniq,
-      method = "linear"
-    )
-    assertthat::assert_that(!anyNA(u))
-    assertthat::assert_that(!anyNA(v))
-    u <- u[id_uniq]
-    v <- v[id_uniq]
-  } else {
-    lon_ind_off <- lon_ind_i - id_lon[1] + 1
-    lat_ind_off <- lat_ind_i - id_lat[1] + 1
-    ind <- (lat_ind_off - 1) * nrow(u_nc) + lon_ind_off
-    u <- u_nc[ind]
-    v <- v_nc[ind]
-  }
-
-  list(u = u, v = v)
 }
