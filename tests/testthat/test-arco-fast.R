@@ -1,5 +1,6 @@
 test_that("ARCO time series matches tag times without a remote read", {
   local_mocked_bindings(
+    arco_require_dependencies = function() NULL,
     era5_arco_client = function(...) list(),
     era5_arco_read = function(variable, era5_dataset, lon, lat, date, ...) {
       expect_equal(c(lon, lat), if (era5_dataset == "land") c(16.4, 46.4) else c(16.25, 46.25))
@@ -14,7 +15,7 @@ test_that("ARCO time series matches tag times without a remote read", {
     date = as.POSIXct(c("2020-01-01 00:15:00", "2020-01-01 01:45:00"), tz = "UTC"),
     value = c(990, 991)
   )
-  out <- impl(46.37, 16.37, pressure = pressure, quiet = TRUE, era5_dataset = "single-levels")
+  out <- geopressure_timeseries_arco(46.37, 16.37, pressure = pressure, quiet = TRUE)
   expect_equal(out$date, pressure$date)
   # 00:15 takes the 00:00 image and 01:45 the 02:00 one: three hours are read, and the second
   # point gets the third.

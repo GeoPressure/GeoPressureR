@@ -93,6 +93,7 @@ pressurepath_create <- function(
   # differ per (source, era5_dataset) pair, and an unavailable variable makes GeoPressureAPI
   # return an empty response that blanks every column rather than erroring.
   pressurepath_variable_check(variable, source, era5_dataset)
+  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
   # Compute each path (column j) separately: flights, normalization and twilights are per path
   if ("j" %in% names(path) && length(unique(path$j)) > 1) {

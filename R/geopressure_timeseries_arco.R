@@ -33,11 +33,9 @@ geopressure_timeseries_arco_impl <- function(
   end_time = NULL,
   quiet = FALSE,
   debug = FALSE,
-  era5_dataset = c("single-levels", "land"),
+  era5_dataset = "single-levels",
   altitude_formula = "virtual"
 ) {
-  era5_dataset <- match.arg(era5_dataset)
-  era5_dataset_deprecate_altitude(era5_dataset, !is.null(pressure))
   dataset_name <- if (era5_dataset == "land") "ERA5-Land" else "ERA5 single levels"
   resolution <- if (era5_dataset == "land") 0.1 else 0.25
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
@@ -182,28 +180,6 @@ geopressure_timeseries_arco_impl <- function(
       altitude_formula = altitude_formula
     )
     out <- out[c("date", "surface_pressure", "altitude", "lat", "lon")]
-
-    pressure_merge <- pressure
-    if (!("stap_id" %in% names(pressure_merge))) {
-      pressure_merge$stap_id <- 1
-    }
-    if (!("label" %in% names(pressure_merge))) {
-      pressure_merge$label <- ""
-    }
-    out <- merge(pressure_merge, out, all.x = TRUE)
-    names(out)[names(out) == "value"] <- "pressure_tag"
-    stap_id <- out$stap_id
-    label <- out$label
-    id_norm <- stap_id == round(stap_id) & stap_id != 0 & label != "discard"
-    if (sum(id_norm) > 0) {
-      elev <- ifelse(startsWith(label, "elev_"), gsub("^.*?elev_", "", label), "0")
-      for (elev_i in unique(elev)) {
-        id_elev <- elev == elev_i
-        out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] -
-          mean(out$surface_pressure[id_elev & id_norm]) +
-          mean(out$pressure_tag[id_elev & id_norm])
-      }
-    }
   }
 
   return(out)

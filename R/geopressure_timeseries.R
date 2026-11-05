@@ -94,10 +94,11 @@ geopressure_timeseries <- function(
   start_time <- input$start_time
   end_time <- input$end_time
   source <- ecmwf_select_source(source, quiet)
+  era5_dataset_deprecate_altitude(era5_dataset, !is.null(pressure))
 
-  if (source == "arco") {
+  out <- if (source == "arco") {
     arco_require_dependencies()
-    return(geopressure_timeseries_arco_impl(
+    geopressure_timeseries_arco_impl(
       lat = lat,
       lon = lon,
       pressure = pressure,
@@ -107,20 +108,50 @@ geopressure_timeseries <- function(
       debug = debug,
       era5_dataset = era5_dataset,
       altitude_formula = altitude_formula
-    ))
+    )
+  } else {
+    geopressure_timeseries_api_impl(
+      lat = lat,
+      lon = lon,
+      pressure = pressure,
+      start_time = start_time,
+      end_time = end_time,
+      quiet = quiet,
+      debug = debug,
+      era5_dataset = era5_dataset,
+      altitude_formula = altitude_formula
+    )
+  }
+  if (is.null(pressure)) {
+    return(out)
   }
 
-  geopressure_timeseries_api_impl(
-    lat = lat,
-    lon = lon,
-    pressure = pressure,
-    start_time = start_time,
-    end_time = end_time,
-    quiet = quiet,
-    debug = debug,
-    era5_dataset = era5_dataset,
-    altitude_formula = altitude_formula
-  )
+  # Normalise ERA5 pressure to the tag pressure level (i.e. altitude) of the bird
+  if (!quiet) {
+    cli::cli_progress_step("Compute normalized ERA5 pressure")
+  }
+  # Add default metadata before merging to preserve these columns in the output.
+  if (!("stap_id" %in% names(pressure))) {
+    pressure$stap_id <- 1
+  }
+  if (!("label" %in% names(pressure))) {
+    pressure$label <- ""
+  }
+  out <- merge(pressure, out, all.x = TRUE)
+  names(out)[names(out) == "value"] <- "pressure_tag"
+  # Normalize only non-flight observations that are not marked as discarded.
+  id_norm <- out$stap_id == round(out$stap_id) & out$stap_id != 0 & out$label != "discard"
+  # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
+  if (sum(id_norm) > 0) {
+    elev <- ifelse(startsWith(out$label, "elev_"), gsub("^.*?elev_", "", out$label), "0")
+    for (elev_i in unique(elev)) {
+      id_elev <- elev == elev_i
+      out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] -
+        mean(out$surface_pressure[id_elev & id_norm]) +
+        mean(out$pressure_tag[id_elev & id_norm])
+    }
+  }
+  out
 }
 
 geopressure_timeseries_prepare <- function(
