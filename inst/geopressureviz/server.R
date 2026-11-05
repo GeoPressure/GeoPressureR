@@ -129,11 +129,10 @@ server <- function(input, output, session) {
     curr_id <- as.numeric(input$stap_id)
     nb_fl <- abs(nextnext_id - curr_id)
 
-    dist_km <- geosphere::distGeo(
+    dist_km <- haversine_distance(
       reactVal$path[nextnext_id, c("lon", "lat")],
       reactVal$path[curr_id, c("lon", "lat")]
-    ) /
-      1000
+    )
 
     fl_dur <- flight_dur_reactive()[min(idx, idx + nextprev)]
 
