@@ -99,7 +99,7 @@ plot.map <- function(
   })
 
   # Convert GeoPressureR map to terra rast object
-  r <- rast.map(map)
+  r <- terra::rast(map)
 
   if (is.character(palette) && length(palette) == 1 && palette == "auto") {
     palette <- NULL

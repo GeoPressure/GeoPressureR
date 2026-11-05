@@ -68,7 +68,7 @@ test_that("map_create() | missing stap", {
 })
 
 
-test_that("rast.map() | ", {
+test_that("terra::rast(map) | ", {
   map <- map_create(
     data = data,
     extent = extent,
@@ -79,7 +79,7 @@ test_that("rast.map() | ", {
   )
 
   expect_no_error({
-    r <- rast.map(map)
+    r <- terra::rast(map)
   })
   expect_s4_class(r, "SpatRaster")
   expect_equal(terra::time(r), stap$start)

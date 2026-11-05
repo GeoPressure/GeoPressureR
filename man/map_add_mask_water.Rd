@@ -67,6 +67,6 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 Other map:
 \code{\link[=map_create]{map_create()}},
 \code{\link[=print.map]{print.map()}},
-\code{\link[=rast.map]{rast.map()}}
+\code{\link{rast,map-method}}
 }
 \concept{map}

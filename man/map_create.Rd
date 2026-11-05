@@ -69,6 +69,6 @@ plot(map)
 Other map:
 \code{\link[=map_add_mask_water]{map_add_mask_water()}},
 \code{\link[=print.map]{print.map()}},
-\code{\link[=rast.map]{rast.map()}}
+\code{\link{rast,map-method}}
 }
 \concept{map}

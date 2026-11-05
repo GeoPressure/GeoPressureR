@@ -63,7 +63,7 @@ server <- function(input, output, session) {
       m / sum(m, na.rm = TRUE)
     })
     terra::project(
-      rast.map(map),
+      terra::rast(map),
       "epsg:3857",
       method = "near",
       res = res_proj,

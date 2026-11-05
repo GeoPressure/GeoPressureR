@@ -120,7 +120,7 @@ reference:
       - map_create
       - print.map
       - plot.map
-      - rast.map
+      - rast,map-method
       - map_expand
       - map_add_mask_water
   - title: Path
