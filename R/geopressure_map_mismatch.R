@@ -334,6 +334,9 @@ geopressure_map_mismatch <- function(
   future::plan(future::sequential)
 
   # Add attribute
+  # Delete the downloaded GeoTIFFs and trace files now that the maps are in memory
+  unlink(unlist(files))
+
   tag$map_pressure_mse <- map_create(
     data = mse,
     extent = tag$param$tag_set_map$extent,
