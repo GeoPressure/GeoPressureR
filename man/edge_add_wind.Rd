@@ -57,7 +57,8 @@ A data.frame with one row per time step, edge, and variable:
 \item \code{val} value of the variable at each time step
 \item \code{pressure} pressure at each time step
 \item \code{date} datetime of each time step
-\item \code{w} weight for averaging
+\item \code{w} weight for averaging over the edge (weights of an edge sum to 1, flights spanned by the
+edge weighted by their duration)
 \item \code{var} variable name, as passed to \code{variable}
 \item \code{lat} latitude at each time step
 \item \code{lon} longitude at each time step

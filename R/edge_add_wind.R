@@ -36,7 +36,8 @@
 #' - `val` value of the variable at each time step
 #' - `pressure` pressure at each time step
 #' - `date` datetime of each time step
-#' - `w` weight for averaging
+#' - `w` weight for averaging over the edge (weights of an edge sum to 1, flights spanned by the
+#'   edge weighted by their duration)
 #' - `var` variable name, as passed to `variable`
 #' - `lat` latitude at each time step
 #' - `lon` longitude at each time step
@@ -253,7 +254,7 @@ edge_add_wind <- function(
           val = as.vector(var_fl[[var_i]]),
           pressure = rep(p_q, length(st_id)),
           date = rep(t_q, length(st_id)),
-          w = rep(w, length(st_id))
+          w = rep(w * fl_s$duration[i_fl] / sum(fl_s$duration), length(st_id))
         )
         var[[var_i]][[i_stap]][[i_fl]]$var <- variable[var_i]
 
