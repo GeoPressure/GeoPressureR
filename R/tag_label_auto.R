@@ -12,9 +12,9 @@
 #' non-flight activity data which value are greater than `thr_reclassify` of the distance between
 #' the two kmeans clusters. Any periods of mid-activity surrounded by flight are also considered
 #' as flights.
-#' 2. To avoid stap lasting only a few datapoints, we also classify any datapoint
-#' which is surrounded by a flight before and after, within a window of +/- `post_proc_window`
-#' points. As a result, no stap will be shorter than `(2 * post_proc_window + 1) * dt`.
+#' 2. To avoid staps lasting only a few datapoints, we also classify as flight any period of at
+#' most `2 * post_proc_window` non-flight datapoints surrounded by flights. As a result, no stap
+#' between two flights will be shorter than `(2 * post_proc_window + 1) * dt`.
 #'
 #' This function is inspired by the function `classify_flap` from the
 #' [PAMlr package](https://github.com/KiranLDA/PAMlr).
@@ -128,19 +128,14 @@ tag_label_auto <- function(
     # Classify as migratory flight if next or previous is migration.
     is_flight[is.na(is_flight)] <- prev_isna | next_isna
 
-    # In addition, consider in flight if there is previous and next is in flight
-    for (i in seq_len(length(is_flight))) {
-      if (!is_flight[i]) {
-        # Define the range of neighbours
-        start_idx <- max(1, i - post_proc_window)
-        end_idx <- min(length(is_flight), i + post_proc_window)
-
-        # Check if any of the neighbours are TRUE
-        if (any(is_flight[start_idx:i]) && any(is_flight[i:end_idx])) {
-          is_flight[i] <- TRUE
-        }
-      }
-    }
+    # In addition, consider in flight short non-flight periods (<= 2 * post_proc_window points)
+    # surrounded by flights
+    r <- rle(is_flight)
+    r_id <- seq_along(r$values)
+    r$values[
+      !r$values & r$lengths <= 2 * post_proc_window & r_id > 1 & r_id < length(r$values)
+    ] <- TRUE
+    is_flight <- inverse.rle(r)
 
     # Classify acceleration accordingly
     tag$acceleration$label <- ifelse(is_flight, "flight", "")

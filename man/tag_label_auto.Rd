@@ -40,9 +40,9 @@ values above 50\% of the distance between the two clusters. Here, we classify as
 non-flight activity data which value are greater than \code{thr_reclassify} of the distance between
 the two kmeans clusters. Any periods of mid-activity surrounded by flight are also considered
 as flights.
-\item To avoid stap lasting only a few datapoints, we also classify any datapoint
-which is surrounded by a flight before and after, within a window of +/- \code{post_proc_window}
-points. As a result, no stap will be shorter than \code{(2 * post_proc_window + 1) * dt}.
+\item To avoid staps lasting only a few datapoints, we also classify as flight any period of at
+most \code{2 * post_proc_window} non-flight datapoints surrounded by flights. As a result, no stap
+between two flights will be shorter than \code{(2 * post_proc_window + 1) * dt}.
 }
 
 This function is inspired by the function \code{classify_flap} from the
