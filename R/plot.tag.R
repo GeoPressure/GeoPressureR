@@ -533,7 +533,8 @@ plot_tag_twilight <- function(
 
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
-    twl$date <- as.Date(twl$twilight)
+    # Match the day of the light matrix column, centred on twl_offset
+    twl$date <- as.Date(twl$twilight - twl_offset * 3600)
     time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
@@ -606,7 +607,7 @@ plot_tag_twilight <- function(
 
   if (!is.null(twilight_line)) {
     twll <- twilight_line
-    twll$date <- as.Date(twll$twilight)
+    twll$date <- as.Date(twll$twilight - twl_offset * 3600)
     time_hour <- as.numeric(substr(format(twll$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
