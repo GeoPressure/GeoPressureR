@@ -63,7 +63,7 @@ Default is \code{Inf} (disabled).}
 \item{zenith_prior_penalty_weight}{Weight controlling how strongly automatically fitted
 calibration locations are pulled toward \code{zenith_prior_mean}.}
 
-\item{refine_fitted_location_scale}{Target spatial resolution, in kilometers, for fitted
+\item{refine_fitted_location_scale}{Target spatial resolution, in kilometres, for fitted
 calibration-anchor refinement. This also defines the movement threshold for convergence.}
 
 \item{refine_fitted_location_max_iter}{Maximum number of fitted-location refinement iterations.
@@ -79,18 +79,24 @@ estimated based on twilight or hard defined by the known location \verb{stap$kno
 \item{quiet}{logical to hide messages about the progress}
 }
 \value{
-a \code{tag} with the likelihood of light as \code{tag$map_light}
+The same \code{tag} with the likelihood of light as \code{tag$map_light}.
+\code{geolight_map_calibrate()} instead adds the twilight calibration in
+\code{tag$param$geolight_map$twl_calib}, and \code{geolight_map_likelihood()} adds the likelihood map of
+each twilight in \code{tag$map_light_twl} (kept by \code{geolight_map_aggregate()} only if
+\code{keep_twl = TRUE}).
 }
 \description{
 This function estimates a likelihood map for each stationary period based on twilight data.
-The function performs the following steps:
+The function performs the following steps, each available as a child function:
 \enumerate{
-\item Calibrate twilight errors from true known locations and/or automatically fitted calibration
-locations. See below for details.
-\item Compute a likelihood map for each twilight using the calibration.
-\item Combine the likelihood maps of all twilights belonging to the same stationary periods with a
+\item \code{geolight_map_calibrate()}: Calibrate twilight errors from true known locations and/or
+automatically fitted calibration locations. See below for details.
+\item \code{geolight_map_likelihood()}: Compute a likelihood map for each twilight using the
+calibration.
+\item \code{geolight_map_aggregate()}: Combine the likelihood maps of all twilights belonging to the same stationary period with a
 log-linear pooling. See \href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation}
-for more information on probability aggregation using log-linear pooling.
+for more information on probability aggregation using log-linear pooling. A stationary period
+with a single twilight uses its likelihood map directly (weight 1, \code{twl_llp} is not applied).
 }
 }
 \section{Calibration}{
@@ -129,7 +135,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     tag_label(quiet = TRUE) |>
     tag_set_map(
       extent = c(-16, 23, 0, 50),
-      scale = 10,
+      scale = 4,
       known = data.frame(
         stap_id = 1,
         known_lon = 17.05,

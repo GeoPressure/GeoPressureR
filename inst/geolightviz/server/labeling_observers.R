@@ -83,11 +83,7 @@ setup_labeling_observers <- function(
     # Toggle labels for nearby points
     if (length(nearby_idx) > 0) {
       before <- twl_$label[nearby_idx]
-      after <- ifelse(
-        before == "",
-        "discard",
-        ""
-      )
+      after <- ifelse(before == "discard", "", "discard")
       twl_$label[nearby_idx] <- after
       twl(twl_)
       record_label_change(nearby_idx, before, after)
@@ -104,7 +100,7 @@ setup_labeling_observers <- function(
       idx <- selected$pointNumber + 1
       if (length(idx) > 0) {
         before <- twl_$label[idx]
-        after <- ifelse(before == "", "discard", "")
+        after <- ifelse(before == "discard", "", "discard")
         twl_$label[idx] <- after
         twl(twl_)
         record_label_change(idx, before, after)

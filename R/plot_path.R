@@ -7,7 +7,7 @@
 #' @param path a GeoPressureR `path` data.frame.
 #' @param plot_leaflet logical defining if the plot is an interactive `leaflet` map or a static
 #' basic plot.
-#' @param map optional `map` object to plot the path on top of.
+#' @param map optional `leaflet` map to add the path on top of (only for `plot_leaflet = TRUE`).
 #' @param provider optional tile provider name (see `leaflet::providers`). When `NULL`, uses all
 #'   available GeoPressureR basemap layers; see the *Basemap API keys* section.
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
@@ -22,11 +22,6 @@
 #' @return A `leaflet` map when `plot_leaflet = TRUE`, otherwise a `ggplot2` object.
 #'
 #' @examples
-#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-#'   tag <- tag_create("18LX", quiet = TRUE) |>
-#'     tag_label(quiet = TRUE)
-#' })
-#'
 #' path <- data.frame(
 #'   stap_id = 1:4,
 #'   lon = c(17.05, 16.2, NA, 15.4),
@@ -199,7 +194,7 @@ plot_path_leaflet <- function(
 
   if (is.null(map)) {
     map <- leaflet::leaflet(height = "100vh") |>
-      map_add_tiles(provider = provider, provider_options = provider_options)
+      leaflet_add_basemaps(provider = provider, provider_options = provider_options)
   }
 
   duration <- if ("duration" %in% names(path)) {

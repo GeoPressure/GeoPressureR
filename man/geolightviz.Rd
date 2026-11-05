@@ -9,25 +9,25 @@ geolightviz(
   stapath = NULL,
   launch_browser = TRUE,
   run_bg = TRUE,
-  quiet = FALSE,
+  quiet = lifecycle::deprecated(),
   ...
 )
 }
 \arguments{
-\item{x}{a GeoPressureR \code{tag} object, a \code{.Rdata} file or the
-unique identifier \code{id} with a \code{.Rdata} file located in \code{"./data/interim/{id}.RData"}.}
+\item{x}{a GeoPressureR \code{tag} object, a \code{.RData} file or the
+unique identifier \code{id} with a \code{.RData} file located in \code{"./data/interim/{id}.RData"}.}
 
 \item{stapath}{Optional stationary path data.frame with \code{start} and \code{end} columns.
 Defaults to \code{tag$stap} when available. Use \code{read_stap(tag$param$id)} to load a path from
 \verb{./data/stap-label/\{id\}.csv}.}
 
-\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
-RStudio.}
+\item{launch_browser}{If \code{TRUE} (default), the app opens in your web browser; otherwise, only the
+app URL is printed.}
 
 \item{run_bg}{If true (by default), the app runs in a background R process using \code{callr::r_bg()},
 allowing you to continue using the R console. If false, the app blocks the console until closed.}
 
-\item{quiet}{logical, currently unused.}
+\item{quiet}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Had no effect.}
 
 \item{...}{Unused; extra arguments are rejected.}
 }

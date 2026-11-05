@@ -9,8 +9,10 @@
 #' @param graph a GeoPressureR `graph` with defined movement model `graph_set_movement()`.
 #' @param quiet logical to hide messages about the progress.
 #'
-#' @return A list of the marginal maps for each stationary period (even those not modelled). Best to
-#' include within `tag`.
+#' @return A GeoPressureR `map` of the marginal probability for each stationary period (stationary
+#' periods not modelled have no data). Each modelled stationary period is normalised to a
+#' probability map and all maps are then scaled by their overall maximum so that they can be
+#' compared visually. Best to include within `tag`.
 #'
 #' @examples
 #' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
@@ -60,26 +62,33 @@ graph_marginal <- function(graph, quiet = FALSE) {
     cli::cli_progress_step("Compute marginal")
   }
 
-  # Initiate the forward probability vector (f_k^T in Nussbaumer et al. (2023) )
-  map_f <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(1, n))
+  # Initiate the forward (f_k^T) and backward (b_k) probability vectors at the equipment and
+  # retrieval nodes (Nussbaumer et al. (2023))
+  map_f_k <- Matrix::sparseMatrix(
+    rep(1, length(graph$equipment)),
+    graph$equipment,
+    x = graph$obs[graph$equipment],
+    dims = c(1, n)
+  )
+  map_b_k <- Matrix::sparseMatrix(
+    graph$retrieval,
+    rep(1, length(graph$retrieval)),
+    x = 1,
+    dims = c(n, 1)
+  )
+  map_f <- map_f_k
+  map_b <- map_b_k
 
-  # Initiate the backward probability vector (b_k in Nussbaumer et al. (2023) )
-  map_b <- Matrix::sparseMatrix(1, 1, x = 0, dims = c(n, 1))
-
-  # build iteratively the marginal probability backward and forward by re-using the mapping
-  # computed for previous stationary period. Set the equipment and retrieval site in each loop
+  # Propagate one stationary period at a time and normalize each one separately to prevent
+  # underflow on long tracks (Eq. 3 in Nussbaumer et al. (2023))
   for (i_s in seq_len(graph$sz[3] - 1)) {
-    map_f[1, graph$equipment] <- graph$obs[graph$equipment] # P_0^T O_0 with P_0=1
-    map_f <- map_f %*% trans_obs # Eq. 3 in Nussbaumer et al. (2023)
-    map_f <- map_f / sum(map_f) # normalize to prevent underflow
-
-    map_b[graph$retrieval, 1] <- 1 # equivalent to map_b[, 1] <- 1 but slower
-    map_b <- trans_obs %*% map_b # Eq. 3 in Nussbaumer et al. (2023)
-    map_b <- map_b / sum(map_b) # normalize
+    map_f_k <- map_f_k %*% trans_obs
+    map_f_k <- map_f_k / sum(map_f_k)
+    map_f <- map_f + map_f_k
+    map_b_k <- trans_obs %*% map_b_k
+    map_b_k <- map_b_k / sum(map_b_k)
+    map_b <- map_b + map_b_k
   }
-  # add the retrieval and equipment at the end to finish it
-  map_f[1, graph$equipment] <- graph$obs[graph$equipment]
-  map_b[graph$retrieval, 1] <- 1
 
   # combine the forward and backward
   map_fb <- map_f * Matrix::t(map_b) # Eq. 5 in Nussbaumer et al. (2023)
@@ -100,12 +109,12 @@ graph_marginal <- function(graph, quiet = FALSE) {
         i = "Please check the data used to create the graph."
       ))
     }
-    # Normalize the map to the highest value
-    marginal_data[[stap_include[i_s]]] <- map_fb_i / max(map_fb, na.rm = TRUE)
-    # Alternative normalization which seems more intuitive but not visually appealing when comparing
-    # different stap.
-    # marginal_data[[stap_include[i_s]]] <- map_fb_i / sum(map_fb_i, na.rm = TRUE)
+    # Normalize each stationary period to a probability map
+    marginal_data[[stap_include[i_s]]] <- map_fb_i / sum(map_fb_i, na.rm = TRUE)
   }
+  # Scale all maps to the highest value to compare stationary periods visually
+  map_max <- max(unlist(marginal_data), na.rm = TRUE)
+  marginal_data[stap_include] <- lapply(marginal_data[stap_include], \(m) m / map_max)
 
   marginal <- map_create(
     data = marginal_data,

@@ -143,7 +143,6 @@ geopressure_map_preprocess <- function(
   }
 
   # Smooth and downscale each stapelev
-  # pgi <- pressure_stapelev[[9]]
   pressure_stapelev_clean <- lapply(pressure_stapelev, function(pgi) {
     # Define a regular temporal grid for smoothing and down scaling, rounded to the hours
     dt <- min(diff(pgi$date))
@@ -154,15 +153,7 @@ geopressure_map_preprocess <- function(
       by = dt
     )
 
-    # Remove observation outside the start and end time. This should only be 1 or 2 datapoints
-    # pgi <- pgi[pgi$date >= date_reg[1] & pgi$date <= date_reg[length(date_reg)], ]
-
     # Re-sample to the new temporal grid
-    # Too slow
-    # id <- sapply(pgi$date, function(d) {
-    #   which.min(abs(d - date_reg))
-    # })
-
     id <- round(
       stats::approx(
         x = pgi$date,
@@ -186,19 +177,21 @@ geopressure_map_preprocess <- function(
     # Also set stap_id NA to be able to identify those time to remove at the end of this function
     pgi_reg$stap_id[id] <- NA
 
-    # smooth the data with a moving average of 1 hour
-    # find the size of the windows for 1 hour
-    n <- round(1 / as.numeric(dt) + 1)
+    # smooth the data with a centred moving average of about 1 hour (odd number of points, so that
+    # the smoothed value is not shifted in time). For hourly data, use the 1 hour average of the
+    # linear interpolation (weights 1/4, 1/2, 1/4).
+    n <- round(1 / as.numeric(dt)) %/% 2 * 2 + 1
+    w <- if (n == 1) c(0.25, 0.5, 0.25) else rep(1 / n, n)
 
     # check that there are enough datapoint for the smoothing
-    if (nrow(pgi_reg) > n) {
+    if (nrow(pgi_reg) > length(w)) {
       smoothna <- stats::filter(
         c(FALSE, !is.na(pgi_reg$value), FALSE),
-        rep(1 / n, n)
+        w
       )
       smooth <- stats::filter(
         c(0, replace(pgi_reg$value, is.na(pgi_reg$value), 0), 0),
-        rep(1 / n, n)
+        w
       )
 
       tmp <- smooth / smoothna
@@ -262,7 +255,7 @@ geopressure_map_preprocess <- function(
 
   if (any(stap$Freq < 3)) {
     cli::cli_warn(
-      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less than 3 datapoints."
+      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have fewer than 3 datapoints."
     )
   }
 

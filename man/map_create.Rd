@@ -18,28 +18,28 @@ interpolating the ERA5 single-levels data, the scale should be equal to or small
 (the default in \code{tag_set_map()}). \code{tag_set_map()} warns for higher values. Read more about
 scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google Earth Engine documentation }.}
 
-\item{stap}{a data.frame of stationary periods.}
+\item{stap}{a data.frame of stationary periods with columns \code{stap_id}, \code{start} and \code{end}. If
+the logical column \code{include} is missing, it is set to \code{TRUE} for stationary periods with data.}
 
 \item{id}{tag identifier.}
 
 \item{type}{map type used for default palettes in plots. One of:
-\code{"unknown"}, \code{"pressure"}, \code{"light"}, \code{"magnetic"}, \code{"pressure_mse"}, \code{"pressure_mask"},
-\code{"mask_water"}, \code{"magnetic_intensity"}, \code{"magnetic_inclination"}, \code{"marginal"}, \code{"twilight"}.}
+\code{"unknown"}, \code{"pressure"}, \code{"light"}, \code{"preslight"}, \code{"magnetic"}, \code{"pressure_mse"},
+\code{"pressure_mask"}, \code{"magnetic_intensity"}, \code{"magnetic_inclination"}, \code{"marginal"}, \code{"twilight"}.}
 }
 \value{
-A GeoPressure \code{map} object
+A GeoPressureR \code{map} object
 }
 \description{
 This function creates a GeoPressureR \code{map} object from a spatio-temporal dataset.
 The data needs to be discretized according to \code{scale}, \code{extent} (space) and \code{stap} (time).
 
-This function is used by \code{geopressure_map} and \code{graph_marginal}.
+This function is used by \code{geopressure_map()} and \code{graph_marginal()}.
 }
 \examples{
 data <- lapply(1:10, \(x) matrix(runif(5000), nrow = 50, ncol = 100))
 scale <- 10
 extent <- c(0, 10, 0, 5)
-seq(as.Date("2023-01-01"), as.Date("2023-01-10"), by = "day")
 stap <- data.frame(
   stap_id = 1:10,
   start = seq(as.POSIXct("2023-01-01", tz = "UTC"),
@@ -69,6 +69,6 @@ plot(map)
 Other map:
 \code{\link[=map_add_mask_water]{map_add_mask_water()}},
 \code{\link[=print.map]{print.map()}},
-\code{\link[=rast.map]{rast.map()}}
+\code{\link{rast,map-method}}
 }
 \concept{map}

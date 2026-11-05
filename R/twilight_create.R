@@ -5,9 +5,10 @@
 #' first and last light of the day which is defined as the time when light exceeds or falls below the light
 #' threshold `twl_thr`.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param twl_thr Light threshold that defines twilight. By default (`NULL`), it uses the smallest
-#' value of light (i.e, first and last light of day).
+#' value of light (i.e, first and last light of day). When `transform_light = TRUE`, `twl_thr` is
+#' expressed on the transformed light scale.
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
 #' @param transform_light logical to use a log transformation of light
@@ -19,7 +20,7 @@
 #' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
 #' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
-#' - `stap_id` if `stap_id` is present in `light`.
+#' - `stap_id` if `tag$stap` exists.
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -170,10 +171,10 @@ twilight_create_guess_offset <- function(
   mat <- ts2mat(light, sensor = "light", twl_offset = 0, twl_time_tolerance = twl_time_tolerance)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
-  offset_id <- round(
-    sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE)
-  )
-  twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
+  # Circular mean of the time of day with light, so that daylight wrapping around 00:00 UTC works
+  a <- 2 * pi * (seq_along(tmp) - 1) / length(tmp)
+  a_mean <- atan2(sum(tmp * sin(a), na.rm = TRUE), sum(tmp * cos(a), na.rm = TRUE))
+  twl_offset <- (a_mean * 12 / pi) %% 24 - 12
 
   return(twl_offset)
 }

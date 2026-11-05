@@ -16,7 +16,7 @@ default:
     # crop_end: NULL
   tag_set_map: # ?tag_set_map()
     extent: [-16, 23, 0, 50] # [W, E, S, N]
-    scale: 1 # 1 (min) -> 1° ; 2 -> 0.5° ; 5 -> 0.25° ; 10 (max) -> 0.1°
+    scale: 1 # 1 (min) -> 1° ; 2 -> 0.5° ; 4 -> 0.25° ; 5 -> 0.2° ; 10 (max) -> 0.1°
     include_stap_id: NULL # default, take all
     include_min_duration: 0 # in hours
   geopressure_map: # ?geopressure_map()
@@ -53,7 +53,7 @@ default:
   geopressuretemplate: # ?geopressuretemplate()
     likelihood: ["map_pressure", "map_light"]
     outputs: ["marginal", "most_likely", "simulation"]
-    pressurepath: ["most_likely"] # "geopressureviz"
+    pressurepath: ["most_likely"] # and/or "simulation"
 
 18LX:
   tag_create:

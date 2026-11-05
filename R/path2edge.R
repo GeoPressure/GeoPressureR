@@ -8,6 +8,7 @@
 #' @param tag_graph either a `tag` or a `graph` GeoPressureR object.
 #'
 #' @return Data.frame of the edge containing:
+#' - `j`: index of the path (`1` if `path` has no `j` column).
 #' - `s`: index in 3D (lat-lon-stap) of the origin (source).
 #' - `t`: index in 3D (lat-lon-stap) of the destination (target).
 #' - `lat_s`: latitude of the origin (source).
@@ -25,8 +26,9 @@
 #' - `gs`: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 #' (km/h) with `abs(gs)`, the W-E and S-N component of the flight with `Re(gs)` and `Im(gs)`, and
 #'  the angle/direction with `Arg(gs)`. If graph provided.
-#' - `ws`: if computed with `graph_add_wind()`, same value as `gs`. Airspeed is computed with
-#' `as = gs - ws` in complex number to keep the vectorial additive properties. If graph provided.
+#' - `ws`: windspeed vector (km/h) expressed as a complex number, in the same format as `gs`. Only
+#' if graph provided and computed with `graph_add_wind()`. Airspeed is computed with `as = gs - ws`
+#' in complex number to keep the vectorial additive properties.
 #' @family path
 #' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory-with-wind.html#extract-flight-information)
 #' @examples
@@ -47,6 +49,8 @@ path2edge <- function(path, tag_graph) {
   )
   stap <- tag_graph$stap
   assertthat::assert_that(setequal(path$stap_id, stap$stap_id))
+  # Edges are built assuming rows ordered by stap_id, then path j
+  path <- path[order(path$stap_id, if ("j" %in% names(path)) path$j else 0), ]
 
   g <- map_expand(
     tag_graph$param$tag_set_map$extent,
@@ -118,8 +122,6 @@ path2edge <- function(path, tag_graph) {
   )
   # Overwrite no displacement to bearing of NA
   edge$bearing[edge$lon_s == edge$lon_t & edge$lat_s == edge$lat_t] <- NA
-  # convert from -180:180 to 0:360
-  edge$bearing <- (edge$bearing + 360) %% 360
 
   # save groundspeed in complex notation
   gs_abs <- edge$distance / edge$duration

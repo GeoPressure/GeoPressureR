@@ -81,6 +81,11 @@ render_plotly_output <- function(
         !is.na(stapath_$lon[idx])
     ) {
       twll <- path2twilight(stapath_[idx, ])
+      # Day of the light matrix column, as for the twilight markers
+      twll$day <- .light_trace$day[pmax(
+        1,
+        findInterval(as.numeric(twll$twilight), .light_trace$date[1, ])
+      )]
       twll$plottime <- GeoPressureR::time2plottime(
         twll$twilight,
         ref = .light_trace$time[1]
@@ -89,7 +94,7 @@ render_plotly_output <- function(
       p <- p |>
         plotly::add_trace(
           data = twll,
-          x = ~date,
+          x = ~day,
           y = ~plottime,
           split = ~rise,
           type = "scatter",

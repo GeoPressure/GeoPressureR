@@ -41,6 +41,7 @@ param_create <- function(id, default = FALSE, ...) {
           tag_create
         )$temperature_internal_file,
         magnetic_file = formals(tag_create)$magnetic_file,
+        mag_axis = formals(tag_create)$mag_axis,
         assert_pressure = formals(tag_create)$assert_pressure,
         time_shift = formals(tag_create)$time_shift,
         time_drift = formals(tag_create)$time_drift,
@@ -127,7 +128,7 @@ param_create <- function(id, default = FALSE, ...) {
       ),
       graph_add_wind = list(
         thr_as = formals(graph_add_wind)$thr_as,
-        file = formals(edge_add_wind)$file,
+        file = wind_file,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
         interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear,
         pressure_source = "not_provided"

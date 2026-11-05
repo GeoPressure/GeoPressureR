@@ -133,12 +133,9 @@ tag_stap_daily <- function(
   stap_long_df <- NULL
   if (!is.null(stap_long)) {
     if (is.list(stap_long) && !is.data.frame(stap_long)) {
-      stap_long$known_lon <- as.numeric(lapply(stap_long$known_lon, function(x) {
-        if (is.null(x)) NA else x
-      }))
-      stap_long$known_lat <- as.numeric(lapply(stap_long$known_lat, function(x) {
-        if (is.null(x)) NA else x
-      }))
+      for (k in intersect(c("known_lon", "known_lat"), names(stap_long))) {
+        stap_long[[k]] <- as.numeric(lapply(stap_long[[k]], function(x) if (is.null(x)) NA else x))
+      }
       stap_long <- as.data.frame(stap_long)
     }
 
@@ -153,9 +150,6 @@ tag_stap_daily <- function(
   boundaries <- sort(unique(boundaries))
   if (length(boundaries) < 2) {
     cli::cli_abort("Not enough twilights to build stationary periods.")
-  }
-  if (any(diff(boundaries) <= 0)) {
-    cli::cli_abort("Twilight boundaries must be strictly increasing.")
   }
 
   # Build stap data.frame
@@ -184,7 +178,7 @@ tag_stap_daily <- function(
   tag$stap <- stap
 
   # Assign stap_id to sensor and twilight data
-  for (s in intersect(c("pressure", "acceleration", "light", "magnetic"), names(tag))) {
+  for (s in intersect(tag_sensors, names(tag))) {
     tag[[s]]$stap_id <- find_stap(tag$stap, tag[[s]]$date)
   }
   tag$twilight$stap_id <- find_stap(tag$stap, tag$twilight$twilight)

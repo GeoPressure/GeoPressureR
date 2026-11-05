@@ -1,4 +1,3 @@
-.DEG2RAD <- pi / 180
 #' Estimate one location per stationary period from twilight times
 #'
 #' @description
@@ -15,7 +14,7 @@
 #' For a stationary period with twilight-specific subsolar points `s_i`, the
 #' fitted longitude `lon`, latitude `lat`, and zenith angle `z` minimize
 #'
-#'   mean_i ( d((lon, lat), s_i) - z )^2 + P_prior(z)
+#'   mean_i ( d((lon, lat), s_i) - z )^2 + zenith_prior_penalty_weight * P_prior(z)
 #'
 #' where `d((lon, lat), s_i)` is the great-circle angular distance from the
 #' candidate location to the subsolar point at twilight `i`. The first term is
@@ -30,7 +29,7 @@
 #' prior on the effective zenith angle while leaving longitude and latitude
 #' driven by the twilight geometry.
 #'
-#' @param tag A GeoPressureR tag object containing `tag$twilight` and `tag$stap`.
+#' @param tag a GeoPressureR `tag` object containing `tag$twilight` and `tag$stap`.
 #' @param fitted_location_duration Minimum duration (in days) of stationary period(s) eligible to be
 #' used as a fitted location from twilight times. Default is `Inf` (disabled).
 #' @param extent Numeric vector `c(W, E, S, N)` in degrees
@@ -244,7 +243,7 @@ geolight_fit_location <- function(
 #' @description
 #' For each twilight time, the Sun defines a subsolar point on Earth.
 #' For a given zenith angle `zenith`, the set of locations where the Sun
-#' has that zenith is a *small circle* centered on the subsolar point with
+#' has that zenith is a *small circle* centred on the subsolar point with
 #' angular radius equal to `zenith`.
 #'
 #' This objective computes, for a candidate location (lon, lat), the

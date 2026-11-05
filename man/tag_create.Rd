@@ -20,7 +20,8 @@ tag_create(
   quiet = FALSE,
   time_shift = 0,
   time_drift = 0,
-  time_reference = NULL
+  time_reference = NULL,
+  mag_axis = c("right", "forward", "down")
 )
 }
 \arguments{
@@ -64,6 +65,13 @@ sensors or a named list for individual sensors. Default is zero; \code{-12 / 60}
 \item{time_reference}{Original recorded timestamp at which drift correction is zero, as POSIXct
 or character in UTC. \code{NULL} uses the earliest measurement across all sensors. Supply a timestamp
 if the clock was synchronised at another time. Only \code{time_shift} is added at the reference.}
+
+\item{mag_axis}{SOI only. Direction of the raw x, y and z magnetometer and accelerometer axes
+in the bird's forward-right-down frame, as three values among \code{"forward"}, \code{"backward"},
+\code{"right"}, \code{"left"}, \code{"down"} and \code{"up"}, with one per axis. The default
+\code{c("right", "forward", "down")} is the standard mounting (raw y forward, raw x to the right).
+Use \code{c("left", "backward", "down")} for a tag mounted reversed, or e.g.
+\code{c("forward", "left", "down")} for a tag rotated by 90°. Stored in \code{tag$param$tag_create$mag_axis}.}
 }
 \value{
 A GeoPressureR \code{tag} containing \code{param} (see \code{\link[=param_create]{param_create()}}) and the available sensor
@@ -105,7 +113,8 @@ external temperature \verb{*.temperature} or \verb{*.airtemperature}, internal t
 \verb{*.bodytemperature}, and magnetic data \verb{*.magnetic}.
 \item Migratetech (\code{"migratetech"}): pressure and acceleration \verb{*.deg}, light \verb{*.lux}.
 \item BAS (\code{"bas"}): light \verb{*.lig} only; use \code{assert_pressure = FALSE}.
-\item Lund CAnMove (\code{"lund"}): pressure \verb{*_press.xlsx}, light and acceleration \verb{*_acc.xlsx}.
+\item Lund CAnMove (\code{"lund"}): pressure \verb{*_press.xlsx}, light and acceleration both from
+\code{acceleration_file} (\verb{*_acc.xlsx}).
 \item PresTag (\code{"prestag"}): pressure \verb{*.txt}.
 }
 
@@ -118,7 +127,8 @@ For SOI, use \code{NA} to skip a sensor.
 SOI files are text exports of the SOI \emph{GeoLocator} decoder: six header lines followed by
 \verb{dd.mm.yyyy HH:MM} rows in UTC. Each sensor is sampled every \code{BaseLoggingInterval} ×
 \verb{<sensor>LoggingInterval} minutes, as configured with BirdTagManager and recorded in the
-\verb{*.settings} file (read into \code{tag$param$soi_settings}); a sensor interval of 0 means the sensor
+\verb{*.settings} file (read into \code{tag$param$tag_create$settings}, with the normalised \code{model} and
+\code{firmware}); a sensor interval of 0 means the sensor
 was off. The tag only stores a value when it changes, and the decoder repeats it until the next
 change. Rows that the decoder could not reconstruct are written as \code{-2} in all columns; they are
 set to \code{NA}, except in \code{temperature_external}, where they cannot be told apart from a −2 °C
@@ -136,15 +146,17 @@ the pressure sensor, with 1 °C resolution between −15 and 48 °C.
 \item \code{temperature_internal} (\verb{*.BodyTemperature}, hardware v2.4 and later): temperature in °C
 inside the tag, with about 1 °C resolution.
 \item \code{magnetic} (\verb{*.magnetic}): single 3-axis magnetometer and accelerometer measurements,
-converted to Gauss and g and rotated to the forward-right-down frame according to the
-hardware version in \verb{*.settings} (LSM303D up to v2.3, LSM303AGR from v2.4). Without
-\verb{*.settings}, magnetic data are not read.
+converted to Gauss and g according to the hardware version in \verb{*.settings} (LSM303D up to
+v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame according to
+\code{mag_axis}, by default with raw y forward and raw x to the right. For a tag mounted reversed,
+use \code{mag_axis = c("left", "backward", "down")} (a warning is shown when the tag rests tilted
+backwards). Without \verb{*.settings}, magnetic data are not read.
 }
 
 The decoder does not correct clock drift. \verb{*.settings} records the tag clock
 (\code{StopTimeRTC}) and the computer clock (\code{StopTimeReference}) at download, and their difference
-is stored in \code{tag$param$drift} in minutes: positive when the tag clock is ahead. To correct a
-linear drift, use \code{time_drift} (e.g. \code{-tag$param$drift / 60} divided by the deployment
+is stored in \code{tag$param$tag_create$settings$clock_drift} in minutes: positive when the tag clock
+is ahead. To correct a linear drift, use \code{time_drift} (e.g. \code{-clock_drift / 60} divided by the deployment
 duration in years) with \code{time_reference} set to \code{StarttimeRTC}, when the clock was set.
 }
 

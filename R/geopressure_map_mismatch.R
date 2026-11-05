@@ -171,12 +171,13 @@ geopressure_map_mismatch <- function(
     future::plan(future::sequential)
   }
 
-  download_geotiff <- function(i, urls, labels, timeout, debug, progress = NULL) {
+  download_geotiff <- function(i, urls, labels, timeout, debug, tmpdir, progress = NULL) {
     url_i <- urls[[i]]
     label_i <- labels[[i]]
     stap_i <- as.numeric(sub("\\|.*", "", label_i))
     trace_file_i <- tempfile(
       glue::glue("log_geopressure_map_http_{gsub('[^[:alnum:]_]+', '_', label_i)}_"),
+      tmpdir = tmpdir,
       fileext = ".log"
     )
     req_i <- httr2::request(url_i) |>
@@ -212,7 +213,7 @@ geopressure_map_mismatch <- function(
       )
     }
 
-    file <- tempfile(fileext = ".geotiff")
+    file <- tempfile(tmpdir = tmpdir, fileext = ".geotiff")
     if (debug) {
       capture_debug_output(httr2::req_perform(req_i, path = file), trace_file_i)
     } else {
@@ -230,7 +231,8 @@ geopressure_map_mismatch <- function(
     urls = urls,
     labels = labels,
     timeout = timeout,
-    debug = debug
+    debug = debug,
+    tmpdir = tempdir()
   )
   if (quiet) {
     files <- do.call(future.apply::future_lapply, future_args)
@@ -298,36 +300,33 @@ geopressure_map_mismatch <- function(
     # compute the total number of sample for that stap.
     tag$stap$nb_sample[i_stap] <- sum(nb_sample[i_label])
 
-    # Only if the map was correctly computed and returned
-    if (!is.null(map[i_label])) {
-      # When elev is present, use an average of the mse and mask maps weighted by the number of
-      # sample
-      tmp <- Reduce(
-        `+`,
-        mapply(
-          function(m, w) {
-            w * m
-          },
-          map[i_label],
-          nb_sample[i_label]
-        )
-      ) /
-        sum(nb_sample[i_label])
+    # When elev is present, use an average of the mse and mask maps weighted by the number of
+    # sample
+    tmp <- Reduce(
+      `+`,
+      mapply(
+        function(m, w) {
+          w * m
+        },
+        map[i_label],
+        nb_sample[i_label]
+      )
+    ) /
+      sum(nb_sample[i_label])
 
-      # Find pixel below threshold (i.e., -1) in any of the elev and apply to the combined map of
-      # mse
-      tmp2 <- Reduce(`|`, lapply(map[i_label], function(x) x[[1]] == -1))
-      tmp[[1]][tmp2] <- -1
+    # Find pixel below threshold (i.e., -1) in any of the elev and apply to the combined map of
+    # mse
+    tmp2 <- Reduce(`|`, lapply(map[i_label], function(x) x[[1]] == -1))
+    tmp[[1]][tmp2] <- -1
 
-      # Convert the maps to matrix
-      mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE)
-      # convert MSE from Pa to hPa
-      mse[[i_stap]][mse[[i_stap]] > 0] <- mse[[i_stap]][mse[[i_stap]] > 0] /
-        100 /
-        100
-      if (keep_mask) {
-        mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
-      }
+    # Convert the maps to matrix
+    mse[[i_stap]] <- terra::as.matrix(tmp[[1]], wide = TRUE)
+    # convert MSE from Pa to hPa
+    mse[[i_stap]][mse[[i_stap]] > 0] <- mse[[i_stap]][mse[[i_stap]] > 0] /
+      100 /
+      100
+    if (keep_mask) {
+      mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
     }
   }
 
@@ -335,6 +334,9 @@ geopressure_map_mismatch <- function(
   future::plan(future::sequential)
 
   # Add attribute
+  # Delete the downloaded GeoTIFFs and trace files now that the maps are in memory
+  unlink(unlist(files))
+
   tag$map_pressure_mse <- map_create(
     data = mse,
     extent = tag$param$tag_set_map$extent,

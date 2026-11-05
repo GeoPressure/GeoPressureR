@@ -54,12 +54,12 @@ geopressure_timeseries_api_impl <- function(
 
   if (debug) {
     temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
-    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE, na = "null"), temp_file)
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/timeseries/") |>
-    httr2::req_body_json(body) |>
+    httr2::req_body_json(body, na = "null") |>
     httr2::req_error(body = function(resp) {
       if (debug) {
         print(httr2::resp_body_json(resp))
@@ -116,8 +116,8 @@ geopressure_timeseries_api_impl <- function(
 
   # check for errors
   if (nrow(out) == 0) {
-    temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE, na = "null"), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
       i = "Check that the time range is non-empty. Log of your JSON request: {.file {temp_file}}"
@@ -136,51 +136,13 @@ geopressure_timeseries_api_impl <- function(
   out$lat <- resp_data$lat
   out$lon <- resp_data$lon
 
-  # Compute the ERA5 pressure normalized to the pressure level (i.e. altitude) of the bird
   if (!is.null(pressure)) {
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
-        "The returned data.frame is had a different number of element than the requested pressure."
+        "The returned data.frame has a different number of rows than the requested pressure."
       )
     }
     out$date <- geopressure_api_restore_date(pressure$date, as.numeric(out$date))
-
-    if (!quiet) {
-      cli::cli_progress_step("Compute normalized ERA5 pressure")
-    }
-
-    # Add default metadata before merging to preserve these columns in the output.
-    pressure_merge <- pressure
-    if (!("stap_id" %in% names(pressure_merge))) {
-      pressure_merge$stap_id <- 1
-    }
-    if (!("label" %in% names(pressure_merge))) {
-      pressure_merge$label <- ""
-    }
-    out <- merge(pressure_merge, out, all.x = TRUE)
-    names(out)[names(out) == "value"] <- "pressure_tag"
-
-    # Use merged metadata so normalization masks stay aligned with `out` rows.
-    stap_id <- if ("stap_id" %in% names(out)) out$stap_id else rep(1, nrow(out))
-    label <- if ("label" %in% names(out)) out$label else rep("", nrow(out))
-    # Normalize only non-flight observations that are not marked as discarded.
-    id_norm <- stap_id == round(stap_id) & stap_id != 0 & label != "discard"
-    # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
-    if (sum(id_norm) > 0) {
-      elev <- ifelse(
-        startsWith(label, "elev_"),
-        gsub("^.*?elev_", "", label),
-        "0"
-      )
-      for (elev_i in unique(elev)) {
-        id_elev <- elev == elev_i
-        pressure_tag_m <- mean(out$pressure_tag[id_elev & id_norm])
-        surface_pressure_m <- mean(out$surface_pressure[id_elev & id_norm])
-        out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] -
-          surface_pressure_m +
-          pressure_tag_m
-      }
-    }
   }
   return(out)
 }

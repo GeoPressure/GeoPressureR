@@ -1,10 +1,10 @@
 #' Read a tag label file
 #'
-#' This function reads an exported csv file from [TRAINSET](https://trainset.geocene.com/) and
-#' updates the data logger dataset `tag`.
+#' This function reads a csv file exported from [TRAINSET](https://trainset.geocene.com/) (e.g.,
+#' with [trainset()]) and updates the labels of `tag`.
 #'
 #' @inheritParams tag_label
-#' @return Same data logger list as input, updated with the labels `tag$pressure$label` and
+#' @return The same `tag` as input, updated with the labels `tag$pressure$label` and
 #' optionally `tag$acceleration$label`.
 #'
 #' @examples

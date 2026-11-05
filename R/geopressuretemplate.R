@@ -24,6 +24,8 @@
 #'     - `geopressure_map()`: Computes the pressure likelihood.
 #' 5. If `"map_light"` is in the `config$geopressuretemplate$likelihood`:
 #'     - `twilight_create() |> twilight_label_read() |> geolight_map()`: Computes the light likelihood.
+#' 6. `save()`: Saves `tag` and `param` in `data/interim/{id}.RData`, replacing the content of the
+#' file.
 #'
 #' * **Graph Creation [`geopressuretemplate_graph()`]**: Builds a movement model graph
 #' based on `tag` data, and can include wind effects if specified. Outputs such as
@@ -41,16 +43,19 @@
 #'     - `graph_most_likely()`: Computes the most likely path based on the movement model.
 #' 6. If `"simulation"` is in `config$geopressuretemplate$outputs`:
 #'     - `graph_simulation()`: Runs simulations to model multiple possible paths.
-#' 7. `save()`: Saves the `tag`, `param` and computed outputs in `data/interim/{id}.RData`
+#' 7. `save()`: Saves the `tag`, `param` and computed outputs in `data/interim/{id}.RData`. Other
+#' objects already in the file and not derived from the graph (e.g. `path_geopressureviz`) are
+#' kept; outputs derived from a previous graph (paths, edges, marginal and their pressurepaths)
+#' are replaced or removed.
 #'
 #' * **Pressure Path Processing [`geopressuretemplate_pressurepath()`]**: Computes pressurepaths
-#' (`pressurepath_create`) using the content of the `Rdata` file and appending the pressurepath
-#' data.frame to the same file.
+#' (`pressurepath_create()`) using the content of the `.RData` file and appending the pressurepath
+#' data.frames to the same file.
 #'
-#' 1. If `"most_likely"` is in `config$geopressuretemplate$pressurepath`, computes the pressure path
-#' for `path_most_likely`.
-#' 2. If `"geopressureviz"` is in `config$geopressuretemplate$pressurepath` computes the pressure
-#' path for `path_geopressureviz`
+#' For each of `"most_likely"` and `"simulation"` listed in
+#' `config$geopressuretemplate$pressurepath`, computes `pressurepath_{type}` from `path_{type}`
+#' and saves it in the same file. A warning is given when a path is missing. For any other path
+#' (e.g. exported from GeoPressureViz), call `pressurepath_create()` directly.
 #'
 #' Each of these child functions can be called individually or automatically as part of
 #' the `geopressuretemplate` workflow.
@@ -72,8 +77,11 @@
 #'
 #'
 #' @return
-#' The function returns `file` invisibly and saves the processed outputs (tag, paths, pressure
-#' paths, etc.) to the specified `file`. `geopressuretemplate_tag()` returns the `tag`.
+#' `geopressuretemplate()`, `geopressuretemplate_graph()` and `geopressuretemplate_pressurepath()`
+#' return `file` invisibly and save the processed outputs (tag, paths, pressure paths, etc.) to the
+#' specified `file`. If the movement model or the outputs fail, `geopressuretemplate_graph()`
+#' returns the `graph` computed so far instead, without saving. `geopressuretemplate_tag()` returns
+#' the `tag` invisibly and `geopressuretemplate_config()` returns the merged configuration list.
 #'
 #' @examplesIf FALSE
 #' # Run the complete geopressuretemplate workflow
@@ -120,13 +128,17 @@ geopressuretemplate <- function(
   )
 
   # Create and process the graph using the computed or loaded tag
-  geopressuretemplate_graph(
+  out <- geopressuretemplate_graph(
     id = id,
     config = config,
     quiet = quiet,
     file = file,
     ...
   )
+  # The graph step returns the graph (without saving) when it failed: stop before pressurepath
+  if (inherits(out, "graph")) {
+    return(invisible(out))
+  }
 
   geopressuretemplate_pressurepath(
     id = id,

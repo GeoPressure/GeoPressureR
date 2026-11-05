@@ -56,7 +56,13 @@ read_stap <- function(x, required_cols = c("start", "end")) {
     stap_df[[col]] <- .POSIXct(
       vapply(
         stap_df[[col]],
-        \(t) as.numeric(as.POSIXct(t, tz = "UTC")),
+        \(t) {
+          as.numeric(as.POSIXct(
+            t,
+            tz = "UTC",
+            tryFormats = c("%Y-%m-%dT%H:%M:%OS", "%Y-%m-%d %H:%M:%OS", "%Y-%m-%d %H:%M", "%Y-%m-%d")
+          ))
+        },
         numeric(1),
         USE.NAMES = FALSE
       ),

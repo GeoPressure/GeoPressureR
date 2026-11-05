@@ -7,7 +7,7 @@
 plot_tag_temperature(tag, variable = "external", plot_plotly = TRUE)
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{variable}{temperature variable to plot \code{"external"} or \code{"internal"}}
 
@@ -17,7 +17,7 @@ plot_tag_temperature(tag, variable = "external", plot_plotly = TRUE)
 a plot or ggplotly object.
 }
 \description{
-This function displays a plot of temperature time series recorded by a tag
+This function displays a plot of temperature time series recorded by a tag.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

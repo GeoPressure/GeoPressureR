@@ -13,10 +13,7 @@ edge_add_wind(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = lifecycle::deprecated(),
-  file = function(stap_id, tag_id) {
-    
-    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
- },
+  file = wind_file,
   quiet = FALSE
 )
 }
@@ -48,7 +45,8 @@ takes the nearest neighbour. ERA5 native resolution is 0.25°}
 \item{return_averaged_variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id.}
+taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+\verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
 
 \item{quiet}{logical to hide messages about the progress}
 }
@@ -59,7 +57,8 @@ A data.frame with one row per time step, edge, and variable:
 \item \code{val} value of the variable at each time step
 \item \code{pressure} pressure at each time step
 \item \code{date} datetime of each time step
-\item \code{w} weight for averaging
+\item \code{w} weight for averaging over the edge (weights of an edge sum to 1, flights spanned by the
+edge weighted by their duration)
 \item \code{var} variable name, as passed to \code{variable}
 \item \code{lat} latitude at each time step
 \item \code{lon} longitude at each time step

@@ -23,8 +23,8 @@ product, and the sets genuinely differ. GeoPressureAPI serves whatever bands the
 Earth Engine collection carries: 292 for ERA5 single levels against 70 for ERA5-Land, with only
 44 in common. \code{era5_dataset = "both"} mosaics ERA5-Land on top of ERA5 but returns ERA5's band
 namespace, so its set equals \code{"single-levels"} and ERA5-Land-only bands are dropped. The ARCO
-backend reads ECMWF's zarr stores directly and currently maps only surface pressure and 2 m
-temperature, so it can return \code{"surface_pressure"} and the derived \code{"altitude"}.
+backend reads ECMWF's zarr stores directly and can return the variables of its store map (see
+\code{pressurepath_variable_available("arco", era5_dataset)}) and the derived \code{"altitude"}.
 }
 \details{
 Requesting a variable the chosen product does not have used to fail silently: GeoPressureAPI

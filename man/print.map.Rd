@@ -7,7 +7,7 @@
 \method{print}{map}(x, ...)
 }
 \arguments{
-\item{x}{a GeoPressureR \code{map} object}
+\item{x}{a GeoPressureR \code{map} object.}
 
 \item{...}{arguments passed to other methods}
 }
@@ -30,6 +30,6 @@ print(tag$map_pressure)
 Other map:
 \code{\link[=map_add_mask_water]{map_add_mask_water()}},
 \code{\link[=map_create]{map_create()}},
-\code{\link[=rast.map]{rast.map()}}
+\code{\link{rast,map-method}}
 }
 \concept{map}

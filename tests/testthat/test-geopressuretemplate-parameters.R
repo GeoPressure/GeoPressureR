@@ -75,7 +75,7 @@ test_that("template parameter blocks match their function arguments", {
   wind <- names(defaults$graph_add_wind)
   accepted <- union(
     names(formals(graph_add_wind)),
-    names(formals(get("add_wind_graph_edge", asNamespace("GeoPressureR"))))
+    names(formals(get("graph_add_wind_edge", asNamespace("GeoPressureR"))))
   )
   expect_length(setdiff(wind, c(accepted, "pressure_source")), 0)
   expect_length(intersect(wind, c("graph", "pressure", "quiet")), 0)

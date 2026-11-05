@@ -61,7 +61,7 @@ test_that("pressurepath template uses the matching path for each output", {
     geopressuretemplate_config = function(...) {
       list(
         geopressuretemplate = list(
-          pressurepath = c("most_likely", "geopressureviz", "tag", "simulation")
+          pressurepath = c("most_likely", "simulation")
         ),
         pressurepath_create = list(variable = "surface_pressure")
       )
@@ -74,7 +74,26 @@ test_that("pressurepath template uses the matching path for each output", {
   geopressuretemplate_pressurepath("test", file = file, quiet = TRUE, config = list())
   load(file)
   expect_equal(pressurepath_most_likely, 1L)
-  expect_equal(pressurepath_geopressureviz, 2L)
-  expect_equal(pressurepath_tag, 3L)
   expect_equal(pressurepath_simulation, 4L)
+  # Other saved objects are kept but not computed
+  expect_equal(path_geopressureviz, 2L)
+  expect_false(exists("pressurepath_geopressureviz", inherits = FALSE))
+})
+
+test_that("pressurepath template aborts on unsupported path types", {
+  file <- withr::local_tempfile(fileext = ".RData")
+  tag <- list(param = list(id = "test"))
+  param <- tag$param
+  save(tag, param, file = file)
+  local_mocked_bindings(
+    geopressuretemplate_config = function(...) {
+      list(geopressuretemplate = list(pressurepath = c("most_likely", "geopressureviz")))
+    },
+    tag_assert = function(...) invisible(NULL),
+    .package = "GeoPressureR"
+  )
+  expect_error(
+    geopressuretemplate_pressurepath("test", file = file, quiet = TRUE, config = list()),
+    "geopressureviz"
+  )
 })

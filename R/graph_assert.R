@@ -6,7 +6,7 @@
 #' @param condition condition to assert `graph` for. One of `"graph"` (default), `"movement"`,
 #' or `"full"`.
 #'
-#' @return logical indicating whether the `graph` object fulfil the condition.
+#' @return `TRUE` if the `graph` object fulfils the condition, otherwise an error is raised.
 #' @examples
 #' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -17,6 +17,7 @@
 #'
 #' graph <- graph_set_movement(graph)
 #' graph_assert(graph, "movement")
+#' @family graph
 #' @export
 graph_assert <- function(graph, condition = "graph") {
   status <- graph_status(graph)

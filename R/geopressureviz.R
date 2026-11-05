@@ -10,15 +10,8 @@
 #' file that contains at least `tag` (and optionally `marginal`, `path_most_likely`,
 #' `pressurepath`, `pressurepath_most_likely`).
 #'
-#' When `run_bg = FALSE`, the app stores the current edited path in the Shiny option
-#' `path_geopressureviz` and returns it invisibly when the app closes. You can capture it from the
-#' return value of this function or retrieve it afterwards in the same R session with
-#' `shiny::getShinyOption("path_geopressureviz")`.
-#'
-#' When `run_bg = TRUE`, the function returns the background process object instead of the edited
-#' path.
-#'
-#' The app `Save` button writes the current path to `./data/interim/{id}-path-geopressureviz.csv`.
+#' GeoPressureViz is an exploration tool outside the `geopressuretemplate()` workflow. To keep an
+#' edited path, use the app's `Export CSV` button (read it back with `read_stap()`).
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
@@ -30,21 +23,17 @@
 #' * a tag id (character scalar), interpreted as `"./data/interim/{id}.RData"`.
 #' @param path Optional GeoPressureR `path` or `pressurepath` data.frame.
 #' If `NULL`, a path is resolved from available inputs in this order:
-#' * for file/id input (`x` character): `path_most_likely` (if present), then `pressurepath`
-#' (if present);
+#' * for file/id input (`x` character): the first present of `pressurepath`,
+#' `pressurepath_most_likely` and `path_most_likely`;
 #' * otherwise fallback to `tag2path(tag, interp = 1)`.
-#' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
-#' `path` or `pressurepath` contained in the `.Rdata` file.
-#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' RStudio.
-#' @param run_bg If true, the app runs in a background R session using the `callr` package. This
-#' allows you to continue using your R session while the app is running.
-#' @return When `run_bg = FALSE`: The edited path, returned invisibly when the app closes. During
-#' the app session, the current path is also stored in the Shiny option
-#' `shiny::getShinyOption("path_geopressureviz")`, which can be read afterwards in the same R
-#' session.
-#' When `run_bg = TRUE`: The background process object. In this case the edited path is not
-#' returned to the calling console session.
+#' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrites
+#' the `marginal` contained in the `.RData` file.
+#' @param launch_browser If `TRUE` (default), the app opens in your web browser; otherwise, only the
+#' app URL is printed.
+#' @param run_bg If `TRUE` (default), the app runs in a background R session using the `callr`
+#' package. This allows you to continue using your R session while the app is running.
+#' @return When `run_bg = TRUE`, the background process object, invisibly. Otherwise `NULL`,
+#' invisibly, when the app closes.
 #' @examplesIf FALSE
 #'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
@@ -72,7 +61,6 @@ geopressureviz <- function(
     }
     if (is.null(marginal)) {
       var_optional <- c(var_optional, "marginal")
-      marginal <- NULL
     }
 
     load_interim(
@@ -115,17 +103,13 @@ geopressureviz <- function(
 
   tag_assert(tag, "setmap")
 
-  if (all(c("map_pressure", "map_light") %in% names(tag))) {
-    tag$map_preslight <- tag$map_pressure * tag$map_light
-  }
-
   if (!is.null(marginal)) {
     tag$map_marginal <- marginal
   }
 
   # Add possible map to display
   map_types <- map_type()
-  map_entries <- map_types[setdiff(names(map_types), c("unknown", "mask_water"))]
+  map_entries <- map_types[setdiff(names(map_types), "unknown")]
   map_display <- vapply(map_entries, function(x) x$display, character(1))
   map_needed <- lapply(map_entries, function(x) x$name)
   available <- vapply(map_needed, function(x) all(x %in% names(tag)), logical(1))
@@ -183,15 +167,6 @@ geopressureviz <- function(
   # Assign the type of path
   attr(path, "type") <- "geopressureviz"
 
-  # out <- tryCatch(edge_add_wind_check(tag), error = function(e) e)
-  # if(any(class(out) == "error")){
-  #   file_wind <- NULL
-  # } else {
-  #   geopressure_wd <- getwd()
-  #   file_wind <- \(stap_id) glue::glue("{geopressure_wd}{file(stap_id)}")
-  # }
-  file_wind <- NULL
-
   deps <- c("shiny", "shinyjs", "shinyWidgets", if (run_bg) "callr")
   deps_missing <- deps[!vapply(deps, requireNamespace, logical(1), quietly = TRUE)]
   if (length(deps_missing)) {
@@ -211,8 +186,6 @@ geopressureviz <- function(
         map_type_key = map_type_key,
         pressurepath = pressurepath,
         path = path,
-        file_wind = file_wind,
-        interim_dir = normalizePath("./data/interim", mustWork = FALSE),
         stop_on_session_end = FALSE
       ),
       launch_browser = launch_browser,
@@ -222,7 +195,7 @@ geopressureviz <- function(
     ))
   }
 
-  path_geopressureviz <- shiny_run_app_fg(
+  shiny_run_app_fg(
     system.file("geopressureviz", package = "GeoPressureR"),
     shiny_opts = list(
       tag = tag,
@@ -230,15 +203,11 @@ geopressureviz <- function(
       map_type_key = map_type_key,
       pressurepath = pressurepath,
       path = path,
-      file_wind = file_wind,
-      interim_dir = normalizePath("./data/interim", mustWork = FALSE),
       stop_on_session_end = TRUE
     ),
     launch_browser = launch_browser
   )
 
-  # Return the updated path and store it in shiny options
-  shiny::shinyOptions(path_geopressureviz = path_geopressureviz)
-  return(invisible(path_geopressureviz))
+  invisible(NULL)
   # nocov end
 }

@@ -12,8 +12,10 @@ graph_marginal(graph, quiet = FALSE)
 \item{quiet}{logical to hide messages about the progress.}
 }
 \value{
-A list of the marginal maps for each stationary period (even those not modelled). Best to
-include within \code{tag}.
+A GeoPressureR \code{map} of the marginal probability for each stationary period (stationary
+periods not modelled have no data). Each modelled stationary period is normalised to a
+probability map and all maps are then scaled by their overall maximum so that they can be
+compared visually. Best to include within \code{tag}.
 }
 \description{
 Compute the marginal probability map from a graph. The computation uses the \href{https://en.wikipedia.org/wiki/Forward\%E2\%80\%93backward_algorithm}{forward backward algorithm}. For more
@@ -49,6 +51,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 
 Other graph:
 \code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_assert]{graph_assert()}},
 \code{\link[=graph_create]{graph_create()}},
 \code{\link[=graph_most_likely]{graph_most_likely()}},
 \code{\link[=graph_set_movement]{graph_set_movement()}},

@@ -22,7 +22,7 @@ plot_path(
 \item{plot_leaflet}{logical defining if the plot is an interactive \code{leaflet} map or a static
 basic plot.}
 
-\item{map}{optional \code{map} object to plot the path on top of.}
+\item{map}{optional \code{leaflet} map to add the path on top of (only for \code{plot_leaflet = TRUE}).}
 
 \item{provider}{optional tile provider name (see \code{leaflet::providers}). When \code{NULL}, uses all
 available GeoPressureR basemap layers; see the \emph{Basemap API keys} section.}
@@ -71,11 +71,6 @@ token rather than a secret token.
 }
 
 \examples{
-withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-  tag <- tag_create("18LX", quiet = TRUE) |>
-    tag_label(quiet = TRUE)
-})
-
 path <- data.frame(
   stap_id = 1:4,
   lon = c(17.05, 16.2, NA, 15.4),

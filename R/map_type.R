@@ -40,12 +40,6 @@ NULL
       name = "map_pressure_mask",
       display = "Pres. mask"
     ),
-    mask_water = list(
-      light = list(palette = "Greys"),
-      dark = list(palette = "Greys"),
-      name = "mask_water",
-      display = "Water mask"
-    ),
     magnetic_inclination = list(
       light = list(palette = "YlGnBu"),
       dark = list(palette = "viridis"),

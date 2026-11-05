@@ -2,15 +2,17 @@
 #'
 #' @description
 #' This function estimates a likelihood map for each stationary period based on twilight data.
-#' The function performs the following steps:
+#' The function performs the following steps, each available as a child function:
 #'
-#' 1. Calibrate twilight errors from true known locations and/or automatically fitted calibration
-#' locations. See below for details.
-#' 2. Compute a likelihood map for each twilight using the calibration.
-#' 3. Combine the likelihood maps of all twilights belonging to the same stationary periods with a
+#' 1. `geolight_map_calibrate()`: Calibrate twilight errors from true known locations and/or
+#' automatically fitted calibration locations. See below for details.
+#' 2. `geolight_map_likelihood()`: Compute a likelihood map for each twilight using the
+#' calibration.
+#' 3. `geolight_map_aggregate()`: Combine the likelihood maps of all twilights belonging to the same stationary period with a
 #' log-linear pooling. See [GeoPressureManual | Probability aggregation](
 #' https://geopressure.org/GeoPressureManual/probability-aggregation.html)
-#' for more information on probability aggregation using log-linear pooling.
+#' for more information on probability aggregation using log-linear pooling. A stationary period
+#' with a single twilight uses its likelihood map directly (weight 1, `twl_llp` is not applied).
 #'
 #' # Calibration
 #'
@@ -50,7 +52,7 @@
 #' @param zenith_prior_sd Gaussian prior standard deviation for the fitted zenith angle (degrees).
 #' @param zenith_prior_penalty_weight Weight controlling how strongly automatically fitted
 #' calibration locations are pulled toward `zenith_prior_mean`.
-#' @param refine_fitted_location_scale Target spatial resolution, in kilometers, for fitted
+#' @param refine_fitted_location_scale Target spatial resolution, in kilometres, for fitted
 #' calibration-anchor refinement. This also defines the movement threshold for convergence.
 #' @param refine_fitted_location_max_iter Maximum number of fitted-location refinement iterations.
 #' Use `0` to disable refinement. In practice, `2` iterations is usually sufficient.
@@ -60,7 +62,11 @@
 #' @param keep_twl logical defining if the likelihood map of each twilight is retained.
 #' @param quiet logical to hide messages about the progress
 #'
-#' @return a `tag` with the likelihood of light as `tag$map_light`
+#' @return The same `tag` with the likelihood of light as `tag$map_light`.
+#' `geolight_map_calibrate()` instead adds the twilight calibration in
+#' `tag$param$geolight_map$twl_calib`, and `geolight_map_likelihood()` adds the likelihood map of
+#' each twilight in `tag$map_light_twl` (kept by `geolight_map_aggregate()` only if
+#' `keep_twl = TRUE`).
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -69,7 +75,7 @@
 #'     tag_label(quiet = TRUE) |>
 #'     tag_set_map(
 #'       extent = c(-16, 23, 0, 50),
-#'       scale = 10,
+#'       scale = 4,
 #'       known = data.frame(
 #'         stap_id = 1,
 #'         known_lon = 17.05,
@@ -141,10 +147,7 @@ geolight_map <- function(
 }
 
 #' Get twilight to include in map computation
-#' @param x a `tag` object or a twilight data.frame
-#' @param only_known logical or NULL. If `NULL`, all twilight are included. If `TRUE`,
-#' only twilight associated to known stationary periods are included. If `FALSE`, only
-#' twilight associated to unknown stationary periods are included.
+#' @param twl a twilight data.frame
 #' @return a twilight data.frame with an additional `include` logical column
 #' @noRd
 twilight_include <- function(twl) {

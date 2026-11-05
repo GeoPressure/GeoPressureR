@@ -2,12 +2,9 @@
 % Please edit documentation in R/plot_twl_calib.R
 \name{plot_twl_calib}
 \alias{plot_twl_calib}
-\alias{plot_twl_calib_path}
 \title{Plot twilight calibration diagnostics}
 \usage{
 plot_twl_calib(x, path = NULL, warning_ci = 0.95, plot_plotly = TRUE, ...)
-
-plot_twl_calib_path(tag, path, warning_ci = 0.9973, plot_plotly = TRUE)
 }
 \arguments{
 \item{x}{a GeoPressureR \code{twl_calib} object or a \code{tag} object with calibration.}
@@ -21,16 +18,13 @@ outside the calibrated range (e.g., \code{0.95} for 2.5\%/97.5\%).}
 \item{plot_plotly}{logical to use \code{plotly}.}
 
 \item{...}{unused}
-
-\item{tag}{a GeoPressureR \code{tag} object with twilight calibration (used by
-\code{plot_twl_calib_path()}).}
 }
 \value{
 a ggplot or ggplotly object
 }
 \description{
 This function plots the stacked calibration histogram and fitted density, with calibration
-stationary periods labeled as known or fitted anchors. Refined fitted anchors remain labeled as
+stationary periods labelled as known or fitted anchors. Refined fitted anchors remain labelled as
 fitted. If a \code{path} is provided, it instead plots the solar zenith angle histogram derived from
 \code{tag$twilight} and the path, with the calibration density overlaid.
 }
@@ -40,7 +34,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     tag_label(quiet = TRUE) |>
     tag_set_map(
       extent = c(-16, 23, 0, 50),
-      scale = 5,
+      scale = 4,
       known = data.frame(
         stap_id = 1,
         known_lon = 17.05,

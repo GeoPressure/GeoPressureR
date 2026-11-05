@@ -40,9 +40,13 @@ function setupStapelevRangeBars(plot) {
     plot.removeListener("plotly_relayout", plot._stapelevViewHandler);
   }
   window.stapelevPlotViews = window.stapelevPlotViews || {};
-  var meta = (plot.layout && plot.layout.meta) || {};
-  var viewKey = [meta.stapelev_key, meta.stapelev_view].join("-");
+  // Read the key on each use: the pressure/difference toggle changes layout.meta
+  var currentViewKey = function () {
+    var meta = (plot.layout && plot.layout.meta) || {};
+    return [meta.stapelev_key, meta.stapelev_view].join("-");
+  };
   plot._stapelevViewHandler = function (eventData) {
+    var viewKey = currentViewKey();
     var view = window.stapelevPlotViews[viewKey] || {};
     if (eventData["xaxis.autorange"]) delete view.x;
     if (eventData["yaxis.autorange"]) delete view.y;
@@ -58,7 +62,7 @@ function setupStapelevRangeBars(plot) {
   };
   plot.on("plotly_relayout", plot._stapelevViewHandler);
 
-  var view = window.stapelevPlotViews[viewKey];
+  var view = window.stapelevPlotViews[currentViewKey()];
   if (view && (view.x || view.y)) {
     var update = {};
     if (view.x) update["xaxis.range"] = view.x;

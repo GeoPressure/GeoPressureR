@@ -1,18 +1,21 @@
 #' Compute windspeed and airspeed on a `graph`
 #'
 #' @description
-#' Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
+#' Reads the downloaded NetCDF files and interpolates the average windspeed experienced by the
 #' bird on each possible edge, as well as the corresponding airspeed.
 #'
 #' In addition, the graph can be further pruned based on a threshold of airspeed `thr_as`.
 #'
-#' See section [2.2.4 in Nussbaumer (2023b)](
+#' `pressure` (the tag pressure, e.g. `tag$pressure`) is required to interpolate the wind at the
+#' flight altitude.
+#'
+#' See section [2.2.4 in Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 #' for more technical details and the [GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html) for an
 #' illustration on how to use it.
 #'
-#' @param graph a GeoPressureR graph object.
+#' @param graph a GeoPressureR `graph` object.
 #' @param thr_as threshold of airspeed (km/h).
 #' @param variable `r lifecycle::badge("deprecated")` No longer used.
 #'   `graph_add_wind()` always uses `c("u", "v")`.
@@ -47,11 +50,17 @@ graph_add_wind <- function(
   ...
 ) {
   graph_assert(graph, "full")
+  if (!("pressure" %in% names(list(...)))) {
+    cli::cli_abort(c(
+      "x" = "{.arg pressure} is required to interpolate wind at flight altitude.",
+      ">" = "Use {.code graph_add_wind(graph, pressure = tag$pressure)}."
+    ))
+  }
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
   if (lifecycle::is_present(variable)) {
-    lifecycle::deprecate_soft(
+    lifecycle::deprecate_warn(
       "3.5.4",
       "graph_add_wind(variable)",
       details = "{.fun graph_add_wind} now always uses the two wind components."
@@ -63,7 +72,7 @@ graph_add_wind <- function(
   }
 
   # Check that all the files of wind_speed exist and match the data request
-  graph$ws <- add_wind_graph_edge(
+  graph$ws <- graph_add_wind_edge(
     graph,
     ...
   )
@@ -71,7 +80,8 @@ graph_add_wind <- function(
 
   if (is.finite(thr_as)) {
     # filter edges based on airspeed
-    id <- abs(graph$gs - graph$ws) <= thr_as
+    # Keep stay-in-place edges, which graph_transition() treats as zero airspeed
+    id <- abs(graph$gs - graph$ws) <= thr_as | graph$gs == 0
 
     # Check that there are always at least one node left by stap
     g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
@@ -82,7 +92,7 @@ graph_add_wind <- function(
       edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
       cli::cli_abort(c(
         x = "Using {.arg thr_as} of {thr_as} km/h, there are no nodes left for the stationary
-        period: {.field {sta_pass}} with a minimum airspeed of
+        period: {.field {graph$stap$stap_id[graph$stap$include][sta_pass]}} with a minimum airspeed of
         {.val {round(min(as[edge_s_all[, 3] %in% sta_pass]))}} km/h."
       ))
     }
@@ -101,7 +111,11 @@ graph_add_wind <- function(
       data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
       arrayInd(graph$s, graph$sz)[, 3]
     )
-    gr <- graph_create_prune(gr, quiet = isTRUE(list(...)$quiet))
+    gr <- graph_create_prune(
+      gr,
+      graph$stap$stap_id[graph$stap$include],
+      quiet = isTRUE(list(...)$quiet)
+    )
     # Convert it back to a full list
     tmp <- as.list(do.call("rbind", gr))
     # Overwrite all edges vectors
@@ -121,36 +135,23 @@ graph_add_wind <- function(
   graph$param$graph_add_wind$rounding_interval <- if ("rounding_interval" %in% names(dots)) {
     dots$rounding_interval
   } else {
-    formals(add_wind_graph_edge)$rounding_interval
+    formals(graph_add_wind_edge)$rounding_interval
   }
   graph$param$graph_add_wind$interp_spatial_linear <- if (
     "interp_spatial_linear" %in% names(dots)
   ) {
     dots$interp_spatial_linear
   } else {
-    formals(add_wind_graph_edge)$interp_spatial_linear
+    formals(graph_add_wind_edge)$interp_spatial_linear
   }
-  graph$param$graph_add_wind$pressure_source <- if ("pressure" %in% names(dots)) {
-    "provided"
-  } else {
-    "not_provided"
-  }
+  graph$param$graph_add_wind$pressure_source <- "provided"
 
-  # Handle file parameter if provided
-  if ("file" %in% names(dots)) {
-    file <- dots$file
-    attr(file, "srcref") <- NULL
-    attr(file, "srcfile") <- NULL
-    environment(file) <- baseenv()
-    graph$param$graph_add_wind$file <- file
-  } else {
-    # Use default file function if not provided
-    file <- eval(formals(add_wind_graph_edge)$file)
-    attr(file, "srcref") <- NULL
-    attr(file, "srcfile") <- NULL
-    environment(file) <- baseenv()
-    graph$param$graph_add_wind$file <- file
-  }
+  # Store the file function (provided or default) without source reference or environment
+  file <- if ("file" %in% names(dots)) dots$file else wind_file
+  attr(file, "srcref") <- NULL
+  attr(file, "srcfile") <- NULL
+  environment(file) <- baseenv()
+  graph$param$graph_add_wind$file <- file
 
   return(graph)
 }
@@ -159,16 +160,12 @@ graph_add_wind <- function(
 #' Add wind to graph edges
 #'
 #' @noRd
-add_wind_graph_edge <- function(
+graph_add_wind_edge <- function(
   graph,
   pressure = NULL,
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
-  file = \(stap_id, tag_id) {
-    glue::glue(
-      "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
-    )
-  },
+  file = wind_file,
   quiet = FALSE
 ) {
   if (!requireNamespace("ncdf4", quietly = TRUE)) {
@@ -181,9 +178,6 @@ add_wind_graph_edge <- function(
   variable <- c("u_component_of_wind", "v_component_of_wind")
   ms_to_kmh <- 3.6
   tag_id <- graph$param$id
-  if (is.null(pressure) && inherits(graph, "tag")) {
-    pressure <- graph$pressure
-  }
 
   # Reuse the public extractor checks so graph-scale wind reads the same validated ERA5 files.
   if (!quiet) {
@@ -277,7 +271,7 @@ add_wind_graph_edge <- function(
       lon_s <- lon_edge_s + ratio_stap[i_fl] * (lon_edge_t - lon_edge_s)
       lat_e <- lat_edge_s + ratio_stap[i_fl + 1] * (lat_edge_t - lat_edge_s)
       lon_e <- lon_edge_s + ratio_stap[i_fl + 1] * (lon_edge_t - lon_edge_s)
-      t_q <- add_wind_graph_query_times(fl_s, i_fl, rounding_interval)
+      t_q <- edge_add_wind_query_times(fl_s, i_fl, rounding_interval)
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
       dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
       dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
@@ -302,7 +296,7 @@ add_wind_graph_edge <- function(
           lat_ind_i <- match(round(lat_i * 4) / 4, lat)
           lon_ind_i <- match(round(lon_i * 4) / 4, lon)
         }
-        out <- add_wind_graph_values_time(
+        out <- edge_add_wind_values_time(
           pressure,
           t_q[i_time],
           pres,
@@ -317,12 +311,13 @@ add_wind_graph_edge <- function(
           lon_ind_i,
           interp_spatial_linear,
           nc,
+          variable,
           i_s,
           i_fl,
           fl_s
-        )
-        u_fl <- u_fl + out$u * w[i_time]
-        v_fl <- v_fl + out$v * w[i_time]
+        )$value
+        u_fl <- u_fl + out[[1]] * w[i_time]
+        v_fl <- v_fl + out[[2]] * w[i_time]
       }
 
       # Combine multiple flights inside this stap transition into one mean wind per edge.
@@ -386,203 +381,4 @@ add_wind_graph_edge <- function(
   }
 
   ws
-}
-
-
-#' Graph wind query times
-#'
-#' @noRd
-add_wind_graph_query_times <- function(fl_s, i_fl, rounding_interval) {
-  t_s <- as.POSIXct(
-    trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
-      (60 * rounding_interval),
-    origin = "1970-01-01",
-    tz = "UTC"
-  )
-  t_e <- as.POSIXct(
-    ceiling(as.numeric(fl_s$end[i_fl]) / (60 * rounding_interval)) *
-      (60 * rounding_interval),
-    origin = "1970-01-01",
-    tz = "UTC"
-  )
-
-  seq(from = t_s, to = t_e, by = 60 * rounding_interval)
-}
-
-
-#' Interpolate u/v wind for graph edges at one query time
-#'
-#' @noRd
-add_wind_graph_values_time <- function(
-  pressure,
-  t_q_i,
-  pres,
-  time,
-  lat,
-  lon,
-  dlat,
-  dlon,
-  lat_i,
-  lon_i,
-  lat_ind_i,
-  lon_ind_i,
-  interp_spatial_linear,
-  nc,
-  i_s,
-  i_fl,
-  fl_s
-) {
-  p_q <- stats::approx(
-    pressure$date,
-    pressure$value,
-    t_q_i,
-    rule = 2
-  )$y
-  if (p_q >= pres[1]) {
-    id_pres <- 1
-    n_pres <- 1
-    if (p_q > pres[1] && pres[1] != 1000) {
-      cli::cli_warn(c(
-        "!" = "Pressure is above the highest level while the highest level is not 1000hPa.",
-        "i" = "Stationary period: {i_s}",
-        "i" = "Flight index: {i_fl} of {nrow(fl_s)}",
-        "i" = "Date: {format(t_q_i, '%Y-%m-%d %H:%M:%S')}",
-        "i" = "Pressure: {round(p_q, 2)} hPa",
-        "i" = "Highest available level: {pres[1]} hPa",
-        "i" = "Pressure difference: {round(p_q - pres[1], 2)} hPa"
-      ))
-    }
-  } else if (p_q <= pres[length(pres)]) {
-    id_pres <- length(pres)
-    n_pres <- 1
-    if (p_q < pres[length(pres)]) {
-      cli::cli_warn(
-        "Pressure is below the lowest level. This should never happen!"
-      )
-    }
-  } else {
-    id_pres <- max(which(pres >= p_q))
-    n_pres <- 2
-  }
-
-  id_time <- findInterval(t_q_i, time)
-  n_time <- ifelse(
-    id_time == length(time) | time[id_time] == t_q_i,
-    1,
-    2
-  )
-
-  if (interp_spatial_linear) {
-    id_lon <- which(
-      lon >= (min(lon_i) - dlon) &
-        (max(lon_i) + dlon) >= lon
-    )
-    id_lat <- which(
-      lat >= (min(lat_i) - dlat) &
-        (max(lat_i) + dlat) >= lat
-    )
-  } else {
-    id_lon <- seq.int(min(lon_ind_i), max(lon_ind_i))
-    id_lat <- seq.int(min(lat_ind_i), max(lat_ind_i))
-  }
-
-  nc_start <- c(id_lon[1], id_lat[1], id_pres, id_time)
-  nc_count <- c(length(id_lon), length(id_lat), n_pres, n_time)
-  # NetCDF short names for the two wind components, from the same registry the rest of the
-  # pipeline uses.
-  wind_nc <- era5_variable_short(c("u_component_of_wind", "v_component_of_wind"))
-  u_nc <- ncdf4::ncvar_get(
-    nc,
-    wind_nc[1],
-    start = nc_start,
-    count = nc_count,
-    collapse_degen = FALSE
-  )
-  v_nc <- ncdf4::ncvar_get(
-    nc,
-    wind_nc[2],
-    start = nc_start,
-    count = nc_count,
-    collapse_degen = FALSE
-  )
-
-  if (n_time == 2) {
-    w_time <- as.numeric(difftime(
-      t_q_i,
-      time[id_time],
-      units = "hours"
-    )) /
-      as.numeric(difftime(
-        time[id_time + 1],
-        time[id_time],
-        units = "hours"
-      ))
-    u_nc <- array(
-      u_nc[,,, 1] + w_time * (u_nc[,,, 2] - u_nc[,,, 1]),
-      dim = c(length(id_lon), length(id_lat), n_pres)
-    )
-    v_nc <- array(
-      v_nc[,,, 1] + w_time * (v_nc[,,, 2] - v_nc[,,, 1]),
-      dim = c(length(id_lon), length(id_lat), n_pres)
-    )
-  } else {
-    u_nc <- array(u_nc[,,, 1], dim = c(length(id_lon), length(id_lat), n_pres))
-    v_nc <- array(v_nc[,,, 1], dim = c(length(id_lon), length(id_lat), n_pres))
-  }
-
-  if (n_pres == 2) {
-    w_pres <- (p_q - pres[id_pres]) /
-      (pres[id_pres + 1] - pres[id_pres])
-    u_nc <- array(
-      u_nc[,, 1] + w_pres * (u_nc[,, 2] - u_nc[,, 1]),
-      dim = c(length(id_lon), length(id_lat))
-    )
-    v_nc <- array(
-      v_nc[,, 1] + w_pres * (v_nc[,, 2] - v_nc[,, 1]),
-      dim = c(length(id_lon), length(id_lat))
-    )
-  } else {
-    u_nc <- array(u_nc[,, 1], dim = c(length(id_lon), length(id_lat)))
-    v_nc <- array(v_nc[,, 1], dim = c(length(id_lon), length(id_lat)))
-  }
-
-  if (interp_spatial_linear) {
-    ll_i <- (round(lat_i, 1) + 90) *
-      10 *
-      10000 +
-      (round(lon_i, 1) + 180) * 10 +
-      1
-    ll_uniq <- unique(ll_i)
-    lat_uniq <- ((ll_uniq - 1) %/% 10000) / 10 - 90
-    lon_uniq <- ((ll_uniq - 1) %% 10000) / 10 - 180
-    id_uniq <- match(ll_i, ll_uniq)
-    u <- pracma::interp2(
-      rev(lat[id_lat]),
-      lon[id_lon],
-      u_nc[, rev(seq_len(ncol(u_nc)))],
-      lat_uniq,
-      lon_uniq,
-      method = "linear"
-    )
-    v <- pracma::interp2(
-      rev(lat[id_lat]),
-      lon[id_lon],
-      v_nc[, rev(seq_len(ncol(v_nc)))],
-      lat_uniq,
-      lon_uniq,
-      method = "linear"
-    )
-    assertthat::assert_that(!anyNA(u))
-    assertthat::assert_that(!anyNA(v))
-    u <- u[id_uniq]
-    v <- v[id_uniq]
-  } else {
-    lon_ind_off <- lon_ind_i - id_lon[1] + 1
-    lat_ind_off <- lat_ind_i - id_lat[1] + 1
-    ind <- (lat_ind_off - 1) * nrow(u_nc) + lon_ind_off
-    u <- u_nc[ind]
-    v <- v_nc[ind]
-  }
-
-  list(u = u, v = v)
 }

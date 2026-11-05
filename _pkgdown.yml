@@ -86,7 +86,6 @@ reference:
       - geolight_map_aggregate
       - geolight_fit_location
       - plot_twl_calib
-      - plot_twl_calib_path
       - ts2mat
   - title: Graph
     desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.
@@ -110,7 +109,7 @@ reference:
       - graph_marginal
       - graph_simulation
   - subtitle: Graph utilities
-    desc: Utility functions for a `graph` object
+    desc: Utility functions for a `graph` object.
     contents:
       - graph_assert
       - print.graph
@@ -120,7 +119,7 @@ reference:
       - map_create
       - print.map
       - plot.map
-      - rast.map
+      - rast,map-method
       - map_expand
       - map_add_mask_water
   - title: Path
@@ -128,10 +127,6 @@ reference:
     contents:
       - path2edge
       - plot_path
-  - title: Sampling path
-    desc: Gibbs sampling from movement model.
-    contents:
-      - tag2path
   - title: Pressurepath
     desc: Data.frame of pressure time series along a path.
     contents:
@@ -140,7 +135,7 @@ reference:
       - plot_pressurepath
       - path2elevation
   - title: GeoPressureTemplate
-    desc: Wrapper functions for the full GeoPressureR worflow
+    desc: Wrapper functions for the full GeoPressureR workflow
     contents:
       - geopressuretemplate
       - geopressuretemplate_tag

@@ -2,7 +2,7 @@
 #'
 #' This function displays the information of a `map` object.
 #
-#' @param x a GeoPressureR `map` object
+#' @param x a GeoPressureR `map` object.
 #' @param ... arguments passed to other methods
 #'
 #' @return `map` is returned invisibly and unchanged

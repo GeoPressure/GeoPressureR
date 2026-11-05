@@ -4,26 +4,28 @@
 #' This function plots a GeoPressureR `tag` object as a time series or a map.
 #'
 #' By default, `type` is determined in the following order of preference according to availability:
-#' `c("map_pressure", "map_light")`, `"map_pressure"`, `"map_light"`, `"pressure"`.
+#' `c("map_pressure", "map_light")`, then the first available map (`"map_pressure"`,
+#' `"map_light"`, ...), then the first available sensor (`"pressure"`, `"light"`, ...).
 #'
 #' `plot.tag()` calls different plotting functions depending on `type`.
 #' - `"pressure"`: `plot_tag_pressure()`
 #' - `"light"`: `plot_tag_light()`
 #' - `"acceleration"`: `plot_tag_acceleration()`
-#' - `"temperature"`: `plot_tag_temperature()`
+#' - `"temperature"`, `"temperature_external"`, `"temperature_internal"`: `plot_tag_temperature()`
 #' - `"twilight"`: `plot_tag_twilight()`
 #' - `"actogram"`: `plot_tag_actogram()`
 #' - `"map_*"` : `plot.map()` with `tag$map_*` as first argument.
 #'
-#' Refers to these functions for additional parameters and more flexibility in the plotting.
+#' Refer to these functions for additional parameters and more flexibility in the plotting.
 #'
 #' @param x a GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
 #' `"temperature"`, `"twilight"`, `"actogram"`, `"map"`, `"map_pressure"`, `"map_light"`,
-#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"mask_water"`, `"temperature_external"`,
+#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"temperature_external"`,
 #' `"temperature_internal"`. Map can be combined by providing a vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
-#' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`. For twilight and actogram plots,
+#' `plot_tag_light()`, `plot_tag_temperature()`, `plot_tag_twilight()`, `plot_tag_actogram()` or
+#' `plot.map()`. For twilight and actogram plots,
 #' use `flip_axes = TRUE` to place time horizontally and `double_plot = TRUE` for a 48-hour
 #' double plot.
 #'
@@ -39,7 +41,7 @@
 #'
 #' # By default, plot will display the time series of pressure
 #' plot(tag)
-#' # Change the `type` to display other sensor
+#' # Change the `type` to display other sensors
 #' plot(tag, type = "acceleration")
 #' plot(tag, type = "light")
 #' plot(tag, type = "temperature")
@@ -72,8 +74,7 @@ plot.tag <- function(x, type = NULL, ...) {
     "map_pressure",
     "map_light",
     "map_pressure_mse",
-    "map_pressure_mask",
-    "mask_water"
+    "map_pressure_mask"
   )
   sensor_priority <- c(
     "pressure",
@@ -140,7 +141,7 @@ plot.tag <- function(x, type = NULL, ...) {
 }
 #' Plot pressure data of a `tag`
 #'
-#' This function displays a plot of pressure time series recorded by a tag
+#' This function displays a plot of pressure time series recorded by a tag.
 #
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
@@ -182,7 +183,7 @@ plot_tag_pressure <- function(
   if ("label" %in% names(tag$pressure)) {
     # Compute hourly processed pressure and warning differences.
     pres <- geopressure_map_preprocess(tag)
-    pres_diff <- pressure_diff_warning_data(tag, warning_pressure_diff)
+    pres_diff <- pressure_diff_warning_data(pres, warning_pressure_diff)
 
     p <- p +
       ggplot2::geom_point(
@@ -208,16 +209,13 @@ plot_tag_pressure <- function(
 
 #' Compute warning pressure differences at 1h intervals
 #'
-#' @param tag a GeoPressureR `tag` object with labels.
+#' @param pres hourly pressure computed by `geopressure_map_preprocess()`.
 #' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
 #' @noRd
-pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
+pressure_diff_warning_data <- function(pres, warning_pressure_diff = 3) {
   assertthat::assert_that(is.numeric(warning_pressure_diff))
   assertthat::assert_that(length(warning_pressure_diff) == 1)
   assertthat::assert_that(!is.na(warning_pressure_diff))
-
-  # Compute the pressure at the hourly scale.
-  pres <- geopressure_map_preprocess(tag)
 
   # Group by stationary period and elevation level.
   pres$stapelev <- factor(pres$stapelev)
@@ -247,14 +245,14 @@ pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
 
 #' Plot acceleration data of a `tag`
 #'
-#' This function displays a plot of acceleration time series recorded by a tag
+#' This function displays a plot of acceleration time series recorded by a tag.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param variable type of acceleration variable to plot `"activity"` (or `"value"`) or
 #' `"mean_acceleration_z"`
 #' @param plot_plotly logical to use `plotly`
 #' @param label_auto logical to compute and plot the flight label using `tag_label_auto()`. Only if
-#' labels are not already present on tag$acceleration$label
+#' labels are not already present in `tag$acceleration$label`.
 #' @inheritParams tag_label_auto
 #'
 #' @return a plot or ggplotly object.
@@ -337,9 +335,9 @@ plot_tag_acceleration <- function(
 
 #' Plot light data of a `tag`
 #'
-#' This function displays a plot of light time series recorded by a tag
+#' This function displays a plot of light time series recorded by a tag.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`
 #' @param transform_light logical to display a log transformation of light
 #'
@@ -395,9 +393,9 @@ plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
 
 #' Plot temperature data of a `tag`
 #'
-#' This function displays a plot of temperature time series recorded by a tag
+#' This function displays a plot of temperature time series recorded by a tag.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param variable temperature variable to plot `"external"` or `"internal"`
 #' @param plot_plotly logical to use `plotly`
 #' @return a plot or ggplotly object.
@@ -449,9 +447,9 @@ plot_tag_temperature <- function(
 
 #' Plot twilight data of a `tag`
 #'
-#' This function displays a plot of twilight time series recorded by a tag
+#' This function displays a plot of twilight time series recorded by a tag.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param twilight_line a twilight data.frame typically created with `path2twilight()` which is
 #' displayed as a line
 #' @param plot_plotly logical to use `plotly`
@@ -675,11 +673,11 @@ plot_tag_twilight <- function(
 }
 
 
-#' Plot Actogram data of a `tag`
+#' Plot actogram of a `tag`
 #'
-#' This function displays a plot of the acceleration time series recorded by a tag
+#' This function displays an actogram of the acceleration time series recorded by a tag.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`
 #' @param flip_axes logical to place time on the x-axis and dates on the y-axis. Dates increase
 #' downward in the flipped display.
@@ -711,10 +709,10 @@ plot_tag_actogram <- function(
   acc$value[!is.finite(acc$value)] <- NA_real_
 
   # Use by order of priority: (1) twl_offset provided in this function, (2)
-  # tag$param$twilight_create$twl_offset, (3) guess from light data
+  # tag$param$twilight_create$twl_offset, (3) guess from acceleration data
   twl_offset <- resolve_twl_offset(tag, acc, twl_offset)
 
-  # Compute the matrix representation of light
+  # Compute the matrix representation of acceleration
   mat <- ts2mat(acc, sensor = "acceleration", twl_offset = twl_offset)
 
   if ("label" %in% names(acc)) {
@@ -759,7 +757,6 @@ plot_tag_actogram <- function(
     }
     x <- seq(rng[1], rng[2], length.out = 6)
   }
-  val <- (x - rng[1]) / diff(rng)
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(

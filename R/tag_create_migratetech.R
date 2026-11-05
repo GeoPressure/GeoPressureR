@@ -32,7 +32,7 @@ tag_create_migratetech <- function(
       )
     }
     # Retrieve full model number
-    tag$param$migratec_model <- regmatches(
+    tag$param$tag_create$settings$model <- regmatches(
       line2,
       regexpr("Type: \\K[\\d.]+", line2, perl = TRUE)
     )
@@ -98,11 +98,7 @@ tag_create_migratetech <- function(
   }
 
   # Read light
-  if (is.null(light_file)) {
-    light_path <- tag_create_detect("*.lux", directory, quiet = TRUE)
-  } else {
-    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
-  }
+  light_path <- tag_create_detect(light_file, directory, quiet, default = "*.lux")
   if (!is.null(light_path)) {
     # Read first 30 lines for both drift check and header detection
     first_lines <- readLines(light_path, n = 30)

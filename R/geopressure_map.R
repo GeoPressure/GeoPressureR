@@ -35,7 +35,7 @@
 #' 4. **Compute and download the maps**: When all requests are sent, we wait for the GEE server to
 #' return a geotiff file (map) for each elevation/ stationary period.
 #' 5. **Post-process maps**: Read these geotiff maps as matrix, create the corresponding
-#' GeoPressureR `map` object with `create_map()`.
+#' GeoPressureR `map` object with `map_create()`.
 #'
 #' The following two maps are returned for each stationary period:
 #'
@@ -87,16 +87,16 @@
 #' only for pixels which are within the threshold, thus reducing the computational cost
 #' significantly.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param max_sample the computation of the maps is only performed on `max_sample` datapoints of
 #' pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 #' time series.
 #' @param margin the margin is used in the mask map to accept measurement errors, small-scale
-#' topography, and vertical movements of the bird (unit in meters, 1hPa~10m).
+#' topography, and vertical movements of the bird (unit in metres, 1hPa~10m).
 #' @param sd standard deviation of the pressure error. Numeric of length 1 or number of stationary
 #' periods.
-#' @param thr_mask threshold of the percentage of data points outside the elevation range to be
-#' considered not possible.
+#' @param thr_mask minimum proportion (0-1) of data points within the elevation range for a pixel
+#' to be considered possible.
 #' @param log_linear_pooling_weight weighting function of the log-linear pooling, taking the number
 #' of samples of the stationary periods used and returning the weight of the aggregation. See
 #' [GeoPressureManual | Probability aggregation
@@ -108,7 +108,7 @@
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjusts the
 #' number of workers to the number of `stapelev` to query.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
-#' estimated based on twilight or hard defined by the known location `stap$known_l**`
+#' estimated based on pressure or hard defined by the known location `stap$known_l**`.
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
 #' @param era5_dataset ERA5 product: `"single-levels"` (default, recommended) at 0.25 degree
@@ -119,9 +119,11 @@
 #' @return Returns the same GeoPressureR `tag` object including the GeoPressureR `map` object
 #' `tag$map_pressure` containing the likelihood map of each stationary period. See `map_create()`
 #' for details.
-#' If `keep_mask` and `keep_mse` are each true, `tag` also includes the `tag$map_pressure_mse` and
-#' `tag$map_pressure_mask` maps, as well as `tag$stap$nb_sample`, indicating the number of
-#' datapoints used to compute the MSE.
+#' If `keep_mse = TRUE`, `tag` also includes the `tag$map_pressure_mse` map and
+#' `tag$stap$nb_sample`, indicating the number of datapoints used to compute the MSE. If
+#' `keep_mask = TRUE`, `tag` also includes the `tag$map_pressure_mask` map.
+#' `geopressure_map_mismatch()` returns `tag` with `tag$map_pressure_mse` (and
+#' `tag$map_pressure_mask` if `keep_mask = TRUE`) but without the likelihood map.
 #'
 #' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -154,7 +156,7 @@
 #'
 #' @references{ Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 #' Global Positioning with Animal‐borne Pressure Sensors. *Methods in Ecology and Evolution*, 14,
-#' 1118–1129 \doi{10.1111/2041-210X.14043}.}
+#' 1104–1117 \doi{10.1111/2041-210X.14043}.}
 #' @family geopressure_map
 #' @seealso [GeoPressureManual](https://geopressure.org/GeoPressureManual/pressure-map.html#compute-pressure-maps)
 #' @export

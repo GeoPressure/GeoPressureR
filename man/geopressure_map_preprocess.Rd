@@ -7,10 +7,10 @@
 geopressure_map_preprocess(tag, compute_known = FALSE)
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{compute_known}{logical defining if the map(s) for known stationary period should be
-estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
+estimated based on pressure or hard defined by the known location \verb{stap$known_l**}.}
 }
 \value{
 Pressure data.frame without flight and discarded values, on a 1 hour resolution.

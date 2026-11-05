@@ -14,119 +14,42 @@ tag_create_tabular <- function(
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 
-  pressure <- tag_create_tabular_read(
-    pressure_file,
-    directory = directory,
-    col_name = c("datetime", "value"),
-    quiet = quiet
-  )
-  if (!is.null(pressure$data)) {
-    tag_create_tabular_check(
-      pressure$data,
-      c("date", "value")
-    )
-    if (
-      nrow(pressure$data) > 0 &&
-        (min(pressure$data$value, na.rm = TRUE) < 250 ||
-          1100 < max(pressure$data$value, na.rm = TRUE))
-    ) {
-      cli::cli_warn(
-        "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013hPa). Check unit of pressure data.frame provided."
-      )
-    }
-    tag$pressure <- pressure$data
-    tag$param$tag_create$pressure_file <- pressure$meta
-  }
-
-  light <- tag_create_tabular_read(
-    light_file,
-    directory = directory,
-    col_name = c("datetime", "value"),
-    quiet = quiet
-  )
-  if (!is.null(light$data)) {
-    tag_create_tabular_check(
-      light$data,
-      c("date", "value")
-    )
-    tag$light <- light$data
-    tag$param$tag_create$light_file <- light$meta
-  }
-
-  acceleration <- tag_create_tabular_read(
-    acceleration_file,
-    directory = directory,
-    col_name = c("datetime", "value"),
-    quiet = quiet
-  )
-  if (!is.null(acceleration$data)) {
-    tag_create_tabular_check(
-      acceleration$data,
-      c("date", "value")
-    )
-    tag$acceleration <- acceleration$data
-    tag$param$tag_create$acceleration_file <- acceleration$meta
-  }
-
-  temperature_external <- tag_create_tabular_read(
-    temperature_external_file,
-    directory = directory,
-    col_name = c("datetime", "value"),
-    quiet = quiet
-  )
-  if (!is.null(temperature_external$data)) {
-    tag_create_tabular_check(
-      temperature_external$data,
-      c("date", "value")
-    )
-    tag$temperature_external <- temperature_external$data
-    tag$param$tag_create$temperature_external_file <- temperature_external$meta
-  }
-
-  temperature_internal <- tag_create_tabular_read(
-    temperature_internal_file,
-    directory = directory,
-    col_name = c("datetime", "value"),
-    quiet = quiet
-  )
-  if (!is.null(temperature_internal$data)) {
-    tag_create_tabular_check(
-      temperature_internal$data,
-      c("date", "value")
-    )
-    tag$temperature_internal <- temperature_internal$data
-    tag$param$tag_create$temperature_internal_file <- temperature_internal$meta
-  }
-
-  magnetic <- tag_create_tabular_read(
-    magnetic_file,
-    directory = directory,
-    col_name = c(
-      "datetime",
-      "magnetic_x",
-      "magnetic_y",
-      "magnetic_z",
-      "acceleration_x",
-      "acceleration_y",
-      "acceleration_z"
-    ),
-    quiet = quiet
-  )
-  if (!is.null(magnetic$data)) {
-    tag_create_tabular_check(
-      magnetic$data,
+  # Read each sensor table
+  files <- mget(glue::glue("{tag_sensors}_file"))
+  for (sensor in tag_sensors) {
+    cols <- if (sensor == "magnetic") {
       c(
-        "date",
-        "acceleration_x",
-        "acceleration_y",
-        "acceleration_z",
         "magnetic_x",
         "magnetic_y",
-        "magnetic_z"
+        "magnetic_z",
+        "acceleration_x",
+        "acceleration_y",
+        "acceleration_z"
       )
+    } else {
+      "value"
+    }
+    file <- glue::glue("{sensor}_file")
+    x <- tag_create_tabular_read(
+      files[[file]],
+      directory = directory,
+      col_name = c("datetime", cols),
+      quiet = quiet
     )
-    tag$magnetic <- magnetic$data
-    tag$param$tag_create$magnetic_file <- magnetic$meta
+    if (!is.null(x$data)) {
+      tag_create_tabular_check(x$data, c("date", cols))
+      if (
+        sensor == "pressure" &&
+          nrow(x$data) > 0 &&
+          (min(x$data$value, na.rm = TRUE) < 250 || 1100 < max(x$data$value, na.rm = TRUE))
+      ) {
+        cli::cli_warn(
+          "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013hPa). Check unit of pressure data.frame provided."
+        )
+      }
+      tag[[sensor]] <- x$data
+      tag$param$tag_create[file] <- list(x$meta)
+    }
   }
 
   tag$param$tag_create$manufacturer <- "tabular"
@@ -196,7 +119,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   }
   if (anyNA(sensor_data$date)) {
     cli::cli_abort(c(
-      x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(sensor_data$date))}",
+      x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(sensor_data$date)) + 1}",
       i = "Check and fix the corresponding lines"
     ))
   }

@@ -73,8 +73,11 @@ a graph. Only used by \code{geopressuretemplate_config()}, where the default val
 (\code{geopressuretemplate_graph()} always sets it to \code{TRUE}).}
 }
 \value{
-The function returns \code{file} invisibly and saves the processed outputs (tag, paths, pressure
-paths, etc.) to the specified \code{file}. \code{geopressuretemplate_tag()} returns the \code{tag}.
+\code{geopressuretemplate()}, \code{geopressuretemplate_graph()} and \code{geopressuretemplate_pressurepath()}
+return \code{file} invisibly and save the processed outputs (tag, paths, pressure paths, etc.) to the
+specified \code{file}. If the movement model or the outputs fail, \code{geopressuretemplate_graph()}
+returns the \code{graph} computed so far instead, without saving. \code{geopressuretemplate_tag()} returns
+the \code{tag} invisibly and \code{geopressuretemplate_config()} returns the merged configuration list.
 }
 \description{
 The \code{geopressuretemplate()} function manages the complete workflow for modelling bird
@@ -104,6 +107,8 @@ also generates light and pressure likelihood maps:
 \itemize{
 \item \code{twilight_create() |> twilight_label_read() |> geolight_map()}: Computes the light likelihood.
 }
+\item \code{save()}: Saves \code{tag} and \code{param} in \verb{data/interim/\{id\}.RData}, replacing the content of the
+file.
 }
 \itemize{
 \item \strong{Graph Creation \code{\link[=geopressuretemplate_graph]{geopressuretemplate_graph()}}}: Builds a movement model graph
@@ -133,19 +138,21 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 \itemize{
 \item \code{graph_simulation()}: Runs simulations to model multiple possible paths.
 }
-\item \code{save()}: Saves the \code{tag}, \code{param} and computed outputs in \verb{data/interim/\{id\}.RData}
+\item \code{save()}: Saves the \code{tag}, \code{param} and computed outputs in \verb{data/interim/\{id\}.RData}. Other
+objects already in the file and not derived from the graph (e.g. \code{path_geopressureviz}) are
+kept; outputs derived from a previous graph (paths, edges, marginal and their pressurepaths)
+are replaced or removed.
 }
 \itemize{
 \item \strong{Pressure Path Processing \code{\link[=geopressuretemplate_pressurepath]{geopressuretemplate_pressurepath()}}}: Computes pressurepaths
-(\code{pressurepath_create}) using the content of the \code{Rdata} file and appending the pressurepath
-data.frame to the same file.
+(\code{pressurepath_create()}) using the content of the \code{.RData} file and appending the pressurepath
+data.frames to the same file.
 }
-\enumerate{
-\item If \code{"most_likely"} is in \code{config$geopressuretemplate$pressurepath}, computes the pressure path
-for \code{path_most_likely}.
-\item If \code{"geopressureviz"} is in \code{config$geopressuretemplate$pressurepath} computes the pressure
-path for \code{path_geopressureviz}
-}
+
+For each of \code{"most_likely"} and \code{"simulation"} listed in
+\code{config$geopressuretemplate$pressurepath}, computes \verb{pressurepath_\{type\}} from \verb{path_\{type\}}
+and saves it in the same file. A warning is given when a path is missing. For any other path
+(e.g. exported from GeoPressureViz), call \code{pressurepath_create()} directly.
 
 Each of these child functions can be called individually or automatically as part of
 the \code{geopressuretemplate} workflow.

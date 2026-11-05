@@ -15,7 +15,7 @@
 #' @param graph a GeoPressureR `graph` object.
 #' @param type Ground speed `"gs"` or airspeed `"as"`
 #' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
-#' @param shape parameter of the gamma distribution (km/h)
+#' @param shape shape parameter of the gamma distribution (unitless)
 #' @param scale parameter of the gamma and logistic distribution (km/h)
 #' @param location parameter for the logistic distribution (km/h)
 #' @param bird A GeoPressureR `bird` object containing the basic morphological traits necessary:
@@ -50,7 +50,7 @@
 #'
 #' graph <- graph_set_movement(graph,
 #'   method = "logis",
-#'   shape = 4,
+#'   scale = 4,
 #'   location = 60,
 #'   low_speed_fix = 10
 #' )
@@ -78,6 +78,12 @@ graph_set_movement <- function(
   graph_assert(graph)
 
   type <- match.arg(type, choices = c("as", "gs"))
+  if (type == "as" && !("ws" %in% names(graph))) {
+    cli::cli_abort(c(
+      x = "{.code type = 'as'} requires the windspeed {.field ws} in {.var graph}.",
+      ">" = "Run {.fun graph_add_wind} first."
+    ))
+  }
   method <- match.arg(method, choices = c("gamma", "logis", "power"))
 
   mvt <- list(

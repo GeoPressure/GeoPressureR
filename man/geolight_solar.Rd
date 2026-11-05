@@ -40,8 +40,8 @@ When \code{lat} and \code{lon} are vectors, the result is a 3-D array with dimen
 
 \code{c(length(lat), length(lon), length(date))}
 
-When \code{lat} and \code{lon} are scalars, the result reduces to a vector of length
-\code{length(date)}.
+When \code{lat} and \code{lon} are scalars, the result is a \verb{1 x 1 x length(date)} array (not a vector).
+Use \code{as.vector()} to drop dimensions.
 }
 
 \subsection{Solar time and hour angle}{

@@ -15,9 +15,10 @@ geopressuretemplate_pressurepath <- function(
       cli::cli_h2("Compute pressurepath {.field {id}}")
     }
 
-    save_list <- load(file)
-
-    tag <- get("tag")
+    # Load into a separate environment so that saved objects cannot overwrite local variables
+    interim <- new.env()
+    load(file, envir = interim)
+    tag <- interim$tag
 
     tag_assert(tag)
 
@@ -27,76 +28,31 @@ geopressuretemplate_pressurepath <- function(
       ))
     }
 
-    if (
-      "most_likely" %in%
-        config$geopressuretemplate$pressurepath &&
-        "path_most_likely" %in% save_list
-    ) {
-      path_most_likely <- get("path_most_likely")
-      pressurepath_most_likely <- do.call(
-        pressurepath_create,
-        c(
-          list(tag = tag, path = path_most_likely, quiet = quiet),
-          config$pressurepath_create
-        )
-      )
-      save_list <- c(save_list, "pressurepath_most_likely")
+    path_types <- config$geopressuretemplate$pressurepath
+    unknown <- setdiff(path_types, c("most_likely", "simulation"))
+    if (length(unknown) > 0) {
+      cli::cli_abort(c(
+        x = "Unsupported {.var geopressuretemplate$pressurepath}: {.val {unknown}}.",
+        i = "The workflow computes {.val most_likely} and {.val simulation} only.",
+        ">" = "For another path (e.g. exported from GeoPressureViz), call {.fun pressurepath_create} directly."
+      ))
     }
 
-    if (
-      "geopressureviz" %in%
-        config$geopressuretemplate$pressurepath &&
-        "path_geopressureviz" %in% save_list
-    ) {
-      path_geopressureviz <- get("path_geopressureviz")
-      pressurepath_geopressureviz <- do.call(
-        pressurepath_create,
-        c(
-          list(tag = tag, path = path_geopressureviz, quiet = quiet),
-          config$pressurepath_create
+    for (path_type in path_types) {
+      path <- interim[[glue::glue("path_{path_type}")]]
+      if (is.null(path)) {
+        cli::cli_warn(
+          "{.var path_{path_type}} is not available in {.file {file}}: {.var pressurepath_{path_type}} is not computed."
         )
+        next
+      }
+      interim[[glue::glue("pressurepath_{path_type}")]] <- do.call(
+        pressurepath_create,
+        c(list(tag = tag, path = path, quiet = quiet), config$pressurepath_create)
       )
-      save_list <- c(save_list, "pressurepath_geopressureviz")
     }
 
-    if (
-      "tag" %in%
-        config$geopressuretemplate$pressurepath &&
-        "path_tag" %in% save_list
-    ) {
-      path_tag <- get("path_tag")
-      pressurepath_tag <- do.call(
-        pressurepath_create,
-        c(
-          list(tag = tag, path = path_tag, quiet = quiet),
-          config$pressurepath_create
-        )
-      )
-      save_list <- c(save_list, "pressurepath_tag")
-    }
-
-    if (
-      "simulation" %in%
-        config$geopressuretemplate$pressurepath &&
-        "path_simulation" %in% save_list
-    ) {
-      path_simulation <- get("path_simulation")
-      pressurepath_simulation <- do.call(
-        pressurepath_create,
-        c(
-          list(tag = tag, path = path_simulation, quiet = quiet),
-          config$pressurepath_create
-        )
-      )
-      save_list <- c(save_list, "pressurepath_simulation")
-    }
-
-    # Save the outputs to the specified file
-    # Rerunning on a file that already holds a pressurepath would otherwise list it twice
-    save(
-      list = unique(save_list),
-      file = file
-    )
+    save(list = ls(interim), envir = interim, file = file)
   }
 
   # Return the file path invisibly

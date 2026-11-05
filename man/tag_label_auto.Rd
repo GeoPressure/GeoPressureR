@@ -12,7 +12,7 @@ tag_label_auto(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object.}
+\item{tag}{a GeoPressureR \code{tag} object with acceleration data.}
 
 \item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
 flight.}

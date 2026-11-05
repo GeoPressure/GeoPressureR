@@ -2,7 +2,7 @@
 % Please edit documentation in R/windsupport.R
 \name{windsupport}
 \alias{windsupport}
-\title{Compute wind support and drift from a wind and ground speed vectors}
+\title{Compute wind support and drift from wind and ground speed vectors}
 \usage{
 windsupport(windspeed, groundspeed, drift = FALSE)
 }
@@ -11,7 +11,7 @@ windsupport(windspeed, groundspeed, drift = FALSE)
 
 \item{groundspeed}{groundspeed as complex value}
 
-\item{drift}{return drift instead of windsupport}
+\item{drift}{logical to return the drift (crosswind component) instead of the wind support}
 }
 \value{
 wind support (or drift) as scalar value (same unit as \code{windspeed} and \code{groundspeed})
@@ -30,7 +30,7 @@ corresponds to the east-west component and imaginary part to the north-south com
 
 Alternatively to wind support, you can compute the drift (or crosswind component) value with
 \code{drift = TRUE},
-\deqn{\text{Drift} = \frac{|\vec{v}_g \times \vec{v}_w|}{|\vec{v}_g|},}
+\deqn{\text{Drift} = \frac{\vec{v}_w \times \vec{v}_g}{|\vec{v}_g|},}
 with \eqn{\times} being the \href{https://en.wikipedia.org/wiki/Cross_product}{cross product}.
 
 A positive value of drift indicates that the wind is pushing the bird to the right of its
@@ -38,7 +38,7 @@ intended path, while a negative indicates that the wind is pushing the bird to t
 
 You can use \code{abs()} (or \code{Mod()}) to compute the norm (or absolute value) of the speed vector and
 \code{speed2bearing()} to compute the bearing/orientation of the speed vector. The latter
-computes the trigonometric angle of the speed vector with \code{Arg()} and convert this angle to a
+computes the trigonometric angle of the speed vector with \code{Arg()} and converts this angle to a
 bearing (North = 0° instead of 90°).
 }
 \examples{

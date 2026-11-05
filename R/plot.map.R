@@ -15,7 +15,7 @@
 #' resolution between the original map to the projected map.
 #'
 #' @template map-tiles
-#' @param x a GeoPressureR `map` object
+#' @param x a GeoPressureR `map` object.
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
 #' @param thr_likelihood Threshold to display likelihood values.
@@ -23,10 +23,10 @@
 #'   available GeoPressureR basemap layers; see the *Basemap API keys* section.
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
 #'   leaflet::providerTileOptions().
-#' @param palette color palette name or vector of colors.
+#' @param palette colour palette name or vector of colours.
 #' @param opacity opacity of the raster layer in leaflet.
-#' @param legend logical to display the legend.
-#' @param ... additional parameters passed to `leaflet::addRasterImage()` or `terra::plot()`.
+#' @param legend logical to display the legend (only for `plot_leaflet = FALSE`).
+#' @param ... additional parameters passed to `terra::plot()` (only for `plot_leaflet = FALSE`).
 #' @param fac_res_proj Factor of the resolution of the reprojection (see details above). A value of
 #' `1` will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
 #' the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
@@ -99,7 +99,7 @@ plot.map <- function(
   })
 
   # Convert GeoPressureR map to terra rast object
-  r <- rast.map(map)
+  r <- terra::rast(map)
 
   if (is.character(palette) && length(palette) == 1 && palette == "auto") {
     palette <- NULL
@@ -124,7 +124,7 @@ plot.map <- function(
     )
 
     lmap <- leaflet::leaflet(height = "100vh") |>
-      map_add_tiles(provider = provider, provider_options = provider_options)
+      leaflet_add_basemaps(provider = provider, provider_options = provider_options)
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
@@ -213,11 +213,20 @@ plot.map <- function(
       lmap <- leaflet::hideGroup(lmap, grp[id_known])
     }
 
+    # Leaflet shows a single layers control: merge the basemap control of leaflet_add_basemaps() into the
+    # stationary period control, with basemaps as overlays (first one shown)
+    is_ctrl <- vapply(lmap$x$calls, \(cl) identical(cl$method, "addLayersControl"), logical(1))
+    base_tiles <- unlist(lapply(lmap$x$calls[is_ctrl], \(cl) cl$args[[1]]))
+    lmap$x$calls <- lmap$x$calls[!is_ctrl]
     lmap <- leaflet::addLayersControl(
       lmap,
       baseGroups = grp[map$stap$include],
+      overlayGroups = base_tiles,
       options = leaflet::layersControlOptions(collapsed = FALSE)
     )
+    if (length(base_tiles) > 1) {
+      lmap <- leaflet::hideGroup(lmap, base_tiles[-1])
+    }
 
     return(lmap)
   } else {

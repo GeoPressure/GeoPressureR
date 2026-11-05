@@ -8,9 +8,10 @@ geopressuretemplate_graph <- function(
   file = glue::glue("./data/interim/{id}.RData"),
   ...
 ) {
-  load(file)
-
-  tag <- get("tag")
+  # Load into a separate environment so that saved objects cannot overwrite local variables
+  interim <- new.env()
+  load(file, envir = interim)
+  tag <- interim$tag
 
   if (tag$param$id != id) {
     cli::cli_abort(c(
@@ -164,11 +165,22 @@ geopressuretemplate_graph <- function(
     return(graph)
   }
 
-  # Save the outputs to the specified file
-  save(
-    list = save_list,
-    file = file
+  # Keep saved objects that do not depend on the graph (e.g. path_geopressureviz), drop the ones
+  # that do (now stale), and add the new outputs
+  graph_outputs <- c(
+    "marginal",
+    "path_most_likely",
+    "edge_most_likely",
+    "path_simulation",
+    "edge_simulation",
+    "pressurepath_most_likely",
+    "pressurepath_simulation"
   )
+  rm(list = intersect(graph_outputs, ls(interim)), envir = interim)
+  for (v in save_list) {
+    assign(v, get(v), envir = interim)
+  }
+  save(list = ls(interim), envir = interim, file = file)
 
   # Return the file path invisibly
   invisible(file)

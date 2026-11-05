@@ -37,111 +37,79 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
   type <- match.arg(type, choices = c("abort", "warn", "inform", "logical"))
   status <- tag_status(tag)
 
-  if (condition == "tag") {
-    msg <- c("x" = "tag is not a {.var tag} object.")
+  # Message shown for each condition when it is not met
+  msgs <- list(
+    tag = c("x" = "tag is not a {.var tag} object."),
+    read = c("x" = "Sensors data not yet read. Use {.fun tag_create}."),
+    pressure = c("x" = "The {.var tag} object does not have {.field pressure} data."),
+    light = c("x" = "The {.var tag} object does not have {.field light} data."),
+    acceleration = c("x" = "The {.var tag} object does not have {.field acceleration} data."),
+    temperature_internal = c(
+      "x" = "The {.var tag} object does not have {.field temperature_internal} data."
+    ),
+    temperature_external = c(
+      "x" = "The {.var tag} object does not have {.field temperature_external} data."
+    ),
+    magnetic = c("x" = "The {.var tag} object does not have {.field magnetic} data."),
+    label = c(
+      "x" = "The {.var tag} object has not yet been labelled.",
+      ">" = "Use {.fun tag_label} to define the stationary periods."
+    ),
+    stap = c(
+      "x" = "Stationary periods have not yet been computed for {.var tag}.",
+      ">" = "Use {.fun tag_label} to define the stationary periods."
+    ),
+    setmap = c(
+      "x" = "The parameters for the geographical and stationary period have not yet been defined in {.var tag}.",
+      ">" = "Use {.fun tag_set_map} to define them."
+    ),
+    map_pressure = c(
+      "x" = "The pressure likelihood map has not yet been computed for {.var tag}.",
+      ">" = "Use {.fun geopressure_map} to compute the maps."
+    ),
+    map_pressure_mse = c(
+      "x" = "The pressure mean square error map has not yet been computed for {.var tag}.",
+      ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
+    ),
+    map_pressure_mask = c(
+      "x" = "The pressure mask map has not yet been computed for {.var tag}.",
+      ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
+    ),
+    twl_calib = c(
+      "x" = "The twilight calibration has not yet been computed for {.var tag}.",
+      ">" = "Use {.fun geolight_map_calibrate} to compute the twilight calibration stored in {.var tag$param$geolight_map$twl_calib}."
+    ),
+    map_light_twl = c(
+      "x" = "The twilight likelihood map has not yet been computed for {.var tag}.",
+      ">" = "Use {.fun geolight_map_likelihood} to compute the maps."
+    ),
+    twilight = c(
+      "x" = "The twilight has not yet been computed for {.var tag}",
+      ">" = "Use {.fun twilight_create} to compute the twilight"
+    ),
+    map_light = c(
+      "x" = "The light likelihood map has not yet been computed for {.var tag}.",
+      ">" = "Use {.fun geolight_map} to compute the maps."
+    ),
+    mask_water = c("x" = "The water mask map has not yet been computed for {.var tag}."),
+    map_magnetic = c("x" = "The magnetic likelihood map has not yet been computed for {.var tag}."),
+    map_magnetic_intensity = c(
+      "x" = "The magnetic intensity map has not yet been computed for {.var tag}."
+    ),
+    map_magnetic_inclination = c(
+      "x" = "The magnetic inclination map has not yet been computed for {.var tag}."
+    )
+  )
+
+  # A non-tag object always reports the tag message, before checking the condition
+  if (!inherits(tag, "tag")) {
+    msg <- msgs$tag
+  } else if (condition %in% names(msgs)) {
+    msg <- msgs[[condition]]
   } else {
-    # For all other condition, first check if tag is indeed a tag
-    if (!inherits(tag, "tag")) {
-      msg <- c("x" = "tag is not a {.var tag} object.")
-    } else if (condition == "read") {
-      msg <- c(
-        "x" = "Sensors data not yet read. Use {.fun tag_create}."
-      )
-    } else if (condition == "pressure") {
-      msg <- c(
-        "x" = "The {.var tag} object does not have {.field pressure} data."
-      )
-    } else if (condition == "light") {
-      msg <- c(
-        "x" = "The {.var tag} object does not have {.field light} data."
-      )
-    } else if (condition == "acceleration") {
-      msg <- c(
-        "x" = "The {.var tag} object does not have {.field acceleration} data."
-      )
-    } else if (condition == "temperature_internal") {
-      msg <- c(
-        "x" = "The {.var tag} object does not have {.field temperature_internal} data."
-      )
-    } else if (condition == "temperature_external") {
-      msg <- c(
-        "x" = "The {.var tag} object does not have {.field temperature_external} data."
-      )
-    } else if (condition == "magnetic") {
-      msg <- c(
-        "x" = "The {.var tag} object does not have {.field magnetic} data."
-      )
-    } else if (condition == "label") {
-      msg <- c(
-        "x" = "The {.var tag} object has not yet been labelled.",
-        ">" = "Use {.fun tag_label} to define the stationary periods."
-      )
-    } else if (condition == "stap") {
-      msg <- c(
-        "x" = "Stationary periods have not yet been computed for {.var tag}.",
-        ">" = "Use {.fun tag_label} to define the stationary periods."
-      )
-    } else if (condition == "setmap") {
-      msg <- c(
-        "x" = "The parameters for the geographical and stationary period have not yet been defined in {.var tag}.",
-        ">" = "Use {.fun tag_set_map} to define them."
-      )
-    } else if (condition == "map_pressure") {
-      msg <- c(
-        "x" = "The pressure likelihood map has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geopressure_map} to compute the maps."
-      )
-    } else if (condition == "map_pressure_mse") {
-      msg <- c(
-        "x" = "The pressure mean square error map has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
-      )
-    } else if (condition == "map_pressure_mask") {
-      msg <- c(
-        "x" = "The pressure mask map has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geopressure_map_mismatch} to compute the maps."
-      )
-    } else if (condition == "twl_calib") {
-      msg <- c(
-        "x" = "The twilight calibration has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geolight_map_calibrate} to compute the twilight calibration stored in {.var tag$param$geolight_map$twl_calib}."
-      )
-    } else if (condition == "map_light_twl") {
-      msg <- c(
-        "x" = "The twilight likelihood map has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geolight_map_likelihood} to compute the maps."
-      )
-    } else if (condition == "twilight") {
-      msg <- c(
-        "x" = "The twilight has not yet been computed for {.var tag}",
-        ">" = "Use {.fun twilight_create} to compute the twilight"
-      )
-    } else if (condition == "map_light") {
-      msg <- c(
-        "x" = "The light likelihood map has not yet been computed for {.var tag}.",
-        ">" = "Use {.fun geolight_map} to compute the maps."
-      )
-    } else if (condition == "mask_water") {
-      msg <- c(
-        "x" = "The water mask map has not yet been computed for {.var tag}."
-      )
-    } else if (condition == "map_magnetic") {
-      msg <- c(
-        "x" = "The magnetic likelihood map has not yet been computed for {.var tag}."
-      )
-    } else if (condition == "map_magnetic_intensity") {
-      msg <- c(
-        "x" = "The magnetic intensity map has not yet been computed for {.var tag}."
-      )
-    } else if (condition == "map_magnetic_inclination") {
-      msg <- c(
-        "x" = "The magnetic inclination map has not yet been computed for {.var tag}."
-      )
-    } else {
-      cli::cli_abort(c(
-        "x" = "Condition {.var {condition}} is unknown."
-      ))
-    }
+    cli::cli_abort(c(
+      "x" = "Condition {.var {condition}} is unknown."
+    ))
   }
 
   if (condition %in% status) {
@@ -176,24 +144,8 @@ tag_status <- function(tag) {
   }
   status <- c("tag")
 
-  if (assertthat::has_name(tag, "pressure")) {
-    status <- append(status, c("read", "pressure"))
-  }
-  if (assertthat::has_name(tag, "light")) {
-    status <- append(status, c("read", "light"))
-  }
-  if (assertthat::has_name(tag, "acceleration")) {
-    status <- append(status, c("read", "acceleration"))
-  }
-  if (assertthat::has_name(tag, "temperature_internal")) {
-    status <- append(status, c("read", "temperature_internal"))
-  }
-  if (assertthat::has_name(tag, "temperature_external")) {
-    status <- append(status, c("read", "temperature_external"))
-  }
-  if (assertthat::has_name(tag, "magnetic")) {
-    status <- append(status, c("read", "magnetic"))
-  }
+  sensors <- intersect(tag_sensors, names(tag))
+  status <- c(status, rbind(rep("read", length(sensors)), sensors))
   if (
     (assertthat::has_name(tag, "pressure") && assertthat::has_name(tag$pressure, "label")) ||
       (assertthat::has_name(tag, "acceleration") && assertthat::has_name(tag$acceleration, "label"))

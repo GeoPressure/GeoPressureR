@@ -24,7 +24,8 @@
 #'   `*.bodytemperature`, and magnetic data `*.magnetic`.
 #' - Migratetech (`"migratetech"`): pressure and acceleration `*.deg`, light `*.lux`.
 #' - BAS (`"bas"`): light `*.lig` only; use `assert_pressure = FALSE`.
-#' - Lund CAnMove (`"lund"`): pressure `*_press.xlsx`, light and acceleration `*_acc.xlsx`.
+#' - Lund CAnMove (`"lund"`): pressure `*_press.xlsx`, light and acceleration both from
+#'   `acceleration_file` (`*_acc.xlsx`).
 #' - PresTag (`"prestag"`): pressure `*.txt`.
 #'
 #' Manufacturer readers detect available sensor files when their arguments are `NULL`.
@@ -34,7 +35,8 @@
 #' SOI files are text exports of the SOI *GeoLocator* decoder: six header lines followed by
 #' `dd.mm.yyyy HH:MM` rows in UTC. Each sensor is sampled every `BaseLoggingInterval` ×
 #' `<sensor>LoggingInterval` minutes, as configured with BirdTagManager and recorded in the
-#' `*.settings` file (read into `tag$param$soi_settings`); a sensor interval of 0 means the sensor
+#' `*.settings` file (read into `tag$param$tag_create$settings`, with the normalised `model` and
+#' `firmware`); a sensor interval of 0 means the sensor
 #' was off. The tag only stores a value when it changes, and the decoder repeats it until the next
 #' change. Rows that the decoder could not reconstruct are written as `-2` in all columns; they are
 #' set to `NA`, except in `temperature_external`, where they cannot be told apart from a −2 °C
@@ -52,14 +54,16 @@
 #' - `temperature_internal` (`*.BodyTemperature`, hardware v2.4 and later): temperature in °C
 #'   inside the tag, with about 1 °C resolution.
 #' - `magnetic` (`*.magnetic`): single 3-axis magnetometer and accelerometer measurements,
-#'   converted to Gauss and g and rotated to the forward-right-down frame according to the
-#'   hardware version in `*.settings` (LSM303D up to v2.3, LSM303AGR from v2.4). Without
-#'   `*.settings`, magnetic data are not read.
+#'   converted to Gauss and g according to the hardware version in `*.settings` (LSM303D up to
+#'   v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame according to
+#'   `mag_axis`, by default with raw y forward and raw x to the right. For a tag mounted reversed,
+#'   use `mag_axis = c("left", "backward", "down")` (a warning is shown when the tag rests tilted
+#'   backwards). Without `*.settings`, magnetic data are not read.
 #'
 #' The decoder does not correct clock drift. `*.settings` records the tag clock
 #' (`StopTimeRTC`) and the computer clock (`StopTimeReference`) at download, and their difference
-#' is stored in `tag$param$drift` in minutes: positive when the tag clock is ahead. To correct a
-#' linear drift, use `time_drift` (e.g. `-tag$param$drift / 60` divided by the deployment
+#' is stored in `tag$param$tag_create$settings$clock_drift` in minutes: positive when the tag clock
+#' is ahead. To correct a linear drift, use `time_drift` (e.g. `-clock_drift / 60` divided by the deployment
 #' duration in years) with `time_reference` set to `StarttimeRTC`, when the clock was set.
 #'
 #' @section Tabular input:
@@ -116,6 +120,12 @@
 #'   in UTC. `NULL` keeps all earlier data.
 #' @param crop_end Exclusive end of the corrected recording period, as POSIXct or character in UTC.
 #'   `NULL` keeps all later data.
+#' @param mag_axis SOI only. Direction of the raw x, y and z magnetometer and accelerometer axes
+#'   in the bird's forward-right-down frame, as three values among `"forward"`, `"backward"`,
+#'   `"right"`, `"left"`, `"down"` and `"up"`, with one per axis. The default
+#'   `c("right", "forward", "down")` is the standard mounting (raw y forward, raw x to the right).
+#'   Use `c("left", "backward", "down")` for a tag mounted reversed, or e.g.
+#'   `c("forward", "left", "down")` for a tag rotated by 90°. Stored in `tag$param$tag_create$mag_axis`.
 #' @param quiet Logical; hide progress messages and sampling-interval warnings.
 #' @param assert_pressure Logical; require pressure data in the returned tag.
 #'
@@ -179,10 +189,21 @@ tag_create <- function(
   quiet = FALSE,
   time_shift = 0,
   time_drift = 0,
-  time_reference = NULL
+  time_reference = NULL,
+  mag_axis = c("right", "forward", "down")
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
+  # One direction per axis pair (forward/backward, right/left, down/up)
+  assertthat::assert_that(
+    is.character(mag_axis),
+    length(mag_axis) == 3,
+    all(mag_axis %in% c("forward", "backward", "right", "left", "down", "up")),
+    setequal(
+      ceiling(match(mag_axis, c("forward", "backward", "right", "left", "down", "up")) / 2),
+      1:3
+    )
+  )
   for (correction in list(time_shift, time_drift)) {
     if (is.numeric(correction)) {
       assertthat::assert_that(length(correction) == 1, is.finite(correction))
@@ -190,17 +211,7 @@ tag_create <- function(
       assertthat::assert_that(
         is.list(correction),
         !is.null(names(correction)),
-        all(
-          names(correction) %in%
-            c(
-              "pressure",
-              "light",
-              "acceleration",
-              "temperature_external",
-              "temperature_internal",
-              "magnetic"
-            )
-        ),
+        all(names(correction) %in% tag_sensors),
         all(vapply(correction, is.numeric, logical(1))),
         all(lengths(correction) == 1),
         all(is.finite(unlist(correction)))
@@ -226,7 +237,7 @@ tag_create <- function(
       manufacturer <- "tabular"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
+      if (any(grepl("\\.(pressure|glf|magnetic|acceleration|settings)$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.(deg|lux)$", list.files(directory)))) {
         manufacturer <- "migratetech"
@@ -294,6 +305,7 @@ tag_create <- function(
       temperature_external_file = temperature_external_file,
       temperature_internal_file = temperature_internal_file,
       magnetic_file = magnetic_file,
+      mag_axis = mag_axis,
       quiet = quiet
     )
   } else if (manufacturer == "migratetech") {
@@ -375,13 +387,29 @@ tag_create <- function(
 
   tag$param$tag_create$time_shift <- time_shift
   tag$param$tag_create$time_drift <- time_drift
+  tag$param$tag_create$assert_pressure <- assert_pressure
 
   return(tag)
 }
 
-# Detect full path from the argument file.
+# Canonical sensor names of a `tag`
 #' @noRd
-tag_create_detect <- function(file, directory, quiet = TRUE) {
+tag_sensors <- c(
+  "pressure",
+  "light",
+  "acceleration",
+  "temperature_external",
+  "temperature_internal",
+  "magnetic"
+)
+
+# Detect full path from the argument file. A `NULL` file falls back quietly to `default`.
+#' @noRd
+tag_create_detect <- function(file, directory, quiet = TRUE, default = NULL) {
+  if (is.null(file)) {
+    file <- default
+    quiet <- TRUE
+  }
   if (is.null(file)) {
     return(NULL)
   }
@@ -526,36 +554,34 @@ tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference)
 tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
   has_data <- FALSE
   for (sensor in setdiff(names(tag), "param")) {
-    if (sensor %in% names(tag)) {
-      # Crop time
-      if (!is.null(crop_start)) {
-        tag[[sensor]] <- tag[[sensor]][
-          tag[[sensor]]$date >= as.POSIXct(crop_start, tz = "UTC"),
-        ]
-      }
-      if (!is.null(crop_end)) {
-        tag[[sensor]] <- tag[[sensor]][
-          tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
-        ]
-      }
-      has_data <- has_data || nrow(tag[[sensor]]) > 0
+    # Crop time
+    if (!is.null(crop_start)) {
+      tag[[sensor]] <- tag[[sensor]][
+        tag[[sensor]]$date >= as.POSIXct(crop_start, tz = "UTC"),
+      ]
+    }
+    if (!is.null(crop_end)) {
+      tag[[sensor]] <- tag[[sensor]][
+        tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
+      ]
+    }
+    has_data <- has_data || nrow(tag[[sensor]]) > 0
 
-      if (!quiet) {
-        # Check irregular time
-        dtime <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
-        # Allow one millisecond of timestamp rounding and floating-point noise.
-        if (any(abs(dtime - dtime[1]) > 1.001e-3)) {
-          cli::cli_warn(
-            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1.001e-3)]}."
-          )
-        }
+    if (!quiet) {
+      # Check irregular time
+      dtime <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
+      # Allow one millisecond of timestamp rounding and floating-point noise.
+      if (any(abs(dtime - dtime[1]) > 1.001e-3)) {
+        cli::cli_warn(
+          "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1.001e-3)]}."
+        )
+      }
 
-        if (nrow(tag[[sensor]]) == 0) {
-          cli::cli_warn(c(
-            "!" = "Empty {.field {sensor}} sensor dataset",
-            ">" = "Check crop date."
-          ))
-        }
+      if (nrow(tag[[sensor]]) == 0) {
+        cli::cli_warn(c(
+          "!" = "Empty {.field {sensor}} sensor dataset",
+          ">" = "Check crop date."
+        ))
       }
     }
   }

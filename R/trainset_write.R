@@ -5,7 +5,7 @@
 #'
 #' @param df Data.frame written in csv. Columns name defined by the parameters below.
 #' @param file Name of the label file to be saved.
-#' @param series Character or vector to be used as name for series.
+#' @param series Column name of `df` to be used as series name.
 #' @param timestamp Column name of `df` to be used as timestamp.
 #' @param value Column name of `df` to be used as value.
 #' @param label Column name of `df` to be used as label. If column doesn't exist, use empty

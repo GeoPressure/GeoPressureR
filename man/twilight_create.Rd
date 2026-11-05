@@ -13,10 +13,11 @@ twilight_create(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{twl_thr}{Light threshold that defines twilight. By default (\code{NULL}), it uses the smallest
-value of light (i.e, first and last light of day).}
+value of light (i.e, first and last light of day). When \code{transform_light = TRUE}, \code{twl_thr} is
+expressed on the transformed light scale.}
 
 \item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 provided, it uses the middle of all nights.}
@@ -33,7 +34,7 @@ a \code{tag} list containing a new data.frame \code{twilight} with columns:
 \itemize{
 \item \code{twilight} (date-time of twilight)
 \item \code{rise} (logical) indicating sunrise (\code{TRUE}) or sunset (\code{FALSE}).
-\item \code{stap_id} if \code{stap_id} is present in \code{light}.
+\item \code{stap_id} if \code{tag$stap} exists.
 }
 }
 \description{

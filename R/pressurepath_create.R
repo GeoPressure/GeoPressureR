@@ -35,7 +35,8 @@
 #'
 #' @template ecmwf-key
 #' @param tag A GeoPressureR `tag` object.
-#' @param path A GeoPressureR `path` data.frame.
+#' @param path A GeoPressureR `path` data.frame. A path with several trajectories (column `j`,
+#' e.g. from `graph_simulation()`) is computed one trajectory at a time.
 #' @param variable ERA5 variables to retrieve, named as in the
 #'   [ERA5 catalogue](https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels),
 #'   plus the derived `"altitude"`. The same names work for every `source`, but the available set
@@ -92,10 +93,39 @@ pressurepath_create <- function(
   # differ per (source, era5_dataset) pair, and an unavailable variable makes GeoPressureAPI
   # return an empty response that blanks every column rather than erroring.
   pressurepath_variable_check(variable, source, era5_dataset)
+  era5_dataset_deprecate_altitude(era5_dataset, "altitude" %in% variable)
 
+  # Compute each path (column j) separately: flights, normalization and twilights are per path
+  if ("j" %in% names(path) && length(unique(path$j)) > 1) {
+    out <- lapply(split(path, path$j), \(p) {
+      pp <- pressurepath_create(
+        tag,
+        p,
+        variable,
+        solar_dep,
+        era5_dataset,
+        preprocess,
+        workers,
+        quiet,
+        debug,
+        source,
+        altitude_formula
+      )
+      pp$j <- p$j[1]
+      pp
+    })
+    pressurepath <- do.call(rbind, out)
+    rownames(pressurepath) <- NULL
+    for (a in setdiff(names(attributes(out[[1]])), c("names", "row.names", "class"))) {
+      attr(pressurepath, a) <- attr(out[[1]], a)
+    }
+    attr(pressurepath, "type") <- attr(path, "type")
+    return(pressurepath)
+  }
+
+  pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
   if (source == "arco") {
     arco_require_dependencies()
-    pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
     return(pressurepath_create_arco_impl(
       tag = tag,
       path = path,
@@ -110,7 +140,6 @@ pressurepath_create <- function(
     ))
   }
 
-  pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
   pressurepath_create_api_impl(
     tag = tag,
     path = path,

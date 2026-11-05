@@ -1,16 +1,15 @@
-#' Create water mask for geolight map
+#' Create water mask for a `map`
 #'
 #' @description
-#' This function creates a water mask for maps with `geolight_map` already run.
-#' The mask is based on coastline data from Natural Earth and is stored as
-#' `map$mask_water` as a boolean matrix where `TRUE` indicates water and
-#' `FALSE` indicates land.
+#' This function creates a water mask for a `map`, typically the light likelihood map computed by
+#' `geolight_map()`. The mask is based on country polygons from Natural Earth and is stored as
+#' `map$mask_water` as a logical matrix where `TRUE` indicates water and `FALSE` indicates land.
 #'
-#' A pixel is marked as land if any land exists within it (using the conservative
-#' `touches=TRUE` approach in rasterization), which is important for detecting small
-#' islands; the mask then flags the remaining pixels as water.
+#' A pixel is marked as water when the fraction of its area covered by land is at or below
+#' `land_threshold`. With the default `land_threshold = 0`, a pixel is land if any land exists
+#' within it, which is important for detecting small islands.
 #'
-#' @param map a GeoPressureR `map` object from `geolight_map`.
+#' @param map a GeoPressureR `map` object, e.g. `tag$map_light` from `geolight_map()`.
 #' @param ne_scale Natural Earth resolution passed to
 #'   `rnaturalearth::ne_countries(scale = ...)`. Valid values are `"small"`,
 #'   `"medium"`, `"large"` or `c(110, 50, 10)`. Default is `"medium"`.
@@ -22,7 +21,7 @@
 #' @return A `map` object with `mask_water` added as a logical matrix.
 #'
 #' @details
-#' The coastline data is rasterized to match the map's grid (defined by `extent` and
+#' The land polygons are rasterized to match the map's grid (defined by `extent` and
 #' `scale` from the map). `land_threshold` controls how much land can be present
 #' in a pixel before it is treated as land in `map$mask_water`. For `"large"`/`10`
 #' resolution, `rnaturalearthhires` is used by `rnaturalearth` when available.
@@ -83,7 +82,8 @@ map_add_mask_water <- function(map, ne_scale = "medium", land_threshold = 0) {
 #'
 #' @param extent Numeric vector of length 4: c(W, E, S, N) in degrees
 #' @param scale Numeric scale factor (pixels per degree)
-#' @param ne_scale Natural Earth resolution: 10, 50, or 110. Default is 50.
+#' @param ne_scale Natural Earth resolution: `"small"`, `"medium"` or `"large"` (or 110, 50, 10).
+#' @param land_threshold Land fraction at or below which a cell is water.
 #'
 #' @return Logical matrix where TRUE = water, FALSE = land
 #'
@@ -134,19 +134,18 @@ mask_water <- function(extent, scale, ne_scale = "medium", land_threshold = 0) {
     crs = "EPSG:4326"
   )
 
-  # Rasterize land polygons
-  # touches=TRUE marks a cell as land if polygon touches it at all
-  # This ensures islands are captured even if cell center is in water
-  r_land <- terra::rasterize(
-    land_vect,
-    r_template,
-    field = 1,
-    touches = TRUE,
-    background = 0
-  )
+  # Rasterize the fraction of each cell covered by land polygons (0 to 1)
+  # land_threshold = 0: any land touching the cell (keeps small islands); otherwise the land cover
+  # fraction estimated on sub-cells
+  r_land <- if (land_threshold == 0) {
+    terra::rasterize(land_vect, r_template, touches = TRUE, background = 0)
+  } else {
+    terra::rasterize(land_vect, r_template, cover = TRUE, background = 0)
+  }
 
-  # Convert to matrix and return logical when land fraction is at or below land_threshold
-  land_fraction <- terra::as.matrix(r_land, wide = TRUE)
+  # Convert to matrix (capped at 1 where polygons overlap) and mark as water when the land fraction
+  # is at or below land_threshold
+  land_fraction <- pmin(terra::as.matrix(r_land, wide = TRUE), 1)
 
   land_fraction <= land_threshold
 }

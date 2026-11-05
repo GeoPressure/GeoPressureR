@@ -78,7 +78,7 @@ setup_drawing_observers <- function(
     }
 
     relayout <- plotly::event_data("plotly_relayout")
-    s <- relayout$shape
+    s <- relayout$shapes
     if (is.null(s)) {
       return()
     }
@@ -164,7 +164,8 @@ setup_drawing_observers <- function(
             !is.null(map_light$data[[idx]])
         ) {
           lk <- map_light$data[[idx]]
-          if (!is.null(lk) && any(is.finite(lk))) {
+          # Only initialise the position from an informative (non-uniform) map
+          if (!is.null(lk) && any(is.finite(lk)) && diff(range(lk, na.rm = TRUE)) > 0) {
             max_idx <- which(lk == max(lk, na.rm = TRUE), arr.ind = TRUE)
             if (nrow(max_idx) > 0) {
               new_stapath$lat[idx] <- map_grid$lat[max_idx[1, 1]]
@@ -175,7 +176,6 @@ setup_drawing_observers <- function(
       }
     }
 
-    selected <- NULL
     update_stapath(new_stapath, selected = idx)
     draw_range("") # Deactivate drawing mode
   })

@@ -2,7 +2,7 @@
 % Please edit documentation in R/tag_prepare_likelihood.R
 \name{tag_prepare_likelihood}
 \alias{tag_prepare_likelihood}
-\title{Prepare likelihood maps for modeling}
+\title{Prepare likelihood maps for modelling}
 \usage{
 tag_prepare_likelihood(
   tag,
@@ -20,6 +20,9 @@ tag_prepare_likelihood(
 \item{thr_likelihood}{threshold of percentile to keep likely locations in each stationary
 period.}
 
+\item{thr_gs}{threshold of groundspeed (km/h) used to discard locations that cannot be reached
+from any location of the previous or next stationary period.}
+
 \item{quiet}{logical to hide progress messages.}
 }
 \value{
@@ -32,6 +35,6 @@ A likelihood \code{map} object with:
 }
 }
 \description{
-Prepare likelihood maps for modeling
+Prepare likelihood maps for modelling
 }
 \keyword{internal}

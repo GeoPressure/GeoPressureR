@@ -1,7 +1,8 @@
 #' Compute transition probabilities of a `graph`
 #'
-#' Use the movement model (see `graph_set_movement()`) to convert ground speed `gs` (or airspeed
-#' `as` if available) into the transition probability of the edges of the graph.
+#' Use the movement model (see `graph_set_movement()`) to convert ground speed `gs` or airspeed `as`
+#' (depending on `param$graph_set_movement$type`) into the transition probability of the edges of the
+#' graph.
 #'
 #' The returned vector corresponds to the elements of the transition matrices
 #' \eqn{T_k \forall k \in [1,n]} extracted for all edges considered in the graph. Each of these

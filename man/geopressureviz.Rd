@@ -23,27 +23,23 @@ geopressureviz(
 \item{path}{Optional GeoPressureR \code{path} or \code{pressurepath} data.frame.
 If \code{NULL}, a path is resolved from available inputs in this order:
 \itemize{
-\item for file/id input (\code{x} character): \code{path_most_likely} (if present), then \code{pressurepath}
-(if present);
+\item for file/id input (\code{x} character): the first present of \code{pressurepath},
+\code{pressurepath_most_likely} and \code{path_most_likely};
 \item otherwise fallback to \code{tag2path(tag, interp = 1)}.
 }}
 
-\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrite the
-\code{path} or \code{pressurepath} contained in the \code{.Rdata} file.}
+\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrites
+the \code{marginal} contained in the \code{.RData} file.}
 
-\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
-RStudio.}
+\item{launch_browser}{If \code{TRUE} (default), the app opens in your web browser; otherwise, only the
+app URL is printed.}
 
-\item{run_bg}{If true, the app runs in a background R session using the \code{callr} package. This
-allows you to continue using your R session while the app is running.}
+\item{run_bg}{If \code{TRUE} (default), the app runs in a background R session using the \code{callr}
+package. This allows you to continue using your R session while the app is running.}
 }
 \value{
-When \code{run_bg = FALSE}: The edited path, returned invisibly when the app closes. During
-the app session, the current path is also stored in the Shiny option
-\code{shiny::getShinyOption("path_geopressureviz")}, which can be read afterwards in the same R
-session.
-When \code{run_bg = TRUE}: The background process object. In this case the edited path is not
-returned to the calling console session.
+When \code{run_bg = TRUE}, the background process object, invisibly. Otherwise \code{NULL},
+invisibly, when the app closes.
 }
 \description{
 GeoPressureViz is an interactive app to inspect and manually edit migration paths together with
@@ -54,15 +50,8 @@ The app can start from a \code{tag} object already in memory, or from an interim
 file that contains at least \code{tag} (and optionally \code{marginal}, \code{path_most_likely},
 \code{pressurepath}, \code{pressurepath_most_likely}).
 
-When \code{run_bg = FALSE}, the app stores the current edited path in the Shiny option
-\code{path_geopressureviz} and returns it invisibly when the app closes. You can capture it from the
-return value of this function or retrieve it afterwards in the same R session with
-\code{shiny::getShinyOption("path_geopressureviz")}.
-
-When \code{run_bg = TRUE}, the function returns the background process object instead of the edited
-path.
-
-The app \code{Save} button writes the current path to \code{./data/interim/{id}-path-geopressureviz.csv}.
+GeoPressureViz is an exploration tool outside the \code{geopressuretemplate()} workflow. To keep an
+edited path, use the app's \verb{Export CSV} button (read it back with \code{read_stap()}).
 
 Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }

@@ -153,3 +153,32 @@ era5_arco_array <- function(variable, era5_dataset) {
     "https://arco.datastores.ecmwf.int/{hit$store}/geoChunked.zarr/{hit$short_name}"
   )
 }
+
+#' Snap coordinates to the ERA5 grid
+#'
+#' Single levels use a 0.25 degree grid and ERA5-Land a 0.1 degree one. ERA5-Land latitude ties
+#' round south.
+#'
+#' @param lon,lat Numeric vectors of the same length.
+#' @param era5_dataset `"single-levels"` or `"land"`, scalar or one per point.
+#' @return A list with the snapped `lon` and `lat`.
+#' @noRd
+era5_grid_snap <- function(lon, lat, era5_dataset) {
+  land <- rep_len(era5_dataset == "land", length(lat))
+  resolution <- ifelse(land, 0.1, 0.25)
+  list(
+    # round() removes floating-point noise so that exact ties follow the documented rule
+    lon = floor(round(lon / resolution + 0.5, 6)) * resolution,
+    lat = ifelse(
+      land,
+      ceiling(round(lat / resolution - 0.5, 6)),
+      floor(round(lat / resolution + 0.5, 6))
+    ) *
+      resolution
+  )
+}
+
+# Nearest ERA5 hour, as GeoPressureAPI's join picks it
+era5_hour_round <- function(date) {
+  as.POSIXct(ceiling(as.numeric(date) / 3600 - 0.5) * 3600, origin = "1970-01-01", tz = "UTC")
+}

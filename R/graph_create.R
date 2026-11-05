@@ -5,7 +5,7 @@
 #' and pruning the likelihood maps provided.
 #'
 #' In the final graph, we only keep the likely nodes (i.e., position of the bird at each
-#' stationary periods) defined as (1) those whose likelihood value are within the threshold of
+#' stationary period) defined as (1) those whose likelihood values are within the threshold of
 #' percentile `thr_likelihood` of the total likelihood map and (2) those which are connected to
 #' at least one edge of the previous and next stationary periods requiring an average ground speed
 #' lower than `thr_gs` (in km/h).
@@ -26,7 +26,7 @@
 #' Parallel processing has been removed to avoid memory issues.
 #' @inheritParams tag2path
 #'
-#' @return Graph as a list
+#' @return A GeoPressureR `graph` object, a list with:
 #' - `s`: source node (index in the 3d grid lat-lon-stap)
 #' - `t`: target node (index in the 3d grid lat-lon-stap)
 #' - `gs`: average ground speed required to make that transition (km/h) as complex number
@@ -38,7 +38,8 @@
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-stap)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-stap)
 #' - `mask_water`: logical matrix of water-land
-#' - `param`: list of parameters including `thr_likelihood` and `thr_gs` (same as `tag$param`)
+#' - `param`: `tag$param` with an additional `graph_create` list including `thr_likelihood` and
+#' `thr_gs`
 #'
 #' @examples
 #' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
@@ -113,6 +114,13 @@ graph_create <- function(
   nll <- sz[1] * sz[2]
 
   stap_include <- which(map$stap$include)
+  if (length(stap_include) < 2) {
+    cli::cli_abort(c(
+      x = "A graph requires at least two stationary periods, but only {.val {length(stap_include)}}
+        {?is/are} included.",
+      ">" = "Include more stationary periods in {.field stap$include}."
+    ))
+  }
 
   g <- map_expand(map$extent, map$scale)
 
@@ -188,7 +196,9 @@ graph_create <- function(
           combinations <- expand.grid(s_idx = source_idx, t_idx = target_idx)
         } else {
           # Apply the inexpensive rough-distance filter before allocating exact-distance inputs.
-          max_distance <- thr_gs * flight_duration[i_s] * 1.1
+          # Include the cell-size fallback below, and 20% for the equirectangular approximation
+          # (can be longer than the great-circle distance at high latitude; exact distances still decide)
+          max_distance <- (thr_gs * flight_duration[i_s] + max(resolution)) * 1.2
           s_lat_matrix <- matrix(
             s_lat[source_idx],
             nrow = length(source_idx),
@@ -312,7 +322,7 @@ graph_create <- function(
           the distance between the center to fix this issue.",
         ">" = "Consider using a grid with a higher resolution."
       ))
-      gs_bearing <- graph_create_bearing(
+      gs_bearing <- haversine_bearing(
         cbind(s_lon[fallback$s_idx], s_lat[fallback$s_idx]),
         cbind(t_lon[fallback$t_idx], t_lat[fallback$t_idx])
       )
@@ -330,7 +340,7 @@ graph_create <- function(
   }
 
   # Prune
-  gr <- graph_create_prune(gr, quiet = quiet)
+  gr <- graph_create_prune(gr, map$stap$stap_id[stap_include], quiet = quiet)
 
   if (!quiet) {
     cli::cli_progress_step("Format graph output", msg_done = "Graph formatted")
@@ -408,10 +418,11 @@ graph_create <- function(
 #' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
 #'
 #' @param gr graph constructed with [`graph_create()`].
+#' @param stap_id stap_id of each graph layer, used in messages.
 #' @return graph pruned
 #' @family graph
 #' @noRd
-graph_create_prune <- function(gr, quiet = FALSE) {
+graph_create_prune <- function(gr, stap_id, quiet = FALSE) {
   if (length(gr) < 2) {
     return(gr)
   }
@@ -438,7 +449,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
         x = "No complete path remains: the graph is disconnected at stationary period
-          {.val {i_s}} when moving forward from the equipment location.",
+          {.val {stap_id[i_s]}} when moving forward from the equipment location.",
         i = "Inspect the likelihood maps and adjacent flight intervals in GeoPressureViz.",
         ">" = "Review the labeling and map settings; if they are plausible, reconsider the
           movement threshold(s) used to construct the graph."
@@ -461,7 +472,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
         x = "No complete path remains: the graph is disconnected at stationary period
-          {.val {i_s + 1}} when moving backward from the retrieval location.",
+          {.val {stap_id[i_s + 1]}} when moving backward from the retrieval location.",
         i = "Inspect the likelihood maps and adjacent flight intervals in GeoPressureViz.",
         ">" = "Review the labeling and map settings; if they are plausible, reconsider the
           movement threshold(s) used to construct the graph."

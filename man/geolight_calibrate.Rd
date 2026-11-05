@@ -10,7 +10,7 @@ geolight_calibrate(twl, calib_stap, twl_calib_adjust = 1.4)
 \item{twl}{a twilight data.frame}
 
 \item{calib_stap}{a stationary period data.frame with calibration locations. Must contain
-the columns \code{known_lat}, \code{known_lon}, \code{start}, and \code{end}. This can include both true known
+the columns \code{stap_id}, \code{known_lat}, \code{known_lon}, \code{start}, and \code{end}. This can include both true known
 locations and estimated (fitted) locations. When produced by \code{geolight_map_calibrate()},
 \code{calib_type} records whether each calibration anchor is \code{"known"} or \code{"fitted"}.}
 
@@ -21,7 +21,10 @@ a \code{twl_calib} object with components:
 \itemize{
 \item \code{x}: the zenith angle sequence
 \item \code{y}: the estimated density values
+\item \code{adjust}: the kernel density smoothing parameter (\code{twl_calib_adjust})
 \item \code{hist_breaks}: common histogram breaks used for all calibration staps
+\item \code{hist_mids}: midpoints of the histogram bins
+\item \code{binwidth}: width of the histogram bins
 \item \code{hist_counts}: list of histogram counts per calibration stationary period
 \item \code{calib_stap}: calibration stationary periods used for calibration
 }

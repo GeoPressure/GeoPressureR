@@ -7,7 +7,7 @@
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0013-title)
 #' and the [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-3-simulated-paths).
 #'
-#' @param graph a graph object.
+#' @param graph a GeoPressureR `graph` object with a movement model (see `graph_set_movement()`).
 #' @param nj Number of simulations.
 #' @param quiet logical to hide messages about the progress.
 #'
@@ -69,7 +69,7 @@ graph_simulation <- function(graph, nj = 10, quiet = FALSE) {
   # As we will simulate in forward chronological order, we will be able to create map_f inside the
   # simulation. However, map_b needs to be computed for all stationary period in advance, starting
   # by the last stationary period and moving backward in time as follow.
-  # We store map_b as a list of vector of size lat x lon (instead of 3D with stap)
+  # We store map_b as a list of sparse row vectors over all nodes (lat x lon x stap)
   map_b <- list()
 
   # Initiate map_b at the last stap with the retrieval node (b_n=1 in Nussbaumer et al. 2023)

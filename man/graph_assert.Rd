@@ -13,7 +13,7 @@ graph_assert(graph, condition = "graph")
 or \code{"full"}.}
 }
 \value{
-logical indicating whether the \code{graph} object fulfil the condition.
+\code{TRUE} if the \code{graph} object fulfils the condition, otherwise an error is raised.
 }
 \description{
 This function checks the condition of a \code{graph} object.
@@ -29,3 +29,14 @@ graph_assert(graph)
 graph <- graph_set_movement(graph)
 graph_assert(graph, "movement")
 }
+\seealso{
+Other graph:
+\code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_create]{graph_create()}},
+\code{\link[=graph_marginal]{graph_marginal()}},
+\code{\link[=graph_most_likely]{graph_most_likely()}},
+\code{\link[=graph_set_movement]{graph_set_movement()}},
+\code{\link[=graph_simulation]{graph_simulation()}},
+\code{\link[=print.graph]{print.graph()}}
+}
+\concept{graph}

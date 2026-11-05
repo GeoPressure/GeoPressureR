@@ -13,7 +13,7 @@ plot_tag_acceleration(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{variable}{type of acceleration variable to plot \code{"activity"} (or \code{"value"}) or
 \code{"mean_acceleration_z"}}
@@ -21,7 +21,7 @@ plot_tag_acceleration(
 \item{plot_plotly}{logical to use \code{plotly}}
 
 \item{label_auto}{logical to compute and plot the flight label using \code{tag_label_auto()}. Only if
-labels are not already present on tag$acceleration$label}
+labels are not already present in \code{tag$acceleration$label}.}
 
 \item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
 flight.}
@@ -30,7 +30,7 @@ flight.}
 a plot or ggplotly object.
 }
 \description{
-This function displays a plot of acceleration time series recorded by a tag
+This function displays a plot of acceleration time series recorded by a tag.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

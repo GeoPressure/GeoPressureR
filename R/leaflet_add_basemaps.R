@@ -13,7 +13,7 @@
 #' @return A Leaflet map.
 #' @keywords internal
 #' @export
-map_add_tiles <- function(
+leaflet_add_basemaps <- function(
   map,
   provider = NULL,
   provider_options = leaflet::providerTileOptions(),
@@ -137,4 +137,14 @@ map_tile_key <- function(service) {
     return(NULL)
   }
   keyring::key_get(service)
+}
+
+#' @rdname leaflet_add_basemaps
+#' @description `map_add_tiles()` is deprecated; use `leaflet_add_basemaps()`.
+#' @param ... arguments passed to `leaflet_add_basemaps()`.
+#' @keywords internal
+#' @export
+map_add_tiles <- function(...) {
+  lifecycle::deprecate_warn("3.8.0", "map_add_tiles()", "leaflet_add_basemaps()")
+  leaflet_add_basemaps(...)
 }

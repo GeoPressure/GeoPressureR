@@ -72,7 +72,8 @@ and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
 \value{
 A data.frame containing \code{date}, \code{surface_pressure}, \code{lat}, and \code{lon}. With \code{pressure},
 it also retains the input columns, renames \code{value} to \code{pressure_tag}, and adds
-\code{surface_pressure_norm} and \code{altitude}.
+\code{surface_pressure_norm} and \code{altitude}, as well as \code{stap_id} (\code{1}) and \code{label} (\code{""}) when
+absent from \code{pressure}.
 }
 \description{
 \code{geopressure_timeseries()} retrieves an hourly ERA5 surface-pressure time series at one

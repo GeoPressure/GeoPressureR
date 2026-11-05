@@ -11,10 +11,10 @@
 #'
 #' @param scientific_name Scientific name of the species
 #' @param mass Mass of the bird in kilograms
-#' @param wing_span Wing span in meters
+#' @param wing_span Wing span in metres
 #' @param wing_aspect Wing aspect ratio (no unit)
-#' @param wing_area Wing area in meter square
-#' @param body_frontal_area Body frontal area in meter square
+#' @param wing_area Wing area in square metres
+#' @param body_frontal_area Body frontal area in square metres
 #' @param species_name `r lifecycle::badge("deprecated")` Use `scientific_name` instead
 #' @importFrom lifecycle deprecated
 #' @return List containing mass, wing span, wing aspect ratio, and body frontal area.
@@ -73,7 +73,7 @@ bird_create <- function(
     b <- avonet[sp_id, ]
     b$mass <- b$mass / 1000 # g -> kg
     b$wing_length <- b$wing_length / 1000 # mm -> m
-    b$secondary <- b$secondary / 1000 # cm -> m
+    b$secondary <- b$secondary / 1000 # mm -> m
   }
 
   # Mass

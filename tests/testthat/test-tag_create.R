@@ -163,7 +163,29 @@ test_that("tag_create() | SOI magnetic-only 14DM", {
   ))
   expect_equal(tag$param$tag_create$manufacturer, "soi")
   expect_match(tag$param$tag_create$magnetic_file, "14DM_20160630\\.magnetic$")
-  expect_true(all(c("left", "backward", "down") == tag$param$mag_axis))
+  expect_true(all(c("right", "forward", "down") == tag$param$tag_create$mag_axis))
+})
+
+test_that("tag_create() | SOI mag_axis for a reversed tag", {
+  tag <- tag_create(id = "14DM", manufacturer = "soi", assert_pressure = FALSE, quiet = TRUE)
+  tag_rev <- tag_create(
+    id = "14DM",
+    manufacturer = "soi",
+    assert_pressure = FALSE,
+    mag_axis = c("left", "backward", "down"),
+    quiet = TRUE
+  )
+  expect_equal(tag_rev$param$tag_create$mag_axis, c("left", "backward", "down"))
+  expect_equal(tag_rev$magnetic$magnetic_x, -tag$magnetic$magnetic_x)
+  expect_equal(tag_rev$magnetic$acceleration_x, -tag$magnetic$acceleration_x)
+  expect_equal(tag_rev$magnetic$magnetic_z, tag$magnetic$magnetic_z)
+  expect_error(tag_create(
+    id = "14DM",
+    manufacturer = "soi",
+    assert_pressure = FALSE,
+    mag_axis = c("forward", "backward", "down"),
+    quiet = TRUE
+  ))
 })
 
 test_that("tag_create() | tabular full input and pressure bounds warning", {
@@ -472,7 +494,7 @@ test_that("tag_create_soi() | decoder file names, gaps and drift", {
   expect_false(anyNA(tag$magnetic[-2, ]))
 
   # 14DM: tag clock (StopTimeRTC 06:02:38) one minute ahead of StopTimeReference (06:01:38)
-  expect_equal(tag$param$drift, 1)
+  expect_equal(tag$param$tag_create$settings$clock_drift, 1)
 })
 
 test_that("tag_create_soi() | drift sign and missing settings keys", {
@@ -484,14 +506,14 @@ test_that("tag_create_soi() | drift sign and missing settings keys", {
   settings <- '{"StopTimeRTC":"30.06.2016 06:00:38","StopTimeReference":"30.06.2016 06:03:38"}'
   writeLines(settings, file.path(dir_tmp, "18LX.settings"))
   tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
-  expect_equal(tag$param$drift, -3)
+  expect_equal(tag$param$tag_create$settings$clock_drift, -3)
 
   writeLines('{"GDL-ID":"18LX"}', file.path(dir_tmp, "18LX.settings"))
   expect_no_message(
     tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
   )
   tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
-  expect_null(tag$param$drift)
+  expect_null(tag$param$tag_create$settings$clock_drift)
 })
 
 test_that("param_create() | default", {

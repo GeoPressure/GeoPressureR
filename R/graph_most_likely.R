@@ -7,7 +7,7 @@
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0011-title)
 #' and the [GeoPressureManual](https://geopressure.org/GeoPressureManual/trajectory.html#product-1-most-likely-path).
 #'
-#' @param graph a graph object.
+#' @param graph a GeoPressureR `graph` object with a movement model (see `graph_set_movement()`).
 #' @param quiet logical to hide messages about the progress.
 #'
 #' @return Path data.frame containing the columns
@@ -66,7 +66,7 @@ graph_most_likely <- function(graph, quiet = FALSE) {
     dims = c(1, n)
   )
   # Initiate the same matrix providing the cumulative total probability of the current path so far
-  # Not sure why x is differently specify, should be the same value for both path_s and path_max
+  # (log-likelihood of the observation at the equipment site)
   path_max <- Matrix::sparseMatrix(
     rep(1, length(graph$equipment)),
     graph$equipment,

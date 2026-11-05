@@ -9,10 +9,7 @@ tag_download_wind(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = function(stap_id, tag_id) {
-    
-    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
- },
+  file = wind_file,
   overwrite = FALSE,
   workers = 19,
   cds_token = lifecycle::deprecated(),
@@ -22,7 +19,7 @@ tag_download_wind(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{extent}{geographical extent of the map on which the likelihood will be computed.
+\item{extent}{geographical extent of the area for which wind data is downloaded.
 Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 
 \item{include_stap_id}{stationary period identifiers of the start of the flight to download.
@@ -37,7 +34,8 @@ Default is to download all flights.}
 \code{"vorticity"}. The same names are used by \code{\link[=edge_add_wind]{edge_add_wind()}}.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id.}
+taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+\verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
 

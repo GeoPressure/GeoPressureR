@@ -4,24 +4,24 @@
 #' This function creates a GeoPressureR `map` object from a spatio-temporal dataset.
 #' The data needs to be discretized according to `scale`, `extent` (space) and `stap` (time).
 #'
-#' This function is used by `geopressure_map` and `graph_marginal`.
+#' This function is used by `geopressure_map()` and `graph_marginal()`.
 #
 #' @param data list of matrices of the same size, one for each stationary period.
 #' @inheritParams tag_set_map
-#' @param stap a data.frame of stationary periods.
+#' @param stap a data.frame of stationary periods with columns `stap_id`, `start` and `end`. If
+#' the logical column `include` is missing, it is set to `TRUE` for stationary periods with data.
 #' @param id tag identifier.
 #' @param type map type used for default palettes in plots. One of:
-#' `"unknown"`, `"pressure"`, `"light"`, `"magnetic"`, `"pressure_mse"`, `"pressure_mask"`,
-#' `"mask_water"`, `"magnetic_intensity"`, `"magnetic_inclination"`, `"marginal"`, `"twilight"`.
+#' `"unknown"`, `"pressure"`, `"light"`, `"preslight"`, `"magnetic"`, `"pressure_mse"`,
+#' `"pressure_mask"`, `"magnetic_intensity"`, `"magnetic_inclination"`, `"marginal"`, `"twilight"`.
 #'
-#' @return A GeoPressure `map` object
+#' @return A GeoPressureR `map` object
 #'
 #'
 #' @examples
 #' data <- lapply(1:10, \(x) matrix(runif(5000), nrow = 50, ncol = 100))
 #' scale <- 10
 #' extent <- c(0, 10, 0, 5)
-#' seq(as.Date("2023-01-01"), as.Date("2023-01-10"), by = "day")
 #' stap <- data.frame(
 #'   stap_id = 1:10,
 #'   start = seq(as.POSIXct("2023-01-01", tz = "UTC"),
@@ -69,6 +69,9 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   assertthat::assert_that(assertthat::are_equal(nrow(stap), length(data)))
 
   type <- match.arg(type, choices = names(map_type()))
+  if (!("include" %in% names(stap))) {
+    stap$include <- !stap_id_null
+  }
 
   # Define the mask of water
   tmp <- data[[which(!stap_id_null)[1]]]
@@ -97,6 +100,10 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
   return(map)
 }
 
+#' Index a `map`
+#'
+#' `map[i]` returns the list of matrices `map$data[i]`. `map[[i]]` returns the matrix
+#' `map$data[[i]]` for a numeric `i`, and the `map` element `i` (e.g. `"stap"`) for a character `i`.
 #' @noRd
 #' @export
 "[.map" <- function(x, i, ...) {
@@ -106,7 +113,7 @@ map_create <- function(data, extent, scale, stap, id = NA, type = "unknown") {
 #' @noRd
 #' @export
 "[[.map" <- function(x, i, ...) {
-  x$data[[i]]
+  if (is.character(i)) .subset2(x, i) else x$data[[i]]
 }
 
 #' @noRd

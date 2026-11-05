@@ -2,8 +2,8 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param likelihood Field of the `tag` list containing the likelihood map (character). Possible
-#' value are `map_pressure`, `map_light`, `map_pressure_mse`, `map_pressure_mse`,
-#' `map_pressure_mse`, `mask_water`. Default `NA` is to take the product of `map_pressure` and
+#' value are `map_pressure`, `map_light`, `map_pressure_mse`, `map_pressure_mask`, or any other
+#' field or type name of `map_type()`. Default `NULL` is to take the product of `map_pressure` and
 #' `map_light`, or if not available, taking the first of the possible values.
 #'
 #' @return Likelihood map
@@ -23,7 +23,7 @@ tag2map <- function(tag, likelihood = NULL) {
 }
 
 #' Return a valid likelihood map name
-#
+#'
 #' @param tag a GeoPressureR `tag` object.
 #' @param likelihood field of the `tag` list containing the likelihood map(s), or a map type name.
 #'

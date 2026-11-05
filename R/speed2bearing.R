@@ -6,7 +6,7 @@
 #'
 #' @param speed speed as complex value
 #' @param speed_ref reference vector of the angle. Default is the North in order to return bearing.
-#' Use `speed_ref = 1` for trigonometric orientation (clockwise from East).
+#' Use `speed_ref = 1` to measure the angle clockwise from East.
 #' @param positive logical to ensure the bearing is positive between 0-360 degree.
 #'
 #' @return bearing angle in degree

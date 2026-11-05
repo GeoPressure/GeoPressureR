@@ -2,7 +2,7 @@
 #'
 #' This function displays the information of a `tag` object.
 #'
-#' @param x a GeoPressureR `tag` object
+#' @param x a GeoPressureR `tag` object.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return `tag` is returned invisibly and unchanged
@@ -41,15 +41,7 @@ print.tag <- function(x, ...) {
 
     # Get date range across all sensors
     all_dates <- list()
-    sensor_names <- c(
-      "pressure",
-      "acceleration",
-      "light",
-      "temperature_external",
-      "temperature_internal",
-      "magnetic"
-    )
-    for (sensor in sensor_names) {
+    for (sensor in tag_sensors) {
       if (sensor %in% names(tag) && "date" %in% names(tag[[sensor]])) {
         all_dates[[sensor]] <- tag[[sensor]]$date
       }
@@ -62,7 +54,7 @@ print.tag <- function(x, ...) {
     }
 
     # Display each sensor with datapoint count and resolution
-    for (sensor in sensor_names) {
+    for (sensor in tag_sensors) {
       if (sensor %in% names(tag)) {
         n_points <- format(nrow(tag[[sensor]]), big.mark = ",")
 

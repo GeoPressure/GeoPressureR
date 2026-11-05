@@ -17,7 +17,7 @@ geolight_fit_location(
 )
 }
 \arguments{
-\item{tag}{A GeoPressureR tag object containing \code{tag$twilight} and \code{tag$stap}.}
+\item{tag}{a GeoPressureR \code{tag} object containing \code{tag$twilight} and \code{tag$stap}.}
 
 \item{fitted_location_duration}{Minimum duration (in days) of stationary period(s) eligible to be
 used as a fitted location from twilight times. Default is \code{Inf} (disabled).}
@@ -58,7 +58,7 @@ least-squares sense, closest to all those circles simultaneously.
 For a stationary period with twilight-specific subsolar points \code{s_i}, the
 fitted longitude \code{lon}, latitude \code{lat}, and zenith angle \code{z} minimize
 
-mean_i ( d((lon, lat), s_i) - z )^2 + P_prior(z)
+mean_i ( d((lon, lat), s_i) - z )^2 + zenith_prior_penalty_weight * P_prior(z)
 
 where \verb{d((lon, lat), s_i)} is the great-circle angular distance from the
 candidate location to the subsolar point at twilight \code{i}. The first term is
