@@ -196,13 +196,17 @@ tag_set_map <- function(
         } else {
           FALSE
         }
-        if (res) {
-          # If yes, remove existing likelihood map and carry on the overwrite of parameter
-          tag$map_pressure <- NULL
-          tag$map_light <- NULL
-          tag$param <- NULL
+        if (isTRUE(res)) {
+          # If yes, remove existing likelihood maps and carry on the overwrite of parameter
+          tag[c(
+            "map_pressure",
+            "map_light",
+            "map_pressure_mse",
+            "map_pressure_mask",
+            "map_light_twl"
+          )] <- NULL
           cli::cli_warn(c(
-            "!" = "The old parameters have been overwitten with the new ones and the likelihood map have been deleted.",
+            "!" = "The old parameters have been overwritten with the new ones and the likelihood maps have been deleted.",
             ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new likelihood maps"
           ))
         } else {
