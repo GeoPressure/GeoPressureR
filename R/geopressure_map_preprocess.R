@@ -181,7 +181,7 @@ geopressure_map_preprocess <- function(
     pgi_reg$date <- date_reg
 
     # Only keep value which are within 30min of the actual measurement.
-    id <- difftime(pgi_reg$date, pgi_reg$date_ireg, units = "hours") > 0.5
+    id <- abs(difftime(pgi_reg$date, pgi_reg$date_ireg, units = "hours")) > 0.5
     pgi_reg$value[id] <- NA
     # Also set stap_id NA to be able to identify those time to remove at the end of this function
     pgi_reg$stap_id[id] <- NA
