@@ -11,7 +11,8 @@
 #' `pressurepath`, `pressurepath_most_likely`).
 #'
 #' GeoPressureViz is an exploration tool. To keep an edited path, use the app's `Export CSV`
-#' button.
+#' button and save the file as `./data/interim/{id}-path-geopressureviz.csv`, where
+#' `geopressuretemplate_pressurepath()` reads it.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).

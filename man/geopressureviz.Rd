@@ -51,7 +51,8 @@ file that contains at least \code{tag} (and optionally \code{marginal}, \code{pa
 \code{pressurepath}, \code{pressurepath_most_likely}).
 
 GeoPressureViz is an exploration tool. To keep an edited path, use the app's \verb{Export CSV}
-button.
+button and save the file as \code{./data/interim/{id}-path-geopressureviz.csv}, where
+\code{geopressuretemplate_pressurepath()} reads it.
 
 Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }
