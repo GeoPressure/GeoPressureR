@@ -160,7 +160,7 @@ plot_pressurepath <- function(
 
   if (type == "timeseries") {
     pp$warning <- (abs(pp$error) /
-      sd[ifelse(pp$stap_id == round(pp$stap_id), 1, pp$stap_id)]) >=
+      sd[ifelse(pp$stap_id == round(pp$stap_id), pp$stap_id, 1)]) >=
       warning_std_thr
 
     # convert stapelev to factor for color
