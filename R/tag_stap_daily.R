@@ -184,7 +184,7 @@ tag_stap_daily <- function(
   tag$stap <- stap
 
   # Assign stap_id to sensor and twilight data
-  for (s in intersect(c("pressure", "acceleration", "light", "magnetic"), names(tag))) {
+  for (s in intersect(tag_sensors, names(tag))) {
     tag[[s]]$stap_id <- find_stap(tag$stap, tag[[s]]$date)
   }
   tag$twilight$stap_id <- find_stap(tag$stap, tag$twilight$twilight)

@@ -119,13 +119,7 @@ tag_label_stap <- function(
   )
 
   # Assign to each sensor the stationary period to which it belongs.
-  for (sensor_df in c(
-    "pressure",
-    "acceleration",
-    "light",
-    "twilight",
-    "magnetic"
-  )) {
+  for (sensor_df in c(tag_sensors, "twilight")) {
     if (assertthat::has_name(tag, sensor_df)) {
       assertthat::assert_that(is.data.frame(tag[[sensor_df]]))
       if ("date" %in% names(tag[[sensor_df]])) {

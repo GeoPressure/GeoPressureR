@@ -192,17 +192,7 @@ tag_create <- function(
       assertthat::assert_that(
         is.list(correction),
         !is.null(names(correction)),
-        all(
-          names(correction) %in%
-            c(
-              "pressure",
-              "light",
-              "acceleration",
-              "temperature_external",
-              "temperature_internal",
-              "magnetic"
-            )
-        ),
+        all(names(correction) %in% tag_sensors),
         all(vapply(correction, is.numeric, logical(1))),
         all(lengths(correction) == 1),
         all(is.finite(unlist(correction)))
@@ -381,6 +371,17 @@ tag_create <- function(
   return(tag)
 }
 
+# Canonical sensor names of a `tag`
+#' @noRd
+tag_sensors <- c(
+  "pressure",
+  "light",
+  "acceleration",
+  "temperature_external",
+  "temperature_internal",
+  "magnetic"
+)
+
 # Detect full path from the argument file.
 #' @noRd
 tag_create_detect <- function(file, directory, quiet = TRUE) {
@@ -492,7 +493,7 @@ tag_create_dto <- function(
 #' Correct sensor timestamps with a constant shift and linear drift
 #' @noRd
 tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference) {
-  sensors <- setdiff(names(tag), "param")
+  sensors <- intersect(names(tag), tag_sensors)
   shift <- drift <- stats::setNames(rep(0, length(sensors)), sensors)
   if (is.numeric(time_shift)) {
     shift[] <- time_shift

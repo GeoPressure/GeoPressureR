@@ -176,24 +176,8 @@ tag_status <- function(tag) {
   }
   status <- c("tag")
 
-  if (assertthat::has_name(tag, "pressure")) {
-    status <- append(status, c("read", "pressure"))
-  }
-  if (assertthat::has_name(tag, "light")) {
-    status <- append(status, c("read", "light"))
-  }
-  if (assertthat::has_name(tag, "acceleration")) {
-    status <- append(status, c("read", "acceleration"))
-  }
-  if (assertthat::has_name(tag, "temperature_internal")) {
-    status <- append(status, c("read", "temperature_internal"))
-  }
-  if (assertthat::has_name(tag, "temperature_external")) {
-    status <- append(status, c("read", "temperature_external"))
-  }
-  if (assertthat::has_name(tag, "magnetic")) {
-    status <- append(status, c("read", "magnetic"))
-  }
+  sensors <- intersect(tag_sensors, names(tag))
+  status <- c(status, rbind(rep("read", length(sensors)), sensors))
   if (
     (assertthat::has_name(tag, "pressure") && assertthat::has_name(tag$pressure, "label")) ||
       (assertthat::has_name(tag, "acceleration") && assertthat::has_name(tag$acceleration, "label"))
