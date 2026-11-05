@@ -497,33 +497,28 @@ server <- function(input, output, session) {
 
         stap_prev_to_next <- seq(stap_id_prev, stap_id_next)
 
-        # Cummulate the flight duration to get a proxy of the over distance covered
-        total_flight <- cumsum(as.numeric(c(
+        # Cumulate the flight duration to get a proxy of the overall distance covered
+        total_flight <- cumsum(c(
           0,
-          flight$duration[stap_prev_to_next]
-        )))
+          stap2flight(stap, stap$stap_id)$duration[utils::head(stap_prev_to_next, -1)]
+        ))
 
         stap_interp <- !(stap_prev_to_next %in%
           c(stap_id_prev, as.numeric(input$stap_id), stap_id_next))
 
         path_prev_to_next <- reactVal$path[stap_prev_to_next, ]
 
-        # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
-        # position
-        path_prev_to_next$lon[stap_interp] <- round(
-          stats::approx(
-            total_flight[!stap_interp],
-            path_prev_to_next$lon[!stap_interp],
-            total_flight[stap_interp]
-          )$y
-        )
-        path_prev_to_next$lat[stap_interp] <- round(
-          stats::approx(
-            total_flight[!stap_interp],
-            path_prev_to_next$lat[!stap_interp],
-            total_flight[stap_interp]
-          )$y
-        )
+        # Interpolate lat and lon separately using `total_flight` as a spacing between position
+        path_prev_to_next$lon[stap_interp] <- stats::approx(
+          total_flight[!stap_interp],
+          path_prev_to_next$lon[!stap_interp],
+          total_flight[stap_interp]
+        )$y
+        path_prev_to_next$lat[stap_interp] <- stats::approx(
+          total_flight[!stap_interp],
+          path_prev_to_next$lat[!stap_interp],
+          total_flight[stap_interp]
+        )$y
 
         reactVal$path[stap_prev_to_next, ] <- path_prev_to_next
       }
