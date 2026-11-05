@@ -124,13 +124,17 @@ geopressuretemplate <- function(
   )
 
   # Create and process the graph using the computed or loaded tag
-  geopressuretemplate_graph(
+  out <- geopressuretemplate_graph(
     id = id,
     config = config,
     quiet = quiet,
     file = file,
     ...
   )
+  # The graph step returns the graph (without saving) when it failed: stop before pressurepath
+  if (inherits(out, "graph")) {
+    return(invisible(out))
+  }
 
   geopressuretemplate_pressurepath(
     id = id,
