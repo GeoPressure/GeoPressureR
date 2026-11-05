@@ -391,24 +391,8 @@ edge_add_wind_check <- function(
       }
 
       # Check that the time is matching
-      if ("time" %in% names(nc$dim)) {
-        time <- as.POSIXct(
-          ncdf4::ncvar_get(nc, "time") * 60 * 60,
-          origin = "1900-01-01",
-          tz = "UTC"
-        )
-      } else if ("valid_time" %in% names(nc$dim)) {
-        time <- as.POSIXct(
-          ncdf4::ncvar_get(nc, "valid_time"),
-          origin = "1970-01-01",
-          tz = "UTC"
-        )
-      } else {
-        cli::cli_abort(c(
-          x = "Time variable not found in {.file {file_path}}",
-          "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
-        ))
-      }
+      nc_info <- edge_add_wind_nc_info(nc, file_path)
+      time <- nc_info$time
       t_s <- as.POSIXct(
         format(fl_s$start[i_fl], "%Y-%m-%d %H:00:00"),
         tz = "UTC"
@@ -430,9 +414,7 @@ edge_add_wind_check <- function(
       pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
       pres_value <- pres_value[is.finite(pres_value)]
       if (length(pres_value) > 0) {
-        pres_var <- names(nc$dim)[grepl("level", names(nc$dim))]
-        pres <- ncdf4::ncvar_get(nc, pres_var)
-
+        pres <- nc_info$pres
         if (
           !(min(pres) <= min(pres_value) &&
             max(pres) >= min(1000, max(pres_value)))
@@ -449,8 +431,8 @@ edge_add_wind_check <- function(
       }
 
       # Check if spatial extent match
-      lat <- ncdf4::ncvar_get(nc, "latitude")
-      lon <- ncdf4::ncvar_get(nc, "longitude")
+      lat <- nc_info$lat
+      lon <- nc_info$lon
       nc_extent <- c(min(lon), max(lon), min(lat), max(lat))
       if (
         min(g$lat) < min(lat) ||
