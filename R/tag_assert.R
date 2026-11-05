@@ -157,6 +157,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
   } else if (type == "abort") {
     cli::cli_abort(msg)
   }
+  invisible(FALSE)
 }
 
 #' Get tag processing status
