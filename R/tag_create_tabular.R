@@ -119,7 +119,7 @@ tag_create_csv <- function(sensor_path, col_name, quiet = FALSE) {
   }
   if (anyNA(sensor_data$date)) {
     cli::cli_abort(c(
-      x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(sensor_data$date))}",
+      x = "Invalid date in {.file {sensor_path}} at line(s): {which(is.na(sensor_data$date)) + 1}",
       i = "Check and fix the corresponding lines"
     ))
   }

@@ -113,7 +113,8 @@ external temperature \verb{*.temperature} or \verb{*.airtemperature}, internal t
 \verb{*.bodytemperature}, and magnetic data \verb{*.magnetic}.
 \item Migratetech (\code{"migratetech"}): pressure and acceleration \verb{*.deg}, light \verb{*.lux}.
 \item BAS (\code{"bas"}): light \verb{*.lig} only; use \code{assert_pressure = FALSE}.
-\item Lund CAnMove (\code{"lund"}): pressure \verb{*_press.xlsx}, light and acceleration \verb{*_acc.xlsx}.
+\item Lund CAnMove (\code{"lund"}): pressure \verb{*_press.xlsx}, light and acceleration both from
+\code{acceleration_file} (\verb{*_acc.xlsx}).
 \item PresTag (\code{"prestag"}): pressure \verb{*.txt}.
 }
 

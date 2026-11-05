@@ -197,7 +197,6 @@ tag_set_map <- function(
   # Add known to stap
   # remove all duplicate names to merge the table without duplicate
   stap <- stap[, !(names(stap) %in% c("known_lat", "known_lon", "include"))]
-  known <- known[, !(names(known) %in% c("start", "end"))]
   stap <- merge(stap, known, all.x = TRUE)
 
   # Add the vector of stap to include

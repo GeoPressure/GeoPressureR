@@ -19,7 +19,7 @@
 #' This function is inspired by the function `classify_flap` from the
 #' [PAMlr package](https://github.com/KiranLDA/PAMlr).
 #'
-#' @inheritParams tag_label
+#' @param tag a GeoPressureR `tag` object with acceleration data.
 #' @param min_duration Minimal duration (in minutes) to consider a high activity as migratory
 #' flight.
 #' @param thr_reclassify Post-processing threshold of activity considered for re-classification.

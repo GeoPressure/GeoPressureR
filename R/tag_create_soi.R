@@ -228,10 +228,10 @@ tag_create_soi_mag <- function(
     if (!quiet) {
       cli::cli_warn(c(
         "!" = "The hardware version {.val {hw_version}} could not be detected.",
-        ">" = "The magnetic data is not corrected and {.code mag} contains the raw data."
+        ">" = "The magnetic data cannot be calibrated and is not imported."
       ))
     }
-    return(mag)
+    return(NULL)
   }
 
   # Automatically define correction values
@@ -281,40 +281,7 @@ tag_create_soi_mag <- function(
 
 #' Convert the mag axes to forward-right-down
 #' @noRd
-mag_axes <- function(mag, mag_axis = "auto") {
-  if (all(mag_axis == "auto")) {
-    xyz <- c(
-      stats::median(mag$gX),
-      stats::median(mag$gY),
-      stats::median(mag$gZ)
-    )
-
-    mag_axis <- c("", "", "")
-
-    # We assume that the z axis is on the 3rd coordinate and that gravity is going down =)
-    mag_axis[3] <- ifelse(xyz[3] > 0, "down", "up")
-
-    # The large value between 1st and 2nd coordinate defines the sway (forward-backward) and we
-    # assume that roll is positive
-    if (abs(xyz[1]) > abs(xyz[2])) {
-      if (xyz[1] > 0) {
-        mag_axis[1] <- "backward"
-        mag_axis[2] <- ifelse(mag_axis[3] == "up", "right", "left")
-      } else {
-        mag_axis[1] <- "forward"
-        mag_axis[2] <- ifelse(mag_axis[3] == "up", "left", "right")
-      }
-    } else {
-      if (xyz[2] > 0) {
-        mag_axis[2] <- "backward"
-        mag_axis[1] <- ifelse(mag_axis[3] == "up", "left", "right")
-      } else {
-        mag_axis[2] <- "forward"
-        mag_axis[1] <- ifelse(mag_axis[3] == "up", "right", "left")
-      }
-    }
-  }
-
+mag_axes <- function(mag, mag_axis) {
   # We use a forward-right-down system. Which means that the sensor needs to be oriented
   ref_axis_name <- matrix(
     c("forward", "backward", "right", "left", "down", "up"),
@@ -328,8 +295,8 @@ mag_axes <- function(mag, mag_axis = "auto") {
   assertthat::assert_that(any(ref_axis_name[, 2] %in% mag_axis))
   assertthat::assert_that(any(ref_axis_name[, 3] %in% mag_axis))
 
-  # Compute the index of the converted axes
-  axes_ind <- ceiling(match(mag_axis, ref_axis_name) / 2)
+  # Raw axis providing each forward-right-down axis (inverse permutation, needed for 3-cycles)
+  axes_ind <- order(ceiling(match(mag_axis, ref_axis_name) / 2))
 
   # Find the sign conversion for each of these axes
   axes_sign <- ifelse((match(mag_axis[axes_ind], ref_axis_name)) %% 2, 1, -1)
