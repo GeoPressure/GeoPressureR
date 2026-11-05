@@ -123,9 +123,9 @@ pressurepath_create <- function(
     return(pressurepath)
   }
 
+  pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
   if (source == "arco") {
     arco_require_dependencies()
-    pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
     return(pressurepath_create_arco_impl(
       tag = tag,
       path = path,
@@ -140,7 +140,6 @@ pressurepath_create <- function(
     ))
   }
 
-  pressurepath <- pressurepath_prepare(tag, path, preprocess, quiet)
   pressurepath_create_api_impl(
     tag = tag,
     path = path,

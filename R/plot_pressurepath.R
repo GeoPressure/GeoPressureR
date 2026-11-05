@@ -122,8 +122,6 @@ plot_pressurepath <- function(
   pp <- merge(pp, tag_era5)
   pp <- pp[order(pp$date), ]
 
-  # knitr::kable(tag_era5, "simple")
-
   if (type %in% c("timeseries", "altitude")) {
     breaks <- seq(min(pp$date), max(pp$date), by = "30 min")
     if (utils::tail(breaks, 1) < max(pp$date)) {
@@ -239,7 +237,7 @@ plot_pressurepath <- function(
         legend.position = "none",
         axis.text.y = ggplot2::element_blank()
       )
-  } else if (type == "altitude") {
+  } else {
     pp_alt <- pressurepath
 
     # find flight
@@ -285,11 +283,6 @@ plot_pressurepath <- function(
           color = "black"
         )
     }
-  } else {
-    cli::cli_abort(
-      "The type {.var {type}} of pressurepath plot does not exist. Available options
-                   are: {.val {c('timeseries', 'histogram', 'altitude')}}"
-    )
   }
 
   if (plot_plotly) {
