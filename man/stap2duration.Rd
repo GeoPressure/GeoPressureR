@@ -4,16 +4,23 @@
 \alias{stap2duration}
 \title{Compute duration of stationary periods}
 \usage{
-stap2duration(stap_path, units = "days", return_numeric = TRUE)
+stap2duration(
+  stap,
+  units = "days",
+  return_numeric = TRUE,
+  stap_path = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{stap_path}{A \code{stap} data.frame.}
+\item{stap}{A \code{stap} data.frame.}
 
 \item{units}{character string. Units in which the results are desired. Can be abbreviated.
 See \code{difftime()}}
 
 \item{return_numeric}{logical to return the duration as a numeric rather than with a duration
 format.}
+
+\item{stap_path}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Renamed to \code{stap}.}
 }
 \value{
 Vector of duration
