@@ -167,8 +167,13 @@ era5_grid_snap <- function(lon, lat, era5_dataset) {
   land <- rep_len(era5_dataset == "land", length(lat))
   resolution <- ifelse(land, 0.1, 0.25)
   list(
-    lon = floor(lon / resolution + 0.5) * resolution,
-    lat = ifelse(land, ceiling(lat / resolution - 0.5), floor(lat / resolution + 0.5)) *
+    # round() removes floating-point noise so that exact ties follow the documented rule
+    lon = floor(round(lon / resolution + 0.5, 6)) * resolution,
+    lat = ifelse(
+      land,
+      ceiling(round(lat / resolution - 0.5, 6)),
+      floor(round(lat / resolution + 0.5, 6))
+    ) *
       resolution
   )
 }
