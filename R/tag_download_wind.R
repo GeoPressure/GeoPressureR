@@ -33,7 +33,8 @@
 #' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
 #' `"vorticity"`. The same names are used by [edge_add_wind()].
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
-#' taking as arguments (1) the stationary period identifier and (2) the tag_id.
+#' taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+#' `./data/wind/{tag_id}/{tag_id}_{stap_id}.nc`.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
 #' @param workers maximum number of simultaneous requests submitted to CDS. Defaults to `19`.
 #' CDS queue limits are dynamic; use a lower value if queued requests are temporarily limited.
@@ -57,9 +58,7 @@ tag_download_wind <- function(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = \(stap_id, tag_id) {
-    glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
-  },
+  file = wind_file,
   overwrite = FALSE,
   workers = 19,
   cds_token = lifecycle::deprecated(),
@@ -210,4 +209,12 @@ tag_download_wind <- function(
     time_out = 3 * 3600,
     ...
   )
+}
+
+
+#' Default path of the ERA5 wind file of a stationary period
+#'
+#' @noRd
+wind_file <- \(stap_id, tag_id) {
+  glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
 }

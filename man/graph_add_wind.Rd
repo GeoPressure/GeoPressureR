@@ -27,7 +27,8 @@ match ERA5 native resolution (1hr).}
 takes the nearest neighbour. ERA5 native resolution is 0.25°}
     \item{\code{quiet}}{logical to hide messages about the progress}
     \item{\code{file}}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id.}
+taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+\verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
   }}
 }
 \value{

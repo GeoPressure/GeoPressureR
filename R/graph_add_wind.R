@@ -137,21 +137,12 @@ graph_add_wind <- function(
     "not_provided"
   }
 
-  # Handle file parameter if provided
-  if ("file" %in% names(dots)) {
-    file <- dots$file
-    attr(file, "srcref") <- NULL
-    attr(file, "srcfile") <- NULL
-    environment(file) <- baseenv()
-    graph$param$graph_add_wind$file <- file
-  } else {
-    # Use default file function if not provided
-    file <- eval(formals(graph_add_wind_edge)$file)
-    attr(file, "srcref") <- NULL
-    attr(file, "srcfile") <- NULL
-    environment(file) <- baseenv()
-    graph$param$graph_add_wind$file <- file
-  }
+  # Store the file function (provided or default) without source reference or environment
+  file <- if ("file" %in% names(dots)) dots$file else wind_file
+  attr(file, "srcref") <- NULL
+  attr(file, "srcfile") <- NULL
+  environment(file) <- baseenv()
+  graph$param$graph_add_wind$file <- file
 
   return(graph)
 }
@@ -165,11 +156,7 @@ graph_add_wind_edge <- function(
   pressure = NULL,
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
-  file = \(stap_id, tag_id) {
-    glue::glue(
-      "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
-    )
-  },
+  file = wind_file,
   quiet = FALSE
 ) {
   if (!requireNamespace("ncdf4", quietly = TRUE)) {

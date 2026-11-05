@@ -66,11 +66,7 @@ edge_add_wind <- function(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = lifecycle::deprecated(),
-  file = \(stap_id, tag_id) {
-    glue::glue(
-      "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
-    )
-  },
+  file = wind_file,
   quiet = FALSE
 ) {
   if (lifecycle::is_present(return_averaged_variable)) {
@@ -340,11 +336,7 @@ edge_add_wind_check <- function(
   graph,
   pressure = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = \(stap_id, tag_id) {
-    glue::glue(
-      "./data/wind/{tag_id}/{tag_id}_{stap_id}.nc"
-    )
-  }
+  file = wind_file
 ) {
   assertthat::assert_that(inherits(graph, "tag") | inherits(graph, "graph"))
 
