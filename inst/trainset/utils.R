@@ -117,9 +117,9 @@ get_marker_colors <- function(labels) {
     ifelse(
       labels_chr == "discard",
       "grey", # Discard = grey
-      ifelse(labels_chr == "flight", "red", "")
+      ifelse(labels_chr == "flight", "red", "") # Flight = red
     )
-  ) # Flight = red
+  )
 
   # Get unique additional labels (excluding NA, "", "discard", "flight")
   additional_labels <- unique(labels_chr[

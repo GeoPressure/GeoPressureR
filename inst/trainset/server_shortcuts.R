@@ -8,15 +8,15 @@ shiny::observeEvent(input$shortcuts_help, {
       size = "l",
       footer = shiny::modalButton("Close"),
       shiny::tagList(
-        shiny::h4("Labeling"),
+        shiny::h4("Labelling"),
         shiny::tags$ul(
           shiny::tags$li("Click or drag on the plot to apply the selected label."),
           shiny::tags$li(shiny::tagList(
             "Press ",
-            shiny::tags$kbd("1"),
+            shiny::tags$kbd("0"),
             " to ",
             shiny::tags$kbd("9"),
-            " to select a label by its order in the label dropdown."
+            " to select the 1st to 10th label in the label dropdown."
           )),
           shiny::tags$li(
             shiny::tagList(

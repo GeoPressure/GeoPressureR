@@ -5,14 +5,11 @@
 stapelev_strip_data <- shiny::reactive({
   shiny::req(state$stapelev_proposal, length(state$stapelev_solar_elevation))
   settings <- stapelev_input_settings()
-  i <- 1L
-  strip <- stapelev_solar_strip(
+  stapelev_solar_strip(
     state$stapelev_proposal$date,
     state$stapelev_solar_elevation,
-    settings$solar_angle[i]
+    settings$solar_angle[1]
   )
-  strip$visible <- TRUE
-  strip
 })
 stapelev_strip_display <- shiny::debounce(stapelev_strip_data, millis = 350)
 
@@ -29,8 +26,7 @@ shiny::observeEvent(
         x = list(trainset_format_time(strip$x)),
         z = list(strip$z),
         text = list(strip$text),
-        colorscale = list(list(list(0, "rgba(37,58,90,0.08)"), list(1, "rgba(255,255,255,0)"))),
-        visible = list(strip$visible)
+        colorscale = list(list(list(0, "rgba(37,58,90,0.08)"), list(1, "rgba(255,255,255,0)")))
       ),
       list(length(settings$offsets) * 2L + 2L)
     )
@@ -202,7 +198,6 @@ output$stapelev_proposal_plot <- plotly::renderPlotly({
         zmin = 0,
         zmax = 1,
         colorscale = list(list(0, "rgba(37,58,90,0.08)"), list(1, "rgba(255,255,255,0)")),
-        visible = strip$visible,
         zsmooth = FALSE,
         showscale = FALSE,
         showlegend = FALSE,

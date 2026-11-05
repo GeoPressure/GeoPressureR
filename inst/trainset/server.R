@@ -110,7 +110,6 @@ server <- function(input, output, session) {
       d$duration <- stap2duration(d)
       d
     },
-    ui_ready = FALSE,
     labels_dirty = FALSE,
     view_xmin = time_min,
     view_xmax = time_max,
@@ -217,7 +216,7 @@ server <- function(input, output, session) {
         )
       )
     }
-    if (has_acceleration && nrow(state$tag$acceleration) > 0) {
+    if (has_acceleration) {
       i <- !is.na(state$tag$acceleration$value)
       out <- rbind(
         out,
@@ -235,7 +234,6 @@ server <- function(input, output, session) {
 
   session$onFlushed(
     function() {
-      state$ui_ready <- TRUE
       if (isTRUE(auto_save_enabled)) {
         shinyjs::show("save_btn")
         shinyjs::hide("export_btn")

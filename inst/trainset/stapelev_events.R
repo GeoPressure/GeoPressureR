@@ -89,7 +89,7 @@ shiny::observeEvent(input$stapelev_initialize, {
   )
   if (is.null(offsets)) {
     shiny::showNotification(
-      "Not enough unexplained pressure data for the requested number of levels. Adjust the count, time ranges or shared settings. Current cards kept.",
+      "Not enough unexplained pressure data for the requested number of levels. Adjust the count, time ranges or shared settings. Current levels kept.",
       type = "warning"
     )
     return()
@@ -102,7 +102,7 @@ shiny::observeEvent(input$stapelev_initialize, {
   initial$offsets <- stats::setNames(offsets, labels)
   initial$windows <- windows
   stapelev_set_levels(initial)
-  state$stapelev_fit_message <- "Offsets initialized from shared settings. Review each card before applying."
+  state$stapelev_fit_message <- "Offsets initialized from shared settings. Review each level before applying."
   stapelev_preview(initial)
 })
 

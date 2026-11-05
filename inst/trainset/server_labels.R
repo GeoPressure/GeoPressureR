@@ -71,7 +71,7 @@ if (isTRUE(has_pressure && has_acceleration)) {
   })
 }
 
-# Shared labeling function for both selection and click events
+# Shared labelling function for both selection and click events
 apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_range = NULL) {
   active_series <- active_series_or_default()
   selected_label <- if (isTRUE(ctrl_pressed)) "" else input$label_select
@@ -83,7 +83,7 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
     return()
   }
 
-  # Treat pressure overview/detail line clicks as pressure markers for labeling
+  # Treat pressure overview/detail line clicks as pressure markers for labelling
   if (is.null(selection_range) && has_pressure) {
     point_data$curveNumber[
       point_data$curveNumber %in% c(curve_overview_pressure, curve_pressure_detail_line)
