@@ -390,9 +390,9 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     ignore.case = TRUE
   )
 
-  # Remove temporary file and those with word "test"
-  path <- path[!grepl("~\\$|test", path, ignore.case = TRUE)]
-  path <- path[!grepl("(?i)(?<!mag)calib", path, perl = TRUE)]
+  # Remove temporary file and those with word "test" or "calib" in their filename
+  path <- path[!grepl("~\\$|test", basename(path), ignore.case = TRUE)]
+  path <- path[!grepl("(?i)(?<!mag)calib", basename(path), perl = TRUE)]
 
   if (length(path) == 0) {
     if (!quiet) {
