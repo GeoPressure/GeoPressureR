@@ -19,8 +19,8 @@ tag_create_prestag <- function(
   pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
   if (is.null(pressure_path)) {
     cli::cli_abort(c(
-      "x" = "There are no file {.val {pressure_path}}",
-      "!" = "{.var pressure_path} is required"
+      "x" = "No file matching {.val {pressure_file}} in {.file {directory}}.",
+      "!" = "{.arg pressure_file} is required."
     ))
   }
 
