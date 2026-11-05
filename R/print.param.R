@@ -40,6 +40,10 @@ print.param <- function(x, ...) {
   bullets(param$tag_create, "time_shift")
   bullets(param$tag_create, "time_drift")
   bullets(param$tag_create, "time_reference")
+  bullets(param$tag_create, "mag_axis")
+  bullets(param$tag_create$settings, "model")
+  bullets(param$tag_create$settings, "firmware")
+  bullets(param$tag_create$settings, "clock_drift")
 
   cli::cli_h3("Tag label {.fun tag_label}")
   bullets(param$tag_label, "file")

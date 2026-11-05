@@ -237,7 +237,7 @@ tag_create <- function(
       manufacturer <- "tabular"
     } else {
       assertthat::assert_that(assertthat::is.dir(directory))
-      if (any(grepl("\\.(pressure|glf)$", list.files(directory)))) {
+      if (any(grepl("\\.(pressure|glf|magnetic|acceleration|settings)$", list.files(directory)))) {
         manufacturer <- "soi"
       } else if (any(grepl("\\.(deg|lux)$", list.files(directory)))) {
         manufacturer <- "migratetech"

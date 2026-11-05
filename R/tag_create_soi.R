@@ -148,7 +148,7 @@ tag_create_soi <- function(
   if (!is.null(magnetic_path) && !is.null(tag$param$tag_create$settings)) {
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,
-      hw_version = tag$param$tag_create$settings,
+      hw_version = tag$param$tag_create$settings$model,
       mag_axis = mag_axis,
       quiet = quiet
     )
@@ -210,24 +210,18 @@ tag_create_soi_mag <- function(
   names(mag) <- c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
   mag <- tag_create_soi_gap(mag)
 
-  # Detect hardware version
-  if (is.list(hw_version)) {
-    key <- intersect(c("HW Version", "HWVersion"), names(hw_version))
-    if (length(key) > 0) {
-      hw_version <- hw_version[[key[1]]]
-      hw_version <- sub(
-        "^(hw_)?GDL3pam[-_]?v?[-_]?",
-        "",
-        hw_version,
-        ignore.case = TRUE
-      )
-      hw_version <- as.double(hw_version)
-    }
-  }
-  if (!is.numeric(hw_version) || length(hw_version) != 1 || is.na(hw_version)) {
+  # Detect hardware version from the logger model (e.g. "HW_GDL3pam_V2.1")
+  model <- hw_version
+  hw_version <- suppressWarnings(as.double(sub(
+    "^(hw_)?GDL3pam[-_]?v?[-_]?",
+    "",
+    hw_version,
+    ignore.case = TRUE
+  )))
+  if (length(hw_version) != 1 || is.na(hw_version)) {
     if (!quiet) {
       cli::cli_warn(c(
-        "!" = "The hardware version {.val {hw_version}} could not be detected.",
+        "!" = "The hardware version {.val {model}} could not be detected.",
         ">" = "The magnetic data cannot be calibrated and is not imported."
       ))
     }
@@ -301,18 +295,9 @@ mag_axes <- function(mag, mag_axis) {
   # Find the sign conversion for each of these axes
   axes_sign <- ifelse((match(mag_axis[axes_ind], ref_axis_name)) %% 2, 1, -1)
 
-  # Extract the field to convert
-  mag_g <- data.frame(mag$gX, mag$gY, mag$gZ)
-  mag_g <- data.frame(mapply(`*`, mag_g[, axes_ind], axes_sign))
-  mag$gX <- mag_g[, 1]
-  mag$gY <- mag_g[, 2]
-  mag$gZ <- mag_g[, 3]
-
-  mag_m <- data.frame(mag$mX, mag$mY, mag$mZ)
-  mag_m <- data.frame(mapply(`*`, mag_m[, axes_ind], axes_sign))
-  mag$mX <- mag_m[, 1]
-  mag$mY <- mag_m[, 2]
-  mag$mZ <- mag_m[, 3]
+  # Reorder and sign the axes (works for any number of rows)
+  mag[c("gX", "gY", "gZ")] <- Map(`*`, mag[c("gX", "gY", "gZ")][axes_ind], axes_sign)
+  mag[c("mX", "mY", "mZ")] <- Map(`*`, mag[c("mX", "mY", "mZ")][axes_ind], axes_sign)
 
   attr(mag, "mag_axis") <- mag_axis
   return(mag)

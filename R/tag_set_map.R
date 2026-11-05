@@ -180,9 +180,9 @@ tag_set_map <- function(
         isTRUE(chg_include)
     ) {
       # Likelihood maps depend on these parameters: ask to start again rather than deleting them
-      if (any(c("map_pressure", "map_light") %in% names(tag))) {
+      if (any(grepl("^map_", names(tag))) || "mask_water" %in% names(tag)) {
         cli::cli_abort(c(
-          "x" = "The likelihood maps ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different {.fun tag_set_map} parameters.",
+          "x" = "Maps ({.field {grep('^map_|^mask_water$', names(tag), value = TRUE)}}) have already been computed on this {.var tag} object with different {.fun tag_set_map} parameters.",
           ">" = "Start again from {.fun tag_create} (or a {.var tag} without likelihood maps) to use new parameters."
         ))
       } else {
