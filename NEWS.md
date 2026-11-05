@@ -14,6 +14,8 @@
 - [Add a `mag_axis` argument to `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/266c69df4eacd73e0b14a5e44099f16290fc4adf) for SOI tags mounted reversed or at 90°.
 - [Keep objects such as `path_geopressureviz` when `geopressuretemplate_graph()` re-saves the interim file](https://github.com/GeoPressure/GeoPressureR/commit/8adcf71c4b26ef4680de5f25391a5d18dd3680d2), and compute `pressurepath_{type}` for `most_likely`, `simulation`, `geopressureviz` (also from the GeoPressureViz CSV export) and `tag` in `geopressuretemplate_pressurepath()`.
 
+- [Store logger metadata under `param$tag_create`](https://github.com/GeoPressure/GeoPressureR/commit/f0a9d4b3b0f44d79eaf19f88dd52e555b47a69a5): `settings` (the manufacturer settings with normalised `model`, `firmware` and, for SOI, `clock_drift`) and `mag_axis`, replacing `param$soi_settings`, `param$migratec_model`, `param$drift` and `param$mag_axis`. Released together with GeoLocatoR, which reads both layouts.
+
 ## Minor
 
 - [Guess `twl_offset` with a circular mean of daylight hours](https://github.com/GeoPressure/GeoPressureR/commit/be0279d532b5df6e77d88ac49be421c299d03ae3), fixing tags at longitudes beyond about ±130°.
