@@ -134,7 +134,7 @@ geolight_calibrate <- function(
     valid <- is.finite(z) & z >= hard_bounds[1] & z <= hard_bounds[2]
     if (!all(valid)) {
       cli::cli_warn(c(
-        "x" = "Some twilight calibration angles in stap {.val {i}} fall outside the hard bounds ({hard_bounds[1]}, {hard_bounds[2]}).",
+        "x" = "Some twilight calibration angles in stap {.val {calib_stap$stap_id[i]}} fall outside the hard bounds ({hard_bounds[1]}, {hard_bounds[2]}).",
         ">" = "These values will be ignored for calibration."
       ))
     }
