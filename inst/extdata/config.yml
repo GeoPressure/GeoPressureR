@@ -55,7 +55,6 @@ default:
     likelihood: ["map_pressure", "map_light"] #  for nothing
     outputs: ["marginal", "most_likely", "simulation"]
     pressurepath: ["most_likely"] # "geopressureviz"
-    nj: 10
 
 18LX:
   tag_create:
@@ -73,5 +72,4 @@ default:
 
 CB619:
   graph_set_movement:
-    movement:
-      type: "gs"
+    type: "gs"

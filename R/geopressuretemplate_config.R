@@ -65,7 +65,7 @@ geopressuretemplate_config <- function(
     ) {
       cli::cli_abort(c(
         x = "{.var nj} is required with {.val simulation} in {.var outputs}.",
-        ">" = "Make sure {.var geopressuretemplate$nj} is set in {.file config.yml}."
+        ">" = "Make sure {.var graph_simulation$nj} is set in {.file config.yml}."
       ))
     }
   }
