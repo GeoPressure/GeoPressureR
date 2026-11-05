@@ -1,6 +1,6 @@
 #' Read or validate stap data
 #'
-#' Reads a CSV file defining coarse stationary periods (`stap0`) or validates a data.frame,
+#' Reads a CSV file defining coarse stationary periods (`stap_long`) or validates a data.frame,
 #' including date parsing, ordering, and overlap checks.
 #'
 #' @param x a `stap` data.frame, a CSV path, or a tag `id` (character scalar). If `x` is a tag

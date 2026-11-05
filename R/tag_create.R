@@ -264,10 +264,11 @@ tag_create <- function(
         }
       } else {
         cli::cli_abort(c(
-          "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
+          "x" = "Could not determine the {.arg manufacturer} of the tag from the directory
         {.file {directory}}",
-          ">" = "Check that this directory contains the file with pressure data (i.e., with
-        extension {.val .pressure}, {.val .glf}, {.val .deg}, {.val _press.xlsx} or {.val .csv})"
+          ">" = "Check that this directory contains the sensor files (i.e., with extension
+        {.val .pressure}, {.val .glf}, {.val .deg}, {.val .lux}, {.val .lig}, {.val _press.xlsx} or
+        {.val .csv})"
         ))
       }
     }
@@ -431,7 +432,7 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
 #'
 #' @param sensor_path Full path of the file (directory + file)
 #' @param skip Number of lines of the data file to skip before beginning to read data.
-#' @param colIndex of the column of the data to take as observation.
+#' @param col Index of the column(s) of the data to take as observation.
 #' @param date_format Format of the date (see [`strptime()`]).
 #' @noRd
 tag_create_dto <- function(
@@ -457,7 +458,7 @@ tag_create_dto <- function(
     data_raw <- utils::read.delim(con, sep = "", header = FALSE)
   }
 
-  # Remove Invalid byte: FD from migratech
+  # Remove Invalid byte: FD from Migrate Technology
   data_raw <- data_raw[!data_raw[, 1] == "Invalid", ]
 
   sensor_data <- data.frame(

@@ -1,13 +1,14 @@
 #' Read trainset csv file and update a data.frame
 #'
-#' This function read an exported csv file from [trainset](https://trainset.geocene.com/) and update
-#' the data logger dataset `tag`.
+#' This function reads an exported csv file from [trainset](https://trainset.geocene.com/) and
+#' updates the data.frame `df`.
 #'
 #' @param df Data.frame on which to add/overwrite label column
 #' @param file Name of the label file.
-#' @param series Character to be used as series. If column doesn't exist, use empty
+#' @param series Name of the series to read from the label file. If `NULL`, use all rows.
+#' @param timestamp Column name of `df` containing the timestamps to match.
 #' @param label Column name of `df` to be used as label.
-#' @return Same data logger list as input, updated with the labels `label`
+#' @return Same data.frame as input, updated with the labels `label`
 #'
 #' @noRd
 trainset_read <- function(
@@ -32,7 +33,7 @@ trainset_read <- function(
 
   if (nrow(csv) == 0) {
     cli::cli_warn(c(
-      i = "The labelization file does not contains label for {series}. ",
+      i = "The labelization file does not contains label for {series}.",
       ">" = "No labels are added to {series}."
     ))
     return(df)

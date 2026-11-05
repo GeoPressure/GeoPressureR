@@ -25,22 +25,22 @@
 #' resolution of 0.1° (~10km) and `scale=4` for a resolution of 0.25° (~30km). To avoid
 #' interpolating the ERA5 single-levels data, the scale should be equal to or smaller than 4
 #' (the default in `tag_set_map()`). `tag_set_map()` warns for higher values. Read more about
-#' scale on the [Google earth Engine documentation
+#' scale on the [Google Earth Engine documentation
 #' ](https://developers.google.com/earth-engine/guides/scale).
-#' @param include_stap_id vector of `stap_id` defining which stationary period to model, that is,
+#' @param include_stap_id vector of `stap_id` defining which stationary periods to model, that is,
 #' to compute in the likelihood map and use in the graph.
 #' @param include_min_duration minimum duration threshold of stationary periods to include (in
 #' hours).
 #' @param known data.frame containing the known positions of the bird (e.g., equipment or retrieval
 #' site) with columns `stap_id`, `known_lat` and `known_lon`. You can set position of the last
-#' stationary period using `stap_id = -1`. Also accept list which are converted as data.frame.
+#' stationary period using `stap_id = -1`. A list is also accepted and converted to a data.frame.
 #' @return A GeoPressureR `tag` object with:
 #' - `stap`: Data.frame of all stationary periods with three new columns: `known_lat` and
 #' `known_lon` define the known position during these stationary periods, and `include` defines
 #' whether the likelihood map of this stationary period should be computed and later used in the
 #' graph.
-#' - `extent` same as input parameter `extent`
-#' - `scale` same as input parameter `scale`
+#' - `param$tag_set_map`: list of the input parameters (`extent`, `scale`, `known`,
+#' `include_stap_id` and `include_min_duration`).
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
@@ -52,7 +52,7 @@
 #' print(tag_default)
 #'
 #' # Customized tag, with coarse grid scale, known position for the first stationary
-#' #  period and considering only the stationary periods lasting more than 20hours.
+#' #  period and considering only the stationary periods lasting more than 20 hours.
 #' tag_custom <- tag_set_map(tag,
 #'   extent = c(-16, 23, 0, 50),
 #'   scale = 1,
@@ -117,7 +117,6 @@ tag_set_map <- function(
     cli::cli_warn(
       "Unexpected columns found in {.var known}: {paste(unexpected_cols, collapse = ', ')}"
     )
-    known <- known[, c("stap_id", "known_lat", "known_lon")]
   }
   known <- known[, c("stap_id", "known_lat", "known_lon")]
   if (
@@ -153,11 +152,11 @@ tag_set_map <- function(
     stap2duration(stap, units = "hours") > include_min_duration
   ]
 
-  # Include stap which are matching the three include constrains
+  # Include stap which are matching both include constraints
   stap_include <- rep(FALSE, nrow(stap))
   stap_include[intersect(include_stap_id, include_min_duration_id)] <- TRUE
 
-  # Check if value are already defined and if they are changing
+  # Check if values are already defined and if they are changing
   # Check if tag_set_map has already been run before (all these condition should always be the same)
   if (
     "extent" %in%
@@ -166,7 +165,7 @@ tag_set_map <- function(
       "known_lat" %in% names(stap) ||
       "include" %in% names(stap)
   ) {
-    # Check if value are changing
+    # Check if values are changing
     chg_known <- nrow(known0) != nrow(tag$param$tag_set_map$known) ||
       any(known0 != tag$param$tag_set_map$known)
     chg_include <- any(stap$include != stap_include)
@@ -184,7 +183,7 @@ tag_set_map <- function(
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
         cli::cli_bullets(
           c(
-            "!" = "The likelihood map ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different tag_set_map parameters."
+            "!" = "The likelihood maps ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different tag_set_map parameters."
           )
         )
         res <- if (interactive()) {
@@ -209,8 +208,8 @@ tag_set_map <- function(
           ))
         } else {
           cli::cli_warn(c(
-            "x" = "No modification were made.",
-            ">" = "This function return the original (unmodified) {.var tag}."
+            "x" = "No modifications were made.",
+            ">" = "This function returns the original (unmodified) {.var tag}."
           ))
           # If no, stop and return the existing tag
           return(tag)
@@ -218,7 +217,7 @@ tag_set_map <- function(
       } else {
         cli::cli_warn(c(
           "!" = "{.fun tag_set_map} has already been run on this {.var tag} object and the input parameters are different.",
-          ">" = "The old parameters ({.var scale}, {.var extent}, {.var tag$known} or {.var tag$include}) will be overwitten with the new ones."
+          ">" = "The old parameters ({.var scale}, {.var extent}, {.var known} or {.var include}) will be overwritten with the new ones."
         ))
       }
     }

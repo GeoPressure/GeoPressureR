@@ -28,7 +28,7 @@ tag_create_migratetech <- function(
     v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
     if (as.numeric(v) < 13) {
       cli::cli_abort(
-        "The deg file {.file {deg_path}} is not compatible. Line 2 should contains {.val Type:x}, with x>=13."
+        "The deg file {.file {deg_path}} is not compatible. Line 2 should contain {.val Type:x}, with x>=13."
       )
     }
     # Retrieve full model number

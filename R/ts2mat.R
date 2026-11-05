@@ -4,7 +4,8 @@
 #' @param sensor sensor name used in messages.
 #' @param value column name to extract
 #' @inheritParams twilight_create
-#' @return A data.frame with columns `date` and `value`.
+#' @return A list with `value` and `date` matrices (time of day × day), the temporal resolution
+#' `res` (in seconds), the `day` of each column and the `time` of each row.
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE)
@@ -120,7 +121,6 @@ ts2mat <- function(
     res = res
   )
 
-  # image(mat$value)
   mat$day <- as.Date(as.POSIXct(
     colMeans(mat$date),
     origin = "1970-01-01",

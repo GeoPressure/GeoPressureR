@@ -1,6 +1,6 @@
 #' Write data.frame into a csv file compatible with TRAINSET
 #'
-#' This function writes the csv file which can be open with TRAINSET
+#' This function writes the csv file which can be opened with TRAINSET
 #' (https://trainset.geocene.com/). See https://trainset.geocene.com/help for details.
 #'
 #' @param df Data.frame written in csv. Columns name defined by the parameters below.
@@ -26,7 +26,7 @@ trainset_write <- function(
   assertthat::assert_that(assertthat::has_name(df, c(timestamp, value)))
   assertthat::assert_that(is.character(file))
 
-  # Create empty label if label doesn't exit
+  # Create empty label if label doesn't exist
   if (!assertthat::has_name(df, label)) {
     df[[label]] <- ""
   }
@@ -50,7 +50,7 @@ trainset_write <- function(
   if (!dir.exists(dir_file)) {
     if (!quiet) {
       cli::cli_bullets(c(
-        "!" = "The directory {.file {dir_file}} does not exists."
+        "!" = "The directory {.file {dir_file}} does not exist."
       ))
     }
     # In non-interactive runs, honor options(askYesNo=...) when provided.

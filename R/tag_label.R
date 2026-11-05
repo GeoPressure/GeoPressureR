@@ -11,9 +11,9 @@
 #' If the label file does not exist, the function will suggest to create it with
 #' `tag_label_write()` and use `tag_label_auto()` if acceleration data exists.
 #'
-#' @param tag a GeoPressure `tag` object.
+#' @param tag a GeoPressureR `tag` object.
 #' @param file Absolute or relative path of the label file.
-#' @param quiet logical to display message.
+#' @param quiet logical to hide messages.
 #' @param warning_flight_duration lifecycle::deprecated()
 #' @param warning_stap_duration lifecycle::deprecated()
 #' @param ... lifecycle::deprecated()
@@ -79,7 +79,7 @@ tag_label <- function(
   tag_assert(tag)
   assertthat::assert_that(is.character(file))
 
-  # Check if the label file exist
+  # Check if the label file exists
   if (!file.exists(file)) {
     # Check if the exported file already exist, in which case it hasn't been edited on trainset
     file_input <- file.path(dirname(file), glue::glue("{tag$param$id}.csv"))

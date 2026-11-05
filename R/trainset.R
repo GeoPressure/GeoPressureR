@@ -20,12 +20,11 @@
 #' * a GeoPressureR `tag` object,
 #' * a path to an interim `.RData` file containing an object called `tag`,
 #' * a path to a TRAINSET-compatible `.csv` label file,
-#' * a single-character `id`. In that case the function will first look for
-#'   `"./data/interim/{id}.RData"`, and if not found will look for
+#' * a single-character `id`. In that case the function will look for
 #'   `"./data/tag-label/{id}-labeled.csv"` and then `"./data/tag-label/{id}.csv"`.
-#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' Rstudio.
-#' @param run_bg If true, the app runs in a background R session using the `callr` package. This
+#' @param launch_browser If `TRUE` (default), the app runs in your browser, otherwise it runs in
+#' RStudio.
+#' @param run_bg If `TRUE`, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
 #' @param debug If `TRUE`, prints debug messages about plot refreshes (x-range changes and point
 #' counts) to the R console. Defaults to `FALSE`.

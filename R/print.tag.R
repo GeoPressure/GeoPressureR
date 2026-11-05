@@ -1,7 +1,7 @@
 #' Print a `tag` object
 #'
 #' This function displays the information of a `tag` object.
-#
+#'
 #' @param x a GeoPressureR `tag` object
 #' @param ... further arguments passed to or from other methods.
 #'
@@ -166,8 +166,8 @@ print.tag <- function(x, ...) {
   invisible(tag)
 }
 
-#' Print a `stap` object
-#' This function displays the information of a `stap` object.
+#' Print a compact table
+#' This function displays a data.frame (e.g. `stap`) as a compact table.
 #'
 #' @param x a GeoPressureR `stap` object
 #'

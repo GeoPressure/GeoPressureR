@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function computes the stationary periods from the pressure and/or acceleration label data.
-#' In most case, this function should be run directly after `tag_label_read()` in order to update
+#' In most cases, this function should be run directly after `tag_label_read()` in order to update
 #' `tag` to correspond to the new label file.
 #'
 #' A stationary period is a period during which the bird is considered static relative to the
@@ -15,8 +15,8 @@
 #'
 #'
 #' @inheritParams tag_label
-#' @param quiet logical to display warning message.
-#' @return `tag` is return with (1) a new data.frame of stationary periods `tag$stap` and (2) a new
+#' @param quiet logical to hide warning messages.
+#' @return `tag` is returned with (1) a new data.frame of stationary periods `tag$stap` and (2) a new
 #'  column `stap_id` for each sensor data.
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -70,7 +70,7 @@ tag_label_stap <- function(
 
     # Append pressure label when acceleration ends
     if (assertthat::has_name(tag, "pressure")) {
-      # Only use pressure data fire the first or after the last acceleration timestamp
+      # Only use pressure data before the first or after the last acceleration timestamp
       out <- tag$pressure$date < min(sensor$date, na.rm = TRUE) |
         tag$pressure$date > max(sensor$date, na.rm = TRUE)
       pres_outside_acc <- tag$pressure[out, ]
@@ -87,8 +87,8 @@ tag_label_stap <- function(
             "!" = "The label {.val flight} is detected on {.field pressure} while
         {.field acceleration} is also present.",
             "i" = "The stationary periods will be estimated from {.field acceleration} data and the
-        {.val flight} label from pressure will be ignored. ",
-            ">" = "It is best practise to remove {.val flight} label in {.field pressure} data when
+        {.val flight} label from pressure will be ignored.",
+            ">" = "It is best practice to remove {.val flight} label in {.field pressure} data when
         {.field acceleration} is available."
           ))
         }
@@ -103,7 +103,7 @@ tag_label_stap <- function(
   tmp[sensor$label == "flight"] <- NA
 
   # As we label "in flight" pressure/acceleration, the taking-off and landing happened before and
-  # after the labelling respectively. To account for this. We estimate that the bird took off
+  # after the labelling respectively. To account for this, we estimate that the bird took off
   # between the previous and first flight label, and landed between the last flight label and next
   # one. We use the temporal resolution to account for this.
   sensor$dt_prev <- c(as.difftime(0, units = "mins"), diff(sensor$date)) / 2
@@ -118,7 +118,7 @@ tag_label_stap <- function(
       do.call(c, lapply(split(sensor$dt_next, tmp), function(x) x[1]))
   )
 
-  # Assign to each sensor the stationary period to which it belong to.
+  # Assign to each sensor the stationary period to which it belongs.
   for (sensor_df in c(
     "pressure",
     "acceleration",
@@ -180,7 +180,7 @@ find_stap <- function(stap, date) {
       (date_num[in_gap] - end_num[gap_idx]) / gap_len * (stap_ref[gap_idx + 1] - stap_ref[gap_idx])
   }
 
-  # Check that all date have a stap_id
+  # Check that all dates have a stap_id
   assertthat::assert_that(!anyNA(stap_id))
 
   stap_id

@@ -82,7 +82,7 @@ tag_stap_daily <- function(
   }
   if (tag_assert(tag, "stap", "logical") && !quiet) {
     cli::cli_warn(
-      "The {.var tag} object already has a {.field stap} defined which will be overwriten."
+      "The {.var tag} object already has a {.field stap} defined which will be overwritten."
     )
   }
   twl <- tag$twilight

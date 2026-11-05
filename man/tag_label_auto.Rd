@@ -12,7 +12,7 @@ tag_label_auto(
 )
 }
 \arguments{
-\item{tag}{a GeoPressure \code{tag} object.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{min_duration}{Minimal duration (in minutes) to consider a high activity as migratory
 flight.}
@@ -20,24 +20,24 @@ flight.}
 \item{thr_reclassify}{Post-processing threshold of activity considered for re-classification.
 Typically between \code{0} and \code{0.5} (no effect). See post-processing for details.}
 
-\item{post_proc_window}{Post-processing windows considered for re-classification. Typically \code{0}
+\item{post_proc_window}{Post-processing window considered for re-classification. Typically \code{0}
 (no effect) to \code{5} in unit of the temporal resolution. See post-processing for details.}
 }
 \value{
-Same data logger list than input \code{tag}, but with the column \code{label} filled with
+Same \code{tag} as input, but with the column \code{label} filled with
 \code{"flight"} in the acceleration data.frame when a sustained high-activity period is detected.
 }
 \description{
 This function uses acceleration data to classify migratory flights. The function uses a
-\code{k=2} mean clustering (\code{\link[=kmeans]{kmeans()}}) to identify high activity periods. Periods of high activity
+k-means clustering with \code{k = 2} (\code{\link[=kmeans]{kmeans()}}) to identify high activity periods. Periods of high activity
 lasting more than \code{min_duration} are then considered to be migratory flight.
 
 Additionally, we perform a post-processing step to improve the classification of low-activity
 period happening during a migration flight (e.g. gliding phase):
 \enumerate{
-\item Mid-activity surrounded by flights. The kmeans classification classify high-activity all
-values above 50\% of the distance between the two clusters. Here, we classify as mid-activity
-non-flight activity data which value are greater than \code{thr_reclassify} of the distance between
+\item Mid-activity surrounded by flights. The kmeans classification classifies as high-activity
+all values above 50\% of the distance between the two clusters. Here, we classify as
+mid-activity non-flight activity data whose values are greater than \code{thr_reclassify} of the distance between
 the two kmeans clusters. Any periods of mid-activity surrounded by flight are also considered
 as flights.
 \item To avoid staps lasting only a few datapoints, we also classify as flight any period of at

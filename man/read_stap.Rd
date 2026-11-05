@@ -16,7 +16,7 @@ read_stap(x, required_cols = c("start", "end"))
 A data.frame containing at least the required columns, sorted by \code{start}.
 }
 \description{
-Reads a CSV file defining coarse stationary periods (\code{stap0}) or validates a data.frame,
+Reads a CSV file defining coarse stationary periods (\code{stap_long}) or validates a data.frame,
 including date parsing, ordering, and overlap checks.
 }
 \examples{

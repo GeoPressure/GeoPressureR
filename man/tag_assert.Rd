@@ -23,7 +23,7 @@ or \code{"logical"} (return TRUE/FALSE without messaging).}
 logical indicating the \code{tag} object has the relevant element
 }
 \description{
-This function check the condition of a \code{tag} object.
+This function checks the condition of a \code{tag} object.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

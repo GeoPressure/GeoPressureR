@@ -10,7 +10,7 @@ tag_label_read(
 )
 }
 \arguments{
-\item{tag}{a GeoPressure \code{tag} object.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file.}
 }
