@@ -137,6 +137,12 @@ geopressureviz <- function(
     lapply(map_needed, function(likelihood) tag2map(tag, likelihood = likelihood)),
     map_display
   )
+  if (!length(maps)) {
+    cli::cli_abort(c(
+      "x" = "{.var tag} has no likelihood map to display.",
+      ">" = "Run {.fun geopressure_map} or {.fun geolight_map} first."
+    ))
+  }
 
   # Set colour of each stationary period
   col <- rep(
@@ -186,7 +192,7 @@ geopressureviz <- function(
   # }
   file_wind <- NULL
 
-  deps <- c("shiny", "shinyjs", "shinyWidgets")
+  deps <- c("shiny", "shinyjs", "shinyWidgets", if (run_bg) "callr")
   deps_missing <- deps[!vapply(deps, requireNamespace, logical(1), quietly = TRUE)]
   if (length(deps_missing)) {
     cli::cli_alert_info(

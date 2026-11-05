@@ -408,7 +408,7 @@ server <- function(input, output, session) {
     } else {
       shinyjs::show(id = "stap_info_view", anim = TRUE)
       shinyjs::hide(id = "track_info_view", anim = TRUE)
-      if (input$min_dur_stap > 0) {
+      if (isTRUE(input$min_dur_stap > 0)) {
         shinyjs::show(id = "edit_position_interpolate")
       } else {
         shinyjs::hide(id = "edit_position_interpolate")
@@ -529,9 +529,6 @@ server <- function(input, output, session) {
     stap_model <- stap[stap_id_include(), ]
     path_model <- reactVal$path[stap_id_include(), c("lon", "lat")]
     fl_dur <- flight_dur_reactive()
-    if (is.null(fl_dur)) {
-      return()
-    }
     if (input$full_track) {
       proxy <- proxy |>
         leaflet::addPolylines(
