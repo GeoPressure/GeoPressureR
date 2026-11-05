@@ -26,7 +26,7 @@ tag_create_migratetech <- function(
     ))
     line2 <- readLines(deg_path, n = 2)[[2]]
     v <- regmatches(line2, regexpr("Type: \\K\\d+", line2, perl = TRUE))
-    if (v < 13) {
+    if (as.numeric(v) < 13) {
       cli::cli_abort(
         "The deg file {.file {deg_path}} is not compatible. Line 2 should contains {.val Type:x}, with x>=13."
       )
@@ -41,7 +41,7 @@ tag_create_migratetech <- function(
     drift <- abs(
       as.numeric(regmatches(line16, regexpr("-?\\d+\\.\\d*", line16))) / 60
     )
-    if (drift > 30) {
+    if (isTRUE(drift > 30)) {
       cli::cli_warn(c(
         "!" = "The deg file {.file {deg_path}} is recording a drift of {format_minutes(drift)} (line 16) which seems suspicious.",
         ">" = "Check for error (e.g. timezone)"
@@ -51,7 +51,7 @@ tag_create_migratetech <- function(
     hdr <- utils::read.delim(
       deg_path,
       skip = 19,
-      nrow = 1,
+      nrows = 1,
       header = FALSE,
       sep = ""
     )
