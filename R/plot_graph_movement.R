@@ -101,7 +101,7 @@ plot_graph_movement <- function(
       )
   }
 
-  if (movement$zero_speed_ratio > 0) {
+  if (movement$zero_speed_ratio > 0 && !all(d$line)) {
     p <- p +
       ggplot2::geom_point(
         data = d[!d$line, ],
