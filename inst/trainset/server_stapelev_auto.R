@@ -58,9 +58,9 @@ stapelev_card_value <- function(field) {
     seq_along(state$stapelev_offsets),
     function(i) {
       value <- input[[paste0("stapelev_card_", state$stapelev_revision, "_", i, "_", field)]]
-      if (is.null(value)) state$stapelev_cards[[field]][i] else value
+      if (is.null(value) || is.na(value)) state$stapelev_cards[[field]][i] else value
     },
-    state$stapelev_cards[[field]][1]
+    if (field == "discard_solar") character(1) else numeric(1)
   )
 }
 
