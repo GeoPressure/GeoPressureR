@@ -164,7 +164,7 @@ geopressure_timeseries_api_impl <- function(
     stap_id <- if ("stap_id" %in% names(out)) out$stap_id else rep(1, nrow(out))
     label <- if ("label" %in% names(out)) out$label else rep("", nrow(out))
     # Normalize only non-flight observations that are not marked as discarded.
-    id_norm <- stap_id != 0 & label != "discard"
+    id_norm <- stap_id == round(stap_id) & stap_id != 0 & label != "discard"
     # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
     if (sum(id_norm) > 0) {
       elev <- ifelse(

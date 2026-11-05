@@ -33,7 +33,7 @@
 #'
 #' @section Pressure normalisation:
 #' ERA5 surface pressure is also shifted to the mean tag-pressure level within each elevation-label
-#' group. Flight observations (`stap_id == 0`) and observations labelled `"discard"` are excluded
+#' group. Flight observations (fractional `stap_id`, or `stap_id == 0` for older tags) and observations labelled `"discard"` are excluded
 #' from the group means. The adjusted series is returned as `surface_pressure_norm`.
 #'
 #' @template ecmwf-key
