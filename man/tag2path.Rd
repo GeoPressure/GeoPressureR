@@ -7,7 +7,7 @@
 tag2path(tag, likelihood = NULL, interp = FALSE, use_known = TRUE)
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). By default,
 uses the product of \code{map_pressure} and \code{map_light} if available, otherwise the first available

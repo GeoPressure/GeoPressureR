@@ -15,7 +15,7 @@
 #' resolution between the original map to the projected map.
 #'
 #' @template map-tiles
-#' @param x a GeoPressureR `map` object
+#' @param x a GeoPressureR `map` object.
 #' @param plot_leaflet logical to use an interactive `leaflet` map instead of `terra::plot`
 #' @param path a GeoPressureR `path` data.frame
 #' @param thr_likelihood Threshold to display likelihood values.
@@ -23,7 +23,7 @@
 #'   available GeoPressureR basemap layers; see the *Basemap API keys* section.
 #' @param provider_options tile options. See leaflet::addProviderTiles() and
 #'   leaflet::providerTileOptions().
-#' @param palette color palette name or vector of colors.
+#' @param palette colour palette name or vector of colours.
 #' @param opacity opacity of the raster layer in leaflet.
 #' @param legend logical to display the legend (only for `plot_leaflet = FALSE`).
 #' @param ... additional parameters passed to `terra::plot()` (only for `plot_leaflet = FALSE`).

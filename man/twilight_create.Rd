@@ -13,7 +13,7 @@ twilight_create(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{twl_thr}{Light threshold that defines twilight. By default (\code{NULL}), it uses the smallest
 value of light (i.e, first and last light of day). When \code{transform_light = TRUE}, \code{twl_thr} is

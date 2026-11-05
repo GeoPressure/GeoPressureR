@@ -4,7 +4,7 @@
 \alias{rast,map-method}
 \title{Construct a SpatRaster from a \code{map}}
 \arguments{
-\item{x}{a GeoPressureR \code{map} object}
+\item{x}{a GeoPressureR \code{map} object.}
 
 \item{names}{names of the SpatRaster layers created. See \code{\link[terra:names]{terra::names}}.}
 

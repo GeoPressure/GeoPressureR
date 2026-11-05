@@ -11,10 +11,10 @@
 #'
 #' @param scientific_name Scientific name of the species
 #' @param mass Mass of the bird in kilograms
-#' @param wing_span Wing span in meters
+#' @param wing_span Wing span in metres
 #' @param wing_aspect Wing aspect ratio (no unit)
-#' @param wing_area Wing area in meter square
-#' @param body_frontal_area Body frontal area in meter square
+#' @param wing_area Wing area in square metres
+#' @param body_frontal_area Body frontal area in square metres
 #' @param species_name `r lifecycle::badge("deprecated")` Use `scientific_name` instead
 #' @importFrom lifecycle deprecated
 #' @return List containing mass, wing span, wing aspect ratio, and body frontal area.

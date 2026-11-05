@@ -12,7 +12,7 @@ haversine_distance(from_coords, to_coords)
 \item{to_coords}{Matrix of target coordinates (longitude, latitude) in decimal degrees}
 }
 \value{
-A vector of distances in kilometers.
+A vector of distances in kilometres.
 }
 \description{
 Vectorized implementation of the Haversine formula.

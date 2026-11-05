@@ -19,7 +19,7 @@
 )
 }
 \arguments{
-\item{x}{a GeoPressureR \code{map} object}
+\item{x}{a GeoPressureR \code{map} object.}
 
 \item{path}{a GeoPressureR \code{path} data.frame}
 
@@ -33,7 +33,7 @@ available GeoPressureR basemap layers; see the \emph{Basemap API keys} section.}
 \item{provider_options}{tile options. See leaflet::addProviderTiles() and
 leaflet::providerTileOptions().}
 
-\item{palette}{color palette name or vector of colors.}
+\item{palette}{colour palette name or vector of colours.}
 
 \item{opacity}{opacity of the raster layer in leaflet.}
 

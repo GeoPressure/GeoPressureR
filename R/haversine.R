@@ -5,7 +5,7 @@
 #' @param from_coords Matrix of source coordinates (longitude, latitude) in decimal degrees
 #' @param to_coords Matrix of target coordinates (longitude, latitude) in decimal degrees
 #'
-#' @return A vector of distances in kilometers.
+#' @return A vector of distances in kilometres.
 #'
 #' @keywords internal
 #' @export

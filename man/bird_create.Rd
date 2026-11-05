@@ -19,13 +19,13 @@ bird_create(
 
 \item{mass}{Mass of the bird in kilograms}
 
-\item{wing_span}{Wing span in meters}
+\item{wing_span}{Wing span in metres}
 
 \item{wing_aspect}{Wing aspect ratio (no unit)}
 
-\item{wing_area}{Wing area in meter square}
+\item{wing_area}{Wing area in square metres}
 
-\item{body_frontal_area}{Body frontal area in meter square}
+\item{body_frontal_area}{Body frontal area in square metres}
 
 \item{species_name}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Use \code{scientific_name} instead}
 }

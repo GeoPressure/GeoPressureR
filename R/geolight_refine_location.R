@@ -8,7 +8,7 @@
 #' @param tag A GeoPressureR tag object with twilight, stap, and map settings.
 #' @param path A path data.frame containing `stap_id`, `lon`, and `lat`; all columns are preserved.
 #' @param twl_calib_adjust Smoothing parameter passed to `stats::density()`.
-#' @param scale Target grid resolution and movement threshold for convergence, in kilometers.
+#' @param scale Target grid resolution and movement threshold for convergence, in kilometres.
 #' @param max_iter Maximum number of refinement iterations per anchor.
 #' @return `path` with refined `lon` and `lat`.
 #' @noRd
@@ -70,7 +70,7 @@ geolight_refine_location <- function(
 #' longitude because fitted longitude is usually better constrained by twilight timing. If the best
 #' grid cell is on the boundary, the search window expands up to a fixed cap.
 #'
-#' @param scale Target grid resolution and movement threshold, in kilometers.
+#' @param scale Target grid resolution and movement threshold, in kilometres.
 #' @noRd
 geolight_refine_location_one <- function(
   lon,
@@ -143,8 +143,8 @@ geolight_refine_location_one <- function(
   c(lon = lon, lat = lat)
 }
 
-#' Select a map scale close to the requested kilometer resolution
-#' @param scale Target grid resolution in kilometers.
+#' Select a map scale close to the requested kilometre resolution
+#' @param scale Target grid resolution in kilometres.
 #' @noRd
 geolight_refine_scale <- function(extent, scale, map_scale = NULL) {
   target_scale <- min(8, max(1, 2^ceiling(log2(111.32 / scale))))
@@ -164,7 +164,7 @@ geolight_refine_scale <- function(extent, scale, map_scale = NULL) {
 }
 
 #' Build the local search extent around one anchor
-#' @param radius_lat,radius_lon Search radii in kilometers.
+#' @param radius_lat,radius_lon Search radii in kilometres.
 #' @noRd
 geolight_refine_extent <- function(lon, lat, radius_lat, radius_lon, extent, scale) {
   n_lat <- round((extent[4] - extent[3]) * scale)

@@ -3,7 +3,7 @@
 #' This function reads an exported csv file from TRAINSET <https://trainset.raphaelnussbaumer.com/>
 #' and updates the twilight data `tag$twilight`.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param file csv file of the labels to be read.
 #' @return Same `tag` object, updated with the labels `tag$twilight$label`.
 #' @family geolight

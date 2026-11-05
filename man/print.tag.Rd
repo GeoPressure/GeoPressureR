@@ -7,7 +7,7 @@
 \method{print}{tag}(x, ...)
 }
 \arguments{
-\item{x}{a GeoPressureR \code{tag} object}
+\item{x}{a GeoPressureR \code{tag} object.}
 
 \item{...}{further arguments passed to or from other methods.}
 }
