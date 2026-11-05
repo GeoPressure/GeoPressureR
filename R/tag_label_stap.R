@@ -115,7 +115,7 @@ tag_label_stap <- function(
     start = do.call(c, lapply(split(sensor$date, tmp), min)) -
       do.call(c, lapply(split(sensor$dt_prev, tmp), function(x) x[1])),
     end = do.call("c", lapply(split(sensor$date, tmp), max)) +
-      do.call(c, lapply(split(sensor$dt_next, tmp), function(x) x[1]))
+      do.call(c, lapply(split(sensor$dt_next, tmp), function(x) x[length(x)]))
   )
 
   # Assign to each sensor the stationary period to which it belongs.
