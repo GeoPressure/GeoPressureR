@@ -45,8 +45,6 @@ server <- function(input, output, session) {
   reactVal <- reactiveValues(
     path = path,
     pressurepath = pressurepath,
-    pressure_xmin = NULL,
-    pressure_xmax = NULL,
     isEdit = FALSE # if editing position
   )
 
