@@ -46,7 +46,7 @@ path2edge <- function(path, tag_graph) {
     inherits(tag_graph, "tag") | inherits(tag_graph, "graph")
   )
   stap <- tag_graph$stap
-  assertthat::assert_that(all(unique(path$stap_id) == stap$stap_id))
+  assertthat::assert_that(setequal(path$stap_id, stap$stap_id))
 
   g <- map_expand(
     tag_graph$param$tag_set_map$extent,
