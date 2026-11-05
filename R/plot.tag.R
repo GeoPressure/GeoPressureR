@@ -129,9 +129,8 @@ plot.tag <- function(x, type = NULL, ...) {
     return(plot.map(map, ...))
   }
 
-  fn <- dispatch[[type]]
-  if (length(type) == 1 && !is.null(fn)) {
-    return(fn(tag, ...))
+  if (length(type) == 1 && !is.null(dispatch[[type]])) {
+    return(dispatch[[type]](tag, ...))
   }
 
   cli::cli_abort(c(
