@@ -54,7 +54,7 @@ geopressure_timeseries_api_impl <- function(
 
   if (debug) {
     temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
-    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE, na = "null"), temp_file)
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
@@ -116,8 +116,8 @@ geopressure_timeseries_api_impl <- function(
 
   # check for errors
   if (nrow(out) == 0) {
-    temp_file <- tempfile("log_pressurepath_create", fileext = ".json")
-    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    temp_file <- tempfile("log_geopressure_timeseries_", fileext = ".json")
+    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE, na = "null"), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
       i = "Check that the time range is non-empty. Log of your JSON request: {.file {temp_file}}"
@@ -139,7 +139,7 @@ geopressure_timeseries_api_impl <- function(
   if (!is.null(pressure)) {
     if (nrow(out) != nrow(pressure)) {
       cli::cli_warn(
-        "The returned data.frame is had a different number of element than the requested pressure."
+        "The returned data.frame has a different number of rows than the requested pressure."
       )
     }
     out$date <- geopressure_api_restore_date(pressure$date, as.numeric(out$date))

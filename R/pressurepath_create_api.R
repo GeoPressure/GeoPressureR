@@ -68,7 +68,7 @@ pressurepath_create_api_impl <- function(
 
   if (debug) {
     temp_file <- tempfile("log_pressurepath_", fileext = ".json")
-    write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
+    write(jsonlite::toJSON(body, auto_unbox = FALSE, pretty = TRUE, na = "null"), temp_file)
     cli::cli_text("Body request file: {.file {temp_file}}")
   }
 
