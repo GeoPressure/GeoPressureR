@@ -133,19 +133,22 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 \itemize{
 \item \code{graph_simulation()}: Runs simulations to model multiple possible paths.
 }
-\item \code{save()}: Saves the \code{tag}, \code{param} and computed outputs in \verb{data/interim/\{id\}.RData}
+\item \code{save()}: Saves the \code{tag}, \code{param} and computed outputs in \verb{data/interim/\{id\}.RData}. Other
+objects already in the file and not derived from the graph (e.g. \code{path_geopressureviz}) are
+kept; outputs derived from a previous graph (paths, edges, marginal and their pressurepaths)
+are replaced or removed.
 }
 \itemize{
 \item \strong{Pressure Path Processing \code{\link[=geopressuretemplate_pressurepath]{geopressuretemplate_pressurepath()}}}: Computes pressurepaths
 (\code{pressurepath_create}) using the content of the \code{Rdata} file and appending the pressurepath
 data.frame to the same file.
 }
-\enumerate{
-\item If \code{"most_likely"} is in \code{config$geopressuretemplate$pressurepath}, computes the pressure path
-for \code{path_most_likely}.
-\item If \code{"geopressureviz"} is in \code{config$geopressuretemplate$pressurepath} computes the pressure
-path for \code{path_geopressureviz}
-}
+
+For each of \code{"most_likely"}, \code{"simulation"}, \code{"geopressureviz"} and \code{"tag"} listed in
+\code{config$geopressuretemplate$pressurepath}, computes \verb{pressurepath_\{type\}} from \verb{path_\{type\}}
+and saves it in the same file. \code{path_geopressureviz} is read from the file or, if absent, from
+the CSV exported by GeoPressureViz (\code{data/interim/{id}-path-geopressureviz.csv}). \code{path_tag} is
+a path you saved yourself (e.g. from \code{tag2path()}). A warning is given when a path is missing.
 
 Each of these child functions can be called individually or automatically as part of
 the \code{geopressuretemplate} workflow.

@@ -41,16 +41,20 @@
 #'     - `graph_most_likely()`: Computes the most likely path based on the movement model.
 #' 6. If `"simulation"` is in `config$geopressuretemplate$outputs`:
 #'     - `graph_simulation()`: Runs simulations to model multiple possible paths.
-#' 7. `save()`: Saves the `tag`, `param` and computed outputs in `data/interim/{id}.RData`
+#' 7. `save()`: Saves the `tag`, `param` and computed outputs in `data/interim/{id}.RData`. Other
+#' objects already in the file and not derived from the graph (e.g. `path_geopressureviz`) are
+#' kept; outputs derived from a previous graph (paths, edges, marginal and their pressurepaths)
+#' are replaced or removed.
 #'
 #' * **Pressure Path Processing [`geopressuretemplate_pressurepath()`]**: Computes pressurepaths
 #' (`pressurepath_create`) using the content of the `Rdata` file and appending the pressurepath
 #' data.frame to the same file.
 #'
-#' 1. If `"most_likely"` is in `config$geopressuretemplate$pressurepath`, computes the pressure path
-#' for `path_most_likely`.
-#' 2. If `"geopressureviz"` is in `config$geopressuretemplate$pressurepath` computes the pressure
-#' path for `path_geopressureviz`
+#' For each of `"most_likely"`, `"simulation"`, `"geopressureviz"` and `"tag"` listed in
+#' `config$geopressuretemplate$pressurepath`, computes `pressurepath_{type}` from `path_{type}`
+#' and saves it in the same file. `path_geopressureviz` is read from the file or, if absent, from
+#' the CSV exported by GeoPressureViz (`data/interim/{id}-path-geopressureviz.csv`). `path_tag` is
+#' a path you saved yourself (e.g. from `tag2path()`). A warning is given when a path is missing.
 #'
 #' Each of these child functions can be called individually or automatically as part of
 #' the `geopressuretemplate` workflow.
