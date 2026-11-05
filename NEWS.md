@@ -1,3 +1,25 @@
+# GeoPressureR v3.8.0
+
+## Main
+
+- [Map SOI magnetic axes as forward = raw y, right = raw x](https://github.com/GeoPressure/GeoPressureR/commit/9ad1b2da221f18da67533e4c9d142f08ef641136) for all hardware versions (`mag_axis = c("right", "forward", "down")`) in `tag_create()`. The previous mappings were 180° off for hardware ≤ 2.3 and used the wrong axis for ≥ 2.4. Magnetic and acceleration x/y of SOI tags change, and so do headings computed from them; intensity and inclination do not. A warning flags tags resting tilted backwards (possibly mounted reversed).
+- [Normalize each stationary period in `graph_marginal()`](https://github.com/GeoPressure/GeoPressureR/commit/f451edb59112994e2c875e6492d493b0b82939e7). Map shapes are unchanged, but each stationary period is now a probability map scaled by the global maximum, and long tracks no longer fail with numerical underflow.
+- [Integrate wind exactly over each flight](https://github.com/GeoPressure/GeoPressureR/commit/130872fcb007eee70518cc9aa757602fb5a6fbc8) in `edge_add_wind()` and `graph_add_wind()`. The first and last hours were weighted about twice too much, so wind and airspeed change, most for short flights.
+- [Compute `pressurepath_create()` one trajectory at a time](https://github.com/GeoPressure/GeoPressureR/commit/a6a7a5b4b750b720935d3d307ecc1c9dc1d2c9b1) for paths with several trajectories (column `j`, e.g. `path_simulation`).
+- [Return the crosswind component from `windsupport(drift = TRUE)`](https://github.com/GeoPressure/GeoPressureR/commit/bd76070c24bfdd2082abd4b754af27256cb8a79e) as documented.
+
+## Minor
+
+- [Guess `twl_offset` with a circular mean of daylight hours](https://github.com/GeoPressure/GeoPressureR/commit/be0279d532b5df6e77d88ac49be421c299d03ae3), fixing tags at longitudes beyond about ±130°.
+- [Use a centred smoothing window in `geopressure_map_preprocess()`](https://github.com/GeoPressure/GeoPressureR/commit/7fc5e0030454fcd30cf2f6f9863cfe95405540e7), removing a +30 min shift for hourly and 20 min pressure data.
+- [Round ERA5-Land latitude ties the same way](https://github.com/GeoPressure/GeoPressureR/commit/292bb55d3ebf5b7218c401d4146baeb7c7c6dc64) in all ARCO queries.
+- [Use the land cover fraction in `map_add_mask_water()`](https://github.com/GeoPressure/GeoPressureR/commit/629eac77dc5dde415fea498fa49e993f49a27799) so that `land_threshold` takes effect.
+- [Keep the basemap choice in `plot.map()`](https://github.com/GeoPressure/GeoPressureR/commit/7d5d4b80a5e86057be0f0224ba88444dc1943892).
+- [Keep valid edges on large grids in `graph_create()`](https://github.com/GeoPressure/GeoPressureR/commit/795e26faf8353211782d067fc6c716070e2e44b3) and [stay-in-place edges in `graph_add_wind()`](https://github.com/GeoPressure/GeoPressureR/commit/4f96b6225788af5d7c97fe41ed86fe6da424268f).
+- [Regenerate the 18LX example outputs](https://github.com/GeoPressure/GeoPressureR/commit/dfe7a83faf61dcc3ac6e410f467f17fe1afd2f32) and [fix typos in messages](https://github.com/GeoPressure/GeoPressureR/commit/9ea2cdc951e3d5c428a4dc172d372034f86ed347).
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.7.1...v3.8.0>
+
 # GeoPressureR v3.7.1
 
 ## Main
