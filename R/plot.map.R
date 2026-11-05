@@ -230,9 +230,7 @@ plot.map <- function(
 #' @noRd
 palette_to_colors <- function(palette, n = 256L, reverse = FALSE) {
   n <- as.integer(n)
-  if (!is.finite(n) || n < 2) {
-    cols <- NULL
-  }
+  cols <- if (is.function(palette)) palette(n) else NULL
   if (is.character(palette) && length(palette) == 1) {
     pal_name <- palette
     if (
