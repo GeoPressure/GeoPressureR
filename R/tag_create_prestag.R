@@ -48,7 +48,7 @@ tag_create_prestag <- function(
 
   # Create sensor data.frame
   tag$pressure <- sensor_data[sensor_data$sensor == "P", c("date", "value")]
-  tag$temperature <- sensor_data[sensor_data$sensor == "T", c("date", "value")]
+  tag$temperature_external <- sensor_data[sensor_data$sensor == "T", c("date", "value")]
 
   # Add parameter information
   tag$param$tag_create$pressure_file <- pressure_path

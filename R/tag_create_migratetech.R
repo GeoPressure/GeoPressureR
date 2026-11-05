@@ -86,7 +86,7 @@ tag_create_migratetech <- function(
     # Read temperature
     col <- which(hdr == "T('C)")
     if (length(col) != 0) {
-      tag$temperature <- tag_create_dto(
+      tag$temperature_external <- tag_create_dto(
         deg_path,
         skip = 20,
         col = col,
