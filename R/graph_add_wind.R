@@ -63,7 +63,7 @@ graph_add_wind <- function(
   }
 
   # Check that all the files of wind_speed exist and match the data request
-  graph$ws <- add_wind_graph_edge(
+  graph$ws <- graph_add_wind_edge(
     graph,
     ...
   )
@@ -122,14 +122,14 @@ graph_add_wind <- function(
   graph$param$graph_add_wind$rounding_interval <- if ("rounding_interval" %in% names(dots)) {
     dots$rounding_interval
   } else {
-    formals(add_wind_graph_edge)$rounding_interval
+    formals(graph_add_wind_edge)$rounding_interval
   }
   graph$param$graph_add_wind$interp_spatial_linear <- if (
     "interp_spatial_linear" %in% names(dots)
   ) {
     dots$interp_spatial_linear
   } else {
-    formals(add_wind_graph_edge)$interp_spatial_linear
+    formals(graph_add_wind_edge)$interp_spatial_linear
   }
   graph$param$graph_add_wind$pressure_source <- if ("pressure" %in% names(dots)) {
     "provided"
@@ -146,7 +146,7 @@ graph_add_wind <- function(
     graph$param$graph_add_wind$file <- file
   } else {
     # Use default file function if not provided
-    file <- eval(formals(add_wind_graph_edge)$file)
+    file <- eval(formals(graph_add_wind_edge)$file)
     attr(file, "srcref") <- NULL
     attr(file, "srcfile") <- NULL
     environment(file) <- baseenv()
@@ -160,7 +160,7 @@ graph_add_wind <- function(
 #' Add wind to graph edges
 #'
 #' @noRd
-add_wind_graph_edge <- function(
+graph_add_wind_edge <- function(
   graph,
   pressure = NULL,
   rounding_interval = 60,
@@ -278,7 +278,7 @@ add_wind_graph_edge <- function(
       lon_s <- lon_edge_s + ratio_stap[i_fl] * (lon_edge_t - lon_edge_s)
       lat_e <- lat_edge_s + ratio_stap[i_fl + 1] * (lat_edge_t - lat_edge_s)
       lon_e <- lon_edge_s + ratio_stap[i_fl + 1] * (lon_edge_t - lon_edge_s)
-      t_q <- add_wind_graph_query_times(fl_s, i_fl, rounding_interval)
+      t_q <- graph_add_wind_query_times(fl_s, i_fl, rounding_interval)
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
       dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
       dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
@@ -303,7 +303,7 @@ add_wind_graph_edge <- function(
           lat_ind_i <- match(round(lat_i * 4) / 4, lat)
           lon_ind_i <- match(round(lon_i * 4) / 4, lon)
         }
-        out <- add_wind_graph_values_time(
+        out <- graph_add_wind_values_time(
           pressure,
           t_q[i_time],
           pres,
@@ -393,7 +393,7 @@ add_wind_graph_edge <- function(
 #' Graph wind query times
 #'
 #' @noRd
-add_wind_graph_query_times <- function(fl_s, i_fl, rounding_interval) {
+graph_add_wind_query_times <- function(fl_s, i_fl, rounding_interval) {
   t_s <- as.POSIXct(
     trunc(as.numeric(fl_s$start[i_fl]) / (60 * rounding_interval)) *
       (60 * rounding_interval),
@@ -414,7 +414,7 @@ add_wind_graph_query_times <- function(fl_s, i_fl, rounding_interval) {
 #' Interpolate u/v wind for graph edges at one query time
 #'
 #' @noRd
-add_wind_graph_values_time <- function(
+graph_add_wind_values_time <- function(
   pressure,
   t_q_i,
   pres,
