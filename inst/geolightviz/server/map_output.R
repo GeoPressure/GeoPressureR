@@ -116,8 +116,8 @@ render_map_output <- function(
     }
 
     # Add current stapath
-    stapath_ <- stapath() |>
-      dplyr::filter(!is.na(lon), !is.na(lat))
+    stapath_ <- stapath()
+    stapath_ <- stapath_[!is.na(stapath_$lon) & !is.na(stapath_$lat), ]
 
     if (nrow(stapath_) > 0) {
       proxy <- proxy |>
