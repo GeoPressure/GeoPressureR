@@ -99,12 +99,9 @@ output$pressure_plot <- plotly::renderPlotly({
     plotly::config(
       scrollZoom = FALSE, # Disable built-in scroll zoom
       displayModeBar = TRUE,
-      # doubleClick = "reset", # Reset zoom on double click
       modeBarButtonsToRemove = list(
         "zoomIn2d",
         "zoomOut2d",
-        # "autoScale2d",
-        # "resetScale2d",
         "toImage",
         "hoverClosestCartesian",
         "hoverCompareCartesian",

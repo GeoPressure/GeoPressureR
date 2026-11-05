@@ -16,7 +16,7 @@ flight_info <- function(idx, nextprev) {
   flights_val <- nb_fl
   flights_unit <- if (nb_fl > 1) "flights" else "flight"
   duration_val <- round(fl_dur, 1)
-  duration_unit <- "hrs"
+  duration_unit <- "h"
   distance_val <- round(dist_km)
   distance_unit <- "km"
   speed_val <- if (!is.na(fl_dur) && fl_dur > 0) {

@@ -95,7 +95,7 @@ server <- function(input, output, session) {
 
   ## Render ----
   output$tag_id <- shiny::renderUI({
-    return(shiny::HTML(glue::glue("<h3 style='margin:0;'>", tag$param$id, "</h3>")))
+    return(shiny::HTML(glue::glue("<h3 style='margin:0;'>{tag$param$id}</h3>")))
   })
 
   # Split rendering and observers into smaller files (sourced into this session).
@@ -217,10 +217,6 @@ server <- function(input, output, session) {
     } else {
       reactVal$pressurepath <- pressuretimeseries
     }
-
-    # Trigger UI refresh on selection
-    shiny::updateSelectizeInput(session, "stap_id", selected = "1")
-    shiny::updateSelectizeInput(session, "stap_id", selected = input$stap_id)
 
     invisible(!inherits(cache_file, "try-error"))
   }
