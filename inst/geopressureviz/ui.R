@@ -141,19 +141,10 @@ ui <- shiny::bootstrapPage(
             width = "90px"
           )
         ),
-        shiny::tagList(
-          shiny::actionButton(
-            "save_path",
-            "Save",
-            style = "background-color: #28a745; color: white; width: 100%;"
-          ),
-          shinyjs::hidden(
-            shiny::downloadButton(
-              "export_path",
-              "Download",
-              style = "width: 100%;"
-            )
-          )
+        shiny::downloadButton(
+          "export_path",
+          "Export CSV",
+          style = "background-color: #28a745; color: white; width: 100%;"
         )
       ),
       shiny::div(
@@ -239,11 +230,6 @@ ui <- shiny::bootstrapPage(
         shiny::tags$p(
           class = "gpv-help-text",
           "Click the map to move the selected stationary period, then click Query pressure to compare the time series."
-        ),
-        shiny::checkboxInput(
-          "edit_position_interpolate",
-          label = "Interpolate positions between stap",
-          value = FALSE
         )
       )
     )

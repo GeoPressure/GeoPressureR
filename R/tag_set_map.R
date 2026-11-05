@@ -179,41 +179,12 @@ tag_set_map <- function(
         isTRUE(chg_scale) ||
         isTRUE(chg_include)
     ) {
-      # Only provide option to stop the process if map are already defined
+      # Likelihood maps depend on these parameters: ask to start again rather than deleting them
       if (any(c("map_pressure", "map_light") %in% names(tag))) {
-        cli::cli_bullets(
-          c(
-            "!" = "The likelihood maps ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different tag_set_map parameters."
-          )
-        )
-        res <- if (interactive()) {
-          utils::askYesNo(
-            "Do you want to overwrite the parameters and delete the likelihood maps?"
-          ) # nocov
-        } else {
-          FALSE
-        }
-        if (isTRUE(res)) {
-          # If yes, remove existing likelihood maps and carry on the overwrite of parameter
-          tag[c(
-            "map_pressure",
-            "map_light",
-            "map_pressure_mse",
-            "map_pressure_mask",
-            "map_light_twl"
-          )] <- NULL
-          cli::cli_warn(c(
-            "!" = "The old parameters have been overwritten with the new ones and the likelihood maps have been deleted.",
-            ">" = "Run {.fun geopressure_map} and/or {.fun geolight_map} again to create the new likelihood maps"
-          ))
-        } else {
-          cli::cli_warn(c(
-            "x" = "No modifications were made.",
-            ">" = "This function returns the original (unmodified) {.var tag}."
-          ))
-          # If no, stop and return the existing tag
-          return(tag)
-        }
+        cli::cli_abort(c(
+          "x" = "The likelihood maps ({.var map_pressure} and/or {.var map_light}) have already been computed on this {.var tag} object with different {.fun tag_set_map} parameters.",
+          ">" = "Start again from {.fun tag_create} (or a {.var tag} without likelihood maps) to use new parameters."
+        ))
       } else {
         cli::cli_warn(c(
           "!" = "{.fun tag_set_map} has already been run on this {.var tag} object and the input parameters are different.",

@@ -213,11 +213,20 @@ plot.map <- function(
       lmap <- leaflet::hideGroup(lmap, grp[id_known])
     }
 
+    # Leaflet shows a single layers control: merge the basemap control of map_add_tiles() into the
+    # stationary period control, with basemaps as overlays (first one shown)
+    is_ctrl <- vapply(lmap$x$calls, \(cl) identical(cl$method, "addLayersControl"), logical(1))
+    base_tiles <- unlist(lapply(lmap$x$calls[is_ctrl], \(cl) cl$args[[1]]))
+    lmap$x$calls <- lmap$x$calls[!is_ctrl]
     lmap <- leaflet::addLayersControl(
       lmap,
       baseGroups = grp[map$stap$include],
+      overlayGroups = base_tiles,
       options = leaflet::layersControlOptions(collapsed = FALSE)
     )
+    if (length(base_tiles) > 1) {
+      lmap <- leaflet::hideGroup(lmap, base_tiles[-1])
+    }
 
     return(lmap)
   } else {

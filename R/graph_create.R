@@ -188,7 +188,9 @@ graph_create <- function(
           combinations <- expand.grid(s_idx = source_idx, t_idx = target_idx)
         } else {
           # Apply the inexpensive rough-distance filter before allocating exact-distance inputs.
-          max_distance <- thr_gs * flight_duration[i_s] * 1.1
+          # Include the cell-size fallback below, and 20% for the equirectangular approximation
+          # (up to 17% too long at high latitude and large longitude differences)
+          max_distance <- (thr_gs * flight_duration[i_s] + max(resolution)) * 1.2
           s_lat_matrix <- matrix(
             s_lat[source_idx],
             nrow = length(source_idx),

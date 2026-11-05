@@ -163,7 +163,7 @@ test_that("tag_create() | SOI magnetic-only 14DM", {
   ))
   expect_equal(tag$param$tag_create$manufacturer, "soi")
   expect_match(tag$param$tag_create$magnetic_file, "14DM_20160630\\.magnetic$")
-  expect_true(all(c("left", "backward", "down") == tag$param$mag_axis))
+  expect_true(all(c("right", "forward", "down") == tag$param$mag_axis))
 })
 
 test_that("tag_create() | tabular full input and pressure bounds warning", {

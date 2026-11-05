@@ -68,7 +68,7 @@ test_that("twilight_label_write() and twilight_label_read() work", {
   tag_tmp$twilight$label <- NA_character_
   expect_warning(
     twilight_label_write(tag_tmp, file = tempfile(), quiet = TRUE),
-    "Some twilight label contain NA value"
+    "Some twilight labels contain NA values"
   )
 
   # Return FALSE when user does not allow directory creation

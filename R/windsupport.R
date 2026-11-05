@@ -14,7 +14,7 @@
 #'
 #' Alternatively to wind support, you can compute the drift (or crosswind component) value with
 #' `drift = TRUE`,
-#' \deqn{\text{Drift} = \frac{|\vec{v}_g \times \vec{v}_w|}{|\vec{v}_g|},}
+#' \deqn{\text{Drift} = \frac{\vec{v}_w \times \vec{v}_g}{|\vec{v}_g|},}
 #' with \eqn{\times} being the [cross product](https://en.wikipedia.org/wiki/Cross_product).
 #'
 #' A positive value of drift indicates that the wind is pushing the bird to the right of its
@@ -55,7 +55,7 @@ windsupport <- function(windspeed, groundspeed, drift = FALSE) {
   # aw_drift = (1i*2-1)*aws*sin(gam)
 
   if (drift) {
-    w_drift <- (Re(ws) * Re(gs) + Im(ws) * Im(gs)) / abs(ws)
+    w_drift <- (Re(ws) * Im(gs) - Im(ws) * Re(gs)) / abs(gs)
     return(w_drift)
   }
 

@@ -170,10 +170,10 @@ twilight_create_guess_offset <- function(
   mat <- ts2mat(light, sensor = "light", twl_offset = 0, twl_time_tolerance = twl_time_tolerance)
   l <- mat$value >= twl_thr
   tmp <- rowMeans(l, na.rm = TRUE)
-  offset_id <- round(
-    sum(tmp * seq_len(dim(mat$value)[1]), na.rm = TRUE) / sum(tmp, na.rm = TRUE)
-  )
-  twl_offset <- (mat$res * offset_id - 60 * 60 * 12) / 60 / 60
+  # Circular mean of the time of day with light, so that daylight wrapping around 00:00 UTC works
+  a <- 2 * pi * (seq_along(tmp) - 1) / length(tmp)
+  a_mean <- atan2(sum(tmp * sin(a), na.rm = TRUE), sum(tmp * cos(a), na.rm = TRUE))
+  twl_offset <- (a_mean * 12 / pi) %% 24 - 12
 
   return(twl_offset)
 }

@@ -49,7 +49,8 @@ pressurepath_create_arco(
 \arguments{
 \item{tag}{A GeoPressureR \code{tag} object.}
 
-\item{path}{A GeoPressureR \code{path} data.frame.}
+\item{path}{A GeoPressureR \code{path} data.frame. A path with several trajectories (column \code{j},
+e.g. from \code{graph_simulation()}) is computed one trajectory at a time.}
 
 \item{variable}{ERA5 variables to retrieve, named as in the
 \href{https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels}{ERA5 catalogue},

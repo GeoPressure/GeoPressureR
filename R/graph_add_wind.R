@@ -71,7 +71,8 @@ graph_add_wind <- function(
 
   if (is.finite(thr_as)) {
     # filter edges based on airspeed
-    id <- abs(graph$gs - graph$ws) <= thr_as
+    # Keep stay-in-place edges, which graph_transition() treats as zero airspeed
+    id <- abs(graph$gs - graph$ws) <= thr_as | graph$gs == 0
 
     # Check that there are always at least one node left by stap
     g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)

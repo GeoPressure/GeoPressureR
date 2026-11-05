@@ -38,12 +38,8 @@ RStudio.}
 allows you to continue using your R session while the app is running.}
 }
 \value{
-When \code{run_bg = FALSE}: The edited path, returned invisibly when the app closes. During
-the app session, the current path is also stored in the Shiny option
-\code{shiny::getShinyOption("path_geopressureviz")}, which can be read afterwards in the same R
-session.
-When \code{run_bg = TRUE}: The background process object. In this case the edited path is not
-returned to the calling console session.
+When \code{run_bg = TRUE}, the background process object, invisibly. Otherwise \code{NULL},
+invisibly, when the app closes.
 }
 \description{
 GeoPressureViz is an interactive app to inspect and manually edit migration paths together with
@@ -54,15 +50,8 @@ The app can start from a \code{tag} object already in memory, or from an interim
 file that contains at least \code{tag} (and optionally \code{marginal}, \code{path_most_likely},
 \code{pressurepath}, \code{pressurepath_most_likely}).
 
-When \code{run_bg = FALSE}, the app stores the current edited path in the Shiny option
-\code{path_geopressureviz} and returns it invisibly when the app closes. You can capture it from the
-return value of this function or retrieve it afterwards in the same R session with
-\code{shiny::getShinyOption("path_geopressureviz")}.
-
-When \code{run_bg = TRUE}, the function returns the background process object instead of the edited
-path.
-
-The app \code{Save} button writes the current path to \code{./data/interim/{id}-path-geopressureviz.csv}.
+GeoPressureViz is an exploration tool. To keep an edited path, use the app's \verb{Export CSV}
+button.
 
 Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }

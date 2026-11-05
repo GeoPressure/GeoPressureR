@@ -42,7 +42,12 @@ geopressure_timeseries_arco_impl <- function(
   resolution <- if (era5_dataset == "land") 0.1 else 0.25
   cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
   query_lon <- floor(lon / resolution + 0.5) * resolution
-  query_lat <- floor(lat / resolution + 0.5) * resolution
+  # ERA5-Land latitude ties round south, as in pressurepath_create_arco()
+  query_lat <- if (era5_dataset == "land") {
+    ceiling(lat / resolution - 0.5) * resolution
+  } else {
+    floor(lat / resolution + 0.5) * resolution
+  }
 
   arco_client <- era5_arco_client()
 

@@ -59,7 +59,8 @@ pressurepath_create_arco_impl <- function(
       land <- terra::rotate(land)
     }
     land_lon <- floor(pressurepath$lon / 0.1 + 0.5) * 0.1
-    land_lat <- floor(pressurepath$lat / 0.1 + 0.5) * 0.1
+    # Same latitude tie rule as the ERA5-Land data read below
+    land_lat <- ceiling(pressurepath$lat / 0.1 - 0.5) * 0.1
     land_value <- terra::extract(land, cbind(land_lon, land_lat))[[1]]
     dataset <- ifelse(!is.na(land_value) & land_value > 0.5, "land", "single-levels")
   }

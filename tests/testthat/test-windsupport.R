@@ -5,5 +5,6 @@ test_that("windsupport()", {
   expect_equal(windsupport(1i, 1i), 1)
   expect_equal(windsupport(1i, -1i), -1)
   expect_equal(windsupport(1i, 1 + 1i), sqrt(2) / 2)
-  expect_equal(windsupport(1i, 1 + 1i, drift = TRUE), 1)
+  expect_equal(windsupport(1i, 1 + 1i, drift = TRUE), -sqrt(2) / 2)
+  expect_equal(windsupport(2i, 10 + 0i, drift = TRUE), -2)
 })

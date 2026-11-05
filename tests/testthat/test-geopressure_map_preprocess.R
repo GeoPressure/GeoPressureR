@@ -36,7 +36,7 @@ test_that("short stationary periods retain their single hourly reading", {
     class = "tag"
   )
 
-  expect_warning(processed <- geopressure_map_preprocess(tag), "less than 3 datapoints")
+  expect_warning(processed <- geopressure_map_preprocess(tag), "fewer than 3 datapoints")
   expect_equal(processed$date, as.POSIXct("2020-01-01 18:00:00", tz = "UTC"))
   expect_equal(processed$value, 1004)
 })

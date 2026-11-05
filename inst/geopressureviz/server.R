@@ -7,8 +7,7 @@ server <- function(input, output, session) {
 
   if (isTRUE(shiny::getShinyOption("stop_on_session_end", TRUE))) {
     session$onSessionEnded(function() {
-      # Return the edited path from runApp()
-      stopApp(shiny::isolate(reactVal$path))
+      stopApp()
     })
   }
 
@@ -408,11 +407,6 @@ server <- function(input, output, session) {
     } else {
       shinyjs::show(id = "stap_info_view", anim = TRUE)
       shinyjs::hide(id = "track_info_view", anim = TRUE)
-      if (isTRUE(input$min_dur_stap > 0)) {
-        shinyjs::show(id = "edit_position_interpolate")
-      } else {
-        shinyjs::hide(id = "edit_position_interpolate")
-      }
     }
   })
 
@@ -477,46 +471,6 @@ server <- function(input, output, session) {
         click$lat,
         click$lng
       )
-
-      if (input$edit_position_interpolate) {
-        if (idx() != 1) {
-          stap_id_prev <- stap_id_include()[idx() - 1]
-        } else {
-          stap_id_prev <- as.numeric(input$stap_id)
-        }
-        if (idx() != length(stap_id_include())) {
-          stap_id_next <- stap_id_include()[idx() + 1]
-        } else {
-          stap_id_next <- as.numeric(input$stap_id)
-        }
-
-        stap_prev_to_next <- seq(stap_id_prev, stap_id_next)
-
-        # Cumulate the flight duration to get a proxy of the overall distance covered
-        total_flight <- cumsum(c(
-          0,
-          stap2flight(stap, stap$stap_id)$duration[utils::head(stap_prev_to_next, -1)]
-        ))
-
-        stap_interp <- !(stap_prev_to_next %in%
-          c(stap_id_prev, as.numeric(input$stap_id), stap_id_next))
-
-        path_prev_to_next <- reactVal$path[stap_prev_to_next, ]
-
-        # Interpolate lat and lon separately using `total_flight` as a spacing between position
-        path_prev_to_next$lon[stap_interp] <- stats::approx(
-          total_flight[!stap_interp],
-          path_prev_to_next$lon[!stap_interp],
-          total_flight[stap_interp]
-        )$y
-        path_prev_to_next$lat[stap_interp] <- stats::approx(
-          total_flight[!stap_interp],
-          path_prev_to_next$lat[!stap_interp],
-          total_flight[stap_interp]
-        )$y
-
-        reactVal$path[stap_prev_to_next, ] <- path_prev_to_next
-      }
     }
   })
 
@@ -829,34 +783,6 @@ server <- function(input, output, session) {
     process_pressuretimeseries = process_pressuretimeseries,
     session = session
   )
-
-  shiny::observeEvent(input$save_path, {
-    target_file <- file.path(interim_dir, glue::glue("{tag$param$id}-path-geopressureviz.csv"))
-
-    tryCatch(
-      {
-        dir.create(interim_dir, recursive = TRUE, showWarnings = FALSE)
-        utils::write.csv(
-          reactVal$path,
-          file = target_file,
-          row.names = FALSE
-        )
-        shiny::showNotification(
-          glue::glue("Path saved to {target_file}"),
-          duration = 5,
-          type = "message"
-        )
-      },
-      error = function(e) {
-        shiny::showNotification(
-          glue::glue("Save failed: {e$message}. Using manual download instead."),
-          duration = 10,
-          type = "warning"
-        )
-        shinyjs::click("export_path")
-      }
-    )
-  })
 
   output$export_path <- shiny::downloadHandler(
     filename = function() {
