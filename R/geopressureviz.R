@@ -206,6 +206,7 @@ geopressureviz <- function(
         pressurepath = pressurepath,
         path = path,
         file_wind = file_wind,
+        interim_dir = normalizePath("./data/interim", mustWork = FALSE),
         stop_on_session_end = FALSE
       ),
       launch_browser = launch_browser,
@@ -224,6 +225,7 @@ geopressureviz <- function(
       pressurepath = pressurepath,
       path = path,
       file_wind = file_wind,
+      interim_dir = normalizePath("./data/interim", mustWork = FALSE),
       stop_on_session_end = TRUE
     ),
     launch_browser = launch_browser

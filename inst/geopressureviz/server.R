@@ -839,11 +839,11 @@ server <- function(input, output, session) {
   )
 
   shiny::observeEvent(input$save_path, {
-    target_file <- glue::glue("./data/interim/{tag$param$id}-path-geopressureviz.csv")
+    target_file <- file.path(interim_dir, glue::glue("{tag$param$id}-path-geopressureviz.csv"))
 
     tryCatch(
       {
-        dir.create("./data/interim", recursive = TRUE, showWarnings = FALSE)
+        dir.create(interim_dir, recursive = TRUE, showWarnings = FALSE)
         utils::write.csv(
           reactVal$path,
           file = target_file,
