@@ -34,25 +34,10 @@
 #' windsupport(windspeed = 5 + 2i, groundspeed = 10 + 0i)
 #' @export
 windsupport <- function(windspeed, groundspeed, drift = FALSE) {
-  # Rename to shorter name
   ws <- windspeed
   gs <- groundspeed
 
   w_support <- (Re(ws) * Re(gs) + Im(ws) * Im(gs)) / abs(gs)
-
-  # Alternate 1
-  # Re(ws * Conj(gs)) / abs(gs)
-
-  # Alternate 2
-  # w_support = (gs* Re(ws) - 1i * ws * Im(gs)) / abs(gs)
-
-  # Alternate 3
-  # aas = abs(gs-ws)
-  # aws = abs(ws)
-  # ags = abs(gs)
-  # gam = acos((aws^2+ags^2-aas^2)/(2.*aws*ags))
-  # aw_support = aws*cos(gam)
-  # aw_drift = (1i*2-1)*aws*sin(gam)
 
   if (drift) {
     w_drift <- (Re(ws) * Im(gs) - Im(ws) * Re(gs)) / abs(gs)
