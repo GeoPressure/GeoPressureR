@@ -7,7 +7,7 @@
 #' @param path a GeoPressureR `path` data.frame.
 #' @param plot_leaflet logical defining if the plot is an interactive `leaflet` map or a static
 #' basic plot.
-#' @param map optional `map` object to plot the path on top of.
+#' @param map optional `leaflet` map to add the path on top of (only for `plot_leaflet = TRUE`).
 #' @param provider optional tile provider name (see `leaflet::providers`). When `NULL`, uses all
 #'   available GeoPressureR basemap layers; see the *Basemap API keys* section.
 #' @param provider_options tile options. See leaflet::addProviderTiles() and

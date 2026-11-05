@@ -23,11 +23,11 @@
 #' * a tag id (character scalar), interpreted as `"./data/interim/{id}.RData"`.
 #' @param path Optional GeoPressureR `path` or `pressurepath` data.frame.
 #' If `NULL`, a path is resolved from available inputs in this order:
-#' * for file/id input (`x` character): `path_most_likely` (if present), then `pressurepath`
-#' (if present);
+#' * for file/id input (`x` character): the first present of `pressurepath_most_likely`,
+#' `pressurepath` and `path_most_likely`;
 #' * otherwise fallback to `tag2path(tag, interp = 1)`.
 #' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
-#' `path` or `pressurepath` contained in the `.Rdata` file.
+#' `marginal` contained in the `.Rdata` file.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
 #' RStudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
@@ -61,7 +61,6 @@ geopressureviz <- function(
     }
     if (is.null(marginal)) {
       var_optional <- c(var_optional, "marginal")
-      marginal <- NULL
     }
 
     load_interim(
@@ -104,17 +103,13 @@ geopressureviz <- function(
 
   tag_assert(tag, "setmap")
 
-  if (all(c("map_pressure", "map_light") %in% names(tag))) {
-    tag$map_preslight <- tag$map_pressure * tag$map_light
-  }
-
   if (!is.null(marginal)) {
     tag$map_marginal <- marginal
   }
 
   # Add possible map to display
   map_types <- map_type()
-  map_entries <- map_types[setdiff(names(map_types), c("unknown", "mask_water"))]
+  map_entries <- map_types[setdiff(names(map_types), "unknown")]
   map_display <- vapply(map_entries, function(x) x$display, character(1))
   map_needed <- lapply(map_entries, function(x) x$name)
   available <- vapply(map_needed, function(x) all(x %in% names(tag)), logical(1))

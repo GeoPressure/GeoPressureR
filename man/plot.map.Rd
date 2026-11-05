@@ -37,14 +37,14 @@ leaflet::providerTileOptions().}
 
 \item{opacity}{opacity of the raster layer in leaflet.}
 
-\item{legend}{logical to display the legend.}
+\item{legend}{logical to display the legend (only for \code{plot_leaflet = FALSE}).}
 
 \item{fac_res_proj}{Factor of the resolution of the reprojection (see details above). A value of
 \code{1} will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
 the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase
 the computational cost of the reprojection.}
 
-\item{...}{additional parameters passed to \code{leaflet::addRasterImage()} or \code{terra::plot()}.}
+\item{...}{additional parameters passed to \code{terra::plot()} (only for \code{plot_leaflet = FALSE}).}
 }
 \value{
 a plot or leaflet object.

@@ -20,7 +20,7 @@
 #' @param x a GeoPressureR `tag` object.
 #' @param type type of the plot to display. One of `"pressure"`, `"acceleration"`, `"light"`,
 #' `"temperature"`, `"twilight"`, `"actogram"`, `"map"`, `"map_pressure"`, `"map_light"`,
-#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"mask_water"`, `"temperature_external"`,
+#' `"map_pressure_mse"`, `"map_pressure_mask"`, `"temperature_external"`,
 #' `"temperature_internal"`. Map can be combined by providing a vector of type.
 #' @param ... additional parameters for `plot_tag_pressure()`, `plot_tag_acceleration()`,
 #' `plot_tag_light()`, `plot_tag_twilight()` or `plot.map()`. For twilight and actogram plots,
@@ -72,8 +72,7 @@ plot.tag <- function(x, type = NULL, ...) {
     "map_pressure",
     "map_light",
     "map_pressure_mse",
-    "map_pressure_mask",
-    "mask_water"
+    "map_pressure_mask"
   )
   sensor_priority <- c(
     "pressure",
@@ -182,7 +181,7 @@ plot_tag_pressure <- function(
   if ("label" %in% names(tag$pressure)) {
     # Compute hourly processed pressure and warning differences.
     pres <- geopressure_map_preprocess(tag)
-    pres_diff <- pressure_diff_warning_data(tag, warning_pressure_diff)
+    pres_diff <- pressure_diff_warning_data(pres, warning_pressure_diff)
 
     p <- p +
       ggplot2::geom_point(
@@ -208,16 +207,13 @@ plot_tag_pressure <- function(
 
 #' Compute warning pressure differences at 1h intervals
 #'
-#' @param tag a GeoPressureR `tag` object with labels.
+#' @param pres hourly pressure computed by `geopressure_map_preprocess()`.
 #' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
 #' @noRd
-pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
+pressure_diff_warning_data <- function(pres, warning_pressure_diff = 3) {
   assertthat::assert_that(is.numeric(warning_pressure_diff))
   assertthat::assert_that(length(warning_pressure_diff) == 1)
   assertthat::assert_that(!is.na(warning_pressure_diff))
-
-  # Compute the pressure at the hourly scale.
-  pres <- geopressure_map_preprocess(tag)
 
   # Group by stationary period and elevation level.
   pres$stapelev <- factor(pres$stapelev)
@@ -711,10 +707,10 @@ plot_tag_actogram <- function(
   acc$value[!is.finite(acc$value)] <- NA_real_
 
   # Use by order of priority: (1) twl_offset provided in this function, (2)
-  # tag$param$twilight_create$twl_offset, (3) guess from light data
+  # tag$param$twilight_create$twl_offset, (3) guess from acceleration data
   twl_offset <- resolve_twl_offset(tag, acc, twl_offset)
 
-  # Compute the matrix representation of light
+  # Compute the matrix representation of acceleration
   mat <- ts2mat(acc, sensor = "acceleration", twl_offset = twl_offset)
 
   if ("label" %in% names(acc)) {
@@ -759,7 +755,6 @@ plot_tag_actogram <- function(
     }
     x <- seq(rng[1], rng[2], length.out = 6)
   }
-  val <- (x - rng[1]) / diff(rng)
 
   p <- ggplot2::ggplot() +
     ggplot2::geom_raster(

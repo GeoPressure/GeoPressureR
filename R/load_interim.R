@@ -10,7 +10,8 @@
 #'   looks for `./data/interim/{x}.RData`.
 #' @param var Optional name (or names) of objects that must exist in the file. If `NULL` and
 #'   `var_optional` is also `NULL`, all objects from the file are loaded into `envir` (the
-#'   behaviour of [base::load()]).
+#'   behaviour of [base::load()]). Otherwise, only the selected objects are assigned into `envir`
+#'   (in addition to being returned).
 #' @param var_optional Character vector of object names that may or may not exist in the file. Any
 #'   of these that are present will be loaded; missing ones are silently ignored.
 #' @inheritParams base::load
