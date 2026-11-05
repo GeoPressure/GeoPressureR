@@ -36,7 +36,7 @@
 #' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
 #' `path` or `pressurepath` contained in the `.Rdata` file.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' Rstudio.
+#' RStudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
 #' @return When `run_bg = FALSE`: The edited path, returned invisibly when the app closes. During
@@ -96,7 +96,7 @@ geopressureviz <- function(
         pressurepath <- get("pressurepath", inherits = FALSE)
         if ("pressure_era5" %in% names(pressurepath)) {
           cli::cli_warn(c(
-            "!" = "{.var pressurepath} has been create with an old version of \\
+            "!" = "{.var pressurepath} has been created with an old version of \\
       {.pkg GeoPressureR} (<v3.2.0)",
             ">" = "For optimal performance, we suggest to re-run \\
       {.fun pressurepath_create}"

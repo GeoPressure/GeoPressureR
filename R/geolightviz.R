@@ -23,7 +23,7 @@
 #'   Defaults to `tag$stap` when available. Use `read_stap(tag$param$id)` to load a path from
 #'   `./data/stap-label/{id}.csv`.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' Rstudio.
+#' RStudio.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
 #' @param quiet logical, currently unused.

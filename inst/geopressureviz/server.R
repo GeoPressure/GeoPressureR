@@ -90,7 +90,7 @@ server <- function(input, output, session) {
   }) |>
     bindEvent(input$map_source)
 
-  # list of the stap_id which are above the threashold of duration and included in the model
+  # list of the stap_id which are above the threshold of duration and included in the model
   stap_id_include <- shiny::reactive({
     min_dur_stap <- ifelse(
       is.na(input$min_dur_stap),
@@ -399,7 +399,7 @@ server <- function(input, output, session) {
   })
 
   ## ObserveEvents ----
-  # Same order than the ui
+  # Same order as the UI
 
   shiny::observeEvent(input$full_track, {
     if (input$full_track) {
