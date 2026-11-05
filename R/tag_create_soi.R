@@ -242,14 +242,12 @@ tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
       hw_version <- as.double(hw_version)
     }
   }
-  if (!is.numeric(hw_version) || length(hw_version) != 1) {
+  if (!is.numeric(hw_version) || length(hw_version) != 1 || is.na(hw_version)) {
     if (!quiet) {
-      cli::cli_alert_warning(
-        c(
-          "!" = "The hardware version {.val {hw_version}} could not be detected.",
-          ">" = "The magnetic data is not corrected and {.code mag} contains the raw data."
-        )
-      )
+      cli::cli_warn(c(
+        "!" = "The hardware version {.val {hw_version}} could not be detected.",
+        ">" = "The magnetic data is not corrected and {.code mag} contains the raw data."
+      ))
     }
     return(mag)
   }
