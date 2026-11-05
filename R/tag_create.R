@@ -497,7 +497,7 @@ tag_create_dto <- function(
 #' Correct sensor timestamps with a constant shift and linear drift
 #' @noRd
 tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference) {
-  sensors <- intersect(names(tag), tag_sensors)
+  sensors <- setdiff(names(tag), "param")
   shift <- drift <- stats::setNames(rep(0, length(sensors)), sensors)
   if (is.numeric(time_shift)) {
     shift[] <- time_shift
