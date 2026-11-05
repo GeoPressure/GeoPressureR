@@ -7,7 +7,8 @@ server <- function(input, output, session) {
 
   if (isTRUE(shiny::getShinyOption("stop_on_session_end", TRUE))) {
     session$onSessionEnded(function() {
-      stopApp()
+      # Return the edited path from runApp()
+      stopApp(shiny::isolate(reactVal$path))
     })
   }
 
@@ -66,11 +67,6 @@ server <- function(input, output, session) {
     pressure_xmax = NULL,
     isEdit = FALSE # if editing position
   )
-
-  shiny::observe({
-    # Store current path as path_geopressureviz in shiny options
-    shiny::shinyOptions(path_geopressureviz = reactVal$path)
-  })
 
   # return the map
   map_display <- shiny::reactive({

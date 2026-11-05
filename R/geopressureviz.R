@@ -216,7 +216,7 @@ geopressureviz <- function(
     ))
   }
 
-  shiny_run_app_fg(
+  path_geopressureviz <- shiny_run_app_fg(
     system.file("geopressureviz", package = "GeoPressureR"),
     shiny_opts = list(
       tag = tag,
@@ -231,7 +231,8 @@ geopressureviz <- function(
     launch_browser = launch_browser
   )
 
-  # Return the updated path from shiny options
-  return(invisible(shiny::getShinyOption("path_geopressureviz")))
+  # Return the updated path and store it in shiny options
+  shiny::shinyOptions(path_geopressureviz = path_geopressureviz)
+  return(invisible(path_geopressureviz))
   # nocov end
 }
