@@ -7,6 +7,8 @@
 - [Integrate wind exactly over each flight](https://github.com/GeoPressure/GeoPressureR/commit/130872fcb007eee70518cc9aa757602fb5a6fbc8) in `edge_add_wind()` and `graph_add_wind()`. The first and last hours were weighted about twice too much, so wind and airspeed change, most for short flights.
 - [Compute `pressurepath_create()` one trajectory at a time](https://github.com/GeoPressure/GeoPressureR/commit/a6a7a5b4b750b720935d3d307ecc1c9dc1d2c9b1) for paths with several trajectories (column `j`, e.g. `path_simulation`).
 - [Return the crosswind component from `windsupport(drift = TRUE)`](https://github.com/GeoPressure/GeoPressureR/commit/bd76070c24bfdd2082abd4b754af27256cb8a79e) as documented.
+- [Simplify GeoPressureViz](https://github.com/GeoPressure/GeoPressureR/commit/08f616f8aa90bc62dcb0fa6c698ad3f09c53a696): remove position interpolation, the Save button writing to `data/interim/` and the returned path. Use the app's `Export CSV` button to keep an edited path.
+- [Abort `tag_set_map()` on new parameters when likelihood maps exist](https://github.com/GeoPressure/GeoPressureR/commit/76a3fbb8c20422b89bc616590353785dfa3124bc) instead of prompting to delete them; start again from `tag_create()`.
 
 ## Minor
 
