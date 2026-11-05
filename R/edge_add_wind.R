@@ -417,7 +417,7 @@ edge_add_wind_check <- function(
         format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"),
         tz = "UTC"
       )
-      if (!(min(time) <= t_e && max(time) >= t_s)) {
+      if (!(min(time) <= t_s && max(time) >= t_e)) {
         cli::cli_abort(c(
           x = "Wind file ({.file {file_path}}) does not cover the flight time range.",
           "i" = "Wind file: {min(time)} to {max(time)}. Flight: {t_s} to {t_e}.",
