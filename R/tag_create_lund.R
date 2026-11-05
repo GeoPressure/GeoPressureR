@@ -36,15 +36,12 @@ tag_create_lund <- function(
   }
 
   # Read light
-  if (is.null(acceleration_light_file)) {
-    acc_light_path <- tag_create_detect("_acc.xlsx", directory, quiet = TRUE)
-  } else {
-    acc_light_path <- tag_create_detect(
-      acceleration_light_file,
-      directory,
-      quiet = quiet
-    )
-  }
+  acc_light_path <- tag_create_detect(
+    acceleration_light_file,
+    directory,
+    quiet,
+    default = "_acc.xlsx"
+  )
   if (!is.null(acc_light_path)) {
     xls <- readxl::read_excel(
       acc_light_path,

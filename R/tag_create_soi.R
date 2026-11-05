@@ -63,22 +63,14 @@ tag_create_soi <- function(
   )
 
   # Read Pressure
-  if (is.null(pressure_file)) {
-    pressure_path <- tag_create_detect("*.pressure", directory, quiet = TRUE)
-  } else {
-    pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
-  }
+  pressure_path <- tag_create_detect(pressure_file, directory, quiet, default = "*.pressure")
   if (!is.null(pressure_path)) {
     tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
     tag$pressure$value[tag$pressure$value < 0] <- NA
   }
 
   # Read light
-  if (is.null(light_file)) {
-    light_path <- tag_create_detect("*.glf", directory, quiet = TRUE)
-  } else {
-    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
-  }
+  light_path <- tag_create_detect(light_file, directory, quiet, default = "*.glf")
   if (!is.null(light_path)) {
     tag$light <-
       tag_create_dto(light_path, quiet = quiet)
@@ -86,19 +78,12 @@ tag_create_soi <- function(
   }
 
   # Read acceleration
-  if (is.null(acceleration_file)) {
-    acceleration_path <- tag_create_detect(
-      "*.acceleration",
-      directory,
-      quiet = TRUE
-    )
-  } else {
-    acceleration_path <- tag_create_detect(
-      acceleration_file,
-      directory,
-      quiet = quiet
-    )
-  }
+  acceleration_path <- tag_create_detect(
+    acceleration_file,
+    directory,
+    quiet,
+    default = "*.acceleration"
+  )
   if (!is.null(acceleration_path)) {
     tag$acceleration <- tag_create_dto(
       acceleration_path,
@@ -111,25 +96,14 @@ tag_create_soi <- function(
   }
 
   # Read External temperature
-  if (is.null(temperature_external_file)) {
-    temperature_external_path <- tag_create_detect(
-      "*.temperature",
-      directory,
-      quiet = TRUE
-    )
-    if (is.null(temperature_external_path)) {
-      temperature_external_path <- tag_create_detect(
-        "*.airtemperature",
-        directory,
-        quiet = TRUE
-      )
-    }
-  } else {
-    temperature_external_path <- tag_create_detect(
-      temperature_external_file,
-      directory,
-      quiet = quiet
-    )
+  temperature_external_path <- tag_create_detect(
+    temperature_external_file,
+    directory,
+    quiet,
+    default = "*.temperature"
+  )
+  if (is.null(temperature_external_file) && is.null(temperature_external_path)) {
+    temperature_external_path <- tag_create_detect("*.airtemperature", directory)
   }
   if (!is.null(temperature_external_path)) {
     tag$temperature_external <- tag_create_dto(
@@ -140,19 +114,12 @@ tag_create_soi <- function(
   }
 
   # Read Internal temperature
-  if (is.null(temperature_internal_file)) {
-    temperature_internal_path <- tag_create_detect(
-      "*.bodytemperature",
-      directory,
-      quiet = TRUE
-    )
-  } else {
-    temperature_internal_path <- tag_create_detect(
-      temperature_internal_file,
-      directory,
-      quiet = quiet
-    )
-  }
+  temperature_internal_path <- tag_create_detect(
+    temperature_internal_file,
+    directory,
+    quiet,
+    default = "*.bodytemperature"
+  )
   if (!is.null(temperature_internal_path)) {
     tag$temperature_internal <- tag_create_dto(
       temperature_internal_path,
@@ -164,11 +131,7 @@ tag_create_soi <- function(
   }
 
   # Read magnetism
-  if (is.null(magnetic_file)) {
-    magnetic_path <- tag_create_detect("*.magnetic", directory, quiet = TRUE)
-  } else {
-    magnetic_path <- tag_create_detect(magnetic_file, directory, quiet = quiet)
-  }
+  magnetic_path <- tag_create_detect(magnetic_file, directory, quiet, default = "*.magnetic")
   if (!is.null(magnetic_path) && "soi_settings" %in% names(tag$param)) {
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,

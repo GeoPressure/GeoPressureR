@@ -382,9 +382,13 @@ tag_sensors <- c(
   "magnetic"
 )
 
-# Detect full path from the argument file.
+# Detect full path from the argument file. A `NULL` file falls back quietly to `default`.
 #' @noRd
-tag_create_detect <- function(file, directory, quiet = TRUE) {
+tag_create_detect <- function(file, directory, quiet = TRUE, default = NULL) {
+  if (is.null(file)) {
+    file <- default
+    quiet <- TRUE
+  }
   if (is.null(file)) {
     return(NULL)
   }
