@@ -48,7 +48,7 @@ plot_pressurepath <- function(
 
   if ("pressure_era5" %in% names(pressurepath)) {
     cli::cli_warn(c(
-      "!" = "{.var pressurepath} has been create with an old version of {.pkg GeoPressureR} (<v3.2.0)",
+      "!" = "{.var pressurepath} has been created with an old version of {.pkg GeoPressureR} (<v3.2.0)",
       ">" = "For optimal performance, we suggest to re-run {.fun pressurepath_create}"
     ))
     pressurepath$surface_pressure <- pressurepath$pressure_era5
@@ -226,7 +226,7 @@ plot_pressurepath <- function(
         linetype = "dashed",
         colour = "#E6550D"
       ) +
-      ggplot2::facet_wrap(~stapelev, scale = "free_y", labeller = lab) +
+      ggplot2::facet_wrap(~stapelev, scales = "free_y", labeller = lab) +
       ggplot2::scale_x_continuous(
         name = "Difference of pressure tag - ERA5 (hPa)"
       ) +
@@ -246,7 +246,7 @@ plot_pressurepath <- function(
     id_flight <- pp_alt$stap_id != round(pp_alt$stap_id)
     # group flight arbitrarily using the floor of their stap_id
     pp_alt$stap_id[id_flight] <- floor(pp_alt$stap_id)[id_flight]
-    # convert to factor for ploting
+    # convert to factor for plotting
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +

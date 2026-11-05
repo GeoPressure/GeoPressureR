@@ -119,7 +119,7 @@ path2elevation <- function(
 
   # 1. Interpolation of !include
   # In order to have the correct stap_id during the flight, we need to interpolate the position of
-  # stap not included. As opposed to tag2path(), here we don't need to insure that the position
+  # stap not included. As opposed to tag2path(), here we don't need to ensure that the position
   # falls exactly on a grid cell (in order to be able to have an index).
   path_interp <- is.na(path$lat) | is.na(path$lon)
 
@@ -131,7 +131,7 @@ path2elevation <- function(
   ]
   if (length(stap_id_not_considered) > 0) {
     cli::cli_warn(c(
-      "!" = "The position are not defined for stationary periods ({.val {stap_id_not_considered}}). Because they are at the begining or end of the path, we are not able to interpolate them and they will consequently not be considered in the computation of elevation."
+      "!" = "Positions are not defined for stationary periods ({.val {stap_id_not_considered}}). Because they are at the beginning or end of the path, we are not able to interpolate them and they will consequently not be considered in the computation of elevation."
     ))
   }
 
@@ -142,7 +142,7 @@ path2elevation <- function(
   # Compute flight duration including all stap_id
   flight <- stap2flight(path, include_stap_id = path_c$stap_id)
 
-  # Cummulate the flight duration to get a proxy of the over distance covered
+  # Cumulate the flight duration to get a proxy of the overall distance covered
   total_flight <- cumsum(as.numeric(c(0, flight$duration)))
 
   # Interpolate the lat and lon separately using `total_flight` as a spacing between position

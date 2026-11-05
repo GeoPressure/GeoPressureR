@@ -61,7 +61,7 @@
 #' corresponding section in the GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/labelling-tracks.html#elevation-period).
 #'
-#' Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
+#' Behind the scenes, each of these elevation levels produces a new request on the GeoPressureAPI.
 #' The mismatch maps of all elevation levels belonging to the same stationary periods are combined
 #' (as a weighted average) to result in a single mismatch map per stationary period.
 #'
@@ -82,7 +82,7 @@
 #' Probability aggregation
 #' ](https://geopressure.org/GeoPressureManual/probability-aggregation.html) for details.
 #'
-#' **Important Note**: Since GeoPressure v3.1.0, the threshold of the mask is happening directly
+#' **Important Note**: Since GeoPressureR v3.1.0, the threshold of the mask is happening directly
 #' on the GEE server (i.e., during `geopressure_map_mismatch()`). This allows to compute the MSE
 #' only for pixels which are within the threshold, thus reducing the computational cost
 #' significantly.
@@ -105,7 +105,7 @@
 #' @param keep_mse logical defining if the MSE map is returned in `tag`.
 #' @param timeout duration before the code is interrupted both for the request on
 #' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
-#' @param workers number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjust the
+#' @param workers number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjusts the
 #' number of workers to the number of `stapelev` to query.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
 #' estimated based on twilight or hard defined by the known location `stap$known_l**`

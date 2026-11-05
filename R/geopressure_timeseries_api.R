@@ -120,7 +120,7 @@ geopressure_timeseries_api_impl <- function(
     write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
-      i = "Check that the time range is none-empty. Log of your JSON request: {.file {temp_file}}"
+      i = "Check that the time range is non-empty. Log of your JSON request: {.file {temp_file}}"
     ))
   }
 
