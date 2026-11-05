@@ -473,9 +473,9 @@ tag_create_dto <- function(
     sensor_data[[name]] <- as.numeric(data_raw[[col[i]]])
   }
 
-  if (anyNA(sensor_data$value)) {
+  if (anyNA(sensor_data$value) || anyNA(sensor_data$date)) {
     cli::cli_abort(c(
-      x = "Invalid data in {.file {sensor_path}} at line(s): {skip + which(is.na(sensor_data$value))}",
+      x = "Invalid data in {.file {sensor_path}} at line(s): {skip + which(is.na(sensor_data$value) | is.na(sensor_data$date))}",
       i = "Check and fix the corresponding lines"
     ))
   }
