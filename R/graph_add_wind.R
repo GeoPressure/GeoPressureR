@@ -51,7 +51,7 @@ graph_add_wind <- function(
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
   if (lifecycle::is_present(variable)) {
-    lifecycle::deprecate_soft(
+    lifecycle::deprecate_warn(
       "3.5.4",
       "graph_add_wind(variable)",
       details = "{.fun graph_add_wind} now always uses the two wind components."
