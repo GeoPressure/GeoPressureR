@@ -63,6 +63,7 @@ trainset <- function(
       if (ext %in% c("rdata", "rda")) {
         # Interim file: load and extract tag without polluting caller environment
         tag <- load_interim(x, var = "tag", envir = new.env())
+        label_dir <- "./data/tag-label"
         # Infer label_dir from interim file structure: .../data/interim/{id}.RData
         interim_dir <- dirname(x)
         if (basename(interim_dir) == "interim") {
@@ -76,6 +77,8 @@ trainset <- function(
         # TRAINSET-compatible CSV label file
         tag <- csv2tag(x)
         label_dir <- dirname(x)
+      } else {
+        cli::cli_abort("{.arg x} must be a {.val .RData} or {.val .csv} file, not {.file {x}}.")
       }
     } else {
       # x is a character (id), try finding interim or label files
