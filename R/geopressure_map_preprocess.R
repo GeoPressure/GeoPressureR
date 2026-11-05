@@ -143,7 +143,6 @@ geopressure_map_preprocess <- function(
   }
 
   # Smooth and downscale each stapelev
-  # pgi <- pressure_stapelev[[9]]
   pressure_stapelev_clean <- lapply(pressure_stapelev, function(pgi) {
     # Define a regular temporal grid for smoothing and down scaling, rounded to the hours
     dt <- min(diff(pgi$date))
@@ -154,15 +153,7 @@ geopressure_map_preprocess <- function(
       by = dt
     )
 
-    # Remove observation outside the start and end time. This should only be 1 or 2 datapoints
-    # pgi <- pgi[pgi$date >= date_reg[1] & pgi$date <= date_reg[length(date_reg)], ]
-
     # Re-sample to the new temporal grid
-    # Too slow
-    # id <- sapply(pgi$date, function(d) {
-    #   which.min(abs(d - date_reg))
-    # })
-
     id <- round(
       stats::approx(
         x = pgi$date,
