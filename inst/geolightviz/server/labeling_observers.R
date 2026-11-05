@@ -43,7 +43,7 @@ setup_labeling_observers <- function(
         label = shiny::tags$span("Stop", class = "btn-label"),
         icon = shiny::icon("stop")
       )
-      shinyjs::removeClass("label_twilight", "primary")
+      shinyjs::removeClass("label_twilight", "btn-primary")
     } else {
       shinyjs::enable("change_range")
       shinyjs::enable("add_stap")
@@ -51,10 +51,10 @@ setup_labeling_observers <- function(
       shiny::updateActionButton(
         session,
         "label_twilight",
-        label = shiny::tags$span("Start", class = "btn-label"),
+        label = shiny::tags$span("Edit", class = "btn-label"),
         icon = shiny::icon("pen")
       )
-      shinyjs::addClass("label_twilight", "primary")
+      shinyjs::addClass("label_twilight", "btn-primary")
     }
   })
 

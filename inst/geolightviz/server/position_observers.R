@@ -46,7 +46,7 @@ setup_position_observers <- function(
         label = "Edit Position",
         icon = shiny::icon("pen")
       )
-      shinyjs::removeClass("edit_position", "primary")
+      shinyjs::removeClass("edit_position", "btn-primary")
     } else {
       is_edit(TRUE)
       shiny::updateActionButton(
@@ -55,7 +55,7 @@ setup_position_observers <- function(
         label = "Stop editing",
         icon = shiny::icon("stop")
       )
-      shinyjs::addClass("edit_position", "primary")
+      shinyjs::addClass("edit_position", "btn-primary")
     }
   })
 
