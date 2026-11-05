@@ -51,7 +51,7 @@ geolight_map_likelihood <- function(
   pgz <- vector("list", nrow(twl))
   pgz[twl$include] <- lapply(
     seq_len(sum(twl$include)),
-    function(k) lk[,, k]
+    function(k) matrix(lk[,, k], nrow = dim(lk)[1])
   )
 
   # Transform twl to stap format for map_create
