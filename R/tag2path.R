@@ -128,9 +128,9 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
     if (!is.null(mask_water)) {
       # Move to the closest non-water position
       # Find the index of lat-lon for all non-water position
-      mask_water_ind2 <- which(!mask_water)
-      mask_water_ind_lat <- (mask_water_ind2 %% g$dim[1])
-      mask_water_ind_lon <- (mask_water_ind2 - mask_water_ind_lat) / g$dim[1] + 1
+      mask_water_ind <- arrayInd(which(!mask_water), g$dim)
+      mask_water_ind_lat <- mask_water_ind[, 1]
+      mask_water_ind_lon <- mask_water_ind[, 2]
 
       for (i in seq_len(length(lat_ind))) {
         if (
