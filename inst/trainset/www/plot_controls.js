@@ -63,12 +63,7 @@ $(document).ready(function () {
       if (digit !== null) {
         var selectEl = document.getElementById("label_select");
         var selectize = selectEl && selectEl.selectize ? selectEl.selectize : null;
-        var order =
-          selectize && selectize.order && selectize.order.length
-            ? selectize.order
-            : selectize
-            ? Object.keys(selectize.options)
-            : null;
+        var order = selectize ? Object.keys(selectize.options) : null;
         var value = order && order.length > digit ? order[digit] : undefined;
         if (selectize && value !== undefined) {
           e.preventDefault();
@@ -89,7 +84,7 @@ $(document).ready(function () {
           "xaxis.autorange": true,
           "yaxis.autorange": true,
         };
-        if (plot.id === "ts_plot") autoscale["yaxis2.autorange"] = true;
+        if (plot.id === "ts_plot" && plot._fullLayout.yaxis2) autoscale["yaxis2.autorange"] = true;
         Plotly.relayout(plot, autoscale);
         return;
       }

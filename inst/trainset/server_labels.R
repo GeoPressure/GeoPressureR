@@ -116,8 +116,8 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
   point_indices <- NULL
   if (!is.null(selection_range)) {
     series_data <- if (active_series == "pressure") pressure_data else acceleration_data
-    xmin <- as.POSIXct(sub("T", " ", selection_range$xmin, fixed = TRUE), tz = time_tz)
-    xmax <- as.POSIXct(sub("T", " ", selection_range$xmax, fixed = TRUE), tz = time_tz)
+    xmin <- as.POSIXct(sub("T", " ", selection_range$xmin, fixed = TRUE), tz = "UTC")
+    xmax <- as.POSIXct(sub("T", " ", selection_range$xmax, fixed = TRUE), tz = "UTC")
     ymin <- if (active_series == "acceleration" && !is.null(selection_range$y2min)) {
       selection_range$y2min
     } else {
@@ -173,13 +173,8 @@ process_plotly_event <- function(event_info) {
     apply_labels_to_points(point_data, event_info$ctrlPressed, event_info$range)
   }
 
-  labels <- view_labels()
-  apply_current_styling(
-    plotly::plotlyProxy("ts_plot", session),
-    labels$pressure,
-    labels$acceleration,
-    active_series = active_series_or_default()
-  )
+  # Refresh data, hover text and styling of the detail traces
+  refresh_detail_traces(state$view_xmin, state$view_xmax)
   session$sendCustomMessage("clearPlotlySelection", "ts_plot")
 }
 

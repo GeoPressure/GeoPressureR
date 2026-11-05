@@ -312,8 +312,10 @@ check_results_ui <- function(
   warning_pressure_diff
 ) {
   if (checks$n_stap == 0) {
-    return(shiny::tags$p(
-      "No stationary periods available. Add labels and recompute STAP first."
+    return(list(
+      stap = shiny::tags$p(
+        "No stationary periods available. Add labels and recompute STAP first."
+      )
     ))
   }
 
@@ -409,32 +411,10 @@ check_results_ui <- function(
     NULL
   }
 
-  shiny::tagList(
-    check_section_header(
-      "Short Stationary Periods",
-      "check_warning_stap_duration",
-      warning_stap_duration,
-      step = 0.5,
-      unit_label = "Threshold"
-    ),
-    single_stap_alert,
-    stap_section,
-    check_section_header(
-      "Short Flights",
-      "check_warning_flight_duration",
-      warning_flight_duration,
-      step = 0.5,
-      unit_label = "Threshold"
-    ),
-    flight_section,
-    check_section_header(
-      "Large Hourly Pressure Jumps",
-      "check_warning_pressure_diff",
-      warning_pressure_diff,
-      step = 0.1,
-      unit_label = "Threshold"
-    ),
-    pressure_section
+  list(
+    stap = shiny::tagList(single_stap_alert, stap_section),
+    flight = flight_section,
+    pressure = pressure_section
   )
 }
 
@@ -452,50 +432,56 @@ show_check_modal <- function() {
     ),
     easyClose = TRUE,
     size = "l",
-    shiny::uiOutput("check_modal_results"),
+    # Threshold inputs are rendered once so typing keeps focus
+    check_section_header(
+      "Short Stationary Periods",
+      "check_warning_stap_duration",
+      state$warning_stap_duration,
+      step = 0.5,
+      unit_label = "Threshold"
+    ),
+    shiny::uiOutput("check_modal_stap"),
+    check_section_header(
+      "Short Flights",
+      "check_warning_flight_duration",
+      state$warning_flight_duration,
+      step = 0.5,
+      unit_label = "Threshold"
+    ),
+    shiny::uiOutput("check_modal_flight"),
+    check_section_header(
+      "Large Hourly Pressure Jumps",
+      "check_warning_pressure_diff",
+      state$warning_pressure_diff,
+      step = 0.1,
+      unit_label = "Threshold"
+    ),
+    shiny::uiOutput("check_modal_pressure"),
     footer = NULL
   )
   modal$attribs$class <- paste(modal$attribs$class, "check-modal")
   shiny::showModal(modal)
 }
 
-output$check_modal_results <- shiny::renderUI({
-  warning_stap_duration <- if (
-    !is.null(input$check_warning_stap_duration) && is.finite(input$check_warning_stap_duration)
-  ) {
-    input$check_warning_stap_duration
-  } else {
-    state$warning_stap_duration
-  }
-  warning_flight_duration <- if (
-    !is.null(input$check_warning_flight_duration) && is.finite(input$check_warning_flight_duration)
-  ) {
-    input$check_warning_flight_duration
-  } else {
-    state$warning_flight_duration
-  }
-  warning_pressure_diff <- if (
-    !is.null(input$check_warning_pressure_diff) && is.finite(input$check_warning_pressure_diff)
-  ) {
-    input$check_warning_pressure_diff
-  } else {
-    state$warning_pressure_diff
-  }
-
+check_sections <- shiny::reactive({
   checks <- compute_check_rows(
     state$tag,
     state$stap_data,
-    warning_stap_duration,
-    warning_flight_duration,
-    warning_pressure_diff
+    state$warning_stap_duration,
+    state$warning_flight_duration,
+    state$warning_pressure_diff
   )
   check_results_ui(
     checks,
-    warning_stap_duration,
-    warning_flight_duration,
-    warning_pressure_diff
+    state$warning_stap_duration,
+    state$warning_flight_duration,
+    state$warning_pressure_diff
   )
 })
+
+output$check_modal_stap <- shiny::renderUI(check_sections()$stap)
+output$check_modal_flight <- shiny::renderUI(check_sections()$flight)
+output$check_modal_pressure <- shiny::renderUI(check_sections()$pressure)
 
 shiny::observeEvent(input$check_btn, {
   refresh_stap_state()
@@ -549,6 +535,9 @@ shiny::observeEvent(input$check_zoom_stap, {
     "stap_id",
     selected = as.character(input$check_zoom_stap)
   )
+  # Zoom explicitly since re-selecting the current STAP does not fire an input change
+  stap <- state$stap_data[state$stap_data$stap_id == input$check_zoom_stap, ]
+  zoom_to_window(stap$start[[1]], stap$end[[1]])
   shiny::removeModal()
 })
 

@@ -196,18 +196,8 @@ range_indices_sorted <- function(time_num, xmin, xmax) {
     xmax <- tmp
   }
 
-  lo <- findInterval(xmin, time_num)
-  if (lo == 0L) {
-    lo <- 1L
-  } else if (lo < n && time_num[[lo]] < xmin) {
-    lo <- lo + 1L
-  }
-
-  hi <- findInterval(xmax, time_num, rightmost.closed = TRUE)
-  if (hi == 0L) {
-    return(integer(0))
-  }
-
+  lo <- findInterval(xmin, time_num, left.open = TRUE) + 1L
+  hi <- findInterval(xmax, time_num)
   if (lo > hi) {
     return(integer(0))
   }
