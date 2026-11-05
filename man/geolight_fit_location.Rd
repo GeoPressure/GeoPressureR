@@ -17,7 +17,7 @@ geolight_fit_location(
 )
 }
 \arguments{
-\item{tag}{A GeoPressureR tag object containing \code{tag$twilight} and \code{tag$stap}.}
+\item{tag}{a GeoPressureR \code{tag} object containing \code{tag$twilight} and \code{tag$stap}.}
 
 \item{fitted_location_duration}{Minimum duration (in days) of stationary period(s) eligible to be
 used as a fitted location from twilight times. Default is \code{Inf} (disabled).}

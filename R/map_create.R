@@ -4,7 +4,7 @@
 #' This function creates a GeoPressureR `map` object from a spatio-temporal dataset.
 #' The data needs to be discretized according to `scale`, `extent` (space) and `stap` (time).
 #'
-#' This function is used by `geopressure_map` and `graph_marginal`.
+#' This function is used by `geopressure_map()` and `graph_marginal()`.
 #
 #' @param data list of matrices of the same size, one for each stationary period.
 #' @inheritParams tag_set_map
@@ -15,14 +15,13 @@
 #' `"unknown"`, `"pressure"`, `"light"`, `"preslight"`, `"magnetic"`, `"pressure_mse"`,
 #' `"pressure_mask"`, `"magnetic_intensity"`, `"magnetic_inclination"`, `"marginal"`, `"twilight"`.
 #'
-#' @return A GeoPressure `map` object
+#' @return A GeoPressureR `map` object
 #'
 #'
 #' @examples
 #' data <- lapply(1:10, \(x) matrix(runif(5000), nrow = 50, ncol = 100))
 #' scale <- 10
 #' extent <- c(0, 10, 0, 5)
-#' seq(as.Date("2023-01-01"), as.Date("2023-01-10"), by = "day")
 #' stap <- data.frame(
 #'   stap_id = 1:10,
 #'   start = seq(as.POSIXct("2023-01-01", tz = "UTC"),

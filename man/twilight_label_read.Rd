@@ -10,7 +10,7 @@ twilight_label_read(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{file}{csv file of the labels to be read.}
 }

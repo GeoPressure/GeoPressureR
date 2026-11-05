@@ -7,7 +7,7 @@
 \method{print}{map}(x, ...)
 }
 \arguments{
-\item{x}{a GeoPressureR \code{map} object}
+\item{x}{a GeoPressureR \code{map} object.}
 
 \item{...}{arguments passed to other methods}
 }

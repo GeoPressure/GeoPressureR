@@ -18,6 +18,10 @@
 #' model will be more constrained, saving significant computational time. You can change this
 #' using the `compute_known` parameter in `geopressure_map()`.
 #'
+#' Running `tag_set_map()` again with different parameters overwrites the previous ones with a
+#' warning. If likelihood maps (`map_pressure` or `map_light`) have already been computed, it
+#' aborts instead: start again from `tag_create()` to use new parameters.
+#'
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the map on which the likelihood and graph model will be
 #' computed. Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.

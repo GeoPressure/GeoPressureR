@@ -38,7 +38,7 @@ Bearing calculations now use a custom memory-efficient implementation.}
 Parallel processing has been removed to avoid memory issues.}
 }
 \value{
-Graph as a list
+A GeoPressureR \code{graph} object, a list with:
 \itemize{
 \item \code{s}: source node (index in the 3d grid lat-lon-stap)
 \item \code{t}: target node (index in the 3d grid lat-lon-stap)
@@ -51,7 +51,8 @@ representing the E-W as real and S-N as imaginary
 \item \code{equipment}: node(s) of the first stap (index in the 3d grid lat-lon-stap)
 \item \code{retrieval}: node(s) of the last stap (index in the 3d grid lat-lon-stap)
 \item \code{mask_water}: logical matrix of water-land
-\item \code{param}: list of parameters including \code{thr_likelihood} and \code{thr_gs} (same as \code{tag$param})
+\item \code{param}: \code{tag$param} with an additional \code{graph_create} list including \code{thr_likelihood} and
+\code{thr_gs}
 }
 }
 \description{
@@ -59,7 +60,7 @@ This function returns a trellis graph representing the trajectory of a bird base
 and pruning the likelihood maps provided.
 
 In the final graph, we only keep the likely nodes (i.e., position of the bird at each
-stationary periods) defined as (1) those whose likelihood value are within the threshold of
+stationary period) defined as (1) those whose likelihood values are within the threshold of
 percentile \code{thr_likelihood} of the total likelihood map and (2) those which are connected to
 at least one edge of the previous and next stationary periods requiring an average ground speed
 lower than \code{thr_gs} (in km/h).
@@ -90,6 +91,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 
 Other graph:
 \code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_assert]{graph_assert()}},
 \code{\link[=graph_marginal]{graph_marginal()}},
 \code{\link[=graph_most_likely]{graph_most_likely()}},
 \code{\link[=graph_set_movement]{graph_set_movement()}},

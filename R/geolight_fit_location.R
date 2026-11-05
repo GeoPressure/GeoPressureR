@@ -29,7 +29,7 @@
 #' prior on the effective zenith angle while leaving longitude and latitude
 #' driven by the twilight geometry.
 #'
-#' @param tag A GeoPressureR tag object containing `tag$twilight` and `tag$stap`.
+#' @param tag a GeoPressureR `tag` object containing `tag$twilight` and `tag$stap`.
 #' @param fitted_location_duration Minimum duration (in days) of stationary period(s) eligible to be
 #' used as a fitted location from twilight times. Default is `Inf` (disabled).
 #' @param extent Numeric vector `c(W, E, S, N)` in degrees
@@ -243,7 +243,7 @@ geolight_fit_location <- function(
 #' @description
 #' For each twilight time, the Sun defines a subsolar point on Earth.
 #' For a given zenith angle `zenith`, the set of locations where the Sun
-#' has that zenith is a *small circle* centered on the subsolar point with
+#' has that zenith is a *small circle* centred on the subsolar point with
 #' angular radius equal to `zenith`.
 #'
 #' This objective computes, for a candidate location (lon, lat), the

@@ -3,7 +3,7 @@
 #' `terra::rast()` converts a GeoPressureR `map` object into a [`terra::SpatRaster`] with the data
 #' of each stationary period stored in a different layer.
 #'
-#' @param x a GeoPressureR `map` object
+#' @param x a GeoPressureR `map` object.
 #' @param names names of the SpatRaster layers created. See [`terra::names`].
 #' @param crs coordinate reference system of the SpatRaster.
 #' @param ... additional parameters for `terra::rast`

@@ -5,7 +5,7 @@
 #' first and last light of the day which is defined as the time when light exceeds or falls below the light
 #' threshold `twl_thr`.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param twl_thr Light threshold that defines twilight. By default (`NULL`), it uses the smallest
 #' value of light (i.e, first and last light of day). When `transform_light = TRUE`, `twl_thr` is
 #' expressed on the transformed light scale.

@@ -15,7 +15,8 @@
 \code{"temperature_internal"}. Map can be combined by providing a vector of type.}
 
 \item{...}{additional parameters for \code{plot_tag_pressure()}, \code{plot_tag_acceleration()},
-\code{plot_tag_light()}, \code{plot_tag_twilight()} or \code{plot.map()}. For twilight and actogram plots,
+\code{plot_tag_light()}, \code{plot_tag_temperature()}, \code{plot_tag_twilight()}, \code{plot_tag_actogram()} or
+\code{plot.map()}. For twilight and actogram plots,
 use \code{flip_axes = TRUE} to place time horizontally and \code{double_plot = TRUE} for a 48-hour
 double plot.}
 }
@@ -26,20 +27,21 @@ a plot, ggplotly or leaflet object.
 This function plots a GeoPressureR \code{tag} object as a time series or a map.
 
 By default, \code{type} is determined in the following order of preference according to availability:
-\code{c("map_pressure", "map_light")}, \code{"map_pressure"}, \code{"map_light"}, \code{"pressure"}.
+\code{c("map_pressure", "map_light")}, then the first available map (\code{"map_pressure"},
+\code{"map_light"}, ...), then the first available sensor (\code{"pressure"}, \code{"light"}, ...).
 
 \code{plot.tag()} calls different plotting functions depending on \code{type}.
 \itemize{
 \item \code{"pressure"}: \code{plot_tag_pressure()}
 \item \code{"light"}: \code{plot_tag_light()}
 \item \code{"acceleration"}: \code{plot_tag_acceleration()}
-\item \code{"temperature"}: \code{plot_tag_temperature()}
+\item \code{"temperature"}, \code{"temperature_external"}, \code{"temperature_internal"}: \code{plot_tag_temperature()}
 \item \code{"twilight"}: \code{plot_tag_twilight()}
 \item \code{"actogram"}: \code{plot_tag_actogram()}
 \item \code{"map_*"} : \code{plot.map()} with \verb{tag$map_*} as first argument.
 }
 
-Refers to these functions for additional parameters and more flexibility in the plotting.
+Refer to these functions for additional parameters and more flexibility in the plotting.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -51,7 +53,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
 # By default, plot will display the time series of pressure
 plot(tag)
-# Change the `type` to display other sensor
+# Change the `type` to display other sensors
 plot(tag, type = "acceleration")
 plot(tag, type = "light")
 plot(tag, type = "temperature")

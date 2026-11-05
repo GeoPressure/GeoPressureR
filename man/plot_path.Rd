@@ -71,11 +71,6 @@ token rather than a secret token.
 }
 
 \examples{
-withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
-  tag <- tag_create("18LX", quiet = TRUE) |>
-    tag_label(quiet = TRUE)
-})
-
 path <- data.frame(
   stap_id = 1:4,
   lon = c(17.05, 16.2, NA, 15.4),

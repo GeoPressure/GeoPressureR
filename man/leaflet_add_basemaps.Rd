@@ -23,6 +23,8 @@ adds all available GeoPressureR basemap layers.}
 \item{provider_options}{options passed to \code{\link[leaflet:addProviderTiles]{leaflet::addProviderTiles()}} when \code{provider} is set.}
 
 \item{position}{position of the basemap layer control.}
+
+\item{...}{arguments passed to \code{leaflet_add_basemaps()}.}
 }
 \value{
 A Leaflet map.

@@ -31,6 +31,7 @@ print(graph)
 \seealso{
 Other graph:
 \code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_assert]{graph_assert()}},
 \code{\link[=graph_create]{graph_create()}},
 \code{\link[=graph_marginal]{graph_marginal()}},
 \code{\link[=graph_most_likely]{graph_most_likely()}},

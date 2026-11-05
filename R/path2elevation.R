@@ -22,7 +22,7 @@
 #'
 #' The result is a spatial profile without timestamps. Its fractional `stap_id` values describe distance along each segment, whereas [find_stap()] uses elapsed flight time. Interpolating elevation onto a pressure path using `stap_id` therefore assumes constant speed along each segment.
 #'
-#' Elevation is rounded to whole meters above the EGM2008 geoid. Sea is `0`, and coastal cells
+#' Elevation is rounded to whole metres above the EGM2008 geoid. Sea is `0`, and coastal cells
 #' include sea pixels as ground the bird can fly over.
 #'
 #' @param path A GeoPressureR `path` data.frame with `lon`, `lat`, `stap_id`, `start`, and `end` columns. Coordinates are in degrees, times are POSIXct, and `stap_id` is numbered `1, ..., nrow(path)` in chronological order.
@@ -30,16 +30,16 @@
 #'   matching `scale` of [tag_set_map()] so that cells coincide with the map grid. The finest
 #'   available grid not coarser than `scale` is used among `1, 2, 4, 5, 10` (e.g., `3` uses `4`),
 #'   and `10` above it.
-#' @param sampling_scale Sampling density along each path segment, with a distance interval of `111139 / sampling_scale` meters (about 27.8 km for `4`). Defaults to `scale`; increasing it adds samples without changing the elevation grid resolution.
+#' @param sampling_scale Sampling density along each path segment, with a distance interval of `111139 / sampling_scale` metres (about 27.8 km for `4`). Defaults to `scale`; increasing it adds samples without changing the elevation grid resolution.
 #' @param percentile Elevation percentiles to retrieve within each grid cell, among
 #'   `0, 10, 20, ..., 90, 100`; `0` is the minimum, `50` the median and `100` the maximum.
 #' @param debug logical to display additional information, such as the elevation file used.
 #'
 #' @return A data.frame containing
-#' - `stap_id` stationary-period ID plus the fraction of segment distance traveled toward the next position (e.g., `2.5` is halfway from position 2 to 3)
+#' - `stap_id` stationary-period ID plus the fraction of segment distance travelled toward the next position (e.g., `2.5` is halfway from position 2 to 3)
 #' - `lon`, `lat` centre of the grid cell read, in degrees, rounded to three decimal places; these differ from the exact positions on the polyline
 #' - `distance` cumulative geodesic (WGS84) distance in km from the first retained path position
-#' - `X<percentile>` ground elevation in meters for each requested percentile (e.g., `X10`, `X50`, and `X90` by default)
+#' - `X<percentile>` ground elevation in metres for each requested percentile (e.g., `X10`, `X50`, and `X90` by default)
 #'
 #' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' # Create a path
@@ -91,7 +91,7 @@
 #'   xout = pressurepath$stap_id
 #' )$y
 #'
-#' # Altitude above median ground level (meters)
+#' # Altitude above median ground level (metres)
 #' pressurepath$altitude_agl <- pressurepath$altitude - pressurepath$ground_elevation
 #'
 #' @family path

@@ -63,6 +63,10 @@ can use negative indexing in \code{known}, i.e., \code{known$stap_id = -1} will 
 By default, no likelihood map will be computed for these stationary periods and the trajectory
 model will be more constrained, saving significant computational time. You can change this
 using the \code{compute_known} parameter in \code{geopressure_map()}.
+
+Running \code{tag_set_map()} again with different parameters overwrites the previous ones with a
+warning. If likelihood maps (\code{map_pressure} or \code{map_light}) have already been computed, it
+aborts instead: start again from \code{tag_create()} to use new parameters.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

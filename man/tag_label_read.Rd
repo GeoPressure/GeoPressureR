@@ -15,12 +15,12 @@ tag_label_read(
 \item{file}{Absolute or relative path of the label file.}
 }
 \value{
-Same data logger list as input, updated with the labels \code{tag$pressure$label} and
+The same \code{tag} as input, updated with the labels \code{tag$pressure$label} and
 optionally \code{tag$acceleration$label}.
 }
 \description{
-This function reads an exported csv file from \href{https://trainset.geocene.com/}{TRAINSET} and
-updates the data logger dataset \code{tag}.
+This function reads a csv file exported from \href{https://trainset.geocene.com/}{TRAINSET} (e.g.,
+with \code{\link[=trainset]{trainset()}}) and updates the labels of \code{tag}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

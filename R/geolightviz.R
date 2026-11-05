@@ -17,13 +17,13 @@
 #' of the app's controls and workflow.
 #'
 #' @template map-tiles
-#' @param x a GeoPressureR `tag` object, a `.Rdata` file or the
-#' unique identifier `id` with a `.Rdata` file located in `"./data/interim/{id}.RData"`.
+#' @param x a GeoPressureR `tag` object, a `.RData` file or the
+#' unique identifier `id` with a `.RData` file located in `"./data/interim/{id}.RData"`.
 #' @param stapath Optional stationary path data.frame with `start` and `end` columns.
 #'   Defaults to `tag$stap` when available. Use `read_stap(tag$param$id)` to load a path from
 #'   `./data/stap-label/{id}.csv`.
-#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' RStudio. With `run_bg = TRUE`, `launch_browser = FALSE` only prints the app URL.
+#' @param launch_browser If `TRUE` (default), the app opens in your web browser; otherwise, only the
+#' app URL is printed.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
 #' @param quiet `r lifecycle::badge("deprecated")` Had no effect.

@@ -141,6 +141,7 @@ map_tile_key <- function(service) {
 
 #' @rdname leaflet_add_basemaps
 #' @description `map_add_tiles()` is deprecated; use `leaflet_add_basemaps()`.
+#' @param ... arguments passed to `leaflet_add_basemaps()`.
 #' @keywords internal
 #' @export
 map_add_tiles <- function(...) {

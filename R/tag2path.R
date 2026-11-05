@@ -13,7 +13,7 @@
 #' is only performed at the centre of the grid cell (defined by the `likelihood` map). Note also
 #' that it is not possible to interpolate the first and last stationary period.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param likelihood Field of the `tag` list containing the likelihood map (character). By default,
 #'   uses the product of `map_pressure` and `map_light` if available, otherwise the first available
 #'   likelihood map in the tag.

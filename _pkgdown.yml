@@ -109,7 +109,7 @@ reference:
       - graph_marginal
       - graph_simulation
   - subtitle: Graph utilities
-    desc: Utility functions for a `graph` object
+    desc: Utility functions for a `graph` object.
     contents:
       - graph_assert
       - print.graph
@@ -127,10 +127,6 @@ reference:
     contents:
       - path2edge
       - plot_path
-  - title: Sampling path
-    desc: Gibbs sampling from movement model.
-    contents:
-      - tag2path
   - title: Pressurepath
     desc: Data.frame of pressure time series along a path.
     contents:
@@ -139,7 +135,7 @@ reference:
       - plot_pressurepath
       - path2elevation
   - title: GeoPressureTemplate
-    desc: Wrapper functions for the full GeoPressureR worflow
+    desc: Wrapper functions for the full GeoPressureR workflow
     contents:
       - geopressuretemplate
       - geopressuretemplate_tag

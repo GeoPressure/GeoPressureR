@@ -63,9 +63,9 @@ path <- data.frame(
   lon = c(17.05, 16.5, 14.5, 16.5, 13.5),
   start = as.POSIXct(
     c(1501113450, 1501888650, 1501987950, 1502075550, 1502151150),
-    tzone = "UTC"
+    tz = "UTC"
   ),
-  end = as.POSIXct(c(1501876050, 1501961250, 1502046750, 1502133150, 1502323050), tzone = "UTC"),
+  end = as.POSIXct(c(1501876050, 1501961250, 1502046750, 1502133150, 1502323050), tz = "UTC"),
   include = c(TRUE, TRUE, TRUE, TRUE, TRUE),
   known = c(TRUE, FALSE, FALSE, FALSE, FALSE),
   interp = c(FALSE, FALSE, FALSE, FALSE, FALSE)

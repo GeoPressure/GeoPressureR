@@ -16,9 +16,9 @@ tag_label_stap(
 
 \item{quiet}{logical to hide warning messages.}
 
-\item{warning_flight_duration}{lifecycle::deprecated()}
+\item{warning_flight_duration}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
-\item{warning_stap_duration}{lifecycle::deprecated()}
+\item{warning_stap_duration}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 }
 \value{
 \code{tag} is returned with (1) a new data.frame of stationary periods \code{tag$stap} and (2) a new

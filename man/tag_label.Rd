@@ -20,14 +20,14 @@ tag_label(
 
 \item{quiet}{logical to hide messages.}
 
-\item{warning_flight_duration}{lifecycle::deprecated()}
+\item{warning_flight_duration}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
-\item{warning_stap_duration}{lifecycle::deprecated()}
+\item{warning_stap_duration}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
-\item{...}{lifecycle::deprecated()}
+\item{...}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Ignored.}
 }
 \value{
-Same \code{tag} list with
+The same \code{tag} with
 
 (1) a \code{stap} data.frame describing the STAtionary Period:
 \itemize{
@@ -40,8 +40,8 @@ Same \code{tag} list with
 \itemize{
 \item \code{date} datetime of measurement as POSIXt
 \item \code{value} sensor measurement
-\item \code{label} indicates the observation to be discarded (\code{"discard"} and \code{"flight"}) as well as
-grouped by elevation layer (\verb{elev_*})
+\item \code{label} indicates the observations to be discarded (\code{"discard"} and \code{"flight"}) as well as
+those grouped by elevation level (\verb{elev_*})
 \item \code{stap_id} stationary period of the measurement matching the \code{tag$stap}.
 }
 }
@@ -54,8 +54,8 @@ data.frame
 on all sensors data.frame with \code{tag_label_stap()}
 }
 
-If the label file does not exist, the function will suggest to create it with
-\code{tag_label_write()} and use \code{tag_label_auto()} if acceleration data exists.
+If the label file does not exist, the function will suggest creating it with
+\code{tag_label_write()} and using \code{tag_label_auto()} if acceleration data exist.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -67,7 +67,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 
   print(tag)
 
-  # The labelled `tag` contains additional column on the sensor data.frame
+  # The labelled `tag` contains additional columns in the sensor data.frames
   str(tag)
 })
 

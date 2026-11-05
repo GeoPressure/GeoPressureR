@@ -1,7 +1,7 @@
 #' Plot twilight calibration diagnostics
 #'
 #' This function plots the stacked calibration histogram and fitted density, with calibration
-#' stationary periods labeled as known or fitted anchors. Refined fitted anchors remain labeled as
+#' stationary periods labelled as known or fitted anchors. Refined fitted anchors remain labelled as
 #' fitted. If a `path` is provided, it instead plots the solar zenith angle histogram derived from
 #' `tag$twilight` and the path, with the calibration density overlaid.
 #'
@@ -21,7 +21,7 @@
 #'     tag_label(quiet = TRUE) |>
 #'     tag_set_map(
 #'       extent = c(-16, 23, 0, 50),
-#'       scale = 5,
+#'       scale = 4,
 #'       known = data.frame(
 #'         stap_id = 1,
 #'         known_lon = 17.05,

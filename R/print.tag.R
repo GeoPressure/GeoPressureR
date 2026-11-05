@@ -2,7 +2,7 @@
 #'
 #' This function displays the information of a `tag` object.
 #'
-#' @param x a GeoPressureR `tag` object
+#' @param x a GeoPressureR `tag` object.
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @return `tag` is returned invisibly and unchanged

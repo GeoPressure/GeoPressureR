@@ -2,36 +2,36 @@
 #'
 #' GeoPressure Trainset is a shiny app designed to help you manually label pressure and
 #' acceleration data for training machine learning models. This interactive app allows you to
-#' visualize time series data, select data points or regions, and assign behavioral labels
+#' visualize time series data, select data points or regions, and assign behavioural labels
 #' (e.g., "flight", "discard", or custom elevation labels) to create training datasets.
 #'
 #' The app features:
 #' - Interactive plotly visualization of pressure and acceleration time series
-#' - Point and region selection for efficient labeling
+#' - Point and region selection for efficient labelling
 #' - Support for stationary periods (STAP) navigation
 #' - Custom label creation (elevation labels)
-#' - Export functionality to save labeled data as CSV files
+#' - Export functionality to save labelled data as CSV files
 #'
-#' Learn more about data labeling workflows in the [GeoPressureManual
+#' Learn more about data labelling workflows in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/) or explore the
 #' [GeoPressureR documentation](https://geopressure.org/GeoPressureR/).
 #'
 #' @param x One of:
-#' * a GeoPressureR `tag` object,
+#' * a GeoPressureR `tag` object (labels are initialized with [tag_label_auto()] if missing),
 #' * a path to an interim `.RData` file containing an object called `tag`,
 #' * a path to a TRAINSET-compatible `.csv` label file,
 #' * a single-character `id`. In that case the function will look for
 #'   `"./data/tag-label/{id}-labeled.csv"` and then `"./data/tag-label/{id}.csv"`.
-#' @param launch_browser If `TRUE` (default), the app runs in your browser, otherwise it runs in
-#' RStudio.
-#' @param run_bg If `TRUE`, the app runs in a background R session using the `callr` package. This
-#' allows you to continue using your R session while the app is running.
+#' @param launch_browser If `TRUE` (default), the app opens in your web browser; otherwise, only the
+#' app URL is printed.
+#' @param run_bg If `TRUE` (default), the app runs in a background R session using the `callr`
+#' package. This allows you to continue using your R session while the app is running.
 #' @param debug If `TRUE`, prints debug messages about plot refreshes (x-range changes and point
 #' counts) to the R console. Defaults to `FALSE`.
-#' @return A GeoPressureR `tag` object (with pressure and optionally acceleration data
-#' and an `id` in `tag$param$id`). If `run_bg = TRUE`, a background process object
-#' is returned invisibly, with the `tag` attached as an attribute `attr(p, "tag")`.
-#' The labeled data can be exported directly from the app interface.
+#' @return When `run_bg = TRUE`, the background process object, invisibly. Otherwise, the `tag`
+#' loaded in the app (with pressure and optionally acceleration data and an `id` in
+#' `tag$param$id`), invisibly, when the app closes. The labelled data are exported from the app
+#' interface.
 #'
 #' @examplesIf FALSE
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

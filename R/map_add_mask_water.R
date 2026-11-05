@@ -1,16 +1,15 @@
-#' Create water mask for geolight map
+#' Create water mask for a `map`
 #'
 #' @description
-#' This function creates a water mask for maps with `geolight_map` already run.
-#' The mask is based on coastline data from Natural Earth and is stored as
-#' `map$mask_water` as a boolean matrix where `TRUE` indicates water and
-#' `FALSE` indicates land.
+#' This function creates a water mask for a `map`, typically the light likelihood map computed by
+#' `geolight_map()`. The mask is based on country polygons from Natural Earth and is stored as
+#' `map$mask_water` as a logical matrix where `TRUE` indicates water and `FALSE` indicates land.
 #'
-#' A pixel is marked as land if any land exists within it (using the conservative
-#' `touches=TRUE` approach in rasterization), which is important for detecting small
-#' islands; the mask then flags the remaining pixels as water.
+#' A pixel is marked as water when the fraction of its area covered by land is at or below
+#' `land_threshold`. With the default `land_threshold = 0`, a pixel is land if any land exists
+#' within it, which is important for detecting small islands.
 #'
-#' @param map a GeoPressureR `map` object from `geolight_map`.
+#' @param map a GeoPressureR `map` object, e.g. `tag$map_light` from `geolight_map()`.
 #' @param ne_scale Natural Earth resolution passed to
 #'   `rnaturalearth::ne_countries(scale = ...)`. Valid values are `"small"`,
 #'   `"medium"`, `"large"` or `c(110, 50, 10)`. Default is `"medium"`.
@@ -22,7 +21,7 @@
 #' @return A `map` object with `mask_water` added as a logical matrix.
 #'
 #' @details
-#' The coastline data is rasterized to match the map's grid (defined by `extent` and
+#' The land polygons are rasterized to match the map's grid (defined by `extent` and
 #' `scale` from the map). `land_threshold` controls how much land can be present
 #' in a pixel before it is treated as land in `map$mask_water`. For `"large"`/`10`
 #' resolution, `rnaturalearthhires` is used by `rnaturalearth` when available.
