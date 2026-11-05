@@ -59,7 +59,7 @@ geopressure_timeseries_api_impl <- function(
   }
 
   req <- httr2::request("https://glp.mgravey.com/GeoPressure/v2/timeseries/") |>
-    httr2::req_body_json(body) |>
+    httr2::req_body_json(body, na = "null") |>
     httr2::req_error(body = function(resp) {
       if (debug) {
         print(httr2::resp_body_json(resp))

@@ -75,7 +75,7 @@ pressurepath_create_api_impl <- function(
   req <- httr2::request(
     "https://glp.mgravey.com/GeoPressure/v2/pressurePath/"
   ) |>
-    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE)
+    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE, na = "null")
 
   if (debug) {
     req <- httr2::req_verbose(
