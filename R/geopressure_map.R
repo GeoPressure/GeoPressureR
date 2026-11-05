@@ -95,8 +95,8 @@
 #' topography, and vertical movements of the bird (unit in meters, 1hPa~10m).
 #' @param sd standard deviation of the pressure error. Numeric of length 1 or number of stationary
 #' periods.
-#' @param thr_mask threshold of the percentage of data points outside the elevation range to be
-#' considered not possible.
+#' @param thr_mask minimum proportion (0-1) of data points within the elevation range for a pixel
+#' to be considered possible.
 #' @param log_linear_pooling_weight weighting function of the log-linear pooling, taking the number
 #' of samples of the stationary periods used and returning the weight of the aggregation. See
 #' [GeoPressureManual | Probability aggregation
@@ -108,7 +108,7 @@
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjusts the
 #' number of workers to the number of `stapelev` to query.
 #' @param compute_known logical defining if the map(s) for known stationary period should be
-#' estimated based on twilight or hard defined by the known location `stap$known_l**`
+#' estimated based on pressure or hard defined by the known location `stap$known_l**`.
 #' @param quiet logical to hide messages about the progress
 #' @param debug logical to display additional information to debug a request
 #' @param era5_dataset ERA5 product: `"single-levels"` (default, recommended) at 0.25 degree

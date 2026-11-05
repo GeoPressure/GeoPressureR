@@ -5,8 +5,8 @@
 #' Earth Engine collection carries: 292 for ERA5 single levels against 70 for ERA5-Land, with only
 #' 44 in common. `era5_dataset = "both"` mosaics ERA5-Land on top of ERA5 but returns ERA5's band
 #' namespace, so its set equals `"single-levels"` and ERA5-Land-only bands are dropped. The ARCO
-#' backend reads ECMWF's zarr stores directly and currently maps only surface pressure and 2 m
-#' temperature, so it can return `"surface_pressure"` and the derived `"altitude"`.
+#' backend reads ECMWF's zarr stores directly and can return the variables of its store map (see
+#' `pressurepath_variable_available("arco", era5_dataset)`) and the derived `"altitude"`.
 #'
 #' Requesting a variable the chosen product does not have used to fail silently: GeoPressureAPI
 #' returned `200 success` with every array empty — not just the missing one — which arrived as a

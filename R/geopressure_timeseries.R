@@ -55,7 +55,8 @@
 #'
 #' @return A data.frame containing `date`, `surface_pressure`, `lat`, and `lon`. With `pressure`,
 #'   it also retains the input columns, renames `value` to `pressure_tag`, and adds
-#'   `surface_pressure_norm` and `altitude`.
+#'   `surface_pressure_norm` and `altitude`, as well as `stap_id` (`1`) and `label` (`""`) when
+#'   absent from `pressure`.
 #'
 #' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' geopressure_timeseries(
