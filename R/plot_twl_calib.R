@@ -236,7 +236,8 @@ plot_twl_calib_path <- function(
     glue::glue("#{label_df$stap_id} ({format(round(label_df$duration), trim = TRUE)}d)"),
     label_df$stap_id
   )
-  line_df <- data.frame(x = twl_calib$x, y = twl_calib$y)
+  # Scale the density to the proportion per histogram bin
+  line_df <- data.frame(x = twl_calib$x, y = twl_calib$y * twl_calib_path$binwidth)
   x_range <- range(hist_df$zenith_angle[hist_df$count > 0], finite = TRUE)
 
   p <- ggplot2::ggplot() +
