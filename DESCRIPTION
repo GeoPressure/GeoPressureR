@@ -7,7 +7,7 @@ Authors@R: c(
     person("Mathieu", "Gravey", , "mathieu@mgravey.com", role = "aut",
            comment = c(ORCID = "0000-0002-0871-1507"))
   )
-Description: R package to determine the position and trajectory of a bird based on light-weight data-logger measuring at lease atmospheric pressure.
+Description: R package to determine the position and trajectory of a bird based on lightweight data loggers measuring at least atmospheric pressure.
 License: GPL (>= 3)
 URL: https://github.com/GeoPressure/GeoPressureR,
     https://geopressure.org/GeoPressureR/
