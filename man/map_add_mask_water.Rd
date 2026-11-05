@@ -2,12 +2,12 @@
 % Please edit documentation in R/map_add_mask_water.R
 \name{map_add_mask_water}
 \alias{map_add_mask_water}
-\title{Create water mask for geolight map}
+\title{Create water mask for a \code{map}}
 \usage{
 map_add_mask_water(map, ne_scale = "medium", land_threshold = 0)
 }
 \arguments{
-\item{map}{a GeoPressureR \code{map} object from \code{geolight_map}.}
+\item{map}{a GeoPressureR \code{map} object, e.g. \code{tag$map_light} from \code{geolight_map()}.}
 
 \item{ne_scale}{Natural Earth resolution passed to
 \code{rnaturalearth::ne_countries(scale = ...)}. Valid values are \code{"small"},
@@ -22,17 +22,16 @@ any land in a pixel makes it land.}
 A \code{map} object with \code{mask_water} added as a logical matrix.
 }
 \description{
-This function creates a water mask for maps with \code{geolight_map} already run.
-The mask is based on coastline data from Natural Earth and is stored as
-\code{map$mask_water} as a boolean matrix where \code{TRUE} indicates water and
-\code{FALSE} indicates land.
+This function creates a water mask for a \code{map}, typically the light likelihood map computed by
+\code{geolight_map()}. The mask is based on country polygons from Natural Earth and is stored as
+\code{map$mask_water} as a logical matrix where \code{TRUE} indicates water and \code{FALSE} indicates land.
 
-A pixel is marked as land if any land exists within it (using the conservative
-\code{touches=TRUE} approach in rasterization), which is important for detecting small
-islands; the mask then flags the remaining pixels as water.
+A pixel is marked as water when the fraction of its area covered by land is at or below
+\code{land_threshold}. With the default \code{land_threshold = 0}, a pixel is land if any land exists
+within it, which is important for detecting small islands.
 }
 \details{
-The coastline data is rasterized to match the map's grid (defined by \code{extent} and
+The land polygons are rasterized to match the map's grid (defined by \code{extent} and
 \code{scale} from the map). \code{land_threshold} controls how much land can be present
 in a pixel before it is treated as land in \code{map$mask_water}. For \code{"large"}/\code{10}
 resolution, \code{rnaturalearthhires} is used by \code{rnaturalearth} when available.

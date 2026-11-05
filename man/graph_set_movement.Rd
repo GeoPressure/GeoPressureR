@@ -93,6 +93,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \seealso{
 Other graph:
 \code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_assert]{graph_assert()}},
 \code{\link[=graph_create]{graph_create()}},
 \code{\link[=graph_marginal]{graph_marginal()}},
 \code{\link[=graph_most_likely]{graph_most_likely()}},

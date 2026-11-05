@@ -1,18 +1,18 @@
 #' Compute windspeed and airspeed on a `graph`
 #'
 #' @description
-#' Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
+#' Reads the downloaded NetCDF files and interpolates the average windspeed experienced by the
 #' bird on each possible edge, as well as the corresponding airspeed.
 #'
 #' In addition, the graph can be further pruned based on a threshold of airspeed `thr_as`.
 #'
-#' See section [2.2.4 in Nussbaumer (2023b)](
+#' See section [2.2.4 in Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 #' for more technical details and the [GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html) for an
 #' illustration on how to use it.
 #'
-#' @param graph a GeoPressureR graph object.
+#' @param graph a GeoPressureR `graph` object.
 #' @param thr_as threshold of airspeed (km/h).
 #' @param variable `r lifecycle::badge("deprecated")` No longer used.
 #'   `graph_add_wind()` always uses `c("u", "v")`.

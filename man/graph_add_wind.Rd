@@ -7,7 +7,7 @@
 graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
 }
 \arguments{
-\item{graph}{a GeoPressureR graph object.}
+\item{graph}{a GeoPressureR \code{graph} object.}
 
 \item{thr_as}{threshold of airspeed (km/h).}
 
@@ -35,12 +35,12 @@ taking as arguments (1) the stationary period identifier and (2) the tag_id. Def
 A \code{graph} object with windspeed and airspeed as \code{ws} and \code{as} respectively.
 }
 \description{
-Reads the NetCDF files downloaded and interpolate the average windspeed experienced by the
+Reads the downloaded NetCDF files and interpolates the average windspeed experienced by the
 bird on each possible edge, as well as the corresponding airspeed.
 
 In addition, the graph can be further pruned based on a threshold of airspeed \code{thr_as}.
 
-See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer (2023b)}
+See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer et al. (2023b)}
 for more technical details and the \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an
 illustration on how to use it.
 }
@@ -66,6 +66,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual}
 
 Other graph:
+\code{\link[=graph_assert]{graph_assert()}},
 \code{\link[=graph_create]{graph_create()}},
 \code{\link[=graph_marginal]{graph_marginal()}},
 \code{\link[=graph_most_likely]{graph_most_likely()}},

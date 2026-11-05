@@ -15,7 +15,7 @@ plot_tag_twilight(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{twilight_line}{a twilight data.frame typically created with \code{path2twilight()} which is
 displayed as a line}
@@ -37,7 +37,7 @@ following day's observations.}
 a ggplot or ggplotly object.
 }
 \description{
-This function displays a plot of twilight time series recorded by a tag
+This function displays a plot of twilight time series recorded by a tag.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

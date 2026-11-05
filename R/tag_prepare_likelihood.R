@@ -1,9 +1,11 @@
-#' Prepare likelihood maps for modeling
+#' Prepare likelihood maps for modelling
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param likelihood Field of the `tag` list containing the likelihood map (character).
 #' @param thr_likelihood threshold of percentile to keep likely locations in each stationary
 #' period.
+#' @param thr_gs threshold of groundspeed (km/h) used to discard locations that cannot be reached
+#' from any location of the previous or next stationary period.
 #' @param quiet logical to hide progress messages.
 #'
 #' @return A likelihood `map` object with:

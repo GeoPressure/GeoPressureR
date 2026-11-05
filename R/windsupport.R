@@ -1,4 +1,4 @@
-#' Compute wind support and drift from a wind and ground speed vectors
+#' Compute wind support and drift from wind and ground speed vectors
 #'
 #' @description
 #' Wind support, or wind profit, is the projection of the wind vector \eqn{\vec{v}_w} onto the
@@ -22,12 +22,12 @@
 #'
 #' You can use `abs()` (or `Mod()`) to compute the norm (or absolute value) of the speed vector and
 #' `speed2bearing()` to compute the bearing/orientation of the speed vector. The latter
-#' computes the trigonometric angle of the speed vector with `Arg()` and convert this angle to a
+#' computes the trigonometric angle of the speed vector with `Arg()` and converts this angle to a
 #' bearing (North = 0° instead of 90°).
 #'
 #' @param windspeed windspeed as complex value
 #' @param groundspeed groundspeed as complex value
-#' @param drift return drift instead of windsupport
+#' @param drift logical to return the drift (crosswind component) instead of the wind support
 #'
 #' @return wind support (or drift) as scalar value (same unit as `windspeed` and `groundspeed`)
 #' @examples

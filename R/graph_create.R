@@ -5,7 +5,7 @@
 #' and pruning the likelihood maps provided.
 #'
 #' In the final graph, we only keep the likely nodes (i.e., position of the bird at each
-#' stationary periods) defined as (1) those whose likelihood value are within the threshold of
+#' stationary period) defined as (1) those whose likelihood values are within the threshold of
 #' percentile `thr_likelihood` of the total likelihood map and (2) those which are connected to
 #' at least one edge of the previous and next stationary periods requiring an average ground speed
 #' lower than `thr_gs` (in km/h).
@@ -26,7 +26,7 @@
 #' Parallel processing has been removed to avoid memory issues.
 #' @inheritParams tag2path
 #'
-#' @return Graph as a list
+#' @return A GeoPressureR `graph` object, a list with:
 #' - `s`: source node (index in the 3d grid lat-lon-stap)
 #' - `t`: target node (index in the 3d grid lat-lon-stap)
 #' - `gs`: average ground speed required to make that transition (km/h) as complex number
@@ -38,7 +38,8 @@
 #' - `equipment`: node(s) of the first stap (index in the 3d grid lat-lon-stap)
 #' - `retrieval`: node(s) of the last stap (index in the 3d grid lat-lon-stap)
 #' - `mask_water`: logical matrix of water-land
-#' - `param`: list of parameters including `thr_likelihood` and `thr_gs` (same as `tag$param`)
+#' - `param`: `tag$param` with an additional `graph_create` list including `thr_likelihood` and
+#' `thr_gs`
 #'
 #' @examples
 #' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`

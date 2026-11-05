@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.tag.R
 \name{plot_tag_actogram}
 \alias{plot_tag_actogram}
-\title{Plot Actogram data of a \code{tag}}
+\title{Plot actogram of a \code{tag}}
 \usage{
 plot_tag_actogram(
   tag,
@@ -13,7 +13,7 @@ plot_tag_actogram(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{twl_offset}{Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 provided, it uses the middle of all nights.}
@@ -30,7 +30,7 @@ following day's observations.}
 a ggplot or ggplotly object.
 }
 \description{
-This function displays a plot of the acceleration time series recorded by a tag
+This function displays an actogram of the acceleration time series recorded by a tag.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

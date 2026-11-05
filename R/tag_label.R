@@ -8,17 +8,17 @@
 #' 2. Compute the stationary period `tag$stap` from the label and assign the corresponding `stap_id`
 #' on all sensors data.frame with `tag_label_stap()`
 #'
-#' If the label file does not exist, the function will suggest to create it with
-#' `tag_label_write()` and use `tag_label_auto()` if acceleration data exists.
+#' If the label file does not exist, the function will suggest creating it with
+#' `tag_label_write()` and using `tag_label_auto()` if acceleration data exist.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param file Absolute or relative path of the label file.
 #' @param quiet logical to hide messages.
-#' @param warning_flight_duration lifecycle::deprecated()
-#' @param warning_stap_duration lifecycle::deprecated()
-#' @param ... lifecycle::deprecated()
+#' @param warning_flight_duration `r lifecycle::badge("deprecated")` No longer used.
+#' @param warning_stap_duration `r lifecycle::badge("deprecated")` No longer used.
+#' @param ... `r lifecycle::badge("deprecated")` Ignored.
 #'
-#' @return Same `tag` list with
+#' @return The same `tag` with
 #'
 #' (1) a `stap` data.frame describing the STAtionary Period:
 #' - `stap_id` unique identifier in increasing order 1,...,n
@@ -28,8 +28,8 @@
 #' (2) an additional `label` and `stap_id` column on the sensor data.frame:
 #' - `date` datetime of measurement as POSIXt
 #' - `value` sensor measurement
-#' - `label` indicates the observation to be discarded (`"discard"` and `"flight"`) as well as
-#' grouped by elevation layer (`elev_*`)
+#' - `label` indicates the observations to be discarded (`"discard"` and `"flight"`) as well as
+#' those grouped by elevation level (`elev_*`)
 #' - `stap_id` stationary period of the measurement matching the `tag$stap`.
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -41,7 +41,7 @@
 #'
 #'   print(tag)
 #'
-#'   # The labelled `tag` contains additional column on the sensor data.frame
+#'   # The labelled `tag` contains additional columns in the sensor data.frames
 #'   str(tag)
 #' })
 #'

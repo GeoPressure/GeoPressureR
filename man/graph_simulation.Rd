@@ -7,7 +7,7 @@
 graph_simulation(graph, nj = 10, quiet = FALSE)
 }
 \arguments{
-\item{graph}{a graph object.}
+\item{graph}{a GeoPressureR \code{graph} object with a movement model (see \code{graph_set_movement()}).}
 
 \item{nj}{Number of simulations.}
 
@@ -61,6 +61,7 @@ optimized hidden Markov model. \emph{Methods in Ecology and Evolution}, 14, 1118
 
 Other graph:
 \code{\link[=graph_add_wind]{graph_add_wind()}},
+\code{\link[=graph_assert]{graph_assert()}},
 \code{\link[=graph_create]{graph_create()}},
 \code{\link[=graph_marginal]{graph_marginal()}},
 \code{\link[=graph_most_likely]{graph_most_likely()}},

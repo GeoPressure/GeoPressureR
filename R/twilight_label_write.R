@@ -3,7 +3,7 @@
 #' This function writes the csv file of the labelled twilight which can be read with
 #' TRAINSET <https://trainset.raphaelnussbaumer.com/>.
 #'
-#' @param tag a GeoPressureR `tag` object
+#' @param tag a GeoPressureR `tag` object.
 #' @param file Name of the twilight label file to be saved.
 #' @param quiet logical to hide messages
 #'
@@ -15,7 +15,7 @@
 #'     tag_label(quiet = TRUE) |>
 #'     twilight_create()
 #'
-#'   label_file <- twilight_label_write(tag, quiet = TRUE)
+#'   label_file <- twilight_label_write(tag, file = tempfile(fileext = ".csv"), quiet = TRUE)
 #'
 #'   str(utils::read.csv(label_file))
 #' })

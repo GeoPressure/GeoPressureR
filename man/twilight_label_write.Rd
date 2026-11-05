@@ -11,7 +11,7 @@ twilight_label_write(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{file}{Name of the twilight label file to be saved.}
 
@@ -30,7 +30,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
     tag_label(quiet = TRUE) |>
     twilight_create()
 
-  label_file <- twilight_label_write(tag, quiet = TRUE)
+  label_file <- twilight_label_write(tag, file = tempfile(fileext = ".csv"), quiet = TRUE)
 
   str(utils::read.csv(label_file))
 })

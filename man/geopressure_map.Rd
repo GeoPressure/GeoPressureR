@@ -46,14 +46,14 @@ geopressure_map_mismatch(
 )
 }
 \arguments{
-\item{tag}{a GeoPressureR \code{tag} object}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{max_sample}{the computation of the maps is only performed on \code{max_sample} datapoints of
 pressure to reduce computational time. The samples are randomly (uniformly) selected on the
 time series.}
 
 \item{margin}{the margin is used in the mask map to accept measurement errors, small-scale
-topography, and vertical movements of the bird (unit in meters, 1hPa~10m).}
+topography, and vertical movements of the bird (unit in metres, 1hPa~10m).}
 
 \item{sd}{standard deviation of the pressure error. Numeric of length 1 or number of stationary
 periods.}
@@ -91,9 +91,11 @@ estimated based on pressure or hard defined by the known location \verb{stap$kno
 Returns the same GeoPressureR \code{tag} object including the GeoPressureR \code{map} object
 \code{tag$map_pressure} containing the likelihood map of each stationary period. See \code{map_create()}
 for details.
-If \code{keep_mask} and \code{keep_mse} are each true, \code{tag} also includes the \code{tag$map_pressure_mse} and
-\code{tag$map_pressure_mask} maps, as well as \code{tag$stap$nb_sample}, indicating the number of
-datapoints used to compute the MSE.
+If \code{keep_mse = TRUE}, \code{tag} also includes the \code{tag$map_pressure_mse} map and
+\code{tag$stap$nb_sample}, indicating the number of datapoints used to compute the MSE. If
+\code{keep_mask = TRUE}, \code{tag} also includes the \code{tag$map_pressure_mask} map.
+\code{geopressure_map_mismatch()} returns \code{tag} with \code{tag$map_pressure_mse} (and
+\code{tag$map_pressure_mask} if \code{keep_mask = TRUE}) but without the likelihood map.
 }
 \description{
 The \code{geopressure_map()} function computes a likelihood map for each stationary period based on
@@ -130,7 +132,7 @@ At this step, it does not wait for an answer, but sends the requests in parallel
 \item \strong{Compute and download the maps}: When all requests are sent, we wait for the GEE server to
 return a geotiff file (map) for each elevation/ stationary period.
 \item \strong{Post-process maps}: Read these geotiff maps as matrix, create the corresponding
-GeoPressureR \code{map} object with \code{create_map()}.
+GeoPressureR \code{map} object with \code{map_create()}.
 }
 
 The following two maps are returned for each stationary period:
@@ -218,7 +220,7 @@ plot(tag, type = "map_pressure")
 \references{
 { Nussbaumer, Raphaël, Mathieu Gravey, Martins Briedis, and Felix Liechti. 2023.
 Global Positioning with Animal‐borne Pressure Sensors. \emph{Methods in Ecology and Evolution}, 14,
-1118–1129 \doi{10.1111/2041-210X.14043}.}
+1104–1117 \doi{10.1111/2041-210X.14043}.}
 }
 \seealso{
 \href{https://geopressure.org/GeoPressureManual/pressure-map.html#compute-pressure-maps}{GeoPressureManual}
