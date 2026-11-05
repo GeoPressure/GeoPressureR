@@ -24,7 +24,7 @@ ts2mat <- function(
   assertthat::assert_that(assertthat::has_name(ts, "date"))
   assertthat::assert_that(assertthat::is.time(ts$date))
   assertthat::assert_that(assertthat::has_name(ts, value))
-  assertthat::assert_that(is.numeric(ts$value))
+  assertthat::assert_that(is.numeric(ts[[value]]))
   assertthat::assert_that(is.numeric(twl_offset))
 
   res_vec <- as.numeric(diff(ts$date), units = "secs")
@@ -88,7 +88,7 @@ ts2mat <- function(
   # Sort the ts data (if not already sorted)
   ord <- order(ts_date_num)
   ts_date_num <- ts_date_num[ord]
-  ts_value <- ts$value[ord]
+  ts_value <- ts[[value]][ord]
 
   # Approximate index positions for all date_num
   idx <- findInterval(date_num, ts_date_num)
@@ -110,13 +110,13 @@ ts2mat <- function(
   closest_idx[(pmin(delta1, delta2) > max(twl_time_tolerance, res / 2))] <- NA
 
   # Final values
-  value <- rep(NA, length(date_num))
-  value[!is.na(closest_idx)] <- ts_value[closest_idx[!is.na(closest_idx)]]
+  v <- rep(NA, length(date_num))
+  v[!is.na(closest_idx)] <- ts_value[closest_idx[!is.na(closest_idx)]]
 
-  # reshape in matrix format
+  # reshape in matrix format (round to avoid truncation of floating-point number of rows)
   mat <- list(
-    value = matrix(value, nrow = 24 * 60 * 60 / res),
-    date = matrix(date, nrow = 24 * 60 * 60 / res),
+    value = matrix(v, nrow = round(86400 / res)),
+    date = matrix(date, nrow = round(86400 / res)),
     res = res
   )
 
