@@ -30,7 +30,7 @@ corresponds to the east-west component and imaginary part to the north-south com
 
 Alternatively to wind support, you can compute the drift (or crosswind component) value with
 \code{drift = TRUE},
-\deqn{\text{Drift} = \frac{|\vec{v}_g \times \vec{v}_w|}{|\vec{v}_g|},}
+\deqn{\text{Drift} = \frac{\vec{v}_w \times \vec{v}_g}{|\vec{v}_g|},}
 with \eqn{\times} being the \href{https://en.wikipedia.org/wiki/Cross_product}{cross product}.
 
 A positive value of drift indicates that the wind is pushing the bird to the right of its
