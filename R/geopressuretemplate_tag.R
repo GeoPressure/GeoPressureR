@@ -23,7 +23,7 @@ geopressuretemplate_tag <- function(
     } else {
       TRUE
     }
-    if (res) {
+    if (isTRUE(res)) {
       dir.create(dir_file, recursive = TRUE)
     } else {
       cli::cli_abort("Please create the directory and run the function again.")
