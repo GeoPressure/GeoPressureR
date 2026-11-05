@@ -10,6 +10,10 @@
 - [Simplify GeoPressureViz](https://github.com/GeoPressure/GeoPressureR/commit/08f616f8aa90bc62dcb0fa6c698ad3f09c53a696): remove position interpolation, the Save button writing to `data/interim/` and the returned path. Use the app's `Export CSV` button to keep an edited path.
 - [Abort `tag_set_map()` on new parameters when likelihood maps exist](https://github.com/GeoPressure/GeoPressureR/commit/76a3fbb8c20422b89bc616590353785dfa3124bc) instead of prompting to delete them; start again from `tag_create()`.
 
+- [Use `terra::rast(map)` to convert a `map` to a SpatRaster](https://github.com/GeoPressure/GeoPressureR/commit/ba758c3c317cb2aa4438f273efd36f7433e301c6); `rast.map()` is no longer exported.
+- [Add a `mag_axis` argument to `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/266c69df4eacd73e0b14a5e44099f16290fc4adf) for SOI tags mounted reversed or at 90°.
+- [Keep objects such as `path_geopressureviz` when `geopressuretemplate_graph()` re-saves the interim file](https://github.com/GeoPressure/GeoPressureR/commit/8adcf71c4b26ef4680de5f25391a5d18dd3680d2), and compute `pressurepath_{type}` for `most_likely`, `simulation`, `geopressureviz` (also from the GeoPressureViz CSV export) and `tag` in `geopressuretemplate_pressurepath()`.
+
 ## Minor
 
 - [Guess `twl_offset` with a circular mean of daylight hours](https://github.com/GeoPressure/GeoPressureR/commit/be0279d532b5df6e77d88ac49be421c299d03ae3), fixing tags at longitudes beyond about ±130°.
@@ -19,6 +23,9 @@
 - [Keep the basemap choice in `plot.map()`](https://github.com/GeoPressure/GeoPressureR/commit/7d5d4b80a5e86057be0f0224ba88444dc1943892).
 - [Keep valid edges on large grids in `graph_create()`](https://github.com/GeoPressure/GeoPressureR/commit/795e26faf8353211782d067fc6c716070e2e44b3) and [stay-in-place edges in `graph_add_wind()`](https://github.com/GeoPressure/GeoPressureR/commit/4f96b6225788af5d7c97fe41ed86fe6da424268f).
 - [Regenerate the 18LX example outputs](https://github.com/GeoPressure/GeoPressureR/commit/dfe7a83faf61dcc3ac6e410f467f17fe1afd2f32) and [fix typos in messages](https://github.com/GeoPressure/GeoPressureR/commit/9ea2cdc951e3d5c428a4dc172d372034f86ed347).
+- Rename [`map_add_tiles()` to `leaflet_add_basemaps()`](https://github.com/GeoPressure/GeoPressureR/commit/bd952d366c7ae172414587f9c092a25662555975) and the [`stap2duration()` argument `stap_path` to `stap`](https://github.com/GeoPressure/GeoPressureR/commit/029e2d409dde5e274a971fe5727812f4d8d7cac2); the old names are deprecated. [`geolightviz(quiet)`](https://github.com/GeoPressure/GeoPressureR/commit/0e0b0488a8ec70cb0a394ea4c37fed53322a9ea9) is deprecated.
+- `tag_label_stap()` and `tag_stap_daily()` also add `stap_id` to temperature sensors ([sensor names defined once](https://github.com/GeoPressure/GeoPressureR/commit/d772c8a11a1b2f1136f2cc5e5dcb6e63a405aaf7)).
+- Internal refactoring without change in results: [one wind interpolation code path](https://github.com/GeoPressure/GeoPressureR/commit/3b0b6fa8ef46f5b82f492f3257f44729bce17ad2), [shared ERA5 grid, land-sea mask and validation helpers](https://github.com/GeoPressure/GeoPressureR/commit/33145495cfe02fd17c3c9fb28b0cdece50e082e6) (the ERA5-Land altitude deprecation warning now also applies to `source = "api"`), [simpler tag readers and `tag_assert()`](https://github.com/GeoPressure/GeoPressureR/commit/03df20fbb6c02ae44219c418cda5dce8964dfae0), [dead code removed and Shiny server files split](https://github.com/GeoPressure/GeoPressureR/commit/1384f486d7346900cd18d9a72e4f20471f06dccc).
 
 **Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.7.1...v3.8.0>
 
