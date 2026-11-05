@@ -254,7 +254,7 @@ prepare_twilight <- function(tag, ref, compute_known = NULL) {
 time2plottime <- function(x, ref = x[1]) {
   floathour <- datetime2floathour(x)
   time_hour <- floathour + 24 * (floathour < datetime2floathour(ref))
-  as.POSIXct(Sys.Date()) + time_hour * 3600
+  as.POSIXct("2000-01-01", tz = "UTC") + time_hour * 3600
 }
 
 #' @noRd
