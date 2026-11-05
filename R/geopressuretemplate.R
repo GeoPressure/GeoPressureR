@@ -115,7 +115,6 @@ geopressuretemplate <- function(
     id = id,
     config = config,
     quiet = quiet,
-    saveit = FALSE,
     file = file,
     ...
   )
