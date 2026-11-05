@@ -16,7 +16,7 @@ coverage](https://codecov.io/gh/GeoPressure/GeoPressureR/graph/badge.svg)](https
 stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
-**GeoPressureR** is a R package which help researchers construct the
+**GeoPressureR** is an R package that helps researchers construct the
 trajectory of a bird equipped with an atmospheric pressure sensor. The
 package is a direct implementation of methods presented in Nussbaumer et
 al. ([2023a](https://doi.org/10.1111/2041-210X.14043)) and Nussbaumer et
@@ -24,7 +24,7 @@ al. ([2023b](https://doi.org/10.1111/2041-210X.14082)).
 
 ## Installation
 
-The best way to install the GeoPressureR package is through Github
+The best way to install the GeoPressureR package is through GitHub:
 
 ``` r
 # install.packages("pak")
@@ -52,12 +52,12 @@ analysis in detail.
 Once you are familiar with the workflow of the method and want to start
 your own study, we suggest you use
 [GeoPressureTemplate](https://github.com/GeoPressure/GeoPressureTemplate),
-a [github template
+a [GitHub template
 repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository)
 which provides a standard code structure for your analysis.
 
-Using this standardized code structure you will help you on many aspect:
-code sharing and troubleshooting, data archiving, work reproducibility.
+Using this standardised code structure will help you in many aspects:
+code sharing and troubleshooting, data archiving and reproducibility.
 
 ## Cheatsheet
 
@@ -83,7 +83,8 @@ underlying methods and/or user manual) according to your use:
 > Nussbaumer, R., Gravey, M., Briedis, M., Liechti, F., & Sheldon, D.
 > (2023). Reconstructing bird trajectories from pressure and wind data
 > using a highly optimised hidden Markov model. *Methods in Ecology and
-> Evolution, 14*(4), 1–32. <https://doi.org/10.1111/2041-210X.14082>
+> Evolution, 14*(4), 1118–1129.
+> <https://doi.org/10.1111/2041-210X.14082>
 
 > Nussbaumer, R., & Nussbaumer, A. (2024). *GeoPressureManual: Learn how
 > to use GeoPressureR with examples.* Zenodo.
