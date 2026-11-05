@@ -20,7 +20,8 @@ tag_create(
   quiet = FALSE,
   time_shift = 0,
   time_drift = 0,
-  time_reference = NULL
+  time_reference = NULL,
+  mag_axis = c("right", "forward", "down")
 )
 }
 \arguments{
@@ -64,6 +65,13 @@ sensors or a named list for individual sensors. Default is zero; \code{-12 / 60}
 \item{time_reference}{Original recorded timestamp at which drift correction is zero, as POSIXct
 or character in UTC. \code{NULL} uses the earliest measurement across all sensors. Supply a timestamp
 if the clock was synchronised at another time. Only \code{time_shift} is added at the reference.}
+
+\item{mag_axis}{SOI only. Direction of the raw x, y and z magnetometer and accelerometer axes
+in the bird's forward-right-down frame, as three values among \code{"forward"}, \code{"backward"},
+\code{"right"}, \code{"left"}, \code{"down"} and \code{"up"}, with one per axis. The default
+\code{c("right", "forward", "down")} is the standard mounting (raw y forward, raw x to the right).
+Use \code{c("left", "backward", "down")} for a tag mounted reversed, or e.g.
+\code{c("forward", "left", "down")} for a tag rotated by 90°. Stored in \code{tag$param$mag_axis}.}
 }
 \value{
 A GeoPressureR \code{tag} containing \code{param} (see \code{\link[=param_create]{param_create()}}) and the available sensor
@@ -137,10 +145,10 @@ the pressure sensor, with 1 °C resolution between −15 and 48 °C.
 inside the tag, with about 1 °C resolution.
 \item \code{magnetic} (\verb{*.magnetic}): single 3-axis magnetometer and accelerometer measurements,
 converted to Gauss and g according to the hardware version in \verb{*.settings} (LSM303D up to
-v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame, with raw y forward
-and raw x to the right. For a tag mounted reversed, forward is \code{-magnetic_x} and right
-\code{-magnetic_y} (a warning is shown when the tag rests tilted backwards). Without
-\verb{*.settings}, magnetic data are not read.
+v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame according to
+\code{mag_axis}, by default with raw y forward and raw x to the right. For a tag mounted reversed,
+use \code{mag_axis = c("left", "backward", "down")} (a warning is shown when the tag rests tilted
+backwards). Without \verb{*.settings}, magnetic data are not read.
 }
 
 The decoder does not correct clock drift. \verb{*.settings} records the tag clock

@@ -53,10 +53,10 @@
 #'   inside the tag, with about 1 °C resolution.
 #' - `magnetic` (`*.magnetic`): single 3-axis magnetometer and accelerometer measurements,
 #'   converted to Gauss and g according to the hardware version in `*.settings` (LSM303D up to
-#'   v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame, with raw y forward
-#'   and raw x to the right. For a tag mounted reversed, forward is `-magnetic_x` and right
-#'   `-magnetic_y` (a warning is shown when the tag rests tilted backwards). Without
-#'   `*.settings`, magnetic data are not read.
+#'   v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame according to
+#'   `mag_axis`, by default with raw y forward and raw x to the right. For a tag mounted reversed,
+#'   use `mag_axis = c("left", "backward", "down")` (a warning is shown when the tag rests tilted
+#'   backwards). Without `*.settings`, magnetic data are not read.
 #'
 #' The decoder does not correct clock drift. `*.settings` records the tag clock
 #' (`StopTimeRTC`) and the computer clock (`StopTimeReference`) at download, and their difference
@@ -118,6 +118,12 @@
 #'   in UTC. `NULL` keeps all earlier data.
 #' @param crop_end Exclusive end of the corrected recording period, as POSIXct or character in UTC.
 #'   `NULL` keeps all later data.
+#' @param mag_axis SOI only. Direction of the raw x, y and z magnetometer and accelerometer axes
+#'   in the bird's forward-right-down frame, as three values among `"forward"`, `"backward"`,
+#'   `"right"`, `"left"`, `"down"` and `"up"`, with one per axis. The default
+#'   `c("right", "forward", "down")` is the standard mounting (raw y forward, raw x to the right).
+#'   Use `c("left", "backward", "down")` for a tag mounted reversed, or e.g.
+#'   `c("forward", "left", "down")` for a tag rotated by 90°. Stored in `tag$param$mag_axis`.
 #' @param quiet Logical; hide progress messages and sampling-interval warnings.
 #' @param assert_pressure Logical; require pressure data in the returned tag.
 #'
@@ -181,10 +187,21 @@ tag_create <- function(
   quiet = FALSE,
   time_shift = 0,
   time_drift = 0,
-  time_reference = NULL
+  time_reference = NULL,
+  mag_axis = c("right", "forward", "down")
 ) {
   assertthat::assert_that(is.character(id))
   assertthat::assert_that(is.logical(quiet))
+  # One direction per axis pair (forward/backward, right/left, down/up)
+  assertthat::assert_that(
+    is.character(mag_axis),
+    length(mag_axis) == 3,
+    all(mag_axis %in% c("forward", "backward", "right", "left", "down", "up")),
+    setequal(
+      ceiling(match(mag_axis, c("forward", "backward", "right", "left", "down", "up")) / 2),
+      1:3
+    )
+  )
   for (correction in list(time_shift, time_drift)) {
     if (is.numeric(correction)) {
       assertthat::assert_that(length(correction) == 1, is.finite(correction))
@@ -286,6 +303,7 @@ tag_create <- function(
       temperature_external_file = temperature_external_file,
       temperature_internal_file = temperature_internal_file,
       magnetic_file = magnetic_file,
+      mag_axis = mag_axis,
       quiet = quiet
     )
   } else if (manufacturer == "migratetech") {

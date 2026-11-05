@@ -9,6 +9,7 @@ tag_create_soi <- function(
   temperature_external_file = NULL,
   temperature_internal_file = NULL,
   magnetic_file = NULL,
+  mag_axis = c("right", "forward", "down"),
   quiet = FALSE
 ) {
   assertthat::assert_that(is.character(id))
@@ -136,6 +137,7 @@ tag_create_soi <- function(
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,
       hw_version = tag$param$soi_settings,
+      mag_axis = mag_axis,
       quiet = quiet
     )
     # Add information
@@ -183,7 +185,12 @@ tag_create_soi_gap <- function(sensor_data) {
 #'
 #' Version is detected automatically from `tag$param$soi_settings`
 #' @noRd
-tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
+tag_create_soi_mag <- function(
+  magnetic_path,
+  hw_version,
+  mag_axis = c("right", "forward", "down"),
+  quiet = FALSE
+) {
   assertthat::assert_that(is.logical(quiet))
   assertthat::assert_that(file.exists(magnetic_path))
 
@@ -231,15 +238,14 @@ tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
   mag[c("gX", "gY", "gZ")] <- mag[c("gX", "gY", "gZ")] * corr_g
 
   # On all hardware versions, raw y points forward and raw x to the right (checked against
-  # tracks). A tag mounted reversed has forward = -y; with a leg-loop harness it then rests tilted
-  # backwards (y < 0 in static samples). This is not used to flip the axes because breast-harness
-  # tags (swifts) can rest with y < 0 while forward = +y.
-  mag_axis <- c("right", "forward", "down")
+  # tracks), which is the default `mag_axis`. A tag mounted reversed has forward = -y; with a
+  # leg-loop harness it then rests tilted backwards (y < 0 in static samples). This is not used to
+  # flip the axes because breast-harness tags (swifts) can rest with y < 0 while forward = +y.
   gn <- sqrt(mag$gX^2 + mag$gY^2 + mag$gZ^2)
   fwd <- stats::median(mag$gY[abs(gn / stats::median(gn, na.rm = TRUE) - 1) < 0.05], na.rm = TRUE)
-  if (!quiet && isTRUE(fwd < -0.3)) {
+  if (!quiet && mag_axis[2] == "forward" && isTRUE(fwd < -0.3)) {
     cli::cli_alert_warning(
-      "The tag rests tilted backwards along its body axis (median static y = {.val {round(fwd, 2)}} g). If it was mounted reversed, forward is {.code -magnetic_x} and right {.code -magnetic_y}."
+      "The tag rests tilted backwards along its body axis (median static y = {.val {round(fwd, 2)}} g). If it was mounted reversed, use {.code mag_axis = c(\"left\", \"backward\", \"down\")}."
     )
   }
 
