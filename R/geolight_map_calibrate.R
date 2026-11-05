@@ -81,14 +81,17 @@ geolight_map_calibrate <- function(
 #' Calibrate twilight to zenith angle using calibration locations
 #' @param twl a twilight data.frame
 #' @param calib_stap a stationary period data.frame with calibration locations. Must contain
-#' the columns `known_lat`, `known_lon`, `start`, and `end`. This can include both true known
+#' the columns `stap_id`, `known_lat`, `known_lon`, `start`, and `end`. This can include both true known
 #' locations and estimated (fitted) locations. When produced by `geolight_map_calibrate()`,
 #' `calib_type` records whether each calibration anchor is `"known"` or `"fitted"`.
 #' @inheritParams geolight_map
 #' @return a `twl_calib` object with components:
 #' * `x`: the zenith angle sequence
 #' * `y`: the estimated density values
+#' * `adjust`: the kernel density smoothing parameter (`twl_calib_adjust`)
 #' * `hist_breaks`: common histogram breaks used for all calibration staps
+#' * `hist_mids`: midpoints of the histogram bins
+#' * `binwidth`: width of the histogram bins
 #' * `hist_counts`: list of histogram counts per calibration stationary period
 #' * `calib_stap`: calibration stationary periods used for calibration
 #'

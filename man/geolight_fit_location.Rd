@@ -58,7 +58,7 @@ least-squares sense, closest to all those circles simultaneously.
 For a stationary period with twilight-specific subsolar points \code{s_i}, the
 fitted longitude \code{lon}, latitude \code{lat}, and zenith angle \code{z} minimize
 
-mean_i ( d((lon, lat), s_i) - z )^2 + P_prior(z)
+mean_i ( d((lon, lat), s_i) - z )^2 + zenith_prior_penalty_weight * P_prior(z)
 
 where \verb{d((lon, lat), s_i)} is the great-circle angular distance from the
 candidate location to the subsolar point at twilight \code{i}. The first term is

@@ -7,7 +7,8 @@
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param twl_thr Light threshold that defines twilight. By default (`NULL`), it uses the smallest
-#' value of light (i.e, first and last light of day).
+#' value of light (i.e, first and last light of day). When `transform_light = TRUE`, `twl_thr` is
+#' expressed on the transformed light scale.
 #' @param twl_offset Shift of the middle of the night compared to 00:00 UTC (in hours). If not
 #' provided, it uses the middle of all nights.
 #' @param transform_light logical to use a log transformation of light
@@ -19,7 +20,7 @@
 #' @return a `tag` list containing a new data.frame `twilight` with columns:
 #' - `twilight` (date-time of twilight)
 #' - `rise` (logical) indicating sunrise (`TRUE`) or sunset (`FALSE`).
-#' - `stap_id` if `stap_id` is present in `light`.
+#' - `stap_id` if `tag$stap` exists.
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

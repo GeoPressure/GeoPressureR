@@ -29,7 +29,7 @@ geolight_map_aggregate <- function(
   twl_idx <- which(twl$include & twl$stap_id == as.integer(twl$stap_id))
   twl_id_stap_id <- split(twl_idx, twl$stap_id[twl_idx])
 
-  # Compute the number of twilight per stap
+  # Check that at least one stap has twilights
   assertthat::assert_that(length(twl_id_stap_id) > 0, all(lengths(twl_id_stap_id) > 0))
 
   pgz <- tag$map_light_twl$data
@@ -111,7 +111,7 @@ geolight_map_aggregate <- function(
   tag$param$geolight_map$compute_known <- compute_known
   tag$param$geolight_map$keep_twl <- keep_twl
 
-  # remove mse maps computed by geopressure_map_mismatch()
+  # Remove twilight maps unless keep_twl
   if (!keep_twl) {
     tag[names(tag) == "map_light_twl"] <- NULL
   }

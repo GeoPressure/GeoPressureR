@@ -22,7 +22,7 @@ Defaults to \code{tag$stap} when available. Use \code{read_stap(tag$param$id)} t
 \verb{./data/stap-label/\{id\}.csv}.}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
-RStudio.}
+RStudio. With \code{run_bg = TRUE}, \code{launch_browser = FALSE} only prints the app URL.}
 
 \item{run_bg}{If true (by default), the app runs in a background R process using \code{callr::r_bg()},
 allowing you to continue using the R console. If false, the app blocks the console until closed.}

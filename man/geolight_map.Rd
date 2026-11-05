@@ -88,9 +88,10 @@ The function performs the following steps:
 \item Calibrate twilight errors from true known locations and/or automatically fitted calibration
 locations. See below for details.
 \item Compute a likelihood map for each twilight using the calibration.
-\item Combine the likelihood maps of all twilights belonging to the same stationary periods with a
+\item Combine the likelihood maps of all twilights belonging to the same stationary period with a
 log-linear pooling. See \href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation}
-for more information on probability aggregation using log-linear pooling.
+for more information on probability aggregation using log-linear pooling. A stationary period
+with a single twilight uses its likelihood map directly (weight 1, \code{twl_llp} is not applied).
 }
 }
 \section{Calibration}{
