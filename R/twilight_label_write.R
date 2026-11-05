@@ -40,7 +40,7 @@ twilight_label_write <- function(
 
   # Normalize the value with offset to be more smooth
   twilight$value <- (twilight$value -
-    tag$param$twilight_create$twl_offset * 60) %%
+    resolve_twl_offset(tag, tag$light, NULL) * 60) %%
     (24 * 60)
 
   if (!assertthat::has_name(twilight, "label")) {
