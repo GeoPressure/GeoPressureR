@@ -1,4 +1,3 @@
-.DEG2RAD <- pi / 180
 #' Estimate one location per stationary period from twilight times
 #'
 #' @description
@@ -15,7 +14,7 @@
 #' For a stationary period with twilight-specific subsolar points `s_i`, the
 #' fitted longitude `lon`, latitude `lat`, and zenith angle `z` minimize
 #'
-#'   mean_i ( d((lon, lat), s_i) - z )^2 + P_prior(z)
+#'   mean_i ( d((lon, lat), s_i) - z )^2 + zenith_prior_penalty_weight * P_prior(z)
 #'
 #' where `d((lon, lat), s_i)` is the great-circle angular distance from the
 #' candidate location to the subsolar point at twilight `i`. The first term is

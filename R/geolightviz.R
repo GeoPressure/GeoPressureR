@@ -23,7 +23,7 @@
 #'   Defaults to `tag$stap` when available. Use `read_stap(tag$param$id)` to load a path from
 #'   `./data/stap-label/{id}.csv`.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' RStudio.
+#' RStudio. With `run_bg = TRUE`, `launch_browser = FALSE` only prints the app URL.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
 #' @param quiet `r lifecycle::badge("deprecated")` Had no effect.
@@ -85,17 +85,17 @@ geolightviz <- function(
     }
     if (!is.data.frame(periods)) {
       cli::cli_abort(
-        "{.val {name}} must be a data frame of stationary periods or {.code NULL}."
+        "{.arg {name}} must be a data frame of stationary periods or {.code NULL}."
       )
     }
     if (!all(c("start", "end") %in% names(periods))) {
       cli::cli_abort(
-        "{.val {name}} must contain {.field start} and {.field end} columns."
+        "{.arg {name}} must contain {.field start} and {.field end} columns."
       )
     }
     if (!inherits(periods$start, "POSIXct") || !inherits(periods$end, "POSIXct")) {
       cli::cli_abort(
-        "{.field start} and {.field end} in {.val {name}} must be POSIXct datetimes."
+        "{.field start} and {.field end} in {.arg {name}} must be POSIXct datetimes."
       )
     }
     if (
@@ -106,7 +106,7 @@ geolightviz <- function(
         any(utils::head(periods$end, -1) > utils::tail(periods$start, -1))
     ) {
       cli::cli_abort(
-        "Stationary periods in {.val {name}} must have ordered, non-overlapping start and end times without missing values."
+        "Stationary periods in {.arg {name}} must have ordered, non-overlapping start and end times without missing values."
       )
     }
   }
@@ -237,15 +237,20 @@ light_matrix <- function(tag) {
   # Transform light value for better display
   light$value <- twilight_create_transform(light$value)
 
-  # Use by order of priority: (1) tag$param$twilight_create$twl_offset or (2) guess from light data
-  if ("twl_offset" %in% names(tag$param$twilight_create)) {
-    twl_offset <- tag$param$twilight_create[["twl_offset"]]
+  # Use the same offset and time tolerance as plot_tag_twilight()
+  if ("twl_time_tolerance" %in% names(tag$param$twilight_create)) {
+    twl_time_tolerance <- tag$param$twilight_create$twl_time_tolerance
   } else {
-    twl_offset <- twilight_create_guess_offset(light)
+    twl_time_tolerance <- formals(twilight_create)$twl_time_tolerance
   }
 
   # Compute the matrix representation of light
-  mat <- GeoPressureR::ts2mat(light, sensor = "light", twl_offset = twl_offset)
+  mat <- GeoPressureR::ts2mat(
+    light,
+    sensor = "light",
+    twl_offset = resolve_twl_offset(tag, light, NULL),
+    twl_time_tolerance = twl_time_tolerance
+  )
 
   mat$plottime <- time2plottime(mat$time)
 

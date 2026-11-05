@@ -6,8 +6,6 @@
 #' `tag$twilight` and the path, with the calibration density overlaid.
 #'
 #' @param x a GeoPressureR `twl_calib` object or a `tag` object with calibration.
-#' @param tag a GeoPressureR `tag` object with twilight calibration (used by
-#' `plot_twl_calib_path()`).
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame. If provided, plot the path-based
 #' calibration diagnostic instead of the stacked calibration histogram.
 #' @param warning_ci Width of the symmetric confidence interval used to flag staps with twilights
@@ -60,7 +58,7 @@ plot_twl_calib <- function(
     if (!inherits(x, "tag")) {
       cli::cli_abort(c(
         "x" = "When {.var path} is provided, {.var x} must be a {.cls tag} object.",
-        ">" = "Use {.fun plot_twl_calib_path} directly if you have a tag."
+        ">" = "Provide a {.cls tag} object with twilight calibration as {.var x}."
       ))
     }
     return(plot_twl_calib_path(
@@ -154,11 +152,11 @@ plot_twl_calib <- function(
   p
 }
 
-#' @rdname plot_twl_calib
+#' @noRd
 plot_twl_calib_path <- function(
   tag,
   path,
-  warning_ci = 0.9973,
+  warning_ci = 0.95,
   plot_plotly = TRUE
 ) {
   tag_assert(tag, "twl_calib")
@@ -275,7 +273,6 @@ plot_twl_calib_path <- function(
     )
 
   if (plot_plotly) {
-    p <- p + ggplot2::theme(legend.position = "none")
     return(plotly::ggplotly(p, dynamicTicks = TRUE))
   }
 

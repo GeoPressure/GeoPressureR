@@ -164,12 +164,6 @@ init <- function(
     twl_ <- rv$twl()
     include <- include & twl_$label != "discard"
 
-    stap_id_override <- GeoPressureR::find_stap(
-      stapath_override,
-      map_light_twl$stap$twilight
-    )
-    is_gap <- abs(stap_id_override - round(stap_id_override)) > 1e-6
-    include <- include & !is_gap
     map_light_twl$stap$include <- include
 
     tag_agg <- tag_for_map

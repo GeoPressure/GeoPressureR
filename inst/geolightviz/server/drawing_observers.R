@@ -78,7 +78,7 @@ setup_drawing_observers <- function(
     }
 
     relayout <- plotly::event_data("plotly_relayout")
-    s <- relayout$shape
+    s <- relayout$shapes
     if (is.null(s)) {
       return()
     }
@@ -175,7 +175,6 @@ setup_drawing_observers <- function(
       }
     }
 
-    selected <- NULL
     update_stapath(new_stapath, selected = idx)
     draw_range("") # Deactivate drawing mode
   })

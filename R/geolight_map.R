@@ -7,10 +7,11 @@
 #' 1. Calibrate twilight errors from true known locations and/or automatically fitted calibration
 #' locations. See below for details.
 #' 2. Compute a likelihood map for each twilight using the calibration.
-#' 3. Combine the likelihood maps of all twilights belonging to the same stationary periods with a
+#' 3. Combine the likelihood maps of all twilights belonging to the same stationary period with a
 #' log-linear pooling. See [GeoPressureManual | Probability aggregation](
 #' https://geopressure.org/GeoPressureManual/probability-aggregation.html)
-#' for more information on probability aggregation using log-linear pooling.
+#' for more information on probability aggregation using log-linear pooling. A stationary period
+#' with a single twilight uses its likelihood map directly (weight 1, `twl_llp` is not applied).
 #'
 #' # Calibration
 #'
@@ -141,10 +142,7 @@ geolight_map <- function(
 }
 
 #' Get twilight to include in map computation
-#' @param x a `tag` object or a twilight data.frame
-#' @param only_known logical or NULL. If `NULL`, all twilight are included. If `TRUE`,
-#' only twilight associated to known stationary periods are included. If `FALSE`, only
-#' twilight associated to unknown stationary periods are included.
+#' @param twl a twilight data.frame
 #' @return a twilight data.frame with an additional `include` logical column
 #' @noRd
 twilight_include <- function(twl) {

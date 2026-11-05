@@ -2,12 +2,9 @@
 % Please edit documentation in R/plot_twl_calib.R
 \name{plot_twl_calib}
 \alias{plot_twl_calib}
-\alias{plot_twl_calib_path}
 \title{Plot twilight calibration diagnostics}
 \usage{
 plot_twl_calib(x, path = NULL, warning_ci = 0.95, plot_plotly = TRUE, ...)
-
-plot_twl_calib_path(tag, path, warning_ci = 0.9973, plot_plotly = TRUE)
 }
 \arguments{
 \item{x}{a GeoPressureR \code{twl_calib} object or a \code{tag} object with calibration.}
@@ -21,9 +18,6 @@ outside the calibrated range (e.g., \code{0.95} for 2.5\%/97.5\%).}
 \item{plot_plotly}{logical to use \code{plotly}.}
 
 \item{...}{unused}
-
-\item{tag}{a GeoPressureR \code{tag} object with twilight calibration (used by
-\code{plot_twl_calib_path()}).}
 }
 \value{
 a ggplot or ggplotly object

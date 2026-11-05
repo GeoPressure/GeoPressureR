@@ -20,8 +20,8 @@
 #'
 #' `c(length(lat), length(lon), length(date))`
 #'
-#' When `lat` and `lon` are scalars, the result reduces to a vector of length
-#' `length(date)`.
+#' When `lat` and `lon` are scalars, the result is a `1 x 1 x length(date)` array (not a vector).
+#' Use `as.vector()` to drop dimensions.
 #'
 #' ## Solar time and hour angle
 #' Internally, the solar time is computed as NOAA's *true solar time* expressed
@@ -76,7 +76,7 @@ geolight_solar <- function(date, lat, lon) {
 #'
 #' @param date POSIXct vector of times.
 #'
-#' @return A list of time-dependent solar quantities:
+#' @return A data.frame of time-dependent solar quantities:
 #' \itemize{
 #'   \item `solar_time`: true solar time angle at Greenwich (degrees)
 #'   \item `sin_solar_dec`: sine of solar declination
@@ -149,7 +149,7 @@ geolight_solar_constants <- function(date) {
 
 #' @rdname geolight_solar
 #'
-#' @param sun List returned by `geolight_solar_constants()`.
+#' @param sun data.frame returned by `geolight_solar_constants()`.
 #' @param lat Numeric vector of latitudes (degrees north).
 #' @param lon Numeric vector of longitudes (degrees east).
 #'

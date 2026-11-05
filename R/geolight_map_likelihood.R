@@ -30,6 +30,12 @@ geolight_map_likelihood <- function(
       !is.na(tag$stap$known_lat) & !is.na(tag$stap$known_lon)
     ]
     twl$include <- twl$include & !(twl$stap_id %in% known_stap_id)
+    if (!any(twl$include)) {
+      cli::cli_abort(c(
+        "x" = "All twilights belong to known stationary periods.",
+        ">" = "Use {.code compute_known = TRUE} to compute twilight likelihood maps."
+      ))
+    }
   }
 
   # Compute solar zenith angle for included twilight

@@ -86,7 +86,6 @@ reference:
       - geolight_map_aggregate
       - geolight_fit_location
       - plot_twl_calib
-      - plot_twl_calib_path
       - ts2mat
   - title: Graph
     desc: Constructing the Hidden-Markov model with a `graph` and computing trajectory products.
