@@ -10,15 +10,8 @@
 #' file that contains at least `tag` (and optionally `marginal`, `path_most_likely`,
 #' `pressurepath`, `pressurepath_most_likely`).
 #'
-#' When `run_bg = FALSE`, the app stores the current edited path in the Shiny option
-#' `path_geopressureviz` and returns it invisibly when the app closes. You can capture it from the
-#' return value of this function or retrieve it afterwards in the same R session with
-#' `shiny::getShinyOption("path_geopressureviz")`.
-#'
-#' When `run_bg = TRUE`, the function returns the background process object instead of the edited
-#' path.
-#'
-#' The app `Save` button writes the current path to `./data/interim/{id}-path-geopressureviz.csv`.
+#' GeoPressureViz is an exploration tool. To keep an edited path, use the app's `Export CSV`
+#' button.
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).
@@ -39,12 +32,8 @@
 #' RStudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
-#' @return When `run_bg = FALSE`: The edited path, returned invisibly when the app closes. During
-#' the app session, the current path is also stored in the Shiny option
-#' `shiny::getShinyOption("path_geopressureviz")`, which can be read afterwards in the same R
-#' session.
-#' When `run_bg = TRUE`: The background process object. In this case the edited path is not
-#' returned to the calling console session.
+#' @return When `run_bg = TRUE`, the background process object, invisibly. Otherwise `NULL`,
+#' invisibly, when the app closes.
 #' @examplesIf FALSE
 #'   geopressureviz("18LX")
 #' @seealso [GeoPressureManual
@@ -212,7 +201,6 @@ geopressureviz <- function(
         pressurepath = pressurepath,
         path = path,
         file_wind = file_wind,
-        interim_dir = normalizePath("./data/interim", mustWork = FALSE),
         stop_on_session_end = FALSE
       ),
       launch_browser = launch_browser,
@@ -222,7 +210,7 @@ geopressureviz <- function(
     ))
   }
 
-  path_geopressureviz <- shiny_run_app_fg(
+  shiny_run_app_fg(
     system.file("geopressureviz", package = "GeoPressureR"),
     shiny_opts = list(
       tag = tag,
@@ -231,14 +219,11 @@ geopressureviz <- function(
       pressurepath = pressurepath,
       path = path,
       file_wind = file_wind,
-      interim_dir = normalizePath("./data/interim", mustWork = FALSE),
       stop_on_session_end = TRUE
     ),
     launch_browser = launch_browser
   )
 
-  # Return the updated path and store it in shiny options
-  shiny::shinyOptions(path_geopressureviz = path_geopressureviz)
-  return(invisible(path_geopressureviz))
+  invisible(NULL)
   # nocov end
 }
