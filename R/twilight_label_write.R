@@ -53,7 +53,7 @@ twilight_label_write <- function(
 
   if (anyNA(twilight$label)) {
     cli::cli_warn(c(
-      "!" = "Some twilight label contain NA value",
+      "!" = "Some twilight labels contain NA values",
       "i" = "Check {.code twilight$label} or {.code twilight$stap_id}",
       ">" = "We replaced them by {.val 'discard'}"
     ))

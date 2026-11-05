@@ -264,7 +264,7 @@ geopressure_map_preprocess <- function(
 
   if (any(stap$Freq < 3)) {
     cli::cli_warn(
-      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less than 3 datapoints."
+      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have fewer than 3 datapoints."
     )
   }
 

@@ -121,7 +121,7 @@ test_that("tag_label_read() | default", {
   # Test with different labelled file size
   expect_warning(
     tag_label_read(tag, file = "./data/tag-label/18LX-labeled-diffsize.csv"),
-    "labelization file of pressure is missing"
+    "label file of pressure is missing"
   )
 
   # Unknown pressure label
@@ -198,7 +198,7 @@ test_that("tag_label_stap() | no acceleration", {
       tag,
       file = "./data/tag-label/18LX-labeled-no_acc.csv"
     ),
-    "The labelization file does not contains label for acceleration."
+    "The label file does not contain labels for acceleration."
   )
   expect_no_error(tag_label_stap(tag_labelled, quiet = TRUE))
 })

@@ -33,7 +33,7 @@ trainset_read <- function(
 
   if (nrow(csv) == 0) {
     cli::cli_warn(c(
-      i = "The labelization file does not contains label for {series}.",
+      i = "The label file does not contain labels for {series}.",
       ">" = "No labels are added to {series}."
     ))
     return(df)
@@ -64,7 +64,7 @@ trainset_read <- function(
     }
 
     msg <- paste0(
-      "The labelization file",
+      "The label file",
       series_name,
       " is missing {.val {missing_pres}} timesteps"
     )
