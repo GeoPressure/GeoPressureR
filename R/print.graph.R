@@ -67,7 +67,7 @@ print.graph <- function(x, ...) {
     ))
   }
 
-  if ("movement" %in% names(graph$param)) {
+  if ("graph_set_movement" %in% names(graph$param)) {
     cli::cli_bullets(c(
       "v" = "Movement model defined for
                       {.field {graph$param$graph_set_movement$type}}"
