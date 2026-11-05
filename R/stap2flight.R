@@ -67,8 +67,9 @@ stap2flight <- function(
   }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.logical(return_numeric))
+  include_stap_id <- sort(include_stap_id)
 
-  if (length(include_stap_id) == 1) {
+  if (length(include_stap_id) <= 1) {
     if (format == "list") {
       return(list())
     } else {
