@@ -145,9 +145,7 @@ graph_add_wind <- function(
     graph$param$graph_add_wind$file <- file
   } else {
     # Use default file function if not provided
-    file <- \(stap_id) {
-      glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
-    }
+    file <- eval(formals(add_wind_graph_edge)$file)
     attr(file, "srcref") <- NULL
     attr(file, "srcfile") <- NULL
     environment(file) <- baseenv()
