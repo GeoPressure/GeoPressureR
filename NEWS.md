@@ -1,9 +1,20 @@
 # GeoPressureR (development)
 
+## Main
+
+- [Fix `gs` and `ws` assigned to the wrong edges by `path2edge()`](https://github.com/GeoPressure/GeoPressureR/commit/6f5dda6527eed51ec67e8393043c91579160da64) when several paths share a transition. Affects `edge_simulation` since v3.2.0; single paths are unaffected.
+- [Stop `geopressuretemplate_graph()` from overwriting saved outputs](https://github.com/GeoPressure/GeoPressureR/commit/25c001819974ae37f6701d7840db09e8c85cb024) when a step fails.
+- [Stop `geopressure_map_preprocess()` from creating pressure samples inside gaps](https://github.com/GeoPressure/GeoPressureR/commit/d99fedc6ef0d56ae2bd760e357ed698d6eb9fab0) longer than about 1.5 h (discard runs, `elev_n` segments) since v3.0.0.
+- [Keep times of day when `read_stap()` reads a CSV](https://github.com/GeoPressure/GeoPressureR/commit/0469ddd4c3b176ac65e838c81dc22166b894caca) written by `write.csv()`.
+- [Store Migrate Technology and PresTag temperature as `temperature_external`](https://github.com/GeoPressure/GeoPressureR/commit/f8cc1d1e15735d376958580e8ba55a75f6b32c3e) instead of `temperature`.
+
 ## Minor
 
 - Rename the `tag_stap_daily()` output column `stap0` to `stap_long`. Scripts using `tag$stap$stap0` should use `tag$stap$stap_long` instead.
 - Fix GeoPressureViz display of marginal maps with very small values by normalizing each stationary period before projection, consistent with `plot.map()`.
+- Fix about 65 smaller bugs and crashes, including [sensor-file detection in `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/6818051ec3717388e39adb087a17f4775bca29ae), [`tag_set_map()` overwrites](https://github.com/GeoPressure/GeoPressureR/commit/61d8bb9389cad6780b3a95a245dd2473b42ab24c), [stale `stap_id` in `tag_stap_daily()`](https://github.com/GeoPressure/GeoPressureR/commit/c370e59ccfd94930caf8518519d9609a486e6a36), [duplicated rows in multi-path `pressurepath_create()`](https://github.com/GeoPressure/GeoPressureR/commit/9d218ff7c2ad49863f87912a1f7226515b997df1) and [graph pruning](https://github.com/GeoPressure/GeoPressureR/commit/7c2131db1184cb7e8bbe4830ab9268e7cca2ce15).
+- Fix the Shiny apps: GeoPressureViz [position interpolation](https://github.com/GeoPressure/GeoPressureR/commit/0ff72e6e6bbed28f5549492e1373ba7e0013abd2), [save location](https://github.com/GeoPressure/GeoPressureR/commit/91b041ace808bc1e1212268a3686c301142d3ae7) and [return value](https://github.com/GeoPressure/GeoPressureR/commit/11d148959f67e99a530d794f73c31b9bdacd8f09); GeoLightViz [twilight clicks](https://github.com/GeoPressure/GeoPressureR/commit/63748862f26ca649fec15c024b8e39093fe79c6a); TRAINSET [time zones outside UTC](https://github.com/GeoPressure/GeoPressureR/commit/fd0c4097c605af8b2fb9e2ed43432d546969a254).
+- Fix typos and documentation throughout.
 
 # GeoPressureR v3.7.0
 
