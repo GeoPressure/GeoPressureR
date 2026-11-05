@@ -167,7 +167,7 @@ refresh_detail_traces <- function(xmin, xmax) {
 
 # Active series selector (only when both series exist)
 init_active_series <- if (has_pressure) "pressure" else "acceleration"
-if (has_pressure && has_acceleration) {
+if (has_acceleration) {
   shiny::updateSelectInput(
     session,
     "active_series",
