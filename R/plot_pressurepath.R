@@ -126,7 +126,7 @@ plot_pressurepath <- function(
 
   if (type %in% c("timeseries", "altitude")) {
     breaks <- seq(min(pp$date), max(pp$date), by = "30 min")
-    if (tail(breaks, 1) < max(pp$date)) {
+    if (utils::tail(breaks, 1) < max(pp$date)) {
       breaks <- c(breaks, max(pp$date))
     }
     midpoint <- breaks[-length(breaks)] + diff(breaks) / 2
