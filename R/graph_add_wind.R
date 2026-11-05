@@ -101,7 +101,7 @@ graph_add_wind <- function(
       data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
       arrayInd(graph$s, graph$sz)[, 3]
     )
-    gr <- graph_create_prune(gr)
+    gr <- graph_create_prune(gr, quiet = isTRUE(list(...)$quiet))
     # Convert it back to a full list
     tmp <- as.list(do.call("rbind", gr))
     # Overwrite all edges vectors
