@@ -166,8 +166,8 @@ tag_stap_daily <- function(
     stap_long = FALSE
   )
   if (!is.null(stap_long_df)) {
-    key <- paste(stap$start, stap$end)
-    key_long <- paste(stap_long_df$start, stap_long_df$end)
+    key <- paste(as.numeric(stap$start), as.numeric(stap$end))
+    key_long <- paste(as.numeric(stap_long_df$start), as.numeric(stap_long_df$end))
     if (!all(key_long %in% key)) {
       cli::cli_abort("{.var stap_long} intervals do not align with twilight boundaries.")
     }
