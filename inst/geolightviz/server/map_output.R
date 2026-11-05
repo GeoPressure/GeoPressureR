@@ -19,7 +19,7 @@ render_map_output <- function(
   output$map <- leaflet::renderLeaflet({
     leaflet::leaflet() |>
       leaflet::addMapPane("raster_pane", zIndex = 210) |>
-      map_add_tiles(position = "topleft") |>
+      leaflet_add_basemaps(position = "topleft") |>
       leaflet::fitBounds(
         extent[1],
         extent[3],

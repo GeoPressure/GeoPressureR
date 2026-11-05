@@ -3,7 +3,7 @@
 output$map <- leaflet::renderLeaflet({
   map <- leaflet::leaflet() |>
     leaflet::addMapPane("raster_pane", zIndex = 210) |>
-    map_add_tiles(position = "topleft")
+    leaflet_add_basemaps(position = "topleft")
 })
 
 ## ObserveEvents ----

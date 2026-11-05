@@ -199,7 +199,7 @@ plot_path_leaflet <- function(
 
   if (is.null(map)) {
     map <- leaflet::leaflet(height = "100vh") |>
-      map_add_tiles(provider = provider, provider_options = provider_options)
+      leaflet_add_basemaps(provider = provider, provider_options = provider_options)
   }
 
   duration <- if ("duration" %in% names(path)) {

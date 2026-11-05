@@ -124,7 +124,7 @@ plot.map <- function(
     )
 
     lmap <- leaflet::leaflet(height = "100vh") |>
-      map_add_tiles(provider = provider, provider_options = provider_options)
+      leaflet_add_basemaps(provider = provider, provider_options = provider_options)
 
     # Compute the resolution for the projection to web Mercator
     g <- map_expand(map$extent, map$scale)
@@ -213,7 +213,7 @@ plot.map <- function(
       lmap <- leaflet::hideGroup(lmap, grp[id_known])
     }
 
-    # Leaflet shows a single layers control: merge the basemap control of map_add_tiles() into the
+    # Leaflet shows a single layers control: merge the basemap control of leaflet_add_basemaps() into the
     # stationary period control, with basemaps as overlays (first one shown)
     is_ctrl <- vapply(lmap$x$calls, \(cl) identical(cl$method, "addLayersControl"), logical(1))
     base_tiles <- unlist(lapply(lmap$x$calls[is_ctrl], \(cl) cl$args[[1]]))
