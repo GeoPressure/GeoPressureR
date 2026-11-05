@@ -1,15 +1,14 @@
 # Configuration file for GeoPressureR parameters
 #
 # This file stores all the parameters used by the GeoPressureR functions, following the best
-# practice to separate parameters from codes. These parameters are retrieved using config::get() of
+# practice to separate parameters from code. These parameters are retrieved using config::get() of
 # the config R package <https://rstudio.github.io/config/>.
 #
 # This file is meant to be adapted based on your needs: feel free to add parameters either in the
-# default (applied to all tags) or for each tag seperatly (overwrite default). It is recommended to
+# default (applied to all tags) or for each tag separately (overwrite default). It is recommended to
 # specify all parameters used, even if you use the default value.
 #
-# You can check the documentation of each function to learn what each of these parameters are doing
-# as well as checking in 4-geopressure.R
+# You can check the documentation of each function to learn what each of these parameters are doing.
 
 default:
   tag_create: # ?tag_create()
@@ -52,7 +51,7 @@ default:
     variable: ["altitude", "surface_pressure"]
     # solar_dep: 0
   geopressuretemplate: # ?geopressuretemplate()
-    likelihood: ["map_pressure", "map_light"] #  for nothing
+    likelihood: ["map_pressure", "map_light"]
     outputs: ["marginal", "most_likely", "simulation"]
     pressurepath: ["most_likely"] # "geopressureviz"
 

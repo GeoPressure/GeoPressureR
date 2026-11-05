@@ -9,7 +9,7 @@
 #' nearly always in [web mercator](https://en.wikipedia.org/wiki/Web_Mercator_projection) (i.e.,
 #' EPSG:3857). We therefore need to reproject our map for display.
 #' However, we don't really want to interpolate the map as each pixel might be important to
-#' visualize. We therefore re-project with a near-neighbour interpolation (`method = "near"`
+#' visualize. We therefore re-project with a nearest-neighbour interpolation (`method = "near"`
 #' in [`terra::project()`]). Yet to avoid having pixel misplaced, we generally need to use a
 #' projection with a finer resolution. The argument `fac_res_proj` controls the relative change of
 #' resolution between the original map to the projected map.
@@ -120,7 +120,7 @@ plot.map <- function(
 
   if (plot_leaflet) {
     grp <- glue::glue(
-      "#{map$stap$stap_id} | {format(map$stap$start , format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}"
+      "#{map$stap$stap_id} | {format(map$stap$start, format = '%d %b %H:%M')} - {format(map$stap$end , format = '%d %b %H:%M')}"
     )
 
     lmap <- leaflet::leaflet(height = "100vh") |>

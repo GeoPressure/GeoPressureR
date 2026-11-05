@@ -15,7 +15,7 @@ geopressuretemplate_tag <- function(
   dir_file <- dirname(file)
   if (!dir.exists(dir_file)) {
     cli::cli_bullets(c(
-      "!" = "The directory {.file {dir_file}} does not exists."
+      "!" = "The directory {.file {dir_file}} does not exist."
     ))
     # Use interactive prompt only in interactive sessions.
     res <- if (interactive()) {

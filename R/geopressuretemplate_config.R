@@ -25,13 +25,13 @@ geopressuretemplate_config <- function(
       cli::cli_abort(c(
         x = "{.var geopressuretemplate$likelihood} needs to be provided.",
         ">" = "Make sure {.var geopressuretemplate$likelihood} is a list in {.file config.yml} (e.g.
-        {.code ['map_pressure', 'map_light']}."
+        {.code ['map_pressure', 'map_light']})."
       ))
     }
   }
 
   # Additional check to perform only if the workflow needs to run the graph model. This allows to
-  # pick up on error in config from the begining of the workflow.
+  # pick up on error in config from the beginning of the workflow.
   if (assert_graph) {
     # Validate that the likelihood is properly configured to include either
     # pressure or light mapping, or both
@@ -41,7 +41,7 @@ geopressuretemplate_config <- function(
         "map_light" %in% c$geopressuretemplate$likelihood)
     ) {
       cli::cli_abort(c(
-        x = "{.var geopressuretemplate$likelihood} needs to contain either  {.field map_pressure} or
+        x = "{.var geopressuretemplate$likelihood} needs to contain either {.field map_pressure} or
         {.field map_light} or both",
         ">" = "Make sure {.var geopressuretemplate$likelihood} is set in {.file config.yml}."
       ))
@@ -51,7 +51,7 @@ geopressuretemplate_config <- function(
     possible_outputs <- c("marginal", "most_likely", "simulation")
     if (!any(possible_outputs %in% c$geopressuretemplate$outputs)) {
       cli::cli_abort(c(
-        x = "{.var outputs} needs to be provived and contains at least one of
+        x = "{.var outputs} needs to be provided and contain at least one of
         {.val {possible_outputs}}",
         ">" = "Make sure {.var outputs} is set in {.file config.yml}."
       ))

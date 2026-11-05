@@ -28,7 +28,7 @@ A list containing:
 }
 \description{
 Take the two parameters defining the spatial grid of a map in GeoPressureR (\code{extent} and \code{scale})
-and constructs various possible spatial variable of interest for the spatial grid (e.g., grid
+and constructs various spatial variables of interest for the spatial grid (e.g., grid
 dimension, latitude and longitude...)
 
 This function is used in multiple functions of GeoPressureR to allow to only store \code{extent} and

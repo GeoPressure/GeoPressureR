@@ -69,24 +69,24 @@ Default is \verb{./data/interim/\{id\}.RData}.}
 a tag. The default value is \code{TRUE}.}
 
 \item{assert_graph}{Logical. If \code{TRUE}, check that the config is compatible for the creation of
-a graph. The default value is \code{TRUE}. Set to \code{FALSE} only if you don't want to create a graph
-model}
+a graph. Only used by \code{geopressuretemplate_config()}, where the default value is \code{FALSE}
+(\code{geopressuretemplate_graph()} always sets it to \code{TRUE}).}
 }
 \value{
-The function returns nothing. Instead, it saves the processed outputs (tag, graph,
-pressure paths, etc.) to the specified \code{file}.
+The function returns \code{file} invisibly and saves the processed outputs (tag, paths, pressure
+paths, etc.) to the specified \code{file}. \code{geopressuretemplate_tag()} returns the \code{tag}.
 }
 \description{
 The \code{geopressuretemplate()} function manages the complete workflow for modelling bird
-trajectories using geolocator data. It includes the creation \code{tag} object, the construction of
-the likelihood maps (pressure and/or light), the creation of the graph model construction, and,
+trajectories using geolocator data. It includes the creation of the \code{tag} object, the construction of
+the likelihood maps (pressure and/or light), the construction of the graph model, and,
 finally, the estimation of the trajectory products and the pressure path computation. Read the
 \href{https://geopressure.org/GeoPressureManual/geopressuretemplate-workflow.html}{Workflow chapter in the GeoPressureManual } for more
 information.
 }
 \details{
 The \code{geopressuretemplate} function is a high-level entry point that coordinates multiple
-steps for processing the geolocator data and produce trajectories. It relies on underlying child
+steps for processing the geolocator data and producing trajectories. It relies on underlying child
 functions for each step:
 \itemize{
 \item \strong{Tag Creation \code{\link[=geopressuretemplate_tag]{geopressuretemplate_tag()}}}: Initializes and labels the \code{tag} object. It
@@ -102,12 +102,12 @@ also generates light and pressure likelihood maps:
 }
 \item If \code{"map_light"} is in the \code{config$geopressuretemplate$likelihood}:
 \itemize{
-\item \code{twilight_create() |> twilight_read() |> geolight_map()}: Computes the light likelihood.
+\item \code{twilight_create() |> twilight_label_read() |> geolight_map()}: Computes the light likelihood.
 }
 }
 \itemize{
 \item \strong{Graph Creation \code{\link[=geopressuretemplate_graph]{geopressuretemplate_graph()}}}: Builds a movement model graph
-based \code{tag} data, and can include wind effects if specified. Outputs such as
+based on \code{tag} data, and can include wind effects if specified. Outputs such as
 marginal distributions, most likely paths, and simulation paths can be computed.
 }
 \enumerate{
@@ -133,7 +133,7 @@ marginal distributions, most likely paths, and simulation paths can be computed.
 \itemize{
 \item \code{graph_simulation()}: Runs simulations to model multiple possible paths.
 }
-\item \code{save()}: Saves the computed graph and associated objects in \verb{data/interim/\{id\}.Rdata}
+\item \code{save()}: Saves the \code{tag}, \code{param} and computed outputs in \verb{data/interim/\{id\}.RData}
 }
 \itemize{
 \item \strong{Pressure Path Processing \code{\link[=geopressuretemplate_pressurepath]{geopressuretemplate_pressurepath()}}}: Computes pressurepaths
@@ -163,7 +163,7 @@ geopressuretemplate("18LX",
 
 # Or run step-by-step
 # you can check that all the parameters are correctly set in the config file
-geopressuretemplate_config(id)
+geopressuretemplate_config("18LX")
 # 1. creation of the tag
 tag <- geopressuretemplate_tag("18LX")
 # 2. creation of the graph

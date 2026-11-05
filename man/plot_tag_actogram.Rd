@@ -30,7 +30,7 @@ following day's observations.}
 a ggplot or ggplotly object.
 }
 \description{
-This function display a plot of the acceleration time series recorded by a tag
+This function displays a plot of the acceleration time series recorded by a tag
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
