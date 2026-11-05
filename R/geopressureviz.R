@@ -23,15 +23,15 @@
 #' * a tag id (character scalar), interpreted as `"./data/interim/{id}.RData"`.
 #' @param path Optional GeoPressureR `path` or `pressurepath` data.frame.
 #' If `NULL`, a path is resolved from available inputs in this order:
-#' * for file/id input (`x` character): the first present of `pressurepath_most_likely`,
-#' `pressurepath` and `path_most_likely`;
+#' * for file/id input (`x` character): the first present of `pressurepath`,
+#' `pressurepath_most_likely` and `path_most_likely`;
 #' * otherwise fallback to `tag2path(tag, interp = 1)`.
-#' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
-#' `marginal` contained in the `.Rdata` file.
-#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' RStudio.
-#' @param run_bg If true, the app runs in a background R session using the `callr` package. This
-#' allows you to continue using your R session while the app is running.
+#' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrites
+#' the `marginal` contained in the `.RData` file.
+#' @param launch_browser If `TRUE` (default), the app opens in your web browser; otherwise, only the
+#' app URL is printed.
+#' @param run_bg If `TRUE` (default), the app runs in a background R session using the `callr`
+#' package. This allows you to continue using your R session while the app is running.
 #' @return When `run_bg = TRUE`, the background process object, invisibly. Otherwise `NULL`,
 #' invisibly, when the app closes.
 #' @examplesIf FALSE

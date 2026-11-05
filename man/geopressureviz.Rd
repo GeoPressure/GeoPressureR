@@ -23,19 +23,19 @@ geopressureviz(
 \item{path}{Optional GeoPressureR \code{path} or \code{pressurepath} data.frame.
 If \code{NULL}, a path is resolved from available inputs in this order:
 \itemize{
-\item for file/id input (\code{x} character): the first present of \code{pressurepath_most_likely},
-\code{pressurepath} and \code{path_most_likely};
+\item for file/id input (\code{x} character): the first present of \code{pressurepath},
+\code{pressurepath_most_likely} and \code{path_most_likely};
 \item otherwise fallback to \code{tag2path(tag, interp = 1)}.
 }}
 
-\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrite the
-\code{marginal} contained in the \code{.Rdata} file.}
+\item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrites
+the \code{marginal} contained in the \code{.RData} file.}
 
-\item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
-RStudio.}
+\item{launch_browser}{If \code{TRUE} (default), the app opens in your web browser; otherwise, only the
+app URL is printed.}
 
-\item{run_bg}{If true, the app runs in a background R session using the \code{callr} package. This
-allows you to continue using your R session while the app is running.}
+\item{run_bg}{If \code{TRUE} (default), the app runs in a background R session using the \code{callr}
+package. This allows you to continue using your R session while the app is running.}
 }
 \value{
 When \code{run_bg = TRUE}, the background process object, invisibly. Otherwise \code{NULL},

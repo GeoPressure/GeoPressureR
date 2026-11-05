@@ -73,8 +73,11 @@ a graph. Only used by \code{geopressuretemplate_config()}, where the default val
 (\code{geopressuretemplate_graph()} always sets it to \code{TRUE}).}
 }
 \value{
-The function returns \code{file} invisibly and saves the processed outputs (tag, paths, pressure
-paths, etc.) to the specified \code{file}. \code{geopressuretemplate_tag()} returns the \code{tag}.
+\code{geopressuretemplate()}, \code{geopressuretemplate_graph()} and \code{geopressuretemplate_pressurepath()}
+return \code{file} invisibly and save the processed outputs (tag, paths, pressure paths, etc.) to the
+specified \code{file}. If the movement model or the outputs fail, \code{geopressuretemplate_graph()}
+returns the \code{graph} computed so far instead, without saving. \code{geopressuretemplate_tag()} returns
+the \code{tag} invisibly and \code{geopressuretemplate_config()} returns the merged configuration list.
 }
 \description{
 The \code{geopressuretemplate()} function manages the complete workflow for modelling bird
@@ -104,6 +107,8 @@ also generates light and pressure likelihood maps:
 \itemize{
 \item \code{twilight_create() |> twilight_label_read() |> geolight_map()}: Computes the light likelihood.
 }
+\item \code{save()}: Saves \code{tag} and \code{param} in \verb{data/interim/\{id\}.RData}, replacing the content of the
+file.
 }
 \itemize{
 \item \strong{Graph Creation \code{\link[=geopressuretemplate_graph]{geopressuretemplate_graph()}}}: Builds a movement model graph
@@ -140,14 +145,15 @@ are replaced or removed.
 }
 \itemize{
 \item \strong{Pressure Path Processing \code{\link[=geopressuretemplate_pressurepath]{geopressuretemplate_pressurepath()}}}: Computes pressurepaths
-(\code{pressurepath_create}) using the content of the \code{Rdata} file and appending the pressurepath
-data.frame to the same file.
+(\code{pressurepath_create()}) using the content of the \code{.RData} file and appending the pressurepath
+data.frames to the same file.
 }
 
 For each of \code{"most_likely"}, \code{"simulation"}, \code{"geopressureviz"} and \code{"tag"} listed in
 \code{config$geopressuretemplate$pressurepath}, computes \verb{pressurepath_\{type\}} from \verb{path_\{type\}}
 and saves it in the same file. \code{path_geopressureviz} is read from the file or, if absent, from
-the CSV exported by GeoPressureViz (\code{data/interim/{id}-path-geopressureviz.csv}). \code{path_tag} is
+the CSV exported by GeoPressureViz (\code{{id}-path-geopressureviz.csv} in the directory of \code{file},
+i.e. \verb{data/interim/} by default). \code{path_tag} is
 a path you saved yourself (e.g. from \code{tag2path()}). A warning is given when a path is missing.
 
 Each of these child functions can be called individually or automatically as part of

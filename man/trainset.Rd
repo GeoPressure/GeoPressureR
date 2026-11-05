@@ -9,45 +9,45 @@ trainset(x, launch_browser = TRUE, run_bg = TRUE, debug = FALSE)
 \arguments{
 \item{x}{One of:
 \itemize{
-\item a GeoPressureR \code{tag} object,
+\item a GeoPressureR \code{tag} object (labels are initialized with \code{\link[=tag_label_auto]{tag_label_auto()}} if missing),
 \item a path to an interim \code{.RData} file containing an object called \code{tag},
 \item a path to a TRAINSET-compatible \code{.csv} label file,
 \item a single-character \code{id}. In that case the function will look for
 \code{"./data/tag-label/{id}-labeled.csv"} and then \code{"./data/tag-label/{id}.csv"}.
 }}
 
-\item{launch_browser}{If \code{TRUE} (default), the app runs in your browser, otherwise it runs in
-RStudio.}
+\item{launch_browser}{If \code{TRUE} (default), the app opens in your web browser; otherwise, only the
+app URL is printed.}
 
-\item{run_bg}{If \code{TRUE}, the app runs in a background R session using the \code{callr} package. This
-allows you to continue using your R session while the app is running.}
+\item{run_bg}{If \code{TRUE} (default), the app runs in a background R session using the \code{callr}
+package. This allows you to continue using your R session while the app is running.}
 
 \item{debug}{If \code{TRUE}, prints debug messages about plot refreshes (x-range changes and point
 counts) to the R console. Defaults to \code{FALSE}.}
 }
 \value{
-A GeoPressureR \code{tag} object (with pressure and optionally acceleration data
-and an \code{id} in \code{tag$param$id}). If \code{run_bg = TRUE}, a background process object
-is returned invisibly, with the \code{tag} attached as an attribute \code{attr(p, "tag")}.
-The labeled data can be exported directly from the app interface.
+When \code{run_bg = TRUE}, the background process object, invisibly. Otherwise, the \code{tag}
+loaded in the app (with pressure and optionally acceleration data and an \code{id} in
+\code{tag$param$id}), invisibly, when the app closes. The labelled data are exported from the app
+interface.
 }
 \description{
 GeoPressure Trainset is a shiny app designed to help you manually label pressure and
 acceleration data for training machine learning models. This interactive app allows you to
-visualize time series data, select data points or regions, and assign behavioral labels
+visualize time series data, select data points or regions, and assign behavioural labels
 (e.g., "flight", "discard", or custom elevation labels) to create training datasets.
 }
 \details{
 The app features:
 \itemize{
 \item Interactive plotly visualization of pressure and acceleration time series
-\item Point and region selection for efficient labeling
+\item Point and region selection for efficient labelling
 \item Support for stationary periods (STAP) navigation
 \item Custom label creation (elevation labels)
-\item Export functionality to save labeled data as CSV files
+\item Export functionality to save labelled data as CSV files
 }
 
-Learn more about data labeling workflows in the \href{https://geopressure.org/GeoPressureManual/}{GeoPressureManual } or explore the
+Learn more about data labelling workflows in the \href{https://geopressure.org/GeoPressureManual/}{GeoPressureManual } or explore the
 \href{https://geopressure.org/GeoPressureR/}{GeoPressureR documentation}.
 }
 \examples{
