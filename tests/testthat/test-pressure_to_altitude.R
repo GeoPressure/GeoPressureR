@@ -46,8 +46,7 @@ test_that("virtual altitude uses virtual temperature and the GPT3 lapse rate", {
 test_that("ARCO time series defaults to virtual and preserves its output structure", {
   reads <- character()
   local_mocked_bindings(
-    era5_arco_client = function(...) list(),
-    era5_arco_read = function(variable, date, ...) {
+    era5_arco_read_points = function(variable, date, ...) {
       reads <<- c(reads, variable)
       rep(
         switch(
