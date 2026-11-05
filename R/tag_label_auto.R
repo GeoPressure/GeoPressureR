@@ -52,7 +52,7 @@ tag_label_auto <- function(
     thr_reclassify = thr_reclassify,
     post_proc_window = post_proc_window
   )
-  if (!assertthat::has_name(tag$pressure, "label")) {
+  if (assertthat::has_name(tag, "pressure") && !assertthat::has_name(tag$pressure, "label")) {
     tag$pressure$label <- ""
   }
 
