@@ -86,9 +86,9 @@ geopressure_timeseries_api_impl <- function(
   resp_data <- httr2::resp_body_json(resp)$data
 
   # Check for change in position
-  if (resp_data$distInter > 0) {
+  if (!quiet && resp_data$distInter > 0) {
     cli::cli_bullets(c(
-      "!" = "Requested position is on water and will be move to the closet point on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) located {round(resp_data$distInter / 1000)} km away."
+      "!" = "Requested position is on water and will be moved to the closest point on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) located {round(resp_data$distInter / 1000)} km away."
     ))
   }
 
