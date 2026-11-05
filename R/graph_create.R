@@ -113,6 +113,13 @@ graph_create <- function(
   nll <- sz[1] * sz[2]
 
   stap_include <- which(map$stap$include)
+  if (length(stap_include) < 2) {
+    cli::cli_abort(c(
+      x = "A graph requires at least two stationary periods, but only {.val {length(stap_include)}}
+        {?is/are} included.",
+      ">" = "Include more stationary periods in {.field stap$include}."
+    ))
+  }
 
   g <- map_expand(map$extent, map$scale)
 
@@ -332,7 +339,7 @@ graph_create <- function(
   }
 
   # Prune
-  gr <- graph_create_prune(gr, quiet = quiet)
+  gr <- graph_create_prune(gr, map$stap$stap_id[stap_include], quiet = quiet)
 
   if (!quiet) {
     cli::cli_progress_step("Format graph output", msg_done = "Graph formatted")
@@ -410,10 +417,11 @@ graph_create <- function(
 #' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
 #'
 #' @param gr graph constructed with [`graph_create()`].
+#' @param stap_id stap_id of each graph layer, used in messages.
 #' @return graph pruned
 #' @family graph
 #' @noRd
-graph_create_prune <- function(gr, quiet = FALSE) {
+graph_create_prune <- function(gr, stap_id, quiet = FALSE) {
   if (length(gr) < 2) {
     return(gr)
   }
@@ -440,7 +448,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
         x = "No complete path remains: the graph is disconnected at stationary period
-          {.val {i_s}} when moving forward from the equipment location.",
+          {.val {stap_id[i_s]}} when moving forward from the equipment location.",
         i = "Inspect the likelihood maps and adjacent flight intervals in GeoPressureViz.",
         ">" = "Review the labeling and map settings; if they are plausible, reconsider the
           movement threshold(s) used to construct the graph."
@@ -463,7 +471,7 @@ graph_create_prune <- function(gr, quiet = FALSE) {
     if (nrow(gr[[i_s]]) == 0) {
       cli::cli_abort(c(
         x = "No complete path remains: the graph is disconnected at stationary period
-          {.val {i_s + 1}} when moving backward from the retrieval location.",
+          {.val {stap_id[i_s + 1]}} when moving backward from the retrieval location.",
         i = "Inspect the likelihood maps and adjacent flight intervals in GeoPressureViz.",
         ">" = "Review the labeling and map settings; if they are plausible, reconsider the
           movement threshold(s) used to construct the graph."

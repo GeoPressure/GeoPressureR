@@ -51,15 +51,11 @@ geopressure_map_likelihood <- function(
     map_pressure[[istap]] <- likelihood
   }
 
-  # Find water mask
-  # Define the mask of water
-  # tag$mask_water <- is.na(map_pressure[[which(!sapply(tag$map_pressure_mse$data, is.null))[1]]])
-
   # Add known location
   # compute latitude, longitude and dimension
   g <- map_expand(tag$param$tag_set_map$extent, tag$param$tag_set_map$scale)
   # Add known location only if map_pressure_mse is null
-  # (ie., if .known_compute = TRUE in geopressure_map_mse)
+  # (i.e., if compute_known = FALSE in geopressure_map_mismatch())
   for (stap_id in which(
     !is.na(tag$stap$known_lat) &
       vapply(tag$map_pressure_mse$data, is.null, logical(1))
@@ -72,6 +68,12 @@ geopressure_map_likelihood <- function(
     known_lat_id <- which.min(abs(tag$stap$known_lat[stap_id] - g$lat))
     # Assign a likelihood of 1 for that position
     map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
+  }
+
+  # remove mse maps computed by geopressure_map_mismatch()
+  if (!keep_mse) {
+    tag[names(tag) == "map_pressure_mse"] <- NULL
+    tag$stap <- tag$stap[names(tag$stap) != "nb_sample"]
   }
 
   # Create map object
@@ -89,14 +91,7 @@ geopressure_map_likelihood <- function(
   attr(log_linear_pooling_weight, "srcfile") <- NULL
   environment(log_linear_pooling_weight) <- baseenv()
   tag$param$geopressure_map$log_linear_pooling_weight <- log_linear_pooling_weight
-  attr(tag$param$geopressure_map$log_linear_pooling_weight, "srcref") <- NULL
   tag$param$geopressure_map$keep_mse <- keep_mse
-
-  # remove mse maps computed by geopressure_map_mismatch()
-  if (!keep_mse) {
-    tag[names(tag) == "map_pressure_mse"] <- NULL
-    tag$stap <- tag$stap[names(tag$stap) != "nb_sample"]
-  }
 
   return(tag)
 }

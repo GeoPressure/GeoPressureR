@@ -20,7 +20,7 @@
 #'
 #' @template ecmwf-key
 #' @param tag a GeoPressureR `tag` object.
-#' @param extent geographical extent of the map on which the likelihood will be computed.
+#' @param extent geographical extent of the area for which wind data is downloaded.
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.

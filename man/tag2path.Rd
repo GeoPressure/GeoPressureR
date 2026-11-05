@@ -16,16 +16,20 @@ likelihood map in the tag.}
 \item{interp}{the position of the stationary period shorter than \code{interp} will be replaced by a
 linear average from other position accounting for flight duration (in days).}
 
-\item{use_known}{If \code{TRUE}, enforce known positions from \code{tag$stap} when building the path. Known
-positions are approximated to the map resolution so they correspond to integer indices.}
+\item{use_known}{If \code{TRUE}, enforce known positions from \code{tag$stap} when building the path. The
+exact \code{known_lat} and \code{known_lon} are used for \code{lat} and \code{lon}, while \code{ind} remains the grid
+cell index.}
 }
 \value{
 A path data.frame
 \itemize{
 \item \code{stap_id} stationary period
+\item \code{j} identification of the trajectory (always \code{1}).
 \item \code{ind} indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
 \item \code{lat} Latitude,
 \item \code{lon} longitude
+\item \code{...} other columns from \code{stap}
+\item \code{interp} logical indicating if the position was interpolated (see \code{interp}).
 }
 }
 \description{

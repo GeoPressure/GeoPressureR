@@ -58,8 +58,8 @@ topography, and vertical movements of the bird (unit in meters, 1hPa~10m).}
 \item{sd}{standard deviation of the pressure error. Numeric of length 1 or number of stationary
 periods.}
 
-\item{thr_mask}{threshold of the percentage of data points outside the elevation range to be
-considered not possible.}
+\item{thr_mask}{minimum proportion (0-1) of data points within the elevation range for a pixel
+to be considered possible.}
 
 \item{log_linear_pooling_weight}{weighting function of the log-linear pooling, taking the number
 of samples of the stationary periods used and returning the weight of the aggregation. See
@@ -81,7 +81,7 @@ global ERA5 elsewhere. \code{"land"} is only worth it for maps finer than \code{
 \item{keep_mse}{logical defining if the MSE map is returned in \code{tag}.}
 
 \item{compute_known}{logical defining if the map(s) for known stationary period should be
-estimated based on twilight or hard defined by the known location \verb{stap$known_l**}}
+estimated based on pressure or hard defined by the known location \verb{stap$known_l**}.}
 
 \item{debug}{logical to display additional information to debug a request}
 

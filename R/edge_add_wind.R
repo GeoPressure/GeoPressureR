@@ -513,6 +513,13 @@ edge_add_wind_nc_info <- function(nc, file_path) {
   }
   pres_var <- names(nc$dim)[grepl("level", names(nc$dim))]
   pres <- ncdf4::ncvar_get(nc, pres_var)
+  # Pressure-level lookups assume levels ordered from the surface upward (descending hPa)
+  if (is.unsorted(rev(pres), strictly = TRUE)) {
+    cli::cli_abort(c(
+      x = "Pressure levels in {.file {file_path}} are not in descending order.",
+      "i" = "Levels found: {.val {pres}} hPa."
+    ))
+  }
 
   # Keep only coordinate vectors and grid spacing; variable arrays are read later in small chunks.
   lat <- ncdf4::ncvar_get(nc, "latitude")

@@ -83,7 +83,7 @@ graph_add_wind <- function(
       edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
       cli::cli_abort(c(
         x = "Using {.arg thr_as} of {thr_as} km/h, there are no nodes left for the stationary
-        period: {.field {sta_pass}} with a minimum airspeed of
+        period: {.field {graph$stap$stap_id[graph$stap$include][sta_pass]}} with a minimum airspeed of
         {.val {round(min(as[edge_s_all[, 3] %in% sta_pass]))}} km/h."
       ))
     }
@@ -102,7 +102,11 @@ graph_add_wind <- function(
       data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
       arrayInd(graph$s, graph$sz)[, 3]
     )
-    gr <- graph_create_prune(gr, quiet = isTRUE(list(...)$quiet))
+    gr <- graph_create_prune(
+      gr,
+      graph$stap$stap_id[graph$stap$include],
+      quiet = isTRUE(list(...)$quiet)
+    )
     # Convert it back to a full list
     tmp <- as.list(do.call("rbind", gr))
     # Overwrite all edges vectors
@@ -169,9 +173,6 @@ graph_add_wind_edge <- function(
   variable <- c("u_component_of_wind", "v_component_of_wind")
   ms_to_kmh <- 3.6
   tag_id <- graph$param$id
-  if (is.null(pressure) && inherits(graph, "tag")) {
-    pressure <- graph$pressure
-  }
 
   # Reuse the public extractor checks so graph-scale wind reads the same validated ERA5 files.
   if (!quiet) {

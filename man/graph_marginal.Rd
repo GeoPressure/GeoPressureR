@@ -12,8 +12,8 @@ graph_marginal(graph, quiet = FALSE)
 \item{quiet}{logical to hide messages about the progress.}
 }
 \value{
-A list of the marginal maps for each stationary period (even those not modelled). Best to
-include within \code{tag}.
+A GeoPressureR \code{map} of the marginal probability for each stationary period (even those
+not modelled). Best to include within \code{tag}.
 }
 \description{
 Compute the marginal probability map from a graph. The computation uses the \href{https://en.wikipedia.org/wiki/Forward\%E2\%80\%93backward_algorithm}{forward backward algorithm}. For more

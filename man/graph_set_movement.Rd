@@ -24,7 +24,7 @@ graph_set_movement(
 
 \item{method}{method used to convert the speed to probability ("gamma", "logis" or "power")}
 
-\item{shape}{parameter of the gamma distribution (km/h)}
+\item{shape}{shape parameter of the gamma distribution (unitless)}
 
 \item{scale}{parameter of the gamma and logistic distribution (km/h)}
 
@@ -77,7 +77,7 @@ plot_graph_movement(graph)
 
 graph <- graph_set_movement(graph,
   method = "logis",
-  shape = 4,
+  scale = 4,
   location = 60,
   low_speed_fix = 10
 )

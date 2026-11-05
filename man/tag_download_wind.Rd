@@ -19,7 +19,7 @@ tag_download_wind(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{extent}{geographical extent of the map on which the likelihood will be computed.
+\item{extent}{geographical extent of the area for which wind data is downloaded.
 Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 
 \item{include_stap_id}{stationary period identifiers of the start of the flight to download.

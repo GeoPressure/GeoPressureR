@@ -62,6 +62,9 @@ print.param <- function(x, ...) {
   bullets(param$geopressure_map, "workers")
   bullets(param$geopressure_map, "era5_dataset")
   bullets(param$geopressure_map, "log_linear_pooling_weight")
+  bullets(param$geopressure_map, "compute_known")
+  bullets(param$geopressure_map, "keep_mask")
+  bullets(param$geopressure_map, "keep_mse")
 
   cli::cli_h3("Twilight & Geolight {.fun twilight_create} {.fun geolight_map}")
 
@@ -90,6 +93,7 @@ print.param <- function(x, ...) {
 
   bullets(param$graph_create, "thr_likelihood")
   bullets(param$graph_create, "thr_gs")
+  bullets(param$graph_create, "likelihood")
 
   cli::cli_h3(
     "Movement model & wind {.fun graph_add_wind} {.fun graph_set_movement}"
@@ -104,7 +108,12 @@ print.param <- function(x, ...) {
   bullets(param$graph_set_movement, "shape")
   bullets(param$graph_set_movement, "scale")
   bullets(param$graph_set_movement, "location")
-  bullets(param, "bird_create")
+  # graph_set_movement() stores the bird used; param_create() only holds its arguments
+  if (is.null(param$graph_set_movement$bird)) {
+    bullets(param, "bird_create")
+  } else {
+    bullets(param$graph_set_movement, "bird")
+  }
   bullets(param$graph_set_movement, "power2prob")
   bullets(param$graph_set_movement, "low_speed_fix")
   bullets(param$graph_set_movement, "zero_speed_ratio")
@@ -114,6 +123,7 @@ print.param <- function(x, ...) {
   bullets(param$pressurepath_create, "variable")
   bullets(param$pressurepath_create, "solar_dep")
   bullets(param$pressurepath_create, "era5_dataset")
+  bullets(param$pressurepath_create, "altitude_formula")
 
   if ("geopressuretemplate" %in% names(param)) {
     cli::cli_h3("GeoPressureTemplate {.fun geopressuretemplate}")
