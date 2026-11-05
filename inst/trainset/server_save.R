@@ -2,9 +2,7 @@
 
 backup_timer <- reactiveTimer(60000, session) # every 60 seconds
 
-shiny::observe({
-  backup_timer()
-
+shiny::observeEvent(backup_timer(), {
   if (!isTRUE(auto_save_enabled)) {
     return()
   }
