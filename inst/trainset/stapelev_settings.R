@@ -149,18 +149,12 @@ stapelev_classified_proposal <- shiny::reactive({
 })
 
 stapelev_draft_save <- function() {
-  stap_id <- state$stapelev_draft_key
-  if (is.null(stap_id) || identical(stap_id, "")) {
+  key <- state$stapelev_draft_key
+  if (is.null(key) || identical(key, "")) {
     return()
   }
-  query_id <- if (is.null(input$stapelev_query_id)) {
-    state$stapelev_query_id
-  } else {
-    as.integer(input$stapelev_query_id)
-  }
   settings <- stapelev_input_settings()
-  state$stapelev_drafts[[stap_id]] <- list(
-    query_requested_at = as.numeric(state$stapelev_queries[[query_id]]$requested_at),
+  state$stapelev_drafts[[key]] <- list(
     dates = as.numeric(state$stapelev_proposal$date),
     pressure = state$stapelev_proposal$pressure_tag,
     offsets = settings$offsets,

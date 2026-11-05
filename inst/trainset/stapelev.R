@@ -140,13 +140,12 @@ stapelev_eligible <- function(proposal, solar_elevation, settings) {
   eligible <- vapply(
     seq_len(count),
     function(i) {
-      keep <- stapelev_daylight_keep(solar_elevation, discard[i], angle[i])
-      keep
+      stapelev_daylight_keep(solar_elevation, discard[i], angle[i])
     },
     logical(nrow(proposal))
   )
   if (count == 1L) {
-    eligible <- eligible[, 1]
+    eligible <- as.vector(eligible)
   }
 
   eligible

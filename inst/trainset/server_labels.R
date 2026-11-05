@@ -71,7 +71,7 @@ if (isTRUE(has_pressure && has_acceleration)) {
   })
 }
 
-# Shared labeling function for both selection and click events
+# Shared labelling function for both selection and click events
 apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_range = NULL) {
   active_series <- active_series_or_default()
   selected_label <- if (isTRUE(ctrl_pressed)) "" else input$label_select
@@ -83,7 +83,7 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
     return()
   }
 
-  # Treat pressure overview/detail line clicks as pressure markers for labeling
+  # Treat pressure overview/detail line clicks as pressure markers for labelling
   if (is.null(selection_range) && has_pressure) {
     point_data$curveNumber[
       point_data$curveNumber %in% c(curve_overview_pressure, curve_pressure_detail_line)
@@ -116,8 +116,8 @@ apply_labels_to_points <- function(point_data, ctrl_pressed = FALSE, selection_r
   point_indices <- NULL
   if (!is.null(selection_range)) {
     series_data <- if (active_series == "pressure") pressure_data else acceleration_data
-    xmin <- as.POSIXct(sub("T", " ", selection_range$xmin, fixed = TRUE), tz = time_tz)
-    xmax <- as.POSIXct(sub("T", " ", selection_range$xmax, fixed = TRUE), tz = time_tz)
+    xmin <- as.POSIXct(sub("T", " ", selection_range$xmin, fixed = TRUE), tz = "UTC")
+    xmax <- as.POSIXct(sub("T", " ", selection_range$xmax, fixed = TRUE), tz = "UTC")
     ymin <- if (active_series == "acceleration" && !is.null(selection_range$y2min)) {
       selection_range$y2min
     } else {
@@ -173,13 +173,8 @@ process_plotly_event <- function(event_info) {
     apply_labels_to_points(point_data, event_info$ctrlPressed, event_info$range)
   }
 
-  labels <- view_labels()
-  apply_current_styling(
-    plotly::plotlyProxy("ts_plot", session),
-    labels$pressure,
-    labels$acceleration,
-    active_series = active_series_or_default()
-  )
+  # Refresh data, hover text and styling of the detail traces
+  refresh_detail_traces(state$view_xmin, state$view_xmax)
   session$sendCustomMessage("clearPlotlySelection", "ts_plot")
 }
 

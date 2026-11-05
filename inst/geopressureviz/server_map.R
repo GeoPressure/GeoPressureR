@@ -23,7 +23,7 @@ shiny::observeEvent(input$min_dur_stap, {
   if (length(stap_id_include()) > 0) {
     choices <- as.character(stap_id_include())
     names(choices) <- glue::glue(
-      "#{stap_id_include()} ({round(stap$duration[stap_id_include()], 1)} d.)"
+      "#{stap_id_include()} ({round(stap$duration[stap_id_include()], 1)} d)"
     )
   } else {
     choices <- character()
@@ -54,7 +54,7 @@ shiny::observeEvent(input$next_position, {
 shiny::observeEvent(input$edit_position, {
   if (reactVal$isEdit) {
     reactVal$isEdit <- FALSE
-    shiny::updateActionButton(session, "edit_position", label = "Start editing")
+    shiny::updateActionButton(session, "edit_position", label = "Edit position")
     removeClass("edit_position", "primary")
   } else {
     reactVal$isEdit <- TRUE
@@ -109,7 +109,7 @@ shiny::observe({
         weight = 1,
         color = "#FFF",
         label = glue::glue(
-          "#{stap_model$stap_id}, {round(stap_model$duration, 1)} days"
+          "#{stap_model$stap_id}, {round(stap_model$duration, 1)} d"
         ),
         fillColor = stap_model$col
       ) |>

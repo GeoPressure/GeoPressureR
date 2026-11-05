@@ -10,7 +10,6 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
   reactVal$query_requested_lon <- NULL
   reactVal$query_started_at <- NULL
   reactVal$query_running_note_id <- NULL
-  reactVal$query_button_label <- "Query pressure"
 
   shiny::observeEvent(input$query_position, {
     stap_idx <- as.numeric(input$stap_id)
@@ -132,10 +131,10 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
       },
       error = function(e) {
         error_call <- if (!is.null(e$parent$call)) e$parent$call else conditionCall(e)
-        cli::cli_alert_warning(c(
+        cli::cli_bullets(c(
           "!" = "The pressure query could not be processed.",
           "i" = conditionMessage(e),
-          "i" = "Failed call: {error_call}"
+          "i" = "Failed call: {deparse1(error_call)}"
         ))
         shiny::showNotification(
           paste0("Query failed (#", stap_id, "): ", conditionMessage(e)),
@@ -145,7 +144,7 @@ setup_query_position <- function(reactVal, stap, pressure, process_pressuretimes
       },
       finally = {
         try(shinyjs::enable("query_position"), silent = TRUE)
-        try(shinyjs::html("query_position", reactVal$query_button_label), silent = TRUE)
+        try(shinyjs::html("query_position", "Query pressure"), silent = TRUE)
         try(p$kill(), silent = TRUE)
       }
     )

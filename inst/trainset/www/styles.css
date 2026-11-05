@@ -11,56 +11,6 @@ body {
   margin-right: 0 !important;
 }
 
-.custom-header {
-  background-color: #3c8dbc;
-  color: white;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 50px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.header-title {
-  font-size: 20px;
-  font-weight: 500;
-  margin: 0;
-}
-
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.control-group label {
-  color: white;
-  font-weight: 500;
-  margin: 0;
-  white-space: nowrap;
-}
-
-.control-group .form-group {
-  margin: 0;
-}
-
-.control-group .selectize-control {
-  margin: 0;
-}
-
-.plot-container {
-  height: calc(100vh - 50px);
-  padding: 0;
-  margin: 0;
-}
-
 #ts_plot .cartesianlayer .subplot.xy .scatterlayer > .trace:first-child {
   display: none;
 }
@@ -302,10 +252,6 @@ body {
   height: 32px;
   font-size: 12px;
   padding: 4px;
-}
-
-.stapelev-day-toggle .checkbox label {
-  font-size: 12px;
 }
 
 .stapelev-adjust-bar #stapelev_fit_status {
