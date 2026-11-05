@@ -291,8 +291,11 @@ plot_path_leaflet <- function(
     )
   }
 
-  path_full <- path[!is.na(path$lat), ]
+  keep <- !is.na(path$lat) & !is.na(path$lon)
+  path_full <- path[keep, ]
   if (nrow(path_full)) {
+    # Subset per-position marker options to the plotted positions
+    circle <- lapply(circle, \(v) if (length(v) == nrow(path)) v[keep] else v)
     layer_group <- if (is.null(group)) path_full$j else group
     map <- do.call(
       leaflet::addCircleMarkers,
