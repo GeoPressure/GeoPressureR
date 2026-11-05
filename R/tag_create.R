@@ -243,12 +243,25 @@ tag_create <- function(
         )
         csv_names <- tolower(basename(csv_files))
         manufacturer <- "tabular"
-        pressure_file <- csv_files[match("pressure.csv", csv_names)]
-        light_file <- csv_files[match("light.csv", csv_names)]
-        acceleration_file <- csv_files[match("acceleration.csv", csv_names)]
-        temperature_external_file <- csv_files[match("temperature_external.csv", csv_names)]
-        temperature_internal_file <- csv_files[match("temperature_internal.csv", csv_names)]
-        magnetic_file <- csv_files[match("magnetic.csv", csv_names)]
+        # Only fill sensor files not provided by the user
+        if (is.null(pressure_file)) {
+          pressure_file <- csv_files[match("pressure.csv", csv_names)]
+        }
+        if (is.null(light_file)) {
+          light_file <- csv_files[match("light.csv", csv_names)]
+        }
+        if (is.null(acceleration_file)) {
+          acceleration_file <- csv_files[match("acceleration.csv", csv_names)]
+        }
+        if (is.null(temperature_external_file)) {
+          temperature_external_file <- csv_files[match("temperature_external.csv", csv_names)]
+        }
+        if (is.null(temperature_internal_file)) {
+          temperature_internal_file <- csv_files[match("temperature_internal.csv", csv_names)]
+        }
+        if (is.null(magnetic_file)) {
+          magnetic_file <- csv_files[match("magnetic.csv", csv_names)]
+        }
       } else {
         cli::cli_abort(c(
           "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
