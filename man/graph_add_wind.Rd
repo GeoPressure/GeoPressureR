@@ -40,6 +40,9 @@ bird on each possible edge, as well as the corresponding airspeed.
 
 In addition, the graph can be further pruned based on a threshold of airspeed \code{thr_as}.
 
+\code{pressure} (the tag pressure, e.g. \code{tag$pressure}) is required to interpolate the wind at the
+flight altitude.
+
 See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer (2023b)}
 for more technical details and the \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an
 illustration on how to use it.

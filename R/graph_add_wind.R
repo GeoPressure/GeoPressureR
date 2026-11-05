@@ -6,6 +6,9 @@
 #'
 #' In addition, the graph can be further pruned based on a threshold of airspeed `thr_as`.
 #'
+#' `pressure` (the tag pressure, e.g. `tag$pressure`) is required to interpolate the wind at the
+#' flight altitude.
+#'
 #' See section [2.2.4 in Nussbaumer (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 #' for more technical details and the [GeoPressureManual](
@@ -47,6 +50,12 @@ graph_add_wind <- function(
   ...
 ) {
   graph_assert(graph, "full")
+  if (!("pressure" %in% names(list(...)))) {
+    cli::cli_abort(c(
+      "x" = "{.arg pressure} is required to interpolate wind at flight altitude.",
+      ">" = "Use {.code graph_add_wind(graph, pressure = tag$pressure)}."
+    ))
+  }
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
@@ -135,11 +144,7 @@ graph_add_wind <- function(
   } else {
     formals(graph_add_wind_edge)$interp_spatial_linear
   }
-  graph$param$graph_add_wind$pressure_source <- if ("pressure" %in% names(dots)) {
-    "provided"
-  } else {
-    "not_provided"
-  }
+  graph$param$graph_add_wind$pressure_source <- "provided"
 
   # Store the file function (provided or default) without source reference or environment
   file <- if ("file" %in% names(dots)) dots$file else wind_file
