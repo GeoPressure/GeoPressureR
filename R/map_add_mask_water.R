@@ -135,7 +135,13 @@ mask_water <- function(extent, scale, ne_scale = "medium", land_threshold = 0) {
   )
 
   # Rasterize the fraction of each cell covered by land polygons (0 to 1)
-  r_land <- terra::rasterize(land_vect, r_template, cover = TRUE, background = 0)
+  # land_threshold = 0: any land touching the cell (keeps small islands); otherwise the land cover
+  # fraction estimated on sub-cells
+  r_land <- if (land_threshold == 0) {
+    terra::rasterize(land_vect, r_template, touches = TRUE, background = 0)
+  } else {
+    terra::rasterize(land_vect, r_template, cover = TRUE, background = 0)
+  }
 
   # Convert to matrix (capped at 1 where polygons overlap) and mark as water when the land fraction
   # is at or below land_threshold
