@@ -139,11 +139,9 @@ tag_set_map <- function(
   # Keep a copy of the original known to keep in param. Useful to keep negative indexing
   known0 <- known
   # Use negative indexing: e.g. replace known$stap_id = -1 to the last stap
-  known$stap_id[known$stap_id < 0] <- nrow(stap) -
-    1 -
-    known$stap_id[known$stap_id < 0]
+  known$stap_id[known$stap_id < 0] <- nrow(stap) + 1 + known$stap_id[known$stap_id < 0]
   assertthat::assert_that(all(known$stap_id %in% stap$stap_id))
-  assertthat::assert_that(all(unique(known$stap_id) == known$stap_id))
+  assertthat::assert_that(!anyDuplicated(known$stap_id))
 
   # Define which stationary periods to include
   if (is.null(include_stap_id)) {
