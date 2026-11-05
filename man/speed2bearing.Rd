@@ -14,7 +14,7 @@ speed2bearing(
 \item{speed}{speed as complex value}
 
 \item{speed_ref}{reference vector of the angle. Default is the North in order to return bearing.
-Use \code{speed_ref = 1} for trigonometric orientation (clockwise from East).}
+Use \code{speed_ref = 1} for an angle measured clockwise from East.}
 
 \item{positive}{logical to ensure the bearing is positive between 0-360 degree.}
 }

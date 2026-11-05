@@ -73,7 +73,7 @@ bird_create <- function(
     b <- avonet[sp_id, ]
     b$mass <- b$mass / 1000 # g -> kg
     b$wing_length <- b$wing_length / 1000 # mm -> m
-    b$secondary <- b$secondary / 1000 # cm -> m
+    b$secondary <- b$secondary / 1000 # mm -> m
   }
 
   # Mass

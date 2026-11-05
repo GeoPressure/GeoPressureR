@@ -196,7 +196,7 @@ graph_create <- function(
         } else {
           # Apply the inexpensive rough-distance filter before allocating exact-distance inputs.
           # Include the cell-size fallback below, and 20% for the equirectangular approximation
-          # (up to 17% too long at high latitude and large longitude differences)
+          # (can be longer than the great-circle distance at high latitude; exact distances still decide)
           max_distance <- (thr_gs * flight_duration[i_s] + max(resolution)) * 1.2
           s_lat_matrix <- matrix(
             s_lat[source_idx],
