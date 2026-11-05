@@ -605,38 +605,16 @@ edge_add_wind_interp_path <- function(fl_s, i_fl, lat_s, lon_s, lat_e, lon_e, ro
 
 #' @noRd
 edge_add_wind_weights <- function(fl_s, i_fl, t_q, rounding_interval) {
-  # Weight query times by how much of the flight interval they represent. Boundary points receive
-  # partial weights because the flight rarely starts or ends exactly on the query grid.
-  w <- numeric(length(t_q))
-  assertthat::assert_that(length(w) > 1)
-
-  alpha <- 1 -
-    as.numeric(difftime(fl_s$start[i_fl], t_q[1], units = "mins")) /
-      rounding_interval
-  assertthat::assert_that(alpha >= 0 & alpha <= 1)
-  w[c(1, 2)] <- w[c(1, 2)] + c(alpha, 1 - alpha) * alpha
-
-  alpha <- 1 -
-    as.numeric(difftime(
-      utils::tail(t_q, 1),
-      fl_s$end[i_fl],
-      units = "mins"
-    )) /
-      rounding_interval
-  assertthat::assert_that(alpha >= 0 & alpha <= 1)
-  w[length(w) - c(1, 0)] <- w[length(w) - c(1, 0)] + c(1 - alpha, alpha) * alpha
-
-  if (length(w) >= 4) {
-    w[c(2, length(w) - 1)] <- w[c(2, length(w) - 1)] + 0.5
-  }
-  if (length(w) >= 5) {
-    w[seq(3, length(w) - 2)] <- w[seq(3, length(w) - 2)] + 1
-  }
-  w <- w / sum(w)
-
-  assertthat::assert_that(!anyNA(w))
-
-  w
+  # Weight query times by the exact integral of the time-linear interpolation over the flight, so
+  # that partial first and last intervals count only for the time actually flown.
+  assertthat::assert_that(length(t_q) > 1)
+  t0 <- as.numeric(utils::head(t_q, -1))
+  dt <- 60 * rounding_interval
+  u0 <- pmin(pmax(as.numeric(fl_s$start[i_fl]) - t0, 0), dt) / dt
+  u1 <- pmin(pmax(as.numeric(fl_s$end[i_fl]) - t0, 0), dt) / dt
+  b <- (u1^2 - u0^2) / 2
+  w <- c(u1 - u0 - b, 0) + c(0, b)
+  w / sum(w)
 }
 
 
