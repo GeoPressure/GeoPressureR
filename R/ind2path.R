@@ -9,8 +9,8 @@
 #'
 #' @param ind vector of indices of the 2D map (vector or matrix)
 #' @param tag_graph either a `tag` or a `graph` object, must contain `stap`, `extent` and `scale`.
-#' @param use_known If true, enforce the known position in the path created. The known positions are
-#' approximated to the map resolution in order to correspond to integer index.
+#' @param use_known If true, enforce the known position in the path created. The exact `known_lat`
+#' and `known_lon` are used for `lat` and `lon`, while `ind` remains the grid cell index.
 #' @return A path data.frame
 #' - `stap_id` stationary period identification
 #' - `j` identification for each trajectory (`1` to `nj`).

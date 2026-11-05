@@ -14,6 +14,7 @@ path2edge(path, tag_graph)
 \value{
 Data.frame of the edge containing:
 \itemize{
+\item \code{j}: index of the path (\code{1} if \code{path} has no \code{j} column).
 \item \code{s}: index in 3D (lat-lon-stap) of the origin (source).
 \item \code{t}: index in 3D (lat-lon-stap) of the destination (target).
 \item \code{lat_s}: latitude of the origin (source).
@@ -31,8 +32,9 @@ Data.frame of the edge containing:
 \item \code{gs}: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 (km/h) with \code{abs(gs)}, the W-E and S-N component of the flight with \code{Re(gs)} and \code{Im(gs)}, and
 the angle/direction with \code{Arg(gs)}. If graph provided.
-\item \code{ws}: if computed with \code{graph_add_wind()}, same value as \code{gs}. Airspeed is computed with
-\code{as = gs - ws} in complex number to keep the vectorial additive properties. If graph provided.
+\item \code{ws}: windspeed vector (km/h) expressed as a complex number, in the same format as \code{gs}. Only
+if graph provided and computed with \code{graph_add_wind()}. Airspeed is computed with \code{as = gs - ws}
+in complex number to keep the vectorial additive properties.
 }
 }
 \description{

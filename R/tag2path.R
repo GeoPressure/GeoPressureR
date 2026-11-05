@@ -17,16 +17,20 @@
 #' @param likelihood Field of the `tag` list containing the likelihood map (character). By default,
 #'   uses the product of `map_pressure` and `map_light` if available, otherwise the first available
 #'   likelihood map in the tag.
-#' @param use_known If `TRUE`, enforce known positions from `tag$stap` when building the path. Known
-#'   positions are approximated to the map resolution so they correspond to integer indices.
+#' @param use_known If `TRUE`, enforce known positions from `tag$stap` when building the path. The
+#'   exact `known_lat` and `known_lon` are used for `lat` and `lon`, while `ind` remains the grid
+#'   cell index.
 #' @param interp the position of the stationary period shorter than `interp` will be replaced by a
 #' linear average from other position accounting for flight duration (in days).
 #'
 #' @return A path data.frame
 #' - `stap_id` stationary period
+#' - `j` identification of the trajectory (always `1`).
 #' - `ind` indices of the coordinate in the 2D grid. Useful to retrieve map or graph information.
 #' - `lat` Latitude,
 #' - `lon` longitude
+#' - `...` other columns from `stap`
+#' - `interp` logical indicating if the position was interpolated (see `interp`).
 #' @examples
 #' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

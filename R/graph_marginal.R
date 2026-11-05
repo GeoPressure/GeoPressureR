@@ -9,8 +9,8 @@
 #' @param graph a GeoPressureR `graph` with defined movement model `graph_set_movement()`.
 #' @param quiet logical to hide messages about the progress.
 #'
-#' @return A list of the marginal maps for each stationary period (even those not modelled). Best to
-#' include within `tag`.
+#' @return A GeoPressureR `map` of the marginal probability for each stationary period (even those
+#' not modelled). Best to include within `tag`.
 #'
 #' @examples
 #' # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
