@@ -10,9 +10,8 @@
 #' file that contains at least `tag` (and optionally `marginal`, `path_most_likely`,
 #' `pressurepath`, `pressurepath_most_likely`).
 #'
-#' GeoPressureViz is an exploration tool. To keep an edited path, use the app's `Export CSV`
-#' button and save the file as `./data/interim/{id}-path-geopressureviz.csv`, where
-#' `geopressuretemplate_pressurepath()` reads it.
+#' GeoPressureViz is an exploration tool outside the `geopressuretemplate()` workflow. To keep an
+#' edited path, use the app's `Export CSV` button (read it back with `read_stap()`).
 #'
 #' Learn more about GeoPressureViz in the [GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressureviz.html).

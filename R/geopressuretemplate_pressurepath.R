@@ -29,20 +29,13 @@ geopressuretemplate_pressurepath <- function(
     }
 
     path_types <- config$geopressuretemplate$pressurepath
-    unknown <- setdiff(path_types, c("most_likely", "simulation", "geopressureviz", "tag"))
+    unknown <- setdiff(path_types, c("most_likely", "simulation"))
     if (length(unknown) > 0) {
       cli::cli_abort(c(
-        x = "Unknown {.var geopressuretemplate$pressurepath}: {.val {unknown}}.",
-        i = "Use {.val most_likely}, {.val simulation}, {.val geopressureviz} or {.val tag}."
+        x = "Unsupported {.var geopressuretemplate$pressurepath}: {.val {unknown}}.",
+        i = "The workflow computes {.val most_likely} and {.val simulation} only.",
+        ">" = "For another path (e.g. exported from GeoPressureViz), call {.fun pressurepath_create} directly."
       ))
-    }
-
-    # A path edited in GeoPressureViz is exported as CSV next to the interim file
-    csv <- file.path(dirname(file), glue::glue("{id}-path-geopressureviz.csv"))
-    if (
-      "geopressureviz" %in% path_types && is.null(interim$path_geopressureviz) && file.exists(csv)
-    ) {
-      interim$path_geopressureviz <- read_stap(csv)
     }
 
     for (path_type in path_types) {

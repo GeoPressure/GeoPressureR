@@ -12,7 +12,7 @@
 
 - [Use `terra::rast(map)` to convert a `map` to a SpatRaster](https://github.com/GeoPressure/GeoPressureR/commit/ba758c3c317cb2aa4438f273efd36f7433e301c6); `rast.map()` is no longer exported.
 - [Add a `mag_axis` argument to `tag_create()`](https://github.com/GeoPressure/GeoPressureR/commit/266c69df4eacd73e0b14a5e44099f16290fc4adf) for SOI tags mounted reversed or at 90°.
-- [Keep objects such as `path_geopressureviz` when `geopressuretemplate_graph()` re-saves the interim file](https://github.com/GeoPressure/GeoPressureR/commit/8adcf71c4b26ef4680de5f25391a5d18dd3680d2), and compute `pressurepath_{type}` for `most_likely`, `simulation`, `geopressureviz` (also from the GeoPressureViz CSV export) and `tag` in `geopressuretemplate_pressurepath()`.
+- [Keep objects such as `path_geopressureviz` when `geopressuretemplate_graph()` re-saves the interim file](https://github.com/GeoPressure/GeoPressureR/commit/8adcf71c4b26ef4680de5f25391a5d18dd3680d2). `geopressuretemplate_pressurepath()` computes only `most_likely` and `simulation`; for other paths (e.g. exported from GeoPressureViz) call `pressurepath_create()` directly ([#162](https://github.com/GeoPressure/GeoPressureR/issues/162)).
 
 - [Store logger metadata under `param$tag_create`](https://github.com/GeoPressure/GeoPressureR/commit/f0a9d4b3b0f44d79eaf19f88dd52e555b47a69a5): `settings` (the manufacturer settings with normalised `model`, `firmware` and, for SOI, `clock_drift`) and `mag_axis`, replacing `param$soi_settings`, `param$migratec_model`, `param$drift` and `param$mag_axis`. Released together with GeoLocatoR, which reads both layouts.
 

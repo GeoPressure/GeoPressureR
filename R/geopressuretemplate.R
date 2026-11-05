@@ -52,12 +52,10 @@
 #' (`pressurepath_create()`) using the content of the `.RData` file and appending the pressurepath
 #' data.frames to the same file.
 #'
-#' For each of `"most_likely"`, `"simulation"`, `"geopressureviz"` and `"tag"` listed in
+#' For each of `"most_likely"` and `"simulation"` listed in
 #' `config$geopressuretemplate$pressurepath`, computes `pressurepath_{type}` from `path_{type}`
-#' and saves it in the same file. `path_geopressureviz` is read from the file or, if absent, from
-#' the CSV exported by GeoPressureViz (`{id}-path-geopressureviz.csv` in the directory of `file`,
-#' i.e. `data/interim/` by default). `path_tag` is
-#' a path you saved yourself (e.g. from `tag2path()`). A warning is given when a path is missing.
+#' and saves it in the same file. A warning is given when a path is missing. For any other path
+#' (e.g. exported from GeoPressureViz), call `pressurepath_create()` directly.
 #'
 #' Each of these child functions can be called individually or automatically as part of
 #' the `geopressuretemplate` workflow.

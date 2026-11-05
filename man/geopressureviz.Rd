@@ -50,9 +50,8 @@ The app can start from a \code{tag} object already in memory, or from an interim
 file that contains at least \code{tag} (and optionally \code{marginal}, \code{path_most_likely},
 \code{pressurepath}, \code{pressurepath_most_likely}).
 
-GeoPressureViz is an exploration tool. To keep an edited path, use the app's \verb{Export CSV}
-button and save the file as \code{./data/interim/{id}-path-geopressureviz.csv}, where
-\code{geopressuretemplate_pressurepath()} reads it.
+GeoPressureViz is an exploration tool outside the \code{geopressuretemplate()} workflow. To keep an
+edited path, use the app's \verb{Export CSV} button (read it back with \code{read_stap()}).
 
 Learn more about GeoPressureViz in the \href{https://geopressure.org/GeoPressureManual/geopressureviz.html}{GeoPressureManual }.
 }

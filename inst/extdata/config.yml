@@ -53,7 +53,7 @@ default:
   geopressuretemplate: # ?geopressuretemplate()
     likelihood: ["map_pressure", "map_light"]
     outputs: ["marginal", "most_likely", "simulation"]
-    pressurepath: ["most_likely"] # "geopressureviz"
+    pressurepath: ["most_likely"] # and/or "simulation"
 
 18LX:
   tag_create:

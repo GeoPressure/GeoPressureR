@@ -149,12 +149,10 @@ are replaced or removed.
 data.frames to the same file.
 }
 
-For each of \code{"most_likely"}, \code{"simulation"}, \code{"geopressureviz"} and \code{"tag"} listed in
+For each of \code{"most_likely"} and \code{"simulation"} listed in
 \code{config$geopressuretemplate$pressurepath}, computes \verb{pressurepath_\{type\}} from \verb{path_\{type\}}
-and saves it in the same file. \code{path_geopressureviz} is read from the file or, if absent, from
-the CSV exported by GeoPressureViz (\code{{id}-path-geopressureviz.csv} in the directory of \code{file},
-i.e. \verb{data/interim/} by default). \code{path_tag} is
-a path you saved yourself (e.g. from \code{tag2path()}). A warning is given when a path is missing.
+and saves it in the same file. A warning is given when a path is missing. For any other path
+(e.g. exported from GeoPressureViz), call \code{pressurepath_create()} directly.
 
 Each of these child functions can be called individually or automatically as part of
 the \code{geopressuretemplate} workflow.
