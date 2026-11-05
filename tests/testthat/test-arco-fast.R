@@ -1,9 +1,11 @@
 test_that("ARCO time series matches tag times without a remote read", {
   local_mocked_bindings(
     arco_require_dependencies = function() NULL,
-    era5_arco_client = function(...) list(),
-    era5_arco_read = function(variable, era5_dataset, lon, lat, date, ...) {
-      expect_equal(c(lon, lat), if (era5_dataset == "land") c(16.4, 46.4) else c(16.25, 46.25))
+    era5_arco_read_points = function(variable, era5_dataset, lon, lat, date, ...) {
+      expect_equal(
+        c(unique(lon), unique(lat)),
+        if (era5_dataset == "land") c(16.4, 46.4) else c(16.25, 46.25)
+      )
       if (variable == "surface_pressure") 100000 + 100 * seq_along(date) else 280 + seq_along(date)
     },
     era5_surface_elevation = function(lon, ...) rep(0, length(lon)),

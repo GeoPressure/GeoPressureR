@@ -37,44 +37,17 @@ pressurepath_create_arco_impl <- function(
   debug = FALSE,
   altitude_formula = "virtual"
 ) {
-  cache_dir <- tools::R_user_dir("GeoPressureR", "cache")
   dataset <- rep(era5_dataset, nrow(pressurepath))
   if (era5_dataset == "both") {
-    lsm_file <- file.path(cache_dir, "lsm_1279l4_0.1x0.1.grb")
-    if (!file.exists(lsm_file)) {
-      dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-      httr2::request(
-        "https://confluence.ecmwf.int/download/attachments/140385202/lsm_1279l4_0.1x0.1.grb?version=1&modificationDate=1567528624201&api=v2"
-      ) |>
-        httr2::req_perform(path = lsm_file)
-    }
-    land <- terra::rast(lsm_file)
-    # Recent GDAL already serves the grid on -180..180; rotating it again shifts it by 180°.
-    if (terra::xmax(land) > 180) {
-      terra::ext(land) <- c(-0.05, 359.95, -90.05, 90.05)
-      land <- terra::rotate(land)
-    }
-    land_lon <- floor(pressurepath$lon / 0.1 + 0.5) * 0.1
-    # Same latitude tie rule as the ERA5-Land data read below
-    land_lat <- ceiling(pressurepath$lat / 0.1 - 0.5) * 0.1
-    land_value <- terra::extract(land, cbind(land_lon, land_lat))[[1]]
+    # Same grid cell as the ERA5-Land data read below
+    land <- era5_grid_snap(pressurepath$lon, pressurepath$lat, "land")
+    land_value <- terra::extract(era5_land_sea_mask(), cbind(land$lon, land$lat))[[1]]
     dataset <- ifelse(!is.na(land_value) & land_value > 0.5, "land", "single-levels")
   }
 
-  resolution <- ifelse(dataset == "land", 0.1, 0.25)
-  query_lon <- floor(pressurepath$lon / resolution + 0.5) * resolution
-  query_lat <- ifelse(
-    dataset == "land",
-    ceiling(pressurepath$lat / resolution - 0.5) * resolution,
-    floor(pressurepath$lat / resolution + 0.5) * resolution
-  )
+  query <- era5_grid_snap(pressurepath$lon, pressurepath$lat, dataset)
   requested_date <- as.POSIXct(pressurepath$date, tz = "UTC")
-  # Nearest hour, as GeoPressureAPI's join picks it.
-  requested_hour <- as.POSIXct(
-    ceiling(as.numeric(requested_date) / 3600 - 0.5) * 3600,
-    origin = "1970-01-01",
-    tz = "UTC"
-  )
+  requested_hour <- era5_hour_round(requested_date)
 
   if (!quiet) {
     cli::cli_progress_step("Read ERA5 surface pressure from the ECMWF ARCO archive")
@@ -85,8 +58,8 @@ pressurepath_create_arco_impl <- function(
     surface_pressure[id] <- era5_arco_read_points(
       variable = "surface_pressure",
       era5_dataset = dataset_i,
-      lon = query_lon[id],
-      lat = query_lat[id],
+      lon = query$lon[id],
+      lat = query$lat[id],
       date = requested_hour[id],
       debug = debug
     )
@@ -94,14 +67,12 @@ pressurepath_create_arco_impl <- function(
   if (era5_dataset == "both" && anyNA(surface_pressure)) {
     id <- is.na(surface_pressure)
     dataset[id] <- "single-levels"
-    resolution[id] <- 0.25
-    query_lon[id] <- floor(pressurepath$lon[id] / resolution[id] + 0.5) * resolution[id]
-    query_lat[id] <- floor(pressurepath$lat[id] / resolution[id] + 0.5) * resolution[id]
+    query <- era5_grid_snap(pressurepath$lon, pressurepath$lat, dataset)
     surface_pressure[id] <- era5_arco_read_points(
       variable = "surface_pressure",
       era5_dataset = "single-levels",
-      lon = query_lon[id],
-      lat = query_lat[id],
+      lon = query$lon[id],
+      lat = query$lat[id],
       date = requested_hour[id],
       debug = debug
     )
@@ -117,8 +88,8 @@ pressurepath_create_arco_impl <- function(
       out[id] <- era5_arco_read_points(
         variable = v,
         era5_dataset = dataset_i,
-        lon = query_lon[id],
-        lat = query_lat[id],
+        lon = query$lon[id],
+        lat = query$lat[id],
         date = requested_hour[id],
         debug = debug
       )
@@ -131,7 +102,7 @@ pressurepath_create_arco_impl <- function(
       cli::cli_progress_step("Read ERA5 temperature and compute altitude")
     }
     temperature <- read_variable("temperature_2m")
-    elevation <- era5_surface_elevation(query_lon, query_lat, dataset, quiet)
+    elevation <- era5_surface_elevation(query$lon, query$lat, dataset, quiet)
     pressurepath$altitude <- pressure_to_altitude(
       pressurepath$pressure_tag * 100,
       surface_pressure,
