@@ -50,8 +50,8 @@ trainset_read <- function(
   # Set to discard all the NA value
   df[[label]][is.na(df$value)] <- "discard"
 
-  # Check for missing data
-  missing_pres <- sum(is.na(id_match) & !is.na(df$value))
+  # Check for missing data (use timestamp for data.frame without value, e.g. twilight)
+  missing_pres <- sum(is.na(id_match) & !is.na(df[[if (is.null(df$value)) timestamp else "value"]]))
 
   if (missing_pres > 0) {
     not_needed <- nrow(csv) - nrow(df) + missing_pres
