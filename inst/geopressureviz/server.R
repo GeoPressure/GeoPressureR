@@ -15,22 +15,6 @@ server <- function(input, output, session) {
   stap <- tag$stap
   pressure <- tag$pressure
 
-  if (is.null(file_wind)) {
-    edge <- NULL
-  } else {
-    edge <- path2edge(path, tag)
-
-    wind <- edge_add_wind(
-      tag,
-      edge_s = edge$s,
-      edge_t = edge$t,
-      file = file_wind
-    )
-    uv <- stats::aggregate(wind$val * wind$w, wind[c("edge_id", "var")], sum)
-    uv <- stats::reshape(uv, idvar = "edge_id", timevar = "var", direction = "wide")
-    edge$ws <- (uv$x.u + 1i * uv$x.v) * 3.6
-  }
-
   # Compute resolution of projection
   r <- maps[[1]]
   g <- map_expand(r$extent, r$scale)
@@ -60,7 +44,6 @@ server <- function(input, output, session) {
 
   reactVal <- reactiveValues(
     path = path,
-    edge = edge,
     pressurepath = pressurepath,
     pressure_xmin = NULL,
     pressure_xmax = NULL,
@@ -555,34 +538,10 @@ server <- function(input, output, session) {
         )
 
       if (idx() != 1) {
-        path_lon_ws <- NULL
-        path_lat_ws <- NULL
-        if (!is.null(reactVal$edge)) {
-          stap_id_prev <- stap_id_include()[idx() - 1]
-          tmp <- reactVal$edge[
-            seq(stap_id_prev, as.numeric(input$stap_id) - 1),
-          ]
-          if (nrow(tmp) == 1) {
-            path_lon_ws <- path_model$lon[idx() - 1] +
-              (path_model$lon[idx()] - path_model$lon[idx() - 1]) *
-                Re(tmp$ws / tmp$gs)
-            path_lat_ws <- path_model$lat[idx() - 1] +
-              (path_model$lat[idx()] - path_model$lat[idx() - 1]) *
-                Im(tmp$ws / tmp$gs)
-          }
-        }
         proxy <- proxy |>
           leaflet::addPolylines(
-            lng = c(
-              path_model$lon[idx() - 1],
-              path_lon_ws,
-              path_model$lon[idx()]
-            ),
-            lat = c(
-              path_model$lat[idx() - 1],
-              path_lat_ws,
-              path_model$lat[idx()]
-            ),
+            lng = path_model$lon[idx() - (1:0)],
+            lat = path_model$lat[idx() - (1:0)],
             opacity = 1,
             color = "#FFF",
             weight = 3
@@ -607,9 +566,6 @@ server <- function(input, output, session) {
           )
       }
       if (idx() != length(stap_id_include())) {
-        # find position from wind only
-        # path_model$stap_id[idx() + (0:1)]
-
         proxy <- proxy |>
           leaflet::addPolylines(
             lng = path_model$lon[idx() + (0:1)],
