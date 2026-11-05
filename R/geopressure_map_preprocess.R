@@ -186,19 +186,21 @@ geopressure_map_preprocess <- function(
     # Also set stap_id NA to be able to identify those time to remove at the end of this function
     pgi_reg$stap_id[id] <- NA
 
-    # smooth the data with a moving average of 1 hour
-    # find the size of the windows for 1 hour
-    n <- round(1 / as.numeric(dt) + 1)
+    # smooth the data with a centred moving average of about 1 hour (odd number of points, so that
+    # the smoothed value is not shifted in time). For hourly data, use the 1 hour average of the
+    # linear interpolation (weights 1/4, 1/2, 1/4).
+    n <- round(1 / as.numeric(dt)) %/% 2 * 2 + 1
+    w <- if (n == 1) c(0.25, 0.5, 0.25) else rep(1 / n, n)
 
     # check that there are enough datapoint for the smoothing
-    if (nrow(pgi_reg) > n) {
+    if (nrow(pgi_reg) > length(w)) {
       smoothna <- stats::filter(
         c(FALSE, !is.na(pgi_reg$value), FALSE),
-        rep(1 / n, n)
+        w
       )
       smooth <- stats::filter(
         c(0, replace(pgi_reg$value, is.na(pgi_reg$value), 0), 0),
-        rep(1 / n, n)
+        w
       )
 
       tmp <- smooth / smoothna
