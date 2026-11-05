@@ -86,9 +86,9 @@ geopressure_timeseries_api_impl <- function(
   resp_data <- httr2::resp_body_json(resp)$data
 
   # Check for change in position
-  if (resp_data$distInter > 0) {
+  if (!quiet && resp_data$distInter > 0) {
     cli::cli_bullets(c(
-      "!" = "Requested position is on water and will be move to the closet point on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) located {round(resp_data$distInter / 1000)} km away."
+      "!" = "Requested position is on water and will be moved to the closest point on shore ({.url https://www.google.com/maps/dir/{lat},{lon}/{resp_data$lat},{resp_data$lon}}) located {round(resp_data$distInter / 1000)} km away."
     ))
   }
 
@@ -120,7 +120,7 @@ geopressure_timeseries_api_impl <- function(
     write(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), temp_file)
     cli::cli_abort(c(
       x = "Returned csv file is empty.",
-      i = "Check that the time range is none-empty. Log of your JSON request: {.file {temp_file}}"
+      i = "Check that the time range is non-empty. Log of your JSON request: {.file {temp_file}}"
     ))
   }
 
@@ -164,7 +164,7 @@ geopressure_timeseries_api_impl <- function(
     stap_id <- if ("stap_id" %in% names(out)) out$stap_id else rep(1, nrow(out))
     label <- if ("label" %in% names(out)) out$label else rep("", nrow(out))
     # Normalize only non-flight observations that are not marked as discarded.
-    id_norm <- stap_id != 0 & label != "discard"
+    id_norm <- stap_id == round(stap_id) & stap_id != 0 & label != "discard"
     # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
     if (sum(id_norm) > 0) {
       elev <- ifelse(

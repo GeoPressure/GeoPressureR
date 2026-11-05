@@ -23,10 +23,10 @@ edge_add_wind(
 \arguments{
 \item{graph}{either a \code{tag} or a \code{graph} GeoPressureR object.}
 
-\item{edge_s}{a index of the source node of the edge. Either a vector with 3D index or a matrix
+\item{edge_s}{an index of the source node of the edge. Either a vector with 3D index or a matrix
 of 3 columns, one for each dimension.}
 
-\item{edge_t}{a index of the target node of the edge. Either a vector with 3D index or a matrix
+\item{edge_t}{an index of the target node of the edge. Either a vector with 3D index or a matrix
 of 3 columns, one for each dimension.}
 
 \item{pressure}{pressure measurement of the associated \code{tag} data used to estimate the pressure

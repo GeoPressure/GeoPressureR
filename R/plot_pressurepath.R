@@ -48,7 +48,7 @@ plot_pressurepath <- function(
 
   if ("pressure_era5" %in% names(pressurepath)) {
     cli::cli_warn(c(
-      "!" = "{.var pressurepath} has been create with an old version of {.pkg GeoPressureR} (<v3.2.0)",
+      "!" = "{.var pressurepath} has been created with an old version of {.pkg GeoPressureR} (<v3.2.0)",
       ">" = "For optimal performance, we suggest to re-run {.fun pressurepath_create}"
     ))
     pressurepath$surface_pressure <- pressurepath$pressure_era5
@@ -124,15 +124,50 @@ plot_pressurepath <- function(
 
   # knitr::kable(tag_era5, "simple")
 
+  if (type %in% c("timeseries", "altitude")) {
+    breaks <- seq(min(pp$date), max(pp$date), by = "30 min")
+    if (utils::tail(breaks, 1) < max(pp$date)) {
+      breaks <- c(breaks, max(pp$date))
+    }
+    midpoint <- breaks[-length(breaks)] + diff(breaks) / 2
+    index <- findInterval(midpoint, pp$date, all.inside = TRUE)
+    sunrise <- as.numeric(pp$sunrise[index]) %% 86400
+    sunset <- as.numeric(pp$sunset[index]) %% 86400
+    time <- as.numeric(midpoint) %% 86400
+    night <- ifelse(
+      sunrise < sunset,
+      time < sunrise | time >= sunset,
+      time >= sunset & time < sunrise
+    )
+    runs <- rle(night)
+    ends <- cumsum(runs$lengths)
+    starts <- ends - runs$lengths + 1
+    night <- data.frame(
+      xmin = breaks[starts[which(runs$values)]],
+      xmax = breaks[ends[which(runs$values)] + 1]
+    )
+    night_layer <- if (nrow(night)) {
+      ggplot2::geom_rect(
+        data = night,
+        ggplot2::aes(xmin = .data$xmin, xmax = .data$xmax),
+        ymin = -Inf,
+        ymax = Inf,
+        inherit.aes = FALSE,
+        fill = "grey85"
+      )
+    }
+  }
+
   if (type == "timeseries") {
     pp$warning <- (abs(pp$error) /
-      sd[ifelse(pp$stap_id == round(pp$stap_id), 1, pp$stap_id)]) >=
+      sd[ifelse(pp$stap_id == round(pp$stap_id), pp$stap_id, 1)]) >=
       warning_std_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
 
     p <- ggplot2::ggplot(pp, ggplot2::aes(x = .data$date)) +
+      night_layer +
       ggplot2::geom_line(
         ggplot2::aes(y = .data$pressure_tag),
         color = "grey"
@@ -191,7 +226,7 @@ plot_pressurepath <- function(
         linetype = "dashed",
         colour = "#E6550D"
       ) +
-      ggplot2::facet_wrap(~stapelev, scale = "free_y", labeller = lab) +
+      ggplot2::facet_wrap(~stapelev, scales = "free_y", labeller = lab) +
       ggplot2::scale_x_continuous(
         name = "Difference of pressure tag - ERA5 (hPa)"
       ) +
@@ -211,10 +246,11 @@ plot_pressurepath <- function(
     id_flight <- pp_alt$stap_id != round(pp_alt$stap_id)
     # group flight arbitrarily using the floor of their stap_id
     pp_alt$stap_id[id_flight] <- floor(pp_alt$stap_id)[id_flight]
-    # convert to factor for ploting
+    # convert to factor for plotting
     pp_alt$stap_id <- factor(pp_alt$stap_id)
 
     p <- ggplot2::ggplot() +
+      night_layer +
       ggplot2::geom_line(
         data = pp_alt,
         ggplot2::aes(
@@ -257,7 +293,13 @@ plot_pressurepath <- function(
   }
 
   if (plot_plotly) {
-    return(plotly::ggplotly(p, dynamicTicks = TRUE))
+    out <- plotly::ggplotly(p, dynamicTicks = TRUE)
+    if (type != "histogram" && nrow(night) > 0) {
+      y_range <- out$x$layout$yaxis$range
+      out$x$data[[1]]$y[out$x$data[[1]]$y == -Inf] <- y_range[1]
+      out$x$data[[1]]$y[out$x$data[[1]]$y == Inf] <- y_range[2]
+    }
+    return(out)
   } else {
     return(p)
   }

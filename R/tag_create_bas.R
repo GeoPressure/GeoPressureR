@@ -14,7 +14,6 @@ tag_create_bas <- function(
   id,
   directory = glue::glue("./data/raw-tag/{id}"),
   lig_file = NULL,
-  act_file = NULL,
   quiet = FALSE
 ) {
   assertthat::assert_that(is.character(id))
@@ -23,15 +22,15 @@ tag_create_bas <- function(
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 
-  # Read Pressure
+  # Read light
   if (is.null(lig_file)) {
     lig_file <- "*.lig"
   }
   lig_path <- tag_create_detect(lig_file, directory, quiet = quiet)
   if (is.null(lig_path)) {
     cli::cli_abort(c(
-      "x" = "There are no file {.val {lig_file}}",
-      "!" = "{.var lig_file} is required!"
+      "x" = "No file matching {.val {lig_file}} in {.file {directory}}.",
+      "!" = "A {.val .lig} light file is required."
     ))
   }
 

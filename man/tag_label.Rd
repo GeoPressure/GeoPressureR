@@ -14,11 +14,11 @@ tag_label(
 )
 }
 \arguments{
-\item{tag}{a GeoPressure \code{tag} object.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file.}
 
-\item{quiet}{logical to display message.}
+\item{quiet}{logical to hide messages.}
 
 \item{warning_flight_duration}{lifecycle::deprecated()}
 

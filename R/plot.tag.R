@@ -129,9 +129,8 @@ plot.tag <- function(x, type = NULL, ...) {
     return(plot.map(map, ...))
   }
 
-  fn <- dispatch[[type]]
-  if (length(type) == 1 && !is.null(fn)) {
-    return(fn(tag, ...))
+  if (length(type) == 1 && !is.null(dispatch[[type]])) {
+    return(dispatch[[type]](tag, ...))
   }
 
   cli::cli_abort(c(
@@ -141,7 +140,7 @@ plot.tag <- function(x, type = NULL, ...) {
 }
 #' Plot pressure data of a `tag`
 #'
-#' This function display a plot of pressure time series recorded by a tag
+#' This function displays a plot of pressure time series recorded by a tag
 #
 #' @param tag a GeoPressureR `tag` object.
 #' @param plot_plotly logical to use `plotly`.
@@ -248,7 +247,7 @@ pressure_diff_warning_data <- function(tag, warning_pressure_diff = 3) {
 
 #' Plot acceleration data of a `tag`
 #'
-#' This function display a plot of acceleration time series recorded by a tag
+#' This function displays a plot of acceleration time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param variable type of acceleration variable to plot `"activity"` (or `"value"`) or
@@ -338,7 +337,7 @@ plot_tag_acceleration <- function(
 
 #' Plot light data of a `tag`
 #'
-#' This function display a plot of light time series recorded by a tag
+#' This function displays a plot of light time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`
@@ -396,7 +395,7 @@ plot_tag_light <- function(tag, transform_light = TRUE, plot_plotly = TRUE) {
 
 #' Plot temperature data of a `tag`
 #'
-#' This function display a plot of temperature time series recorded by a tag
+#' This function displays a plot of temperature time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param variable temperature variable to plot `"external"` or `"internal"`
@@ -450,7 +449,7 @@ plot_tag_temperature <- function(
 
 #' Plot twilight data of a `tag`
 #'
-#' This function display a plot of twilight time series recorded by a tag
+#' This function displays a plot of twilight time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param twilight_line a twilight data.frame typically created with `path2twilight()` which is
@@ -533,7 +532,8 @@ plot_tag_twilight <- function(
 
   if ("twilight" %in% names(tag)) {
     twl <- tag$twilight
-    twl$date <- as.Date(twl$twilight)
+    # Match the day of the light matrix column, centred on twl_offset
+    twl$date <- as.Date(twl$twilight - twl_offset * 3600)
     time_hour <- as.numeric(substr(format(twl$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twl$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
@@ -606,7 +606,7 @@ plot_tag_twilight <- function(
 
   if (!is.null(twilight_line)) {
     twll <- twilight_line
-    twll$date <- as.Date(twll$twilight)
+    twll$date <- as.Date(twll$twilight - twl_offset * 3600)
     time_hour <- as.numeric(substr(format(twll$twilight, "%H:%M"), 1, 2)) +
       as.numeric(substr(format(twll$twilight, "%H:%M"), 4, 5)) / 60
     time_hour <- time_hour + 24 * (time_hour < mat_time_hour[1])
@@ -677,7 +677,7 @@ plot_tag_twilight <- function(
 
 #' Plot Actogram data of a `tag`
 #'
-#' This function display a plot of the acceleration time series recorded by a tag
+#' This function displays a plot of the acceleration time series recorded by a tag
 #'
 #' @param tag a GeoPressureR `tag` object
 #' @param plot_plotly logical to use `plotly`

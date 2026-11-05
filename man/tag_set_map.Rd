@@ -23,13 +23,13 @@ computed. Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S
 resolution of 0.1° (~10km) and \code{scale=4} for a resolution of 0.25° (~30km). To avoid
 interpolating the ERA5 single-levels data, the scale should be equal to or smaller than 4
 (the default in \code{tag_set_map()}). \code{tag_set_map()} warns for higher values. Read more about
-scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google earth Engine documentation }.}
+scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google Earth Engine documentation }.}
 
 \item{known}{data.frame containing the known positions of the bird (e.g., equipment or retrieval
 site) with columns \code{stap_id}, \code{known_lat} and \code{known_lon}. You can set position of the last
-stationary period using \code{stap_id = -1}. Also accept list which are converted as data.frame.}
+stationary period using \code{stap_id = -1}. A list is also accepted and converted to a data.frame.}
 
-\item{include_stap_id}{vector of \code{stap_id} defining which stationary period to model, that is,
+\item{include_stap_id}{vector of \code{stap_id} defining which stationary periods to model, that is,
 to compute in the likelihood map and use in the graph.}
 
 \item{include_min_duration}{minimum duration threshold of stationary periods to include (in
@@ -42,8 +42,8 @@ A GeoPressureR \code{tag} object with:
 \code{known_lon} define the known position during these stationary periods, and \code{include} defines
 whether the likelihood map of this stationary period should be computed and later used in the
 graph.
-\item \code{extent} same as input parameter \code{extent}
-\item \code{scale} same as input parameter \code{scale}
+\item \code{param$tag_set_map}: list of the input parameters (\code{extent}, \code{scale}, \code{known},
+\code{include_stap_id} and \code{include_min_duration}).
 }
 }
 \description{
@@ -75,7 +75,7 @@ tag_default <- tag_set_map(tag, c(-16, 23, 0, 50))
 print(tag_default)
 
 # Customized tag, with coarse grid scale, known position for the first stationary
-#  period and considering only the stationary periods lasting more than 20hours.
+#  period and considering only the stationary periods lasting more than 20 hours.
 tag_custom <- tag_set_map(tag,
   extent = c(-16, 23, 0, 50),
   scale = 1,

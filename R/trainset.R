@@ -20,12 +20,11 @@
 #' * a GeoPressureR `tag` object,
 #' * a path to an interim `.RData` file containing an object called `tag`,
 #' * a path to a TRAINSET-compatible `.csv` label file,
-#' * a single-character `id`. In that case the function will first look for
-#'   `"./data/interim/{id}.RData"`, and if not found will look for
+#' * a single-character `id`. In that case the function will look for
 #'   `"./data/tag-label/{id}-labeled.csv"` and then `"./data/tag-label/{id}.csv"`.
-#' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' Rstudio.
-#' @param run_bg If true, the app runs in a background R session using the `callr` package. This
+#' @param launch_browser If `TRUE` (default), the app runs in your browser, otherwise it runs in
+#' RStudio.
+#' @param run_bg If `TRUE`, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
 #' @param debug If `TRUE`, prints debug messages about plot refreshes (x-range changes and point
 #' counts) to the R console. Defaults to `FALSE`.
@@ -63,6 +62,7 @@ trainset <- function(
       if (ext %in% c("rdata", "rda")) {
         # Interim file: load and extract tag without polluting caller environment
         tag <- load_interim(x, var = "tag", envir = new.env())
+        label_dir <- "./data/tag-label"
         # Infer label_dir from interim file structure: .../data/interim/{id}.RData
         interim_dir <- dirname(x)
         if (basename(interim_dir) == "interim") {
@@ -76,6 +76,8 @@ trainset <- function(
         # TRAINSET-compatible CSV label file
         tag <- csv2tag(x)
         label_dir <- dirname(x)
+      } else {
+        cli::cli_abort("{.arg x} must be a {.val .RData} or {.val .csv} file, not {.file {x}}.")
       }
     } else {
       # x is a character (id), try finding interim or label files

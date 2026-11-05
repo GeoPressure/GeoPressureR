@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Take the two parameters defining the spatial grid of a map in GeoPressureR (`extent` and `scale`)
-#' and constructs various possible spatial variable of interest for the spatial grid (e.g., grid
+#' and constructs various spatial variables of interest for the spatial grid (e.g., grid
 #' dimension, latitude and longitude...)
 #'
 #' This function is used in multiple functions of GeoPressureR to allow to only store `extent` and
@@ -56,13 +56,14 @@ map_expand <- function(extent, scale) {
     (extent[4] - extent[3]) * scale,
     (extent[2] - extent[1]) * scale
   )
-  # Check that dimension is correct
-  if (!all(round(dim) == dim)) {
+  # Check that dimension is correct (with tolerance for floating-point extent)
+  if (any(abs(dim - round(dim)) > 1e-8)) {
     cli::cli_abort(c(
       x = "A valid map configuration requires (E-W)*scale and (N-S)*scale to be an integer.",
-      i = "Change {.val E}, {.val W} or {.val scale} to match this requirement"
+      i = "Change {.val W}, {.val E}, {.val S}, {.val N} or {.val scale} to match this requirement"
     ))
   }
+  dim <- round(dim)
 
   # Compute cell center vector of latitude and longitude
   lat <- seq(extent[4], extent[3], length.out = dim[1] + 1)

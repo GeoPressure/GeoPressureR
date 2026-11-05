@@ -19,8 +19,8 @@ tag_create_prestag <- function(
   pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
   if (is.null(pressure_path)) {
     cli::cli_abort(c(
-      "x" = "There are no file {.val {pressure_path}}",
-      "!" = "{.var pressure_path} is required"
+      "x" = "No file matching {.val {pressure_file}} in {.file {directory}}.",
+      "!" = "{.arg pressure_file} is required."
     ))
   }
 
@@ -43,17 +43,12 @@ tag_create_prestag <- function(
   )
   sensor_data$date <- timestamps
 
-  # sensor_data2 <- read.table(text = data_raw$V3[data_raw$V3!=""],
-  #                  sep = ":", col.names = c("sensor", "value"))
-  # sensor_data2$date = timestamps[data_raw$V3!=""]
-  # sensor_data = rbind(sensor_data, sensor_data2)
-
-  # Set to NA any negative value
-  sensor_data$value[sensor_data$value < 0] <- NA
+  # Set to NA any negative pressure value
+  sensor_data$value[sensor_data$sensor == "P" & sensor_data$value < 0] <- NA
 
   # Create sensor data.frame
-  tag$pressure <- sensor_data[sensor_data$sensor == "P", -which(names(sensor_data) == "sensor")]
-  tag$temperature <- sensor_data[sensor_data$sensor == "T", -which(names(sensor_data) == "sensor")]
+  tag$pressure <- sensor_data[sensor_data$sensor == "P", c("date", "value")]
+  tag$temperature_external <- sensor_data[sensor_data$sensor == "T", c("date", "value")]
 
   # Add parameter information
   tag$param$tag_create$pressure_file <- pressure_path

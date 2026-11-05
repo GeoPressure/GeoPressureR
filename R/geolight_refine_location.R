@@ -36,10 +36,11 @@ geolight_refine_location <- function(
 
   out <- path
 
+  # Refine only stap with at least two twilights (required for the density)
   refine_idx <- which(
     is.finite(out$lon) &
       is.finite(out$lat) &
-      out$stap_id %in% twl$stap_id[twl$include]
+      out$stap_id %in% twl$stap_id[twl$include][duplicated(twl$stap_id[twl$include])]
   )
 
   for (ipath in refine_idx) {

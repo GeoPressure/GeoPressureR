@@ -58,7 +58,7 @@ Our maps are defined in lat-lon (i.e., EPSG:4326), but the display of maps on we
 nearly always in \href{https://en.wikipedia.org/wiki/Web_Mercator_projection}{web mercator} (i.e.,
 EPSG:3857). We therefore need to reproject our map for display.
 However, we don't really want to interpolate the map as each pixel might be important to
-visualize. We therefore re-project with a near-neighbour interpolation (\code{method = "near"}
+visualize. We therefore re-project with a nearest-neighbour interpolation (\code{method = "near"}
 in \code{\link[terra:project]{terra::project()}}). Yet to avoid having pixel misplaced, we generally need to use a
 projection with a finer resolution. The argument \code{fac_res_proj} controls the relative change of
 resolution between the original map to the projected map.

@@ -21,7 +21,7 @@
 #' intended path, while a negative indicates that the wind is pushing the bird to the left.
 #'
 #' You can use `abs()` (or `Mod()`) to compute the norm (or absolute value) of the speed vector and
-#' `speed_to_bearing()` to compute the bearing/orientation of the speed vector. The latter
+#' `speed2bearing()` to compute the bearing/orientation of the speed vector. The latter
 #' computes the trigonometric angle of the speed vector with `Arg()` and convert this angle to a
 #' bearing (North = 0° instead of 90°).
 #'
@@ -29,7 +29,7 @@
 #' @param groundspeed groundspeed as complex value
 #' @param drift return drift instead of windsupport
 #'
-#' @return wind support as scalar value (same unit as `gs` and `ws`)
+#' @return wind support (or drift) as scalar value (same unit as `windspeed` and `groundspeed`)
 #' @examples
 #' windsupport(windspeed = 5 + 2i, groundspeed = 10 + 0i)
 #' @export

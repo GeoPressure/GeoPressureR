@@ -5,13 +5,13 @@
 #' be read with [TRAINSET](https://trainset.geocene.com/). If no label data exist, it will first
 #' initialize the label data.
 #'
-#' Optionally, it can also export a reference dataset for pressure `tag$pressure$ref` as another
+#' Optionally, it can also export a reference dataset for pressure `tag$pressure$value_ref` as another
 #' series to be visualized on TRAINSET, but without impacting the labelling process.
 #'
 #' @inheritParams tag_label
 #' @param file Absolute or relative path of the label file to be saved.
 #'
-#' @return The file pathname is return invisibly
+#' @return The file pathname is returned invisibly
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -20,7 +20,7 @@
 #'   # Writing unlabelled tag will initialize the labelling for trainset
 #'   tag_label_write(tag, quiet = TRUE)
 #'
-#'   # Writing unlabelled tag will initialize the labelling for trainset
+#'   # Writing an auto-labelled tag
 #'   tag <- tag_label_auto(tag)
 #'   tag_label_write(tag, quiet = TRUE)
 #'
@@ -39,13 +39,13 @@ tag_label_write <- function(
 ) {
   tag_assert(tag)
 
-  # Create empty label if it doesn't exit
+  # Create empty label if it doesn't exist
   if (!assertthat::has_name(tag$pressure, "label")) {
     tag <- tag_label_auto(tag)
     if (!quiet) {
       cli::cli_bullets(c(
         "i" = "No label data.",
-        ">" = "Initialize automatically label using {.fn tag_label_auto}"
+        ">" = "Labels initialized automatically with {.fn tag_label_auto}"
       ))
     }
   }

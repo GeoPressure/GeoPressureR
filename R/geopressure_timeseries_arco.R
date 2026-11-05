@@ -189,7 +189,7 @@ geopressure_timeseries_arco_impl <- function(
     names(out)[names(out) == "value"] <- "pressure_tag"
     stap_id <- out$stap_id
     label <- out$label
-    id_norm <- stap_id != 0 & label != "discard"
+    id_norm <- stap_id == round(stap_id) & stap_id != 0 & label != "discard"
     if (sum(id_norm) > 0) {
       elev <- ifelse(startsWith(label, "elev_"), gsub("^.*?elev_", "", label), "0")
       for (elev_i in unique(elev)) {

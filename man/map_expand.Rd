@@ -14,7 +14,7 @@ computed. Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S
 resolution of 0.1° (~10km) and \code{scale=4} for a resolution of 0.25° (~30km). To avoid
 interpolating the ERA5 single-levels data, the scale should be equal to or smaller than 4
 (the default in \code{tag_set_map()}). \code{tag_set_map()} warns for higher values. Read more about
-scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google earth Engine documentation }.}
+scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google Earth Engine documentation }.}
 }
 \value{
 A list containing:
@@ -28,7 +28,7 @@ A list containing:
 }
 \description{
 Take the two parameters defining the spatial grid of a map in GeoPressureR (\code{extent} and \code{scale})
-and constructs various possible spatial variable of interest for the spatial grid (e.g., grid
+and constructs various spatial variables of interest for the spatial grid (e.g., grid
 dimension, latitude and longitude...)
 
 This function is used in multiple functions of GeoPressureR to allow to only store \code{extent} and

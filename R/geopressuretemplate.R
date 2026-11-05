@@ -2,8 +2,8 @@
 #'
 #' @description
 #' The `geopressuretemplate()` function manages the complete workflow for modelling bird
-#' trajectories using geolocator data. It includes the creation `tag` object, the construction of
-#' the likelihood maps (pressure and/or light), the creation of the graph model construction, and,
+#' trajectories using geolocator data. It includes the creation of the `tag` object, the construction of
+#' the likelihood maps (pressure and/or light), the construction of the graph model, and,
 #' finally, the estimation of the trajectory products and the pressure path computation. Read the
 #' [Workflow chapter in the GeoPressureManual
 #' ](https://geopressure.org/GeoPressureManual/geopressuretemplate-workflow.html) for more
@@ -11,7 +11,7 @@
 #'
 #' @details
 #' The `geopressuretemplate` function is a high-level entry point that coordinates multiple
-#' steps for processing the geolocator data and produce trajectories. It relies on underlying child
+#' steps for processing the geolocator data and producing trajectories. It relies on underlying child
 #' functions for each step:
 #'
 #' * **Tag Creation [`geopressuretemplate_tag()`]**: Initializes and labels the `tag` object. It
@@ -23,12 +23,12 @@
 #' 4. If `"map_pressure"` is in the `config$geopressuretemplate$likelihood`:
 #'     - `geopressure_map()`: Computes the pressure likelihood.
 #' 5. If `"map_light"` is in the `config$geopressuretemplate$likelihood`:
-#'     - `twilight_create() |> twilight_read() |> geolight_map()`: Computes the light likelihood.
+#'     - `twilight_create() |> twilight_label_read() |> geolight_map()`: Computes the light likelihood.
 #'
 #' * **Graph Creation [`geopressuretemplate_graph()`]**: Builds a movement model graph
-#' based `tag` data, and can include wind effects if specified. Outputs such as
+#' based on `tag` data, and can include wind effects if specified. Outputs such as
 #' marginal distributions, most likely paths, and simulation paths can be computed.
-
+#'
 #' 1. `graph_create()`: Creates the graph based on tag.
 #' 2. If `config$graph_set_movement$type == "gs"` (i.e., no wind):
 #'     - `graph_set_movement()`: Sets the movement model without wind.
@@ -41,7 +41,7 @@
 #'     - `graph_most_likely()`: Computes the most likely path based on the movement model.
 #' 6. If `"simulation"` is in `config$geopressuretemplate$outputs`:
 #'     - `graph_simulation()`: Runs simulations to model multiple possible paths.
-#' 7. `save()`: Saves the computed graph and associated objects in `data/interim/{id}.Rdata`
+#' 7. `save()`: Saves the `tag`, `param` and computed outputs in `data/interim/{id}.RData`
 #'
 #' * **Pressure Path Processing [`geopressuretemplate_pressurepath()`]**: Computes pressurepaths
 #' (`pressurepath_create`) using the content of the `Rdata` file and appending the pressurepath
@@ -65,15 +65,15 @@
 #' @param assert_tag Logical. If `TRUE`, check that the config is compatible for the creation of
 #' a tag. The default value is `TRUE`.
 #' @param assert_graph Logical. If `TRUE`, check that the config is compatible for the creation of
-#' a graph. The default value is `TRUE`. Set to `FALSE` only if you don't want to create a graph
-#' model
+#' a graph. Only used by `geopressuretemplate_config()`, where the default value is `FALSE`
+#' (`geopressuretemplate_graph()` always sets it to `TRUE`).
 #' @param ... Additional parameters to overwrite default or config values. Always prefer to modify
 #' `config.yml` if possible.
 #'
 #'
 #' @return
-#' The function returns nothing. Instead, it saves the processed outputs (tag, graph,
-#' pressure paths, etc.) to the specified `file`.
+#' The function returns `file` invisibly and saves the processed outputs (tag, paths, pressure
+#' paths, etc.) to the specified `file`. `geopressuretemplate_tag()` returns the `tag`.
 #'
 #' @examplesIf FALSE
 #' # Run the complete geopressuretemplate workflow
@@ -87,7 +87,7 @@
 #'
 #' # Or run step-by-step
 #' # you can check that all the parameters are correctly set in the config file
-#' geopressuretemplate_config(id)
+#' geopressuretemplate_config("18LX")
 #' # 1. creation of the tag
 #' tag <- geopressuretemplate_tag("18LX")
 #' # 2. creation of the graph
@@ -115,7 +115,6 @@ geopressuretemplate <- function(
     id = id,
     config = config,
     quiet = quiet,
-    saveit = FALSE,
     file = file,
     ...
   )

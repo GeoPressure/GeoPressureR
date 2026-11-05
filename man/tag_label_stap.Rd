@@ -12,21 +12,21 @@ tag_label_stap(
 )
 }
 \arguments{
-\item{tag}{a GeoPressure \code{tag} object.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{quiet}{logical to display warning message.}
+\item{quiet}{logical to hide warning messages.}
 
 \item{warning_flight_duration}{lifecycle::deprecated()}
 
 \item{warning_stap_duration}{lifecycle::deprecated()}
 }
 \value{
-\code{tag} is return with (1) a new data.frame of stationary periods \code{tag$stap} and (2) a new
+\code{tag} is returned with (1) a new data.frame of stationary periods \code{tag$stap} and (2) a new
 column \code{stap_id} for each sensor data.
 }
 \description{
 This function computes the stationary periods from the pressure and/or acceleration label data.
-In most case, this function should be run directly after \code{tag_label_read()} in order to update
+In most cases, this function should be run directly after \code{tag_label_read()} in order to update
 \code{tag} to correspond to the new label file.
 
 A stationary period is a period during which the bird is considered static relative to the

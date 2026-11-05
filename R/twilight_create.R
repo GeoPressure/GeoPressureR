@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function estimates twilight (i.e., datetime of sunrise and sunset) by searching for the
-#' first and last light of the day which is defined by the light exceeds or falls below the light
+#' first and last light of the day which is defined as the time when light exceeds or falls below the light
 #' threshold `twl_thr`.
 #'
 #' @param tag a GeoPressureR `tag` object
@@ -58,7 +58,7 @@ twilight_create <- function(
   }
 
   if (is.null(twl_thr)) {
-    # Convoluted way to define the twl_thr. I would have been much easier to use the min value and
+    # Convoluted way to define the twl_thr. It would have been much easier to use the min value and
     # than a strictly greater than (rather than greater or equal to). But to keep consistency with
     # previous versions...
     twl_thr <- min(
@@ -70,10 +70,13 @@ twilight_create <- function(
 
   # add padding of time to center if night are not at 00:00 UTC
   if (is.null(twl_offset)) {
-    twl_offset <- twilight_create_guess_offset(
-      light,
-      twl_thr = twl_thr,
-      twl_time_tolerance = twl_time_tolerance
+    twl_offset <- withCallingHandlers(
+      twilight_create_guess_offset(
+        light,
+        twl_thr = twl_thr,
+        twl_time_tolerance = twl_time_tolerance
+      ),
+      geopressurer_irregular_resolution = function(w) invokeRestart("muffleWarning")
     )
   }
 
@@ -119,9 +122,9 @@ twilight_create <- function(
   id <- !is.na(id) & id
   id_ss_s <- id_ss_s[id]
   id_ss <- id_ss[id]
-  if (any(stats::na.omit(id_ss) == dim(l)[1])) {
+  if (any(id_ss == dim(l)[1] - 1)) {
     cli::cli_warn(c(
-      "!" = "{sum(id_ss == 1)} twilights are set at midnight (relative to {.var twl_offset}).",
+      "!" = "{sum(id_ss == dim(l)[1] - 1)} twilights are set at midnight (relative to {.var twl_offset}).",
       "i" = "There is likely a problem with {.var twl_offset = {twl_offset}}."
     ))
   }

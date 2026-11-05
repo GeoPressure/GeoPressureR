@@ -7,7 +7,8 @@ server <- function(input, output, session) {
 
   if (isTRUE(shiny::getShinyOption("stop_on_session_end", TRUE))) {
     session$onSessionEnded(function() {
-      stopApp()
+      # Return the edited path from runApp()
+      stopApp(shiny::isolate(reactVal$path))
     })
   }
 
@@ -67,28 +68,20 @@ server <- function(input, output, session) {
     isEdit = FALSE # if editing position
   )
 
-  shiny::observe({
-    # Store current path as path_geopressureviz in shiny options
-    shiny::shinyOptions(path_geopressureviz = reactVal$path)
-  })
-
   # return the map
   map_display <- shiny::reactive({
     if (is.null(input$map_source)) {
       return(NA)
     }
-    r <- rast.map(maps[[input$map_source]])
-    # Robust normalization across all layers. `terra::minmax()` returns per-layer ranges,
-    # and `diff(minmax)` is not "max-min" for multi-layer rasters.
-    r_min <- suppressWarnings(terra::global(r, "min", na.rm = TRUE)[1, 1])
-    r_max <- suppressWarnings(terra::global(r, "max", na.rm = TRUE)[1, 1])
-    if (!is.finite(r_min) || !is.finite(r_max) || r_max <= r_min) {
-      r_norm <- r
-    } else {
-      r_norm <- (r - r_min) / (r_max - r_min)
-    }
+    map <- maps[[input$map_source]]
+    map$data <- lapply(map$data, function(m) {
+      if (is.null(m)) {
+        return(m)
+      }
+      m / sum(m, na.rm = TRUE)
+    })
     terra::project(
-      r_norm,
+      rast.map(map),
       "epsg:3857",
       method = "near",
       res = res_proj,
@@ -97,7 +90,7 @@ server <- function(input, output, session) {
   }) |>
     bindEvent(input$map_source)
 
-  # list of the stap_id which are above the threashold of duration and included in the model
+  # list of the stap_id which are above the threshold of duration and included in the model
   stap_id_include <- shiny::reactive({
     min_dur_stap <- ifelse(
       is.na(input$min_dur_stap),
@@ -136,11 +129,10 @@ server <- function(input, output, session) {
     curr_id <- as.numeric(input$stap_id)
     nb_fl <- abs(nextnext_id - curr_id)
 
-    dist_km <- geosphere::distGeo(
+    dist_km <- haversine_distance(
       reactVal$path[nextnext_id, c("lon", "lat")],
       reactVal$path[curr_id, c("lon", "lat")]
-    ) /
-      1000
+    )
 
     fl_dur <- flight_dur_reactive()[min(idx, idx + nextprev)]
 
@@ -407,7 +399,7 @@ server <- function(input, output, session) {
   })
 
   ## ObserveEvents ----
-  # Same order than the ui
+  # Same order as the UI
 
   shiny::observeEvent(input$full_track, {
     if (input$full_track) {
@@ -416,7 +408,7 @@ server <- function(input, output, session) {
     } else {
       shinyjs::show(id = "stap_info_view", anim = TRUE)
       shinyjs::hide(id = "track_info_view", anim = TRUE)
-      if (input$min_dur_stap > 0) {
+      if (isTRUE(input$min_dur_stap > 0)) {
         shinyjs::show(id = "edit_position_interpolate")
       } else {
         shinyjs::hide(id = "edit_position_interpolate")
@@ -500,33 +492,28 @@ server <- function(input, output, session) {
 
         stap_prev_to_next <- seq(stap_id_prev, stap_id_next)
 
-        # Cummulate the flight duration to get a proxy of the over distance covered
-        total_flight <- cumsum(as.numeric(c(
+        # Cumulate the flight duration to get a proxy of the overall distance covered
+        total_flight <- cumsum(c(
           0,
-          flight$duration[stap_prev_to_next]
-        )))
+          stap2flight(stap, stap$stap_id)$duration[utils::head(stap_prev_to_next, -1)]
+        ))
 
         stap_interp <- !(stap_prev_to_next %in%
           c(stap_id_prev, as.numeric(input$stap_id), stap_id_next))
 
         path_prev_to_next <- reactVal$path[stap_prev_to_next, ]
 
-        # Interpolate the lat and lon indices separately using `total_flight` as a spacing between
-        # position
-        path_prev_to_next$lon[stap_interp] <- round(
-          stats::approx(
-            total_flight[!stap_interp],
-            path_prev_to_next$lon[!stap_interp],
-            total_flight[stap_interp]
-          )$y
-        )
-        path_prev_to_next$lat[stap_interp] <- round(
-          stats::approx(
-            total_flight[!stap_interp],
-            path_prev_to_next$lat[!stap_interp],
-            total_flight[stap_interp]
-          )$y
-        )
+        # Interpolate lat and lon separately using `total_flight` as a spacing between position
+        path_prev_to_next$lon[stap_interp] <- stats::approx(
+          total_flight[!stap_interp],
+          path_prev_to_next$lon[!stap_interp],
+          total_flight[stap_interp]
+        )$y
+        path_prev_to_next$lat[stap_interp] <- stats::approx(
+          total_flight[!stap_interp],
+          path_prev_to_next$lat[!stap_interp],
+          total_flight[stap_interp]
+        )$y
 
         reactVal$path[stap_prev_to_next, ] <- path_prev_to_next
       }
@@ -542,9 +529,6 @@ server <- function(input, output, session) {
     stap_model <- stap[stap_id_include(), ]
     path_model <- reactVal$path[stap_id_include(), c("lon", "lat")]
     fl_dur <- flight_dur_reactive()
-    if (is.null(fl_dur)) {
-      return()
-    }
     if (input$full_track) {
       proxy <- proxy |>
         leaflet::addPolylines(
@@ -847,11 +831,11 @@ server <- function(input, output, session) {
   )
 
   shiny::observeEvent(input$save_path, {
-    target_file <- glue::glue("./data/interim/{tag$param$id}-path-geopressureviz.csv")
+    target_file <- file.path(interim_dir, glue::glue("{tag$param$id}-path-geopressureviz.csv"))
 
     tryCatch(
       {
-        dir.create("./data/interim", recursive = TRUE, showWarnings = FALSE)
+        dir.create(interim_dir, recursive = TRUE, showWarnings = FALSE)
         utils::write.csv(
           reactVal$path,
           file = target_file,

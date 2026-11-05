@@ -32,25 +32,26 @@ A list or a data.frame (see description) containing
 \itemize{
 \item \code{start}: Start time of the (first) flight
 \item \code{end}: End time of the (last) flight
-\item \code{stap_id_s}: Source stap_id (i.e, start)
-\item \code{stap_id_t}: Target stap_id (i.e, end)
+\item \code{stap_s}: Source stap_id (i.e., start)
+\item \code{stap_t}: Target stap_id (i.e., end)
 \item \code{duration}: (Sum of the) duration of flight(s)
 \item (\code{n}: Number of flights)
-The value in brackets are only for the data.frame
+Values in brackets are only for the data.frame
 }
 }
 \description{
-Convert a stationary period data.frame \code{stap} into a flight data.frame or list. Flight are
+Convert a stationary period data.frame \code{stap} into a flight data.frame or list. Flights are
 computed as the difference between the end of a stationary period to the start of the next one.
 Because the pressure/acceleration is labelled for "in flight", the bird was already in flight
-before the first label and after the last label. We account for this by adding to all flights
-duration half the temporal resolution of the sensor.
+before the first label and after the last label. This is already accounted for in the \code{stap}
+boundaries computed by \code{\link[=tag_label_stap]{tag_label_stap()}}, which add half the temporal resolution of the
+sensor to each flight.
 
 You can compute the flight between specific stationary periods using \code{include_stap_id}. In this
 case, the flight duration is computed as the sum of individual flights in between.
 
 You can return the flight as a data.frame or as a list if you want to retrieve the information
-of all individual flight between the \code{include_stap_id}.
+of all individual flights between the \code{include_stap_id}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

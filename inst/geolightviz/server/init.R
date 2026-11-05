@@ -61,9 +61,10 @@ init <- function(
   tag_for_map$stap <- .stapath
 
   # Get known positions
-  rv$known_positions <- .stapath |>
-    dplyr::filter(!is.na(known_lat), !is.na(known_lon)) |>
-    dplyr::select(stap_id, known_lat, known_lon, duration)
+  rv$known_positions <- .stapath[
+    !is.na(.stapath$known_lat) & !is.na(.stapath$known_lon),
+    c("stap_id", "known_lat", "known_lon", "duration")
+  ]
 
   # Map related stuff
   g <- NULL
@@ -118,6 +119,8 @@ init <- function(
   if (rv$has_map && !is.null(twl_calib)) {
     tag_likelihood <- tag_for_map
     tag_likelihood$stap <- .stapath
+    # Compute maps for all twilights; discarded ones are filtered in map_light_aggregate()
+    tag_likelihood$twilight <- tag_likelihood$twilight[, c("twilight", "rise")]
     tag_likelihood$param$geolight_map[["twl_calib"]] <- twl_calib
     tag_likelihood <- GeoPressureR::geolight_map_likelihood(
       tag = tag_likelihood,
@@ -249,17 +252,23 @@ init <- function(
       return(data.frame(lng = numeric(0), lat = numeric(0)))
     }
 
-    terra::rast(
+    cc <- terra::rast(
       simplify2array(!is.na(map_likelihood_)),
       extent = g$extent,
       crs = "epsg:4326"
     ) |>
       terra::disagg(fact = 10, method = "bilinear") |>
       terra::as.contour(levels = 0.5) |>
-      sf::st_as_sf() |>
-      sf::st_coordinates() |>
-      as.data.frame() |>
-      dplyr::rename(lng = X, lat = Y)
+      terra::geom()
+
+    # Separate disjoint contour parts with NA rows so that leaflet does not join them
+    rbind(
+      data.frame(lng = numeric(0), lat = numeric(0)),
+      do.call(
+        rbind,
+        lapply(split(data.frame(lng = cc[, "x"], lat = cc[, "y"]), cc[, "part"]), \(p) rbind(p, NA))
+      )
+    )
   })
 
   rv

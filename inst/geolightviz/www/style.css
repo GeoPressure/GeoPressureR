@@ -139,13 +139,31 @@ p, span, li, td, th {
 
 .map-control-box {
     background-color: white;
-    padding: 6px 8px;
+    padding: 10px;
     border-radius: 5px;
-    color: black;
+    color: #333;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
 }
 
 .map-control-box .form-group {
     margin-bottom: 8px;
+}
+
+.map-control-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.map-control-box .gpv-action-btn {
+    width: auto;
+    flex: 1;
+}
+
+.map-control-box .gpv-action-btn i {
+    float: none;
+    width: auto;
+    height: auto;
+    opacity: 1;
 }
 
 /* Modal Calibration Styles */

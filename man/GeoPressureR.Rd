@@ -3,16 +3,17 @@
 \docType{package}
 \name{GeoPressureR}
 \alias{GeoPressureR}
+\alias{GeoPressureR-package}
 \title{GeoPressureR: Global positioning by atmospheric pressure.}
 \description{
-GeoPressureR is a R package which help researchers determine the position of a bird based on the
+GeoPressureR is an R package that helps researchers determine the position of a bird based on the
 data retrieved from multi-sensor geolocators.
 }
 \details{
 The main novelty of this package is to match atmospheric pressure measurements to weather
-reanalysis database (ERA-5) and produce a probability maps of position.
+reanalysis data (ERA5) and produce probability maps of position.
 
-In addition, we use a graphical model to combine pressure, light, acceleration and windspeed
+In addition, we use a graphical model to combine pressure, light, acceleration and wind speed
 data into a trajectory model of the bird.
 }
 \seealso{

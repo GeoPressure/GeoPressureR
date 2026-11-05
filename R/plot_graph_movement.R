@@ -1,7 +1,7 @@
 #' Plot movement model of a `graph`
 #'
-#' This function display a plot of pressure time series recorded by a tag
-#
+#' This function displays the speed-to-probability movement model of a `graph`.
+#'
 #' @param graph a GeoPressureR `graph` object or a movement list (from `graph_set_movement`).
 #' @param speed Vector of speed value (km/h) used on the x-axis.
 #' @param plot_plotly logical to use `plotly`
@@ -101,7 +101,7 @@ plot_graph_movement <- function(
       )
   }
 
-  if (movement$zero_speed_ratio > 0) {
+  if (movement$zero_speed_ratio > 0 && !all(d$line)) {
     p <- p +
       ggplot2::geom_point(
         data = d[!d$line, ],

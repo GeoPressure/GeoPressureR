@@ -81,7 +81,7 @@ graph_add_wind <- function(
       as <- abs(graph$gs - graph$ws)
       edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
       cli::cli_abort(c(
-        x = "Using {.arg thr_as} of {thr_as} km/h,  there are not any nodes left for the stationary
+        x = "Using {.arg thr_as} of {thr_as} km/h, there are no nodes left for the stationary
         period: {.field {sta_pass}} with a minimum airspeed of
         {.val {round(min(as[edge_s_all[, 3] %in% sta_pass]))}} km/h."
       ))
@@ -101,7 +101,7 @@ graph_add_wind <- function(
       data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
       arrayInd(graph$s, graph$sz)[, 3]
     )
-    gr <- graph_create_prune(gr)
+    gr <- graph_create_prune(gr, quiet = isTRUE(list(...)$quiet))
     # Convert it back to a full list
     tmp <- as.list(do.call("rbind", gr))
     # Overwrite all edges vectors
@@ -110,7 +110,8 @@ graph_add_wind <- function(
     graph$gs <- tmp$gs
     graph$ws <- tmp$ws
 
-    # After pruning some retrieval nodes might not be present anymore.
+    # After pruning some equipment and retrieval nodes might not be present anymore.
+    graph$equipment <- graph$equipment[graph$equipment %in% graph$s]
     graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   }
 
@@ -144,9 +145,7 @@ graph_add_wind <- function(
     graph$param$graph_add_wind$file <- file
   } else {
     # Use default file function if not provided
-    file <- \(stap_id) {
-      glue::glue("./data/wind/{graph$param$id}/{graph$param$id}_{stap_id}.nc")
-    }
+    file <- eval(formals(add_wind_graph_edge)$file)
     attr(file, "srcref") <- NULL
     attr(file, "srcfile") <- NULL
     environment(file) <- baseenv()

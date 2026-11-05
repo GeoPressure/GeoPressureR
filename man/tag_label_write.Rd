@@ -11,21 +11,21 @@ tag_label_write(
 )
 }
 \arguments{
-\item{tag}{a GeoPressure \code{tag} object.}
+\item{tag}{a GeoPressureR \code{tag} object.}
 
 \item{file}{Absolute or relative path of the label file to be saved.}
 
-\item{quiet}{logical to display message.}
+\item{quiet}{logical to hide messages.}
 }
 \value{
-The file pathname is return invisibly
+The file pathname is returned invisibly
 }
 \description{
 This function writes the csv file of labelled activity and pressure which can
 be read with \href{https://trainset.geocene.com/}{TRAINSET}. If no label data exist, it will first
 initialize the label data.
 
-Optionally, it can also export a reference dataset for pressure \code{tag$pressure$ref} as another
+Optionally, it can also export a reference dataset for pressure \code{tag$pressure$value_ref} as another
 series to be visualized on TRAINSET, but without impacting the labelling process.
 }
 \examples{
@@ -35,7 +35,7 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
   # Writing unlabelled tag will initialize the labelling for trainset
   tag_label_write(tag, quiet = TRUE)
 
-  # Writing unlabelled tag will initialize the labelling for trainset
+  # Writing an auto-labelled tag
   tag <- tag_label_auto(tag)
   tag_label_write(tag, quiet = TRUE)
 

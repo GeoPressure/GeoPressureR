@@ -1,17 +1,18 @@
 #' Compute flights from stationary periods
 #'
 #' @description
-#' Convert a stationary period data.frame `stap` into a flight data.frame or list. Flight are
+#' Convert a stationary period data.frame `stap` into a flight data.frame or list. Flights are
 #' computed as the difference between the end of a stationary period to the start of the next one.
 #' Because the pressure/acceleration is labelled for "in flight", the bird was already in flight
-#' before the first label and after the last label. We account for this by adding to all flights
-#' duration half the temporal resolution of the sensor.
+#' before the first label and after the last label. This is already accounted for in the `stap`
+#' boundaries computed by [`tag_label_stap()`], which add half the temporal resolution of the
+#' sensor to each flight.
 #'
 #' You can compute the flight between specific stationary periods using `include_stap_id`. In this
 #' case, the flight duration is computed as the sum of individual flights in between.
 #'
 #' You can return the flight as a data.frame or as a list if you want to retrieve the information
-#' of all individual flight between the `include_stap_id`.
+#' of all individual flights between the `include_stap_id`.
 #'
 #' @param stap a stationary period data.frame (see [`tag_label_stap()`]).
 #' @param include_stap_id vector of the stationary period `stap_id` to consider in the flight.
@@ -22,11 +23,11 @@
 #' @return A list or a data.frame (see description) containing
 #' - `start`: Start time of the (first) flight
 #' - `end`: End time of the (last) flight
-#' - `stap_id_s`: Source stap_id (i.e, start)
-#' - `stap_id_t`: Target stap_id (i.e, end)
+#' - `stap_s`: Source stap_id (i.e., start)
+#' - `stap_t`: Target stap_id (i.e., end)
 #' - `duration`: (Sum of the) duration of flight(s)
 #' - (`n`: Number of flights)
-#' The value in brackets are only for the data.frame
+#' Values in brackets are only for the data.frame
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 #'   tag <- tag_create("18LX", quiet = TRUE) |> tag_label(quiet = TRUE)
@@ -67,8 +68,9 @@ stap2flight <- function(
   }
   assertthat::assert_that(all(include_stap_id %in% stap$stap_id))
   assertthat::assert_that(is.logical(return_numeric))
+  include_stap_id <- sort(include_stap_id)
 
-  if (length(include_stap_id) == 1) {
+  if (length(include_stap_id) <= 1) {
     if (format == "list") {
       return(list())
     } else {

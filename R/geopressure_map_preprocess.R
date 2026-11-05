@@ -34,7 +34,7 @@ geopressure_map_preprocess <- function(
 
   if (any(pressure$stap_id == 0)) {
     cli::cli_warn(c(
-      "!" = "{.var pressurepath} has been create with an old version of {.pkg GeoPressureR} (<v3.2.0)",
+      "!" = "{.var tag} has been created with an old version of {.pkg GeoPressureR} (<v3.2.0)",
       ">" = "For optimal performance, we suggest to re-run your code"
     ))
     id <- pressure$stap_id == 0
@@ -117,7 +117,7 @@ geopressure_map_preprocess <- function(
       1100 < max(pressure$value, na.rm = TRUE)
   ) {
     cli::cli_warn(
-      "Pressure observation should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013hPa). Check unit returned by {.fun tag_create}."
+      "Pressure observations should be between 250 hPa (~10000m) and 1100 hPa (sea level at 1013hPa). Check unit returned by {.fun tag_create}."
     )
   }
 
@@ -138,7 +138,7 @@ geopressure_map_preprocess <- function(
   pressure_stapelev_nrow <- lapply(pressure_stapelev, nrow)
   if (any(pressure_stapelev_nrow <= 1)) {
     cli::cli_abort(
-      "There are not enough datapoint in stationary periods {.val {names(pressure_stapelev_nrow)[pressure_stapelev_nrow <= 1]}}."
+      "There are not enough datapoints in stationary periods {.val {names(pressure_stapelev_nrow)[pressure_stapelev_nrow <= 1]}}."
     )
   }
 
@@ -181,7 +181,7 @@ geopressure_map_preprocess <- function(
     pgi_reg$date <- date_reg
 
     # Only keep value which are within 30min of the actual measurement.
-    id <- difftime(pgi_reg$date, pgi_reg$date_ireg, units = "hours") > 0.5
+    id <- abs(difftime(pgi_reg$date, pgi_reg$date_ireg, units = "hours")) > 0.5
     pgi_reg$value[id] <- NA
     # Also set stap_id NA to be able to identify those time to remove at the end of this function
     pgi_reg$stap_id[id] <- NA
@@ -229,7 +229,7 @@ geopressure_map_preprocess <- function(
   pressure_clean <- do.call("rbind", pressure_stapelev_clean)
 
   # Make sure pressure is sorted by date (`pressure_stapelev_clean` uses stap_id as string and does
-  # not insure the correct order when exceeding 10).
+  # not ensure the correct order when exceeding 10).
   pressure_clean <- pressure_clean[order(pressure_clean$date), ]
 
   if (nrow(pressure_clean) == 0) {
@@ -262,7 +262,7 @@ geopressure_map_preprocess <- function(
 
   if (any(stap$Freq < 3)) {
     cli::cli_warn(
-      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less than 3 datapoints to be used.\f"
+      "The stationary period {.var {stap$stap_id[stap$Freq<3]}} have less than 3 datapoints."
     )
   }
 

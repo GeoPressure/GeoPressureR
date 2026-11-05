@@ -367,6 +367,6 @@ geopressure_map_mismatch <- function(
     compute_known = compute_known
   )
 
-  # return the pressure_mismatch in the same order than requested
+  # return the pressure_mismatch in the same order as requested
   return(tag)
 }

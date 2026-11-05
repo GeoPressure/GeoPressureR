@@ -38,21 +38,24 @@ render_map_output <- function(
               inline = TRUE
             )
           ),
-          shiny::actionButton(
-            "ml_position",
-            "Find ML Position",
-            class = "btn-sm gpv-action-btn",
-            icon = shiny::icon("crosshairs"),
-            title = "Find maximum-likelihood position",
-            onclick = "event.stopPropagation();"
-          ),
-          shiny::actionButton(
-            "edit_position",
-            "Edit Position",
-            class = "btn-sm gpv-action-btn",
-            icon = shiny::icon("pen"),
-            title = "Start or stop position editing",
-            onclick = "event.stopPropagation();"
+          shiny::div(
+            class = "map-control-actions",
+            shiny::actionButton(
+              "ml_position",
+              "Find ML Position",
+              class = "btn-sm gpv-action-btn",
+              icon = shiny::icon("crosshairs"),
+              title = "Find maximum-likelihood position",
+              onclick = "event.stopPropagation();"
+            ),
+            shiny::actionButton(
+              "edit_position",
+              "Edit Position",
+              class = "btn-sm gpv-action-btn",
+              icon = shiny::icon("pen"),
+              title = "Start or stop position editing",
+              onclick = "event.stopPropagation();"
+            )
           )
         ),
         position = "topright",
@@ -113,8 +116,8 @@ render_map_output <- function(
     }
 
     # Add current stapath
-    stapath_ <- stapath() |>
-      dplyr::filter(!is.na(lon), !is.na(lat))
+    stapath_ <- stapath()
+    stapath_ <- stapath_[!is.na(stapath_$lon) & !is.na(stapath_$lat), ]
 
     if (nrow(stapath_) > 0) {
       proxy <- proxy |>

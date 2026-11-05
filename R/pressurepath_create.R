@@ -236,15 +236,17 @@ pressurepath_finalize <- function(
         FUN = \(x) mean(x, na.rm = TRUE)
       )
     )
-    id <- match(pp$stapelev, agg$stapelev)
+    id <- match(pp$stapelev, agg$stapelev_label)
     pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
       agg$surface_pressure[id] +
       agg$pressure_tag[id]
   }
 
   if (!is.null(solar_dep)) {
+    # path2twilight() returns rows in the same order as pressurepath (dates can repeat across j)
     twl <- path2twilight(pressurepath, solar_dep = solar_dep, return_long = FALSE)
-    pressurepath <- merge(pressurepath, twl[, c("date", "sunset", "sunrise")])
+    pressurepath[c("sunset", "sunrise")] <- twl[c("sunset", "sunrise")]
+    rownames(pressurepath) <- NULL
   }
 
   # Fixed column order: identifiers, position, the requested variables in the order asked for,

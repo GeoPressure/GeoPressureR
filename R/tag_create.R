@@ -243,18 +243,32 @@ tag_create <- function(
         )
         csv_names <- tolower(basename(csv_files))
         manufacturer <- "tabular"
-        pressure_file <- csv_files[match("pressure.csv", csv_names)]
-        light_file <- csv_files[match("light.csv", csv_names)]
-        acceleration_file <- csv_files[match("acceleration.csv", csv_names)]
-        temperature_external_file <- csv_files[match("temperature_external.csv", csv_names)]
-        temperature_internal_file <- csv_files[match("temperature_internal.csv", csv_names)]
-        magnetic_file <- csv_files[match("magnetic.csv", csv_names)]
+        # Only fill sensor files not provided by the user
+        if (is.null(pressure_file)) {
+          pressure_file <- csv_files[match("pressure.csv", csv_names)]
+        }
+        if (is.null(light_file)) {
+          light_file <- csv_files[match("light.csv", csv_names)]
+        }
+        if (is.null(acceleration_file)) {
+          acceleration_file <- csv_files[match("acceleration.csv", csv_names)]
+        }
+        if (is.null(temperature_external_file)) {
+          temperature_external_file <- csv_files[match("temperature_external.csv", csv_names)]
+        }
+        if (is.null(temperature_internal_file)) {
+          temperature_internal_file <- csv_files[match("temperature_internal.csv", csv_names)]
+        }
+        if (is.null(magnetic_file)) {
+          magnetic_file <- csv_files[match("magnetic.csv", csv_names)]
+        }
       } else {
         cli::cli_abort(c(
-          "x" = "We were not able to determine the {.var manufacturer} of tag from the directory
+          "x" = "Could not determine the {.arg manufacturer} of the tag from the directory
         {.file {directory}}",
-          ">" = "Check that this directory contains the file with pressure data (i.e., with
-        extension {.val .pressure}, {.val .glf}, {.val .deg}, {.val _press.xlsx} or {.val .csv})"
+          ">" = "Check that this directory contains the sensor files (i.e., with extension
+        {.val .pressure}, {.val .glf}, {.val .deg}, {.val .lux}, {.val .lig}, {.val _press.xlsx} or
+        {.val .csv})"
         ))
       }
     }
@@ -390,9 +404,9 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
     ignore.case = TRUE
   )
 
-  # Remove temporary file and those with word "test"
-  path <- path[!grepl("~\\$|test", path, ignore.case = TRUE)]
-  path <- path[!grepl("(?i)(?<!mag)calib", path, perl = TRUE)]
+  # Remove temporary file and those with word "test" or "calib" in their filename
+  path <- path[!grepl("~\\$|test", basename(path), ignore.case = TRUE)]
+  path <- path[!grepl("(?i)(?<!mag)calib", basename(path), perl = TRUE)]
 
   if (length(path) == 0) {
     if (!quiet) {
@@ -418,7 +432,7 @@ tag_create_detect <- function(file, directory, quiet = TRUE) {
 #'
 #' @param sensor_path Full path of the file (directory + file)
 #' @param skip Number of lines of the data file to skip before beginning to read data.
-#' @param colIndex of the column of the data to take as observation.
+#' @param col Index of the column(s) of the data to take as observation.
 #' @param date_format Format of the date (see [`strptime()`]).
 #' @noRd
 tag_create_dto <- function(
@@ -444,7 +458,7 @@ tag_create_dto <- function(
     data_raw <- utils::read.delim(con, sep = "", header = FALSE)
   }
 
-  # Remove Invalid byte: FD from migratech
+  # Remove Invalid byte: FD from Migrate Technology
   data_raw <- data_raw[!data_raw[, 1] == "Invalid", ]
 
   sensor_data <- data.frame(
@@ -460,9 +474,9 @@ tag_create_dto <- function(
     sensor_data[[name]] <- as.numeric(data_raw[[col[i]]])
   }
 
-  if (anyNA(sensor_data$value)) {
+  if (anyNA(sensor_data$value) || anyNA(sensor_data$date)) {
     cli::cli_abort(c(
-      x = "Invalid data in {.file {sensor_path}} at line(s): {skip + which(is.na(sensor_data$value))}",
+      x = "Invalid data in {.file {sensor_path}} at line(s): {skip + which(is.na(sensor_data$value) | is.na(sensor_data$date))}",
       i = "Check and fix the corresponding lines"
     ))
   }

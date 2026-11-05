@@ -22,8 +22,8 @@ Use \code{speed_ref = 1} for trigonometric orientation (clockwise from East).}
 bearing angle in degree
 }
 \description{
-This function convert a speed vector represented in complex number into a bearing angle (0°=N ;
-90°=E...). This conversion is needed because trigonometric angle are different than bearing.
+This function converts a speed vector represented in complex number into a bearing angle (0°=N ;
+90°=E...). This conversion is needed because trigonometric angles are different than bearing.
 }
 \examples{
 speed2bearing(complex(real = 10, imaginary = 5))

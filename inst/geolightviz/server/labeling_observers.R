@@ -43,7 +43,7 @@ setup_labeling_observers <- function(
         label = shiny::tags$span("Stop", class = "btn-label"),
         icon = shiny::icon("stop")
       )
-      shinyjs::removeClass("label_twilight", "primary")
+      shinyjs::removeClass("label_twilight", "btn-primary")
     } else {
       shinyjs::enable("change_range")
       shinyjs::enable("add_stap")
@@ -51,10 +51,10 @@ setup_labeling_observers <- function(
       shiny::updateActionButton(
         session,
         "label_twilight",
-        label = shiny::tags$span("Start", class = "btn-label"),
+        label = shiny::tags$span("Edit", class = "btn-label"),
         icon = shiny::icon("pen")
       )
-      shinyjs::addClass("label_twilight", "primary")
+      shinyjs::addClass("label_twilight", "btn-primary")
     }
   })
 
@@ -67,12 +67,11 @@ setup_labeling_observers <- function(
     }
 
     twl_ <- twl()
-    clicked_x <- as.POSIXct(click_data$x, tz = "UTC")
     clicked_y <- as.POSIXct(click_data$y, tz = "UTC")
 
-    # Find nearby points
+    # Find nearby points (same light matrix column and within 15 min)
     nearby_idx <- which(
-      abs(as.numeric(difftime(twl_$twilight, clicked_x, units = "days"))) <= 0.5 &
+      twl_$day == as.Date(click_data$x) &
         abs(as.numeric(difftime(
           twl_$plottime,
           clicked_y,

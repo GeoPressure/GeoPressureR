@@ -1,6 +1,6 @@
 #' Assert the status of a `tag`
 #'
-#' This function check the condition of a `tag` object.
+#' This function checks the condition of a `tag` object.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param condition condition to assert `tag` for. One of `"tag"` (default), `"read"`,
@@ -78,12 +78,12 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
       )
     } else if (condition == "stap") {
       msg <- c(
-        "x" = "The stationary period have not yet been computed for {.var tag}.",
+        "x" = "Stationary periods have not yet been computed for {.var tag}.",
         ">" = "Use {.fun tag_label} to define the stationary periods."
       )
     } else if (condition == "setmap") {
       msg <- c(
-        "x" = "The parameters for the geographical and stationary period have not been yet been defined in {.var tag}.",
+        "x" = "The parameters for the geographical and stationary period have not yet been defined in {.var tag}.",
         ">" = "Use {.fun tag_set_map} to define them."
       )
     } else if (condition == "map_pressure") {
@@ -157,6 +157,7 @@ tag_assert <- function(tag, condition = "tag", type = "abort") {
   } else if (type == "abort") {
     cli::cli_abort(msg)
   }
+  invisible(FALSE)
 }
 
 #' Get tag processing status

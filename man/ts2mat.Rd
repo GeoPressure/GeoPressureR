@@ -28,7 +28,8 @@ seconds (3 minutes). Half the sampling interval is always allowed, so that drift
 timestamps sliding against the grid are kept.}
 }
 \value{
-A data.frame with columns \code{date} and \code{value}.
+A list with \code{value} and \code{date} matrices (time of day × day), the temporal resolution
+\code{res} (in seconds), the \code{day} of each column and the \code{time} of each row.
 }
 \description{
 Format time series data frame into a matrix

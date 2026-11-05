@@ -12,12 +12,9 @@ function setupPlotlyEventHandlers(el) {
     }
 
     relayoutTimer = setTimeout(function () {
+      // Plotly date strings are UTC-naive: parse them as UTC, not browser local time
       function toMs(x) {
-        if (x == null) return null;
-        if (typeof x === "number") return x;
-        if (x instanceof Date) return x.getTime();
-        var time = new Date(x).getTime();
-        return isNaN(time) ? null : time;
+        return x == null ? null : stapelevRangeBarMs(x);
       }
 
       var xmin = null;

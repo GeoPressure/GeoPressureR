@@ -17,10 +17,10 @@
 #' - `stap_s`: stationary period of the origin (source).
 #' - `stap_t`: stationary period of the destination (target).
 #' - `distance`: Distance (in km) of the flight.
-#' - `start`: end of the flight.
-#' - `end`: start of the flight.
+#' - `start`: start of the flight.
+#' - `end`: end of the flight.
 #' - `duration`: duration of the flight.
-#' - `n`: number of flight.
+#' - `n`: number of flights.
 #' - `bearing`: Angle of the flight in degree (0° = North, 90° = East).
 #' - `gs`: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 #' (km/h) with `abs(gs)`, the W-E and S-N component of the flight with `Re(gs)` and `Im(gs)`, and
@@ -46,7 +46,7 @@ path2edge <- function(path, tag_graph) {
     inherits(tag_graph, "tag") | inherits(tag_graph, "graph")
   )
   stap <- tag_graph$stap
-  assertthat::assert_that(all(unique(path$stap_id) == stap$stap_id))
+  assertthat::assert_that(setequal(path$stap_id, stap$stap_id))
 
   g <- map_expand(
     tag_graph$param$tag_set_map$extent,
@@ -140,22 +140,15 @@ path2edge <- function(path, tag_graph) {
       msg = "path is not compatible with the graph."
     )
 
-    # Build data.frame of the graph
-    graph_st <- data.frame(
-      edge_id = seq_len(length(tag_graph$s)),
-      s = tag_graph$s,
-      t = tag_graph$t
+    # Find index of edge in the graph (complex number used as a fast (s, t) key)
+    edge_id <- match(
+      complex(real = edge$s, imaginary = edge$t),
+      complex(real = tag_graph$s, imaginary = tag_graph$t)
     )
 
-    # Shorten graph to only node of interest
-    graph_st <- graph_st[graph_st$s %in% edge$s & graph_st$t %in% edge$t, ]
-
-    # Find index of edge
-    tmp <- merge(edge, graph_st, all.x = TRUE, sort = FALSE)
-
-    edge$gs <- tag_graph$gs[tmp$edge_id]
+    edge$gs <- tag_graph$gs[edge_id]
     if ("ws" %in% names(tag_graph)) {
-      edge$ws <- tag_graph$ws[tmp$edge_id]
+      edge$ws <- tag_graph$ws[edge_id]
     }
   }
 

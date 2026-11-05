@@ -14,7 +14,7 @@ windsupport(windspeed, groundspeed, drift = FALSE)
 \item{drift}{return drift instead of windsupport}
 }
 \value{
-wind support as scalar value (same unit as \code{gs} and \code{ws})
+wind support (or drift) as scalar value (same unit as \code{windspeed} and \code{groundspeed})
 }
 \description{
 Wind support, or wind profit, is the projection of the wind vector \eqn{\vec{v}_w} onto the
@@ -37,7 +37,7 @@ A positive value of drift indicates that the wind is pushing the bird to the rig
 intended path, while a negative indicates that the wind is pushing the bird to the left.
 
 You can use \code{abs()} (or \code{Mod()}) to compute the norm (or absolute value) of the speed vector and
-\code{speed_to_bearing()} to compute the bearing/orientation of the speed vector. The latter
+\code{speed2bearing()} to compute the bearing/orientation of the speed vector. The latter
 computes the trigonometric angle of the speed vector with \code{Arg()} and convert this angle to a
 bearing (North = 0° instead of 90°).
 }

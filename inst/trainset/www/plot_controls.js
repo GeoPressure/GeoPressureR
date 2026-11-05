@@ -96,8 +96,8 @@ $(document).ready(function () {
 
       var currentRange = axisRange(plot, "xaxis");
       if (currentRange) {
-        var start = new Date(currentRange[0]);
-        var end = new Date(currentRange[1]);
+        var start = new Date(stapelevRangeBarMs(currentRange[0]));
+        var end = new Date(stapelevRangeBarMs(currentRange[1]));
         var duration = end - start;
         var center = new Date(start.getTime() + duration / 2);
 
@@ -110,7 +110,7 @@ $(document).ready(function () {
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
           Plotly.relayout(plot, {
-            "xaxis.range": [newStart, newEnd],
+            "xaxis.range": [newStart.toISOString(), newEnd.toISOString()],
           });
         }
         // Zoom out with down arrow
@@ -122,7 +122,7 @@ $(document).ready(function () {
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
           Plotly.relayout(plot, {
-            "xaxis.range": [newStart, newEnd],
+            "xaxis.range": [newStart.toISOString(), newEnd.toISOString()],
           });
         }
         // Pan left with left arrow
@@ -134,7 +134,7 @@ $(document).ready(function () {
           var newStart = new Date(start.getTime() - panAmount);
           var newEnd = new Date(end.getTime() - panAmount);
           Plotly.relayout(plot, {
-            "xaxis.range": [newStart, newEnd],
+            "xaxis.range": [newStart.toISOString(), newEnd.toISOString()],
           });
         }
         // Pan right with right arrow
@@ -146,7 +146,7 @@ $(document).ready(function () {
           var newStart = new Date(start.getTime() + panAmount);
           var newEnd = new Date(end.getTime() + panAmount);
           Plotly.relayout(plot, {
-            "xaxis.range": [newStart, newEnd],
+            "xaxis.range": [newStart.toISOString(), newEnd.toISOString()],
           });
         }
       }
@@ -235,8 +235,8 @@ $(document).ready(function () {
       else {
         var currentRange = axisRange(plot, "xaxis");
         if (currentRange) {
-          var start = new Date(currentRange[0]);
-          var end = new Date(currentRange[1]);
+          var start = new Date(stapelevRangeBarMs(currentRange[0]));
+          var end = new Date(stapelevRangeBarMs(currentRange[1]));
           var duration = end - start;
           var center = new Date(start.getTime() + duration / 2);
 
@@ -250,7 +250,7 @@ $(document).ready(function () {
           var newStart = new Date(center.getTime() - newDuration / 2);
           var newEnd = new Date(center.getTime() + newDuration / 2);
           Plotly.relayout(plot, {
-            "xaxis.range": [newStart, newEnd],
+            "xaxis.range": [newStart.toISOString(), newEnd.toISOString()],
           });
         }
       }

@@ -2,9 +2,7 @@
 
 backup_timer <- reactiveTimer(60000, session) # every 60 seconds
 
-shiny::observe({
-  backup_timer()
-
+shiny::observeEvent(backup_timer(), {
   if (!isTRUE(auto_save_enabled)) {
     return()
   }
@@ -13,7 +11,7 @@ shiny::observe({
     return()
   }
 
-  base_name <- tools::file_path_sans_ext(state$tag$param$id)
+  base_name <- state$tag$param$id
   backup_file <- file.path(label_dir, glue::glue("{base_name}-labeled-backup.csv"))
 
   try(
@@ -49,7 +47,7 @@ shiny::observeEvent(input$save_btn, {
     return()
   }
 
-  base_name <- tools::file_path_sans_ext(state$tag$param$id)
+  base_name <- state$tag$param$id
   target_file <- file.path(label_dir, glue::glue("{base_name}-labeled.csv"))
 
   tryCatch(
@@ -76,7 +74,7 @@ shiny::observeEvent(input$save_btn, {
 
 output$export_btn <- shiny::downloadHandler(
   filename = function() {
-    base_name <- tools::file_path_sans_ext(state$tag$param$id)
+    base_name <- state$tag$param$id
     glue::glue("{base_name}-labeled.csv")
   },
   content = function(file) {

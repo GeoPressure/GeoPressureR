@@ -38,7 +38,7 @@ a \code{tag} list containing a new data.frame \code{twilight} with columns:
 }
 \description{
 This function estimates twilight (i.e., datetime of sunrise and sunset) by searching for the
-first and last light of the day which is defined by the light exceeds or falls below the light
+first and last light of the day which is defined as the time when light exceeds or falls below the light
 threshold \code{twl_thr}.
 }
 \examples{

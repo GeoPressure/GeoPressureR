@@ -11,9 +11,9 @@
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
 #' @param graph either a `tag` or a `graph` GeoPressureR object.
-#' @param edge_s a index of the source node of the edge. Either a vector with 3D index or a matrix
+#' @param edge_s an index of the source node of the edge. Either a vector with 3D index or a matrix
 #' of 3 columns, one for each dimension.
-#' @param edge_t a index of the target node of the edge. Either a vector with 3D index or a matrix
+#' @param edge_t an index of the target node of the edge. Either a vector with 3D index or a matrix
 #' of 3 columns, one for each dimension.
 #' @param pressure pressure measurement of the associated `tag` data used to estimate the pressure
 #' level (i.e., altitude) of the bird during the flights. This data.frame needs to contain `date` as
@@ -385,7 +385,7 @@ edge_add_wind_check <- function(
       tmp <- !(era5_variable_short(variable) %in% available_variable)
       if (any(tmp)) {
         cli::cli_abort(c(
-          x = "Wind file does not contains the variable{?s}: {.var {variable[tmp]}}.",
+          x = "Wind file does not contain the variable{?s}: {.var {variable[tmp]}}.",
           "i" = "Available variable{?s} {?is/are} {.var {available_variable}}."
         ))
       }
@@ -417,7 +417,7 @@ edge_add_wind_check <- function(
         format(fl_s$end[i_fl] + 60 * 60, "%Y-%m-%d %H:00:00"),
         tz = "UTC"
       )
-      if (!(min(time) <= t_e && max(time) >= t_s)) {
+      if (!(min(time) <= t_s && max(time) >= t_e)) {
         cli::cli_abort(c(
           x = "Wind file ({.file {file_path}}) does not cover the flight time range.",
           "i" = "Wind file: {min(time)} to {max(time)}. Flight: {t_s} to {t_e}.",
@@ -430,7 +430,7 @@ edge_add_wind_check <- function(
       pres_value <- pressure$value[pressure$date > t_s & pressure$date < t_e]
       pres_value <- pres_value[is.finite(pres_value)]
       if (length(pres_value) > 0) {
-        pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+        pres_var <- names(nc$dim)[grepl("level", names(nc$dim))]
         pres <- ncdf4::ncvar_get(nc, pres_var)
 
         if (
@@ -464,7 +464,7 @@ edge_add_wind_check <- function(
         ))
       }
 
-      # Check if flight duration is
+      # Check that flight duration is positive
       if (fl_s$start[i_fl] >= fl_s$end[i_fl]) {
         cli::cli_abort(c(
           x = "Flight starting on stap {fl_s$stap_s[i_fl]} has a start time equal or greater than
@@ -537,7 +537,7 @@ edge_add_wind_nc_info <- function(nc, file_path) {
       "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
     ))
   }
-  pres_var <- names(nc$dim)[grepl("*level", names(nc$dim))]
+  pres_var <- names(nc$dim)[grepl("level", names(nc$dim))]
   pres <- ncdf4::ncvar_get(nc, pres_var)
 
   # Keep only coordinate vectors and grid spacing; variable arrays are read later in small chunks.

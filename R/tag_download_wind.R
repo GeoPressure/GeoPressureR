@@ -42,7 +42,7 @@
 #' @inheritParams ecmwfr::wf_request_batch
 #' @inheritDotParams ecmwfr::wf_request_batch
 #'
-#' @return The path of the downloaded (requested file) or the an R6 object with download/transfer
+#' @return The path of the downloaded (requested file) or an R6 object with download/transfer
 #' information
 #' @examplesIf FALSE
 #'   tag_download_wind(tag)

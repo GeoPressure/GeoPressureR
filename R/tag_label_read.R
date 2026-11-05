@@ -33,7 +33,7 @@ tag_label_read <- function(
 
   tag$pressure <- trainset_read(tag$pressure, file = file, series = "pressure")
 
-  # Check that all label are correct
+  # Check that all labels are correct
   unique_label <- unique(tag$pressure$label)
   unique_label <- unique_label[
     !(unique_label %in%
@@ -42,8 +42,8 @@ tag_label_read <- function(
   ]
   if (length(unique_label) > 0) {
     cli::cli_abort(c(
-      x = "The pressure label file contains unknown label: {.val {unique_label}}",
-      i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
+      x = "The pressure label file contains unknown labels: {.val {unique_label}}",
+      i = "Correct the label file {.file {file}} to contain only {.val {c('flight', 'discard', 'elev_*')}}"
     ))
   }
 
@@ -61,7 +61,7 @@ tag_label_read <- function(
       series = "acceleration"
     )
 
-    # Check that all label are correct
+    # Check that all labels are correct
     if ("label" %in% names(tag$acceleration)) {
       unique_label <- unique(tag$acceleration$label)
       unique_label <- unique_label[
@@ -71,8 +71,8 @@ tag_label_read <- function(
       ]
       if (length(unique_label) > 0) {
         cli::cli_abort(c(
-          x = "The acceleration label file contains unknown label: {.val {unique_label}}",
-          i = "Correct the label file {.file {file}} to contains only {.val {c('flight', 'discard', 'elev_*')}}"
+          x = "The acceleration label file contains unknown labels: {.val {unique_label}}",
+          i = "Correct the label file {.file {file}} to contain only {.val {c('flight', 'discard', 'elev_*')}}"
         ))
       }
     }

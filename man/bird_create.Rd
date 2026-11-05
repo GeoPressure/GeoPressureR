@@ -33,7 +33,7 @@ bird_create(
 List containing mass, wing span, wing aspect ratio, and body frontal area.
 }
 \description{
-This function returns a list with the four morphological information necessary to construct the
+This function returns a list with the four morphological traits necessary to construct the
 power curve: mass, wing span, wing aspect ratio, and body frontal area.
 
 When any of these variables are missing, we query the

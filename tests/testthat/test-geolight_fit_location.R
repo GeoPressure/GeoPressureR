@@ -32,7 +32,7 @@ test_that("tag_stap_daily() accepts deprecated stap0", {
     "deprecated"
   )
 
-  expect_true(all(tag_legacy$stap$stap0))
+  expect_true(all(tag_legacy$stap$stap_long))
 })
 
 test_that("geolight_fit_location() does not estimate known staps by default", {

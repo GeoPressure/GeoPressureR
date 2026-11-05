@@ -7,7 +7,7 @@
 #' @param file Name of the twilight label file to be saved.
 #' @param quiet logical to hide messages
 #'
-#' @return None
+#' @return The file pathname is returned invisibly
 #'
 #' @examples
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -29,7 +29,7 @@ twilight_label_write <- function(
   # Check twilight
   tag_assert(tag, "twilight")
 
-  # Extract twilight to convenience
+  # Extract twilight for convenience
   twilight <- tag$twilight
 
   # Adapt variable
@@ -40,7 +40,7 @@ twilight_label_write <- function(
 
   # Normalize the value with offset to be more smooth
   twilight$value <- (twilight$value -
-    tag$param$twilight_create$twl_offset * 60) %%
+    resolve_twl_offset(tag, tag$light, NULL) * 60) %%
     (24 * 60)
 
   if (!assertthat::has_name(twilight, "label")) {
@@ -54,7 +54,7 @@ twilight_label_write <- function(
   if (anyNA(twilight$label)) {
     cli::cli_warn(c(
       "!" = "Some twilight label contain NA value",
-      "i" = "Check {.code twilight$label} or {.code twilight$stap}",
+      "i" = "Check {.code twilight$label} or {.code twilight$stap_id}",
       ">" = "We replaced them by {.val 'discard'}"
     ))
     twilight$label[is.na(twilight$label)] <- "discard"

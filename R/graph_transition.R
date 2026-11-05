@@ -3,7 +3,7 @@
 #' Use the movement model (see `graph_set_movement()`) to convert ground speed `gs` (or airspeed
 #' `as` if available) into the transition probability of the edges of the graph.
 #'
-#' The vector return correspond to the elements of the transition matrices
+#' The returned vector corresponds to the elements of the transition matrices
 #' \eqn{T_k \forall k \in [1,n]} extracted for all edges considered in the graph. Each of these
 #' values thus corresponds to the probability \eqn{P(X_k \mid X_{k-1})}, where \eqn{X_k} is the
 #' random variable of the position of the bird at time \eqn{k}.
@@ -20,7 +20,7 @@
 graph_transition <- function(graph) {
   graph_assert(graph)
 
-  # The full transition vector can be specify manually as graph$transition
+  # The full transition vector can be specified manually as graph$transition
   if ("transition" %in% names(graph)) {
     return(graph$transition)
   }

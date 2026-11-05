@@ -19,7 +19,7 @@ A GeoPressureR \code{param} list
 \description{
 Create the list of parameter for GeoPressureR \code{tag} and \code{graph} objects.
 
-\code{param} list are mostly used to archived the actual value of parameters used to create a \code{tag}
+\code{param} list are mostly used to archive the actual value of parameters used to create a \code{tag}
 and/or a \code{graph}, thus allowing for examination of parameters post-creation. This function should
 therefore not be used to set/define parameters ahead of computation. In reality, there are very
 few external case of use for this function.

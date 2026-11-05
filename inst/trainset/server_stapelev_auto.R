@@ -58,9 +58,9 @@ stapelev_card_value <- function(field) {
     seq_along(state$stapelev_offsets),
     function(i) {
       value <- input[[paste0("stapelev_card_", state$stapelev_revision, "_", i, "_", field)]]
-      if (is.null(value)) state$stapelev_cards[[field]][i] else value
+      if (is.null(value) || is.na(value)) state$stapelev_cards[[field]][i] else value
     },
-    state$stapelev_cards[[field]][1]
+    if (field == "discard_solar") character(1) else numeric(1)
   )
 }
 
@@ -419,17 +419,7 @@ show_stapelev_modal <- function() {
   ) {
     draft <- NULL
   }
-  query_id <- length(bundles)
-  if (!is.null(draft)) {
-    query_id <- match(
-      draft$query_requested_at,
-      vapply(bundles, function(x) as.numeric(x$requested_at), numeric(1))
-    )
-    if (is.na(query_id)) {
-      query_id <- length(bundles)
-      draft <- NULL
-    }
-  }
+  query_id <- which.max(vapply(bundles, function(x) as.numeric(x$cached_at), numeric(1)))
   compute_stapelev_proposal(query_id)
   full_window <- range(as.numeric(state$stapelev_proposal$date))
   settings <- if (is.null(draft)) {

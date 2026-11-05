@@ -210,11 +210,11 @@ tag_create_soi_gap <- function(sensor_data) {
 #' @description
 #' The function applies the following three operations:
 #'
-#' 1. Correction magnetic value in Gauss (https://en.wikipedia.org/wiki/Gauss_(unit))
-#' 2. Correction gravity value in G (https://en.wikipedia.org/wiki/Gravitational_constant)
+#' 1. Convert magnetic values to Gauss (https://en.wikipedia.org/wiki/Gauss_(unit))
+#' 2. Convert acceleration values to g (https://en.wikipedia.org/wiki/Standard_gravity)
 #' 3. Compute mag and acc in the standard forward-right-down
 #'
-#' There are two sensors compatible:
+#' Two sensors are supported:
 #' - LSM303D: hardware version v2.3 and lower
 #' - LSM303AGR: hardware version 2.4 and higher
 #'
@@ -242,14 +242,12 @@ tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
       hw_version <- as.double(hw_version)
     }
   }
-  if (!is.numeric(hw_version) || length(hw_version) != 1) {
+  if (!is.numeric(hw_version) || length(hw_version) != 1 || is.na(hw_version)) {
     if (!quiet) {
-      cli::cli_alert_warning(
-        c(
-          "!" = "The hardware version {.val {hw_version}} could not be detected.",
-          ">" = "The magnetic data is not corrected and {.code mag} contains the raw data."
-        )
-      )
+      cli::cli_warn(c(
+        "!" = "The hardware version {.val {hw_version}} could not be detected.",
+        ">" = "The magnetic data is not corrected and {.code mag} contains the raw data."
+      ))
     }
     return(mag)
   }
@@ -332,7 +330,7 @@ mag_axes <- function(mag, mag_axis = "auto") {
     3
   )
 
-  # Assert that all axis are provided correctly, and on of each direction
+  # Assert that all axis are provided correctly, and one of each direction
   assertthat::assert_that(all(mag_axis %in% ref_axis_name))
   assertthat::assert_that(any(ref_axis_name[, 1] %in% mag_axis))
   assertthat::assert_that(any(ref_axis_name[, 2] %in% mag_axis))

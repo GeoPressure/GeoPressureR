@@ -21,8 +21,8 @@
 #' erroring, indicating missing twilights.
 #' @param quiet logical to hide messages.
 #'
-#' @return Updated `tag` with a twilight-based `stap` and optional `stap0`. The `stap` includes a
-#' logical column `stap0` set to `TRUE` when intervals come from the provided `stap0` input.
+#' @return Updated `tag` with a twilight-based `stap`. The `stap` includes a logical column
+#' `stap_long` set to `TRUE` when intervals come from the provided `stap_long` input.
 #'
 #' @examples
 #' # Create and label the sunrise and sunset times used to define periods.
@@ -82,7 +82,7 @@ tag_stap_daily <- function(
   }
   if (tag_assert(tag, "stap", "logical") && !quiet) {
     cli::cli_warn(
-      "The {.var tag} object already has a {.field stap} defined which will be overwriten."
+      "The {.var tag} object already has a {.field stap} defined which will be overwritten."
     )
   }
   twl <- tag$twilight
@@ -163,15 +163,15 @@ tag_stap_daily <- function(
     stap_id = seq_len(length(boundaries) - 1),
     start = boundaries[-length(boundaries)],
     end = boundaries[-1],
-    stap0 = FALSE
+    stap_long = FALSE
   )
   if (!is.null(stap_long_df)) {
-    key <- paste(stap$start, stap$end)
-    key_long <- paste(stap_long_df$start, stap_long_df$end)
+    key <- paste(as.numeric(stap$start), as.numeric(stap$end))
+    key_long <- paste(as.numeric(stap_long_df$start), as.numeric(stap_long_df$end))
     if (!all(key_long %in% key)) {
       cli::cli_abort("{.var stap_long} intervals do not align with twilight boundaries.")
     }
-    stap$stap0 <- key %in% key_long
+    stap$stap_long <- key %in% key_long
     known_cols <- intersect(c("known_lat", "known_lon"), names(stap_long_df))
     if (length(known_cols) > 0) {
       idx <- match(key_long, key)
@@ -183,7 +183,10 @@ tag_stap_daily <- function(
   # Assign stap to tag
   tag$stap <- stap
 
-  # Assign stap_id to twilight data
+  # Assign stap_id to sensor and twilight data
+  for (s in intersect(c("pressure", "acceleration", "light", "magnetic"), names(tag))) {
+    tag[[s]]$stap_id <- find_stap(tag$stap, tag[[s]]$date)
+  }
   tag$twilight$stap_id <- find_stap(tag$stap, tag$twilight$twilight)
 
   # Store parameters used

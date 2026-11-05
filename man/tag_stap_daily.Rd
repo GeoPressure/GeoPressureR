@@ -36,8 +36,8 @@ erroring, indicating missing twilights.}
 \item{stap0}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Renamed to \code{stap_long}.}
 }
 \value{
-Updated \code{tag} with a twilight-based \code{stap} and optional \code{stap0}. The \code{stap} includes a
-logical column \code{stap0} set to \code{TRUE} when intervals come from the provided \code{stap0} input.
+Updated \code{tag} with a twilight-based \code{stap}. The \code{stap} includes a logical column
+\code{stap_long} set to \code{TRUE} when intervals come from the provided \code{stap_long} input.
 }
 \description{
 Construct stationary periods from labelled sunrise and sunset times. Each boundary is the

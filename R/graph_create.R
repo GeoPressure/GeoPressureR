@@ -16,7 +16,7 @@
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param thr_likelihood threshold of percentile (see details).
-#' @param thr_gs threshold of groundspeed (km/h)  (see details).
+#' @param thr_gs threshold of groundspeed (km/h) (see details).
 #' @param quiet logical to hide messages about the progress.
 #' @param geosphere_dist `r lifecycle::badge("deprecated")` This argument is no longer used.
 #' Distance calculations now use a custom memory-efficient Haversine implementation.
@@ -128,9 +128,9 @@ graph_create <- function(
   if (!quiet) {
     cli::cli_progress_done()
     i_s <- 0
-    nds_expend_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
+    nds_expand_sum <- utils::head(nds_sum, -1) * utils::tail(nds_sum, -1)
     n_pairs_done <- 0
-    n_pairs_total <- sum(nds_expend_sum)
+    n_pairs_total <- sum(nds_expand_sum)
     cli::cli_progress_step(
       "Compute the groundspeed for stationary period {i_s}/{n_transitions}: {round(n_pairs_done / n_pairs_total * 100)}% of candidate pairs processed",
       msg_done = "Compute the groundspeed"
@@ -306,7 +306,7 @@ graph_create <- function(
 
       cli::cli_warn(c(
         "!" = "Using the {.var thr_gs} of {.val {thr_gs}} km/h provided with the exact distance
-          of edges, there are not any node combinaison possible between stationary period
+          of edges, no node combination is possible between stationary period
           {.val {stap_include[i_s]}} and {.val {stap_include[i_s + 1]}}.",
         "i" = "We modified the distance by using the minimal distance between cell rather than
           the distance between the center to fix this issue.",
@@ -374,7 +374,8 @@ graph_create <- function(
   graph$stap <- map$stap
   graph$equipment <- which(nds[[1]])
   graph$retrieval <- as.integer(which(nds[[sz[3]]]) + (sz[3] - 1) * nll)
-  # After pruning some retrieval nodes might not be present anymore.
+  # After pruning some equipment and retrieval nodes might not be present anymore.
+  graph$equipment <- graph$equipment[graph$equipment %in% graph$s]
   graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   graph$mask_water <- tag$map_pressure$mask_water
 
@@ -407,7 +408,7 @@ graph_create <- function(
 #' connected to both the source (i.e, equipment) or sink (i.e. retrieval site).
 #'
 #' @param gr graph constructed with [`graph_create()`].
-#' @return graph prunned
+#' @return graph pruned
 #' @family graph
 #' @noRd
 graph_create_prune <- function(gr, quiet = FALSE) {

@@ -1,6 +1,6 @@
 #' Read or validate stap data
 #'
-#' Reads a CSV file defining coarse stationary periods (`stap0`) or validates a data.frame,
+#' Reads a CSV file defining coarse stationary periods (`stap_long`) or validates a data.frame,
 #' including date parsing, ordering, and overlap checks.
 #'
 #' @param x a `stap` data.frame, a CSV path, or a tag `id` (character scalar). If `x` is a tag
@@ -51,9 +51,18 @@ read_stap <- function(x, required_cols = c("start", "end")) {
     cli::cli_abort("{.var stap} must contain columns: {.val {required_cols}}.")
   }
 
-  # Parse start and end as POSIXct
-  stap_df$start <- as.POSIXct(stap_df$start, tz = "UTC")
-  stap_df$end <- as.POSIXct(stap_df$end, tz = "UTC")
+  # Parse start and end element-wise, as write.csv drops midnight times per element
+  for (col in c("start", "end")) {
+    stap_df[[col]] <- .POSIXct(
+      vapply(
+        stap_df[[col]],
+        \(t) as.numeric(as.POSIXct(t, tz = "UTC")),
+        numeric(1),
+        USE.NAMES = FALSE
+      ),
+      tz = "UTC"
+    )
+  }
   if (anyNA(stap_df$start) || anyNA(stap_df$end)) {
     cli::cli_abort("{.var stap} `start` or `end` could not be parsed as POSIXct.")
   }

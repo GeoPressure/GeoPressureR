@@ -55,7 +55,7 @@ tag_prepare_likelihood <- function(
     cli::cli_progress_done()
     cli::cli_progress_step(
       "Create nodes from likelihood maps {.field {likelihood}} ({.val {g$dim[1]}}x{.val {g$dim[2]}}x{.val {n_stap}})",
-      msg_done = "Nodes created from {round(lk_mask_nb/prod(sz)*100)}% of the likelihood maps {.field {likelihood}} ({.val {g$dim[1]}}x{.val {g$dim[1]}}x{.val {n_stap}})"
+      msg_done = "Nodes created from {round(lk_mask_nb/prod(sz)*100)}% of the likelihood maps {.field {likelihood}} ({.val {g$dim[1]}}x{.val {g$dim[2]}}x{.val {n_stap}})"
     )
   }
 
@@ -63,7 +63,7 @@ tag_prepare_likelihood <- function(
   lk_null <- vapply(lk, is.null, logical(1))
   if (any(lk_null)) {
     cli::cli_abort(c(
-      x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods {.var {stap_include[lk_null]}} while those stationary period are required in {.var stap$include}",
+      x = "The {.field {likelihood}} in {.var tag} is/are null for stationary periods {.var {stap_include[lk_null]}} while those stationary periods are required in {.var stap$include}",
       i = "Check your input and re-run {.fun geopressure_map} if necessary."
     ))
   }
@@ -206,7 +206,7 @@ tag_prepare_likelihood <- function(
     cli::cli_progress_done()
   }
 
-  # Add the nomarlize likelikood map to the map object
+  # Add the normalized likelihood map to the map object
   map$lk_norm <- lk_norm
   map$lk_mask <- lk_mask
   # Also return the resolved likelihood value

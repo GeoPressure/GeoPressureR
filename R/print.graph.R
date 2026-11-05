@@ -52,7 +52,7 @@ print.graph <- function(x, ...) {
 
   cli::cli_h3("Graph size")
   cli::cli_bullets(c(
-    "*" = "{.val {length(graph$equipment)}} {.field equipement} node{?s}",
+    "*" = "{.val {length(graph$equipment)}} {.field equipment} node{?s}",
     "*" = "{.val {length(graph$retrieval)}} {.field retrieval} node{?s}",
     "*" = "{prettyNum(length(unique(c(graph$equipment, graph$t))), big.mark=',')} nodes",
     "*" = "{prettyNum(length(graph$s), big.mark=',')} edges"
@@ -67,7 +67,7 @@ print.graph <- function(x, ...) {
     ))
   }
 
-  if ("movement" %in% names(graph$param)) {
+  if ("graph_set_movement" %in% names(graph$param)) {
     cli::cli_bullets(c(
       "v" = "Movement model defined for
                       {.field {graph$param$graph_set_movement$type}}"

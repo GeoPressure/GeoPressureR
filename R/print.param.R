@@ -92,7 +92,7 @@ print.param <- function(x, ...) {
   bullets(param$graph_create, "thr_gs")
 
   cli::cli_h3(
-    "Movement model & wind {.fun graph_add_wind} {.fun graph_movement}"
+    "Movement model & wind {.fun graph_add_wind} {.fun graph_set_movement}"
   )
   bullets(param$graph_add_wind, "thr_as")
   bullets(param$graph_add_wind, "file")

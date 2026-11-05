@@ -36,7 +36,7 @@
 #' @param marginal map of the marginal probability computed with `graph_marginal()`. Overwrite the
 #' `path` or `pressurepath` contained in the `.Rdata` file.
 #' @param launch_browser If true (by default), the app runs in your browser, otherwise it runs on
-#' Rstudio.
+#' RStudio.
 #' @param run_bg If true, the app runs in a background R session using the `callr` package. This
 #' allows you to continue using your R session while the app is running.
 #' @return When `run_bg = FALSE`: The edited path, returned invisibly when the app closes. During
@@ -96,7 +96,7 @@ geopressureviz <- function(
         pressurepath <- get("pressurepath", inherits = FALSE)
         if ("pressure_era5" %in% names(pressurepath)) {
           cli::cli_warn(c(
-            "!" = "{.var pressurepath} has been create with an old version of \\
+            "!" = "{.var pressurepath} has been created with an old version of \\
       {.pkg GeoPressureR} (<v3.2.0)",
             ">" = "For optimal performance, we suggest to re-run \\
       {.fun pressurepath_create}"
@@ -137,6 +137,12 @@ geopressureviz <- function(
     lapply(map_needed, function(likelihood) tag2map(tag, likelihood = likelihood)),
     map_display
   )
+  if (!length(maps)) {
+    cli::cli_abort(c(
+      "x" = "{.var tag} has no likelihood map to display.",
+      ">" = "Run {.fun geopressure_map} or {.fun geolight_map} first."
+    ))
+  }
 
   # Set colour of each stationary period
   col <- rep(
@@ -186,7 +192,7 @@ geopressureviz <- function(
   # }
   file_wind <- NULL
 
-  deps <- c("shiny", "shinyjs", "shinyWidgets")
+  deps <- c("shiny", "shinyjs", "shinyWidgets", if (run_bg) "callr")
   deps_missing <- deps[!vapply(deps, requireNamespace, logical(1), quietly = TRUE)]
   if (length(deps_missing)) {
     cli::cli_alert_info(
@@ -206,6 +212,7 @@ geopressureviz <- function(
         pressurepath = pressurepath,
         path = path,
         file_wind = file_wind,
+        interim_dir = normalizePath("./data/interim", mustWork = FALSE),
         stop_on_session_end = FALSE
       ),
       launch_browser = launch_browser,
@@ -215,7 +222,7 @@ geopressureviz <- function(
     ))
   }
 
-  shiny_run_app_fg(
+  path_geopressureviz <- shiny_run_app_fg(
     system.file("geopressureviz", package = "GeoPressureR"),
     shiny_opts = list(
       tag = tag,
@@ -224,12 +231,14 @@ geopressureviz <- function(
       pressurepath = pressurepath,
       path = path,
       file_wind = file_wind,
+      interim_dir = normalizePath("./data/interim", mustWork = FALSE),
       stop_on_session_end = TRUE
     ),
     launch_browser = launch_browser
   )
 
-  # Return the updated path from shiny options
-  return(invisible(shiny::getShinyOption("path_geopressureviz")))
+  # Return the updated path and store it in shiny options
+  shiny::shinyOptions(path_geopressureviz = path_geopressureviz)
+  return(invisible(path_geopressureviz))
   # nocov end
 }

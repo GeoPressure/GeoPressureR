@@ -2,7 +2,7 @@
 #'
 #' @description
 #' This function computes the theoretical twilight (i.e., datetime of sunrise and sunset) at given
-#' locations and for specific date.
+#' locations and for specific dates.
 #'
 #' We use the [suntools](https://github.com/adokter/suntools) package for this.
 #'
@@ -12,7 +12,7 @@
 #' `-solar_dep`, and the equivalent solar zenith angle is `90 + solar_dep`.
 #'
 #' @param path a GeoPressureR `path` or `pressurepath` data.frame
-#' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
+#' @param date a vector of POSIXt datetime for which sunrise and sunset are computed. By default,
 #' uses the range of `path$date` provided.
 #' @param solar_dep a numerical value representing the solar depression angle used to compute
 #' sunrise and sunset. The corresponding solar elevation threshold is `-solar_dep`, and the
@@ -20,7 +20,7 @@
 #' zenith angle 96°).
 #' @param return_long logical defining the format of the data.frame returned. If `TRUE`, returns the
 #' long format identical to `twilight_create()`. If `FALSE`, return the sunrise and sunset as
-#' different column, making the data.frame the same size as `date`.
+#' different columns, making the data.frame the same size as `date`.
 #'
 #' @return if `return_long == TRUE`, a `twilight` data.frame (same as `twilight_create()`) with
 #' columns:
@@ -77,7 +77,7 @@ path2twilight <- function(
 
     if (!is.null(date)) {
       cli::cli_warn(c(
-        "!" = "You cannot provide a {.var pressurepath} and a {.var date} varible.",
+        "!" = "You cannot provide a {.var pressurepath} and a {.var date} variable.",
         "i" = "{.var date} is already included in {.var pressurepath}.",
         ">" = "{.var date} will be ignored."
       ))

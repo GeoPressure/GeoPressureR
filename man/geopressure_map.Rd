@@ -68,7 +68,7 @@ of samples of the stationary periods used and returning the weight of the aggreg
 \item{timeout}{duration before the code is interrupted both for the request on
 GeoPressureAPI and on GEE (in seconds, see \code{httr2::req_timeout()}).}
 
-\item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjust the
+\item{workers}{number of parallel requests on GEE. Integer between 1 and 99. \code{"auto"} adjusts the
 number of workers to the number of \code{stapelev} to query.}
 
 \item{era5_dataset}{ERA5 product: \code{"single-levels"} (default, recommended) at 0.25 degree
@@ -157,7 +157,7 @@ locations with different elevations within a general area (~10km), and thus with
 stationary period. This can be done by using \code{tag$label="elev_x"} for all measurements of the
 same elevation level \emph{x}. See more information on the labelling of elevation levels in \href{https://geopressure.org/GeoPressureManual/labelling-tracks.html#elevation-period}{the corresponding section in the GeoPressureManual}.
 
-Behind the scene, each of these elevation levels produces a new request on the GeoPressureAPI.
+Behind the scenes, each of these elevation levels produces a new request on the GeoPressureAPI.
 The mismatch maps of all elevation levels belonging to the same stationary periods are combined
 (as a weighted average) to result in a single mismatch map per stationary period.
 }
@@ -178,7 +178,7 @@ Because the auto-correlation of the time series is not accounted for in this equ
 log-linear pooling weight of \eqn{w=\log(n)/n} by default, where \eqn{n} is the number of samples
 in the time series (i.e., data points used to compute the MSE). See \href{https://geopressure.org/GeoPressureManual/probability-aggregation.html}{GeoPressureManual | Probability aggregation } for details.
 
-\strong{Important Note}: Since GeoPressure v3.1.0, the threshold of the mask is happening directly
+\strong{Important Note}: Since GeoPressureR v3.1.0, the threshold of the mask is happening directly
 on the GEE server (i.e., during \code{geopressure_map_mismatch()}). This allows to compute the MSE
 only for pixels which are within the threshold, thus reducing the computational cost
 significantly.

@@ -32,7 +32,7 @@ If \code{NULL}, a path is resolved from available inputs in this order:
 \code{path} or \code{pressurepath} contained in the \code{.Rdata} file.}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
-Rstudio.}
+RStudio.}
 
 \item{run_bg}{If true, the app runs in a background R session using the \code{callr} package. This
 allows you to continue using your R session while the app is running.}

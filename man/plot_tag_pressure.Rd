@@ -17,7 +17,7 @@ plot_tag_pressure(tag, plot_plotly = TRUE, warning_pressure_diff = 3)
 a plot or ggplotly object.
 }
 \description{
-This function display a plot of pressure time series recorded by a tag
+This function displays a plot of pressure time series recorded by a tag
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

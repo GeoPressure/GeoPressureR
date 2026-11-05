@@ -68,7 +68,7 @@ name. It has to be a syntactically valid name.}
   }}
 }
 \value{
-The path of the downloaded (requested file) or the an R6 object with download/transfer
+The path of the downloaded (requested file) or an R6 object with download/transfer
 information
 }
 \description{

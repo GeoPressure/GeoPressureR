@@ -23,10 +23,10 @@ Data.frame of the edge containing:
 \item \code{stap_s}: stationary period of the origin (source).
 \item \code{stap_t}: stationary period of the destination (target).
 \item \code{distance}: Distance (in km) of the flight.
-\item \code{start}: end of the flight.
-\item \code{end}: start of the flight.
+\item \code{start}: start of the flight.
+\item \code{end}: end of the flight.
 \item \code{duration}: duration of the flight.
-\item \code{n}: number of flight.
+\item \code{n}: number of flights.
 \item \code{bearing}: Angle of the flight in degree (0° = North, 90° = East).
 \item \code{gs}: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 (km/h) with \code{abs(gs)}, the W-E and S-N component of the flight with \code{Re(gs)} and \code{Im(gs)}, and

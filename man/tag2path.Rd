@@ -13,7 +13,7 @@ tag2path(tag, likelihood = NULL, interp = FALSE, use_known = TRUE)
 uses the product of \code{map_pressure} and \code{map_light} if available, otherwise the first available
 likelihood map in the tag.}
 
-\item{interp}{the position of the stationary period shorter than \code{interp} will be replace by a
+\item{interp}{the position of the stationary period shorter than \code{interp} will be replaced by a
 linear average from other position accounting for flight duration (in days).}
 
 \item{use_known}{If \code{TRUE}, enforce known positions from \code{tag$stap} when building the path. Known
