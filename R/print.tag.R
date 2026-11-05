@@ -162,8 +162,8 @@ print.tag <- function(x, ...) {
       }
     }
   }
-  invisible(tag)
   cli::cli_end()
+  invisible(tag)
 }
 
 #' Print a `stap` object
