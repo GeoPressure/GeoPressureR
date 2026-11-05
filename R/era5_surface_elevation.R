@@ -49,7 +49,11 @@ era5_surface_elevation <- function(
       }
       geopotential <- terra::rotate(geopotential)
     }
-    elevation[id] <- terra::extract(geopotential, cbind(lon[id], lat[id]))[[1]] / 9.80665
+    # Wrap lon = 180 to -180 to stay within the rotated grid
+    elevation[id] <- terra::extract(geopotential, cbind((lon[id] + 180) %% 360 - 180, lat[id]))[[
+      1
+    ]] /
+      9.80665
   }
   elevation
 }
