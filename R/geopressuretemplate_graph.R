@@ -8,7 +8,7 @@ geopressuretemplate_graph <- function(
   file = glue::glue("./data/interim/{id}.RData"),
   ...
 ) {
-  save_list <- load(file)
+  load(file)
 
   tag <- get("tag")
 
@@ -30,7 +30,7 @@ geopressuretemplate_graph <- function(
   if (!all(config$geopressuretemplate$likelihood %in% names(tag))) {
     cli::cli_abort(c(
       x = "{.var geopressuretemplate$likelihood}={.val {config$geopressuretemplate$likelihood}}
-      {?is/are} not present{?s} in {.var tag}."
+      {?is/are} not present in {.var tag}."
     ))
   }
 
@@ -50,7 +50,7 @@ geopressuretemplate_graph <- function(
   )
 
   # Set the movement model based on the configuration
-  tryCatch(
+  failed <- tryCatch(
     {
       if (eval(config$graph_set_movement$type) == "gs") {
         # Without wind speed
@@ -91,17 +91,21 @@ geopressuretemplate_graph <- function(
           )
         )
       }
+      FALSE
     },
     error = function(e) {
       cli::cli_bullets(c(
         "x" = "{e$message}",
-        "i" = "Error while defining the movement model. {.var graph} is return.",
+        "i" = "Error while defining the movement model. {.var graph} is returned.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
-      # Need to have return otherwise this is not returning to main function
-      return(graph)
+      TRUE
     }
   )
+  # Return the graph without saving (and overwriting) the outputs
+  if (failed) {
+    return(graph)
+  }
 
   # Store the graph parameters
   param <- graph$param
@@ -109,7 +113,7 @@ geopressuretemplate_graph <- function(
   # Initialize a list to keep track of outputs to be saved
   save_list <- c("tag", "param")
 
-  tryCatch(
+  failed <- tryCatch(
     {
       # Compute the marginal distribution if requested
       if ("marginal" %in% config$geopressuretemplate$outputs) {
@@ -144,6 +148,7 @@ geopressuretemplate_graph <- function(
         edge_simulation <- path2edge(path_simulation, graph)
         save_list <- c(save_list, "path_simulation", "edge_simulation")
       }
+      FALSE
     },
     error = function(e) {
       cli::cli_bullets(c(
@@ -151,10 +156,13 @@ geopressuretemplate_graph <- function(
         "x" = "Error while computing the outputs. {.var graph} is returned.",
         ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
       ))
-      # Need to have return otherwise this is not returning to main function
-      return(graph)
+      TRUE
     }
   )
+  # Return the graph without saving (and overwriting) the outputs
+  if (failed) {
+    return(graph)
+  }
 
   # Save the outputs to the specified file
   save(
