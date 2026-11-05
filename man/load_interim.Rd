@@ -19,7 +19,8 @@ looks for \verb{./data/interim/\{x\}.RData}.}
 
 \item{var}{Optional name (or names) of objects that must exist in the file. If \code{NULL} and
 \code{var_optional} is also \code{NULL}, all objects from the file are loaded into \code{envir} (the
-behaviour of \code{\link[base:load]{base::load()}}).}
+behaviour of \code{\link[base:load]{base::load()}}). Otherwise, only the selected objects are assigned into \code{envir}
+(in addition to being returned).}
 
 \item{var_optional}{Character vector of object names that may or may not exist in the file. Any
 of these that are present will be loaded; missing ones are silently ignored.}

@@ -23,13 +23,13 @@ geopressureviz(
 \item{path}{Optional GeoPressureR \code{path} or \code{pressurepath} data.frame.
 If \code{NULL}, a path is resolved from available inputs in this order:
 \itemize{
-\item for file/id input (\code{x} character): \code{path_most_likely} (if present), then \code{pressurepath}
-(if present);
+\item for file/id input (\code{x} character): the first present of \code{pressurepath_most_likely},
+\code{pressurepath} and \code{path_most_likely};
 \item otherwise fallback to \code{tag2path(tag, interp = 1)}.
 }}
 
 \item{marginal}{map of the marginal probability computed with \code{graph_marginal()}. Overwrite the
-\code{path} or \code{pressurepath} contained in the \code{.Rdata} file.}
+\code{marginal} contained in the \code{.Rdata} file.}
 
 \item{launch_browser}{If true (by default), the app runs in your browser, otherwise it runs on
 RStudio.}

@@ -18,13 +18,14 @@ interpolating the ERA5 single-levels data, the scale should be equal to or small
 (the default in \code{tag_set_map()}). \code{tag_set_map()} warns for higher values. Read more about
 scale on the \href{https://developers.google.com/earth-engine/guides/scale}{Google Earth Engine documentation }.}
 
-\item{stap}{a data.frame of stationary periods.}
+\item{stap}{a data.frame of stationary periods with columns \code{stap_id}, \code{start} and \code{end}. If
+the logical column \code{include} is missing, it is set to \code{TRUE} for stationary periods with data.}
 
 \item{id}{tag identifier.}
 
 \item{type}{map type used for default palettes in plots. One of:
-\code{"unknown"}, \code{"pressure"}, \code{"light"}, \code{"magnetic"}, \code{"pressure_mse"}, \code{"pressure_mask"},
-\code{"mask_water"}, \code{"magnetic_intensity"}, \code{"magnetic_inclination"}, \code{"marginal"}, \code{"twilight"}.}
+\code{"unknown"}, \code{"pressure"}, \code{"light"}, \code{"preslight"}, \code{"magnetic"}, \code{"pressure_mse"},
+\code{"pressure_mask"}, \code{"magnetic_intensity"}, \code{"magnetic_inclination"}, \code{"marginal"}, \code{"twilight"}.}
 }
 \value{
 A GeoPressure \code{map} object

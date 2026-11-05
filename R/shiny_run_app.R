@@ -66,11 +66,12 @@ shiny_run_app_bg <- function(
     )
   )
 
-  port <- NA
+  # Accumulate output across chunks so that a split "Listening on" line is still matched
+  err <- out <- ""
   while (p$is_alive()) {
     p$poll_io(1000) # wait up to 1s for new output
-    err <- p$read_error()
-    out <- p$read_output()
+    err <- glue::glue("{err}{p$read_error()}")
+    out <- glue::glue("{out}{p$read_output()}")
     txt <- glue::glue("{err}\n{out}")
 
     if (grepl("Listening on http://127\\.0\\.0\\.1:[0-9]+", txt)) {
@@ -90,9 +91,12 @@ shiny_run_app_bg <- function(
       } else {
         cli::cli_alert_success("{app_label} app running at {.url {url}}")
       }
-      break
+      return(invisible(p))
     }
   }
-  invisible(p)
+  cli::cli_abort(c(
+    "x" = "The {app_label} app stopped before it started listening.",
+    "i" = "{err}{p$read_all_error()}"
+  ))
 }
 # nocov end

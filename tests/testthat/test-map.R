@@ -45,7 +45,8 @@ test_that("map_create() | basic", {
   expect_equal(dim(map), c(50, 100, 10))
   expect_equal(length(map), 10)
   expect_no_error(map$lat)
-  expect_equal(map$stap, stap)
+  expect_equal(map$stap[names(stap)], stap)
+  expect_true(all(map$stap$include))
   expect_equal(map$scale, scale)
   expect_equal(map$extent, extent)
 

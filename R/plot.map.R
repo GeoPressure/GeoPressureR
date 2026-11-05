@@ -25,8 +25,8 @@
 #'   leaflet::providerTileOptions().
 #' @param palette color palette name or vector of colors.
 #' @param opacity opacity of the raster layer in leaflet.
-#' @param legend logical to display the legend.
-#' @param ... additional parameters passed to `leaflet::addRasterImage()` or `terra::plot()`.
+#' @param legend logical to display the legend (only for `plot_leaflet = FALSE`).
+#' @param ... additional parameters passed to `terra::plot()` (only for `plot_leaflet = FALSE`).
 #' @param fac_res_proj Factor of the resolution of the reprojection (see details above). A value of
 #' `1` will roughly reproject on a map with similar size resulting in relatively high inaccuracy of
 #' the pixel displayed. Increasing this factor will reduce the uncertainty but might also increase

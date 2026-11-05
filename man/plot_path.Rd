@@ -22,7 +22,7 @@ plot_path(
 \item{plot_leaflet}{logical defining if the plot is an interactive \code{leaflet} map or a static
 basic plot.}
 
-\item{map}{optional \code{map} object to plot the path on top of.}
+\item{map}{optional \code{leaflet} map to add the path on top of (only for \code{plot_leaflet = TRUE}).}
 
 \item{provider}{optional tile provider name (see \code{leaflet::providers}). When \code{NULL}, uses all
 available GeoPressureR basemap layers; see the \emph{Basemap API keys} section.}

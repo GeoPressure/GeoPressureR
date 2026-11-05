@@ -24,7 +24,8 @@
 #'   `*.bodytemperature`, and magnetic data `*.magnetic`.
 #' - Migratetech (`"migratetech"`): pressure and acceleration `*.deg`, light `*.lux`.
 #' - BAS (`"bas"`): light `*.lig` only; use `assert_pressure = FALSE`.
-#' - Lund CAnMove (`"lund"`): pressure `*_press.xlsx`, light and acceleration `*_acc.xlsx`.
+#' - Lund CAnMove (`"lund"`): pressure `*_press.xlsx`, light and acceleration both from
+#'   `acceleration_file` (`*_acc.xlsx`).
 #' - PresTag (`"prestag"`): pressure `*.txt`.
 #'
 #' Manufacturer readers detect available sensor files when their arguments are `NULL`.
@@ -386,6 +387,7 @@ tag_create <- function(
 
   tag$param$tag_create$time_shift <- time_shift
   tag$param$tag_create$time_drift <- time_drift
+  tag$param$tag_create$assert_pressure <- assert_pressure
 
   return(tag)
 }
@@ -552,36 +554,34 @@ tag_create_time_correct <- function(tag, time_shift, time_drift, time_reference)
 tag_create_crop <- function(tag, crop_start, crop_end, quiet = TRUE) {
   has_data <- FALSE
   for (sensor in setdiff(names(tag), "param")) {
-    if (sensor %in% names(tag)) {
-      # Crop time
-      if (!is.null(crop_start)) {
-        tag[[sensor]] <- tag[[sensor]][
-          tag[[sensor]]$date >= as.POSIXct(crop_start, tz = "UTC"),
-        ]
-      }
-      if (!is.null(crop_end)) {
-        tag[[sensor]] <- tag[[sensor]][
-          tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
-        ]
-      }
-      has_data <- has_data || nrow(tag[[sensor]]) > 0
+    # Crop time
+    if (!is.null(crop_start)) {
+      tag[[sensor]] <- tag[[sensor]][
+        tag[[sensor]]$date >= as.POSIXct(crop_start, tz = "UTC"),
+      ]
+    }
+    if (!is.null(crop_end)) {
+      tag[[sensor]] <- tag[[sensor]][
+        tag[[sensor]]$date < as.POSIXct(crop_end, tz = "UTC"),
+      ]
+    }
+    has_data <- has_data || nrow(tag[[sensor]]) > 0
 
-      if (!quiet) {
-        # Check irregular time
-        dtime <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
-        # Allow one millisecond of timestamp rounding and floating-point noise.
-        if (any(abs(dtime - dtime[1]) > 1.001e-3)) {
-          cli::cli_warn(
-            "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1.001e-3)]}."
-          )
-        }
+    if (!quiet) {
+      # Check irregular time
+      dtime <- as.numeric(diff(tag[[sensor]]$date), units = "secs")
+      # Allow one millisecond of timestamp rounding and floating-point noise.
+      if (any(abs(dtime - dtime[1]) > 1.001e-3)) {
+        cli::cli_warn(
+          "Irregular time spacing for {.field {sensor}}: {tag[[sensor]]$date[which(abs(dtime - dtime[1]) > 1.001e-3)]}."
+        )
+      }
 
-        if (nrow(tag[[sensor]]) == 0) {
-          cli::cli_warn(c(
-            "!" = "Empty {.field {sensor}} sensor dataset",
-            ">" = "Check crop date."
-          ))
-        }
+      if (nrow(tag[[sensor]]) == 0) {
+        cli::cli_warn(c(
+          "!" = "Empty {.field {sensor}} sensor dataset",
+          ">" = "Check crop date."
+        ))
       }
     }
   }
