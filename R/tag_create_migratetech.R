@@ -98,11 +98,7 @@ tag_create_migratetech <- function(
   }
 
   # Read light
-  if (is.null(light_file)) {
-    light_path <- tag_create_detect("*.lux", directory, quiet = TRUE)
-  } else {
-    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
-  }
+  light_path <- tag_create_detect(light_file, directory, quiet, default = "*.lux")
   if (!is.null(light_path)) {
     # Read first 30 lines for both drift check and header detection
     first_lines <- readLines(light_path, n = 30)

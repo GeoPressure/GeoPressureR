@@ -166,6 +166,28 @@ test_that("tag_create() | SOI magnetic-only 14DM", {
   expect_true(all(c("right", "forward", "down") == tag$param$mag_axis))
 })
 
+test_that("tag_create() | SOI mag_axis for a reversed tag", {
+  tag <- tag_create(id = "14DM", manufacturer = "soi", assert_pressure = FALSE, quiet = TRUE)
+  tag_rev <- tag_create(
+    id = "14DM",
+    manufacturer = "soi",
+    assert_pressure = FALSE,
+    mag_axis = c("left", "backward", "down"),
+    quiet = TRUE
+  )
+  expect_equal(tag_rev$param$mag_axis, c("left", "backward", "down"))
+  expect_equal(tag_rev$magnetic$magnetic_x, -tag$magnetic$magnetic_x)
+  expect_equal(tag_rev$magnetic$acceleration_x, -tag$magnetic$acceleration_x)
+  expect_equal(tag_rev$magnetic$magnetic_z, tag$magnetic$magnetic_z)
+  expect_error(tag_create(
+    id = "14DM",
+    manufacturer = "soi",
+    assert_pressure = FALSE,
+    mag_axis = c("forward", "backward", "down"),
+    quiet = TRUE
+  ))
+})
+
 test_that("tag_create() | tabular full input and pressure bounds warning", {
   d <- as.POSIXct(c("2017-06-20 00:00:00", "2017-06-20 01:00:00"), tz = "UTC")
   pressure <- data.frame(date = d, value = c(1000, 1200))

@@ -9,6 +9,7 @@ tag_create_soi <- function(
   temperature_external_file = NULL,
   temperature_internal_file = NULL,
   magnetic_file = NULL,
+  mag_axis = c("right", "forward", "down"),
   quiet = FALSE
 ) {
   assertthat::assert_that(is.character(id))
@@ -63,22 +64,14 @@ tag_create_soi <- function(
   )
 
   # Read Pressure
-  if (is.null(pressure_file)) {
-    pressure_path <- tag_create_detect("*.pressure", directory, quiet = TRUE)
-  } else {
-    pressure_path <- tag_create_detect(pressure_file, directory, quiet = quiet)
-  }
+  pressure_path <- tag_create_detect(pressure_file, directory, quiet, default = "*.pressure")
   if (!is.null(pressure_path)) {
     tag$pressure <- tag_create_dto(pressure_path, quiet = quiet)
     tag$pressure$value[tag$pressure$value < 0] <- NA
   }
 
   # Read light
-  if (is.null(light_file)) {
-    light_path <- tag_create_detect("*.glf", directory, quiet = TRUE)
-  } else {
-    light_path <- tag_create_detect(light_file, directory, quiet = quiet)
-  }
+  light_path <- tag_create_detect(light_file, directory, quiet, default = "*.glf")
   if (!is.null(light_path)) {
     tag$light <-
       tag_create_dto(light_path, quiet = quiet)
@@ -86,19 +79,12 @@ tag_create_soi <- function(
   }
 
   # Read acceleration
-  if (is.null(acceleration_file)) {
-    acceleration_path <- tag_create_detect(
-      "*.acceleration",
-      directory,
-      quiet = TRUE
-    )
-  } else {
-    acceleration_path <- tag_create_detect(
-      acceleration_file,
-      directory,
-      quiet = quiet
-    )
-  }
+  acceleration_path <- tag_create_detect(
+    acceleration_file,
+    directory,
+    quiet,
+    default = "*.acceleration"
+  )
   if (!is.null(acceleration_path)) {
     tag$acceleration <- tag_create_dto(
       acceleration_path,
@@ -111,25 +97,14 @@ tag_create_soi <- function(
   }
 
   # Read External temperature
-  if (is.null(temperature_external_file)) {
-    temperature_external_path <- tag_create_detect(
-      "*.temperature",
-      directory,
-      quiet = TRUE
-    )
-    if (is.null(temperature_external_path)) {
-      temperature_external_path <- tag_create_detect(
-        "*.airtemperature",
-        directory,
-        quiet = TRUE
-      )
-    }
-  } else {
-    temperature_external_path <- tag_create_detect(
-      temperature_external_file,
-      directory,
-      quiet = quiet
-    )
+  temperature_external_path <- tag_create_detect(
+    temperature_external_file,
+    directory,
+    quiet,
+    default = "*.temperature"
+  )
+  if (is.null(temperature_external_file) && is.null(temperature_external_path)) {
+    temperature_external_path <- tag_create_detect("*.airtemperature", directory)
   }
   if (!is.null(temperature_external_path)) {
     tag$temperature_external <- tag_create_dto(
@@ -140,19 +115,12 @@ tag_create_soi <- function(
   }
 
   # Read Internal temperature
-  if (is.null(temperature_internal_file)) {
-    temperature_internal_path <- tag_create_detect(
-      "*.bodytemperature",
-      directory,
-      quiet = TRUE
-    )
-  } else {
-    temperature_internal_path <- tag_create_detect(
-      temperature_internal_file,
-      directory,
-      quiet = quiet
-    )
-  }
+  temperature_internal_path <- tag_create_detect(
+    temperature_internal_file,
+    directory,
+    quiet,
+    default = "*.bodytemperature"
+  )
   if (!is.null(temperature_internal_path)) {
     tag$temperature_internal <- tag_create_dto(
       temperature_internal_path,
@@ -164,15 +132,12 @@ tag_create_soi <- function(
   }
 
   # Read magnetism
-  if (is.null(magnetic_file)) {
-    magnetic_path <- tag_create_detect("*.magnetic", directory, quiet = TRUE)
-  } else {
-    magnetic_path <- tag_create_detect(magnetic_file, directory, quiet = quiet)
-  }
+  magnetic_path <- tag_create_detect(magnetic_file, directory, quiet, default = "*.magnetic")
   if (!is.null(magnetic_path) && "soi_settings" %in% names(tag$param)) {
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,
       hw_version = tag$param$soi_settings,
+      mag_axis = mag_axis,
       quiet = quiet
     )
     # Add information
@@ -220,7 +185,12 @@ tag_create_soi_gap <- function(sensor_data) {
 #'
 #' Version is detected automatically from `tag$param$soi_settings`
 #' @noRd
-tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
+tag_create_soi_mag <- function(
+  magnetic_path,
+  hw_version,
+  mag_axis = c("right", "forward", "down"),
+  quiet = FALSE
+) {
   assertthat::assert_that(is.logical(quiet))
   assertthat::assert_that(file.exists(magnetic_path))
 
@@ -268,15 +238,14 @@ tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
   mag[c("gX", "gY", "gZ")] <- mag[c("gX", "gY", "gZ")] * corr_g
 
   # On all hardware versions, raw y points forward and raw x to the right (checked against
-  # tracks). A tag mounted reversed has forward = -y; with a leg-loop harness it then rests tilted
-  # backwards (y < 0 in static samples). This is not used to flip the axes because breast-harness
-  # tags (swifts) can rest with y < 0 while forward = +y.
-  mag_axis <- c("right", "forward", "down")
+  # tracks), which is the default `mag_axis`. A tag mounted reversed has forward = -y; with a
+  # leg-loop harness it then rests tilted backwards (y < 0 in static samples). This is not used to
+  # flip the axes because breast-harness tags (swifts) can rest with y < 0 while forward = +y.
   gn <- sqrt(mag$gX^2 + mag$gY^2 + mag$gZ^2)
   fwd <- stats::median(mag$gY[abs(gn / stats::median(gn, na.rm = TRUE) - 1) < 0.05], na.rm = TRUE)
-  if (!quiet && isTRUE(fwd < -0.3)) {
+  if (!quiet && mag_axis[2] == "forward" && isTRUE(fwd < -0.3)) {
     cli::cli_alert_warning(
-      "The tag rests tilted backwards along its body axis (median static y = {.val {round(fwd, 2)}} g). If it was mounted reversed, forward is {.code -magnetic_x} and right {.code -magnetic_y}."
+      "The tag rests tilted backwards along its body axis (median static y = {.val {round(fwd, 2)}} g). If it was mounted reversed, use {.code mag_axis = c(\"left\", \"backward\", \"down\")}."
     )
   }
 
