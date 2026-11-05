@@ -52,8 +52,10 @@
 #' - `temperature_internal` (`*.BodyTemperature`, hardware v2.4 and later): temperature in °C
 #'   inside the tag, with about 1 °C resolution.
 #' - `magnetic` (`*.magnetic`): single 3-axis magnetometer and accelerometer measurements,
-#'   converted to Gauss and g and rotated to the forward-right-down frame according to the
-#'   hardware version in `*.settings` (LSM303D up to v2.3, LSM303AGR from v2.4). Without
+#'   converted to Gauss and g according to the hardware version in `*.settings` (LSM303D up to
+#'   v2.3, LSM303AGR from v2.4) and rotated to the forward-right-down frame, with raw y forward
+#'   and raw x to the right. For a tag mounted reversed, forward is `-magnetic_x` and right
+#'   `-magnetic_y` (a warning is shown when the tag rests tilted backwards). Without
 #'   `*.settings`, magnetic data are not read.
 #'
 #' The decoder does not correct clock drift. `*.settings` records the tag clock

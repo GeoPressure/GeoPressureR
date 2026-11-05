@@ -212,7 +212,7 @@ tag_create_soi_gap <- function(sensor_data) {
 #'
 #' 1. Convert magnetic values to Gauss (https://en.wikipedia.org/wiki/Gauss_(unit))
 #' 2. Convert acceleration values to g (https://en.wikipedia.org/wiki/Standard_gravity)
-#' 3. Compute mag and acc in the standard forward-right-down
+#' 3. Compute mag and acc in the standard forward-right-down frame (raw y forward, raw x right)
 #'
 #' Two sensors are supported:
 #' - LSM303D: hardware version v2.3 and lower
@@ -257,17 +257,28 @@ tag_create_soi_mag <- function(magnetic_path, hw_version, quiet = FALSE) {
     # LSM303D
     corr_m <- 0.00016 # unit G. raw value stored of the ADC (analog-digital converter) to Gauss
     corr_g <- 4 / 65536 # 16-Bit resolution on a full scale of 4g (+/-2g)
-    mag_axis <- c("left", "backward", "down")
   } else {
     # LSM303AGR
     corr_m <- 0.0015 # value stored to Gauss
     corr_g <- 4 / 4096 # 12-Bit resolution on a full scale of 4g (+/-2g)
-    mag_axis <- c("backward", "left", "down")
   }
 
   # Apply correction
   mag[c("mX", "mY", "mZ")] <- mag[c("mX", "mY", "mZ")] * corr_m
   mag[c("gX", "gY", "gZ")] <- mag[c("gX", "gY", "gZ")] * corr_g
+
+  # On all hardware versions, raw y points forward and raw x to the right (checked against
+  # tracks). A tag mounted reversed has forward = -y; with a leg-loop harness it then rests tilted
+  # backwards (y < 0 in static samples). This is not used to flip the axes because breast-harness
+  # tags (swifts) can rest with y < 0 while forward = +y.
+  mag_axis <- c("right", "forward", "down")
+  gn <- sqrt(mag$gX^2 + mag$gY^2 + mag$gZ^2)
+  fwd <- stats::median(mag$gY[abs(gn / stats::median(gn, na.rm = TRUE) - 1) < 0.05], na.rm = TRUE)
+  if (!quiet && isTRUE(fwd < -0.3)) {
+    cli::cli_alert_warning(
+      "The tag rests tilted backwards along its body axis (median static y = {.val {round(fwd, 2)}} g). If it was mounted reversed, forward is {.code -magnetic_x} and right {.code -magnetic_y}."
+    )
+  }
 
   # Convert the axes orientation to have the format forward-right-down
   mag <- mag_axes(mag, mag_axis)
