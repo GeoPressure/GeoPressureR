@@ -26,6 +26,7 @@
 #' RStudio.
 #' @param run_bg If true (by default), the app runs in a background R process using `callr::r_bg()`,
 #' allowing you to continue using the R console. If false, the app blocks the console until closed.
+#' @param quiet `r lifecycle::badge("deprecated")` Had no effect.
 #' @param ... Unused; extra arguments are rejected.
 #'
 #' @return When \code{run_bg = TRUE}, an invisible \code{callr} \code{r_process} running the app.
@@ -52,8 +53,12 @@ geolightviz <- function(
   stapath = NULL,
   launch_browser = TRUE,
   run_bg = TRUE,
+  quiet = lifecycle::deprecated(),
   ...
 ) {
+  if (lifecycle::is_present(quiet)) {
+    lifecycle::deprecate_warn("3.8.0", "geolightviz(quiet)", details = "It had no effect.")
+  }
   if (...length() > 0) {
     cli::cli_abort("{.arg ...} must be empty; extra arguments are not supported.")
   }
