@@ -309,7 +309,7 @@ modal_calibration_server <- function(
       tryCatch(
         {
           tag_likelihood <- tag
-          tag_likelihood$twilight <- twl()
+          tag_likelihood$twilight <- twl()[, c("twilight", "rise")]
           tag_likelihood$stap <- stapath()
           tag_likelihood$param$geolight_map[[
             "twl_calib"

@@ -118,6 +118,8 @@ init <- function(
   if (rv$has_map && !is.null(twl_calib)) {
     tag_likelihood <- tag_for_map
     tag_likelihood$stap <- .stapath
+    # Compute maps for all twilights; discarded ones are filtered in map_light_aggregate()
+    tag_likelihood$twilight <- tag_likelihood$twilight[, c("twilight", "rise")]
     tag_likelihood$param$geolight_map[["twl_calib"]] <- twl_calib
     tag_likelihood <- GeoPressureR::geolight_map_likelihood(
       tag = tag_likelihood,
