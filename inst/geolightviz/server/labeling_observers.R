@@ -67,12 +67,11 @@ setup_labeling_observers <- function(
     }
 
     twl_ <- twl()
-    clicked_x <- as.POSIXct(click_data$x, tz = "UTC")
     clicked_y <- as.POSIXct(click_data$y, tz = "UTC")
 
-    # Find nearby points
+    # Find nearby points (same light matrix column and within 15 min)
     nearby_idx <- which(
-      abs(as.numeric(difftime(twl_$twilight, clicked_x, units = "days"))) <= 0.5 &
+      twl_$day == as.Date(click_data$x) &
         abs(as.numeric(difftime(
           twl_$plottime,
           clicked_y,

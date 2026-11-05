@@ -130,6 +130,11 @@ geolightviz <- function(
     tag,
     ref = light_trace$time[1]
   )
+  # Day of the light matrix column of each twilight (columns are centred on twl_offset)
+  twl$day <- light_trace$day[pmax(
+    1,
+    findInterval(as.numeric(twl$twilight), light_trace$date[1, ])
+  )]
 
   # Resolve save folders based on launch context.
   label_dir <- file.path(getwd(), "data", "twilight-label")

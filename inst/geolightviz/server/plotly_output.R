@@ -60,7 +60,7 @@ render_plotly_output <- function(
       p <- p |>
         plotly::add_trace(
           data = twl_,
-          x = ~ as.Date(twilight),
+          x = ~day,
           y = ~plottime,
           type = "scatter",
           mode = "markers",
