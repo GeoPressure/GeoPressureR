@@ -193,6 +193,6 @@ geolight_calibrate <- function(
   )
   class(twl_calib) <- "twl_calib"
 
-  # return the twlight calibration object
+  # return the twilight calibration object
   twl_calib
 }

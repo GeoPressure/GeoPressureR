@@ -9,7 +9,7 @@ path2twilight(path, date = NULL, solar_dep = 0, return_long = TRUE)
 \arguments{
 \item{path}{a GeoPressureR \code{path} or \code{pressurepath} data.frame}
 
-\item{date}{a vector of POSIXt datetime for which sunrise and sunset are computed. Be default,
+\item{date}{a vector of POSIXt datetime for which sunrise and sunset are computed. By default,
 uses the range of \code{path$date} provided.}
 
 \item{solar_dep}{a numerical value representing the solar depression angle used to compute
@@ -19,7 +19,7 @@ zenith angle 96°).}
 
 \item{return_long}{logical defining the format of the data.frame returned. If \code{TRUE}, returns the
 long format identical to \code{twilight_create()}. If \code{FALSE}, return the sunrise and sunset as
-different column, making the data.frame the same size as \code{date}.}
+different columns, making the data.frame the same size as \code{date}.}
 }
 \value{
 if \code{return_long == TRUE}, a \code{twilight} data.frame (same as \code{twilight_create()}) with
@@ -45,7 +45,7 @@ if \code{return_long == FALSE}, a data.frame with the same size of \code{date} w
 }
 \description{
 This function computes the theoretical twilight (i.e., datetime of sunrise and sunset) at given
-locations and for specific date.
+locations and for specific dates.
 
 We use the \href{https://github.com/adokter/suntools}{suntools} package for this.
 

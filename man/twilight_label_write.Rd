@@ -18,7 +18,7 @@ twilight_label_write(
 \item{quiet}{logical to hide messages}
 }
 \value{
-None
+The file pathname is returned invisibly
 }
 \description{
 This function writes the csv file of the labelled twilight which can be read with
