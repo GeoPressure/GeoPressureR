@@ -49,6 +49,8 @@ path2edge <- function(path, tag_graph) {
   )
   stap <- tag_graph$stap
   assertthat::assert_that(setequal(path$stap_id, stap$stap_id))
+  # Edges are built assuming rows ordered by stap_id, then path j
+  path <- path[order(path$stap_id, if ("j" %in% names(path)) path$j else 0), ]
 
   g <- map_expand(
     tag_graph$param$tag_set_map$extent,
