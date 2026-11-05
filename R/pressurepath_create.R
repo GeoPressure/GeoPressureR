@@ -236,7 +236,7 @@ pressurepath_finalize <- function(
         FUN = \(x) mean(x, na.rm = TRUE)
       )
     )
-    id <- match(pp$stapelev, agg$stapelev)
+    id <- match(pp$stapelev, agg$stapelev_label)
     pressurepath$surface_pressure_norm <- pressurepath$surface_pressure -
       agg$surface_pressure[id] +
       agg$pressure_tag[id]
