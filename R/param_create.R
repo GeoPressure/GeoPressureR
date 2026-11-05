@@ -3,7 +3,7 @@
 #' @description
 #' Create the list of parameter for GeoPressureR `tag` and `graph` objects.
 #'
-#' `param` list are mostly used to archived the actual value of parameters used to create a `tag`
+#' `param` list are mostly used to archive the actual value of parameters used to create a `tag`
 #' and/or a `graph`, thus allowing for examination of parameters post-creation. This function should
 #' therefore not be used to set/define parameters ahead of computation. In reality, there are very
 #' few external case of use for this function.
@@ -173,8 +173,8 @@ param_create <- function(id, default = FALSE, ...) {
 #' @param overlay_param Parameter list to merge values from
 #' @param only_in_base Logical to only merge `overlay_param` if present in `base_param`
 #'
-#' @return Configuration which includes the values from
-#'  `merge_config` merged into `base_config`.
+#' @return Parameter list which includes the values from
+#'  `overlay_param` merged into `base_param`.
 #'
 #' @seealso [config::merge()]
 #'

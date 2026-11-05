@@ -114,7 +114,7 @@ speed2prob <- function(speed, movement) {
 
 #' Power curve
 #'
-#' Compute the mechanical power (W =J/s) required for a specific bird flying as at a given airspeed
+#' Compute the mechanical power (W =J/s) required for a specific bird flying at a given airspeed
 #' in m/s. `bird` is created with [`bird_create()`].
 #'
 #' @param as airspeed in m/s
@@ -147,14 +147,14 @@ speed2power <- function(as, bird) {
   # Air density
   rho <- 1.225
 
-  # Induced power factor k=1.1-1.2 for aircraft and helicopter, ad k=1.04 in Spedding (1987a) (p.
+  # Induced power factor k=1.1-1.2 for aircraft and helicopter, and k=1.04 in Spedding (1987a) (p.
   # 45).
   k <- 1.2
   # body drag coefficient (p. 51).[-]
   c_db <- 0.1
   c_pro <- 8.4
 
-  # Induce power (eq 16 of Box 3.1) Pind is due to the active acceleration of mass flow in order to
+  # Induced power (eq 16 of Box 3.1) Pind is due to the active acceleration of mass flow in order to
   # produce a force opposing weight and drag
   p_ind <- 2 * k * (bird$mass * g)^2 / (as * pi * bird$wing_span^2 * rho)
 

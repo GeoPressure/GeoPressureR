@@ -19,7 +19,7 @@
 #'   likelihood map in the tag.
 #' @param use_known If `TRUE`, enforce known positions from `tag$stap` when building the path. Known
 #'   positions are approximated to the map resolution so they correspond to integer indices.
-#' @param interp the position of the stationary period shorter than `interp` will be replace by a
+#' @param interp the position of the stationary period shorter than `interp` will be replaced by a
 #' linear average from other position accounting for flight duration (in days).
 #'
 #' @return A path data.frame
@@ -96,10 +96,10 @@ tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
     # Compute flight duration for all stap (even the non-included)
     flight <- stap2flight(tag$stap, include_stap_id = tag$stap$stap_id)
 
-    # Min flight to a small value (1min) so that interpolation can work on continous staps
+    # Min flight to a small value (1min) so that interpolation can work on continuous staps
     flight_duration <- pmax(flight$duration, 1 / 60)
 
-    # Cummulate the flight duration to get a proxy of the over distance covered
+    # Cumulate the flight duration to get a proxy of the over distance covered
     total_flight <- cumsum(as.numeric(c(0, flight_duration)))
 
     # Interpolate the lat and lon indices separately using `total_flight` as a spacing between

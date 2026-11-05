@@ -84,7 +84,7 @@ graph_marginal <- function(graph, quiet = FALSE) {
   # combine the forward and backward
   map_fb <- map_f * Matrix::t(map_b) # Eq. 5 in Nussbaumer et al. (2023)
 
-  # reshape mapping as a full (non-sparce matrix of correct size)
+  # reshape mapping as a full (non-sparse matrix of correct size)
   map_fb <- as.matrix(map_fb)
   dim(map_fb) <- graph$sz
 

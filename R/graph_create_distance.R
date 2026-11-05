@@ -166,7 +166,7 @@ graph_compute_chunk_size <- function(
 #' @param to_coords Matrix of target coordinates (longitude, latitude) in decimal degrees
 #'
 #' @return A vector of distances in kilometers.
-
+#'
 #' @keywords internal
 #' @export
 haversine_distance <- function(from_coords, to_coords) {

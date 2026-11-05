@@ -4,10 +4,10 @@
 #' Configure the movement model of a `graph` by defining the value of the parameters needed to build
 #' the transition `graph_transition()` through `speed2prob()`.
 #'
-#' Three methods are currently implemented with two parametric function `"gamma"` and `"logis"`
+#' Three methods are currently implemented with two parametric functions `"gamma"` and `"logis"`
 #' suitable when wind data is not available and are thus defining the probability of a groundspeed.
 #'
-#' If wind data is available, it is recommended to use the `"power"` method which rely on the power
+#' If wind data is available, it is recommended to use the `"power"` method which relies on the power
 #' curve equation (energy vs airspeed) to estimate the probability of an airspeed. Read more about
 #' this approach in [section 2.2.5. of Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0009-title)
@@ -16,7 +16,7 @@
 #' @param type Ground speed `"gs"` or airspeed `"as"`
 #' @param method method used to convert the speed to probability ("gamma", "logis" or "power")
 #' @param shape parameter of the gamma distribution (km/h)
-#' @param scale  parameter of the gamma and logistic distribution (km/h)
+#' @param scale parameter of the gamma and logistic distribution (km/h)
 #' @param location parameter for the logistic distribution (km/h)
 #' @param bird A GeoPressureR `bird` object containing the basic morphological traits necessary:
 #'  mass, wing span, wing aspect ratio, and body frontal area. See `bird_create()`.
@@ -24,12 +24,12 @@
 #' @param low_speed_fix speed below which the probability remains the same, i.e. we assign the same
 #' probability at `low_speed_fix` for any lower speed. This parameter is used to allow short
 #' flights covering small distances. (unit of km/h)
-#' @param zero_speed_ratio multiplicative ratio of the probability for speed zero. This ratio apply
+#' @param zero_speed_ratio multiplicative ratio of the probability for speed zero. This ratio applies
 #' only when the bird is staying at the same location (fly and come back or stay within pixel size).
 #' This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
-#' than perform short fly.
+#' than perform short flights.
 #'
-#' @return Graph list with a new list `graph$movement` storing all the parameters needed to compute
+#' @return Graph list with a new list `graph$param$graph_set_movement` storing all the parameters needed to compute
 #' the transition probability
 #'
 #' @examples

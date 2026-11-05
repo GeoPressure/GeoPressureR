@@ -17,7 +17,7 @@ plot_graph_movement(graph, speed = seq(0, 120), plot_plotly = FALSE)
 a plot or ggplotly object.
 }
 \description{
-This function display a plot of pressure time series recorded by a tag
+This function displays the speed-to-probability movement model of a \code{graph}.
 }
 \examples{
 movement_gamma <- list(

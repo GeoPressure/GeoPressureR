@@ -1,7 +1,7 @@
 #' Create bird flight traits
 #'
 #' @description
-#' This function returns a list with the four morphological information necessary to construct the
+#' This function returns a list with the four morphological traits necessary to construct the
 #' power curve: mass, wing span, wing aspect ratio, and body frontal area.
 #'
 #' When any of these variables are missing, we query the
@@ -72,7 +72,7 @@ bird_create <- function(
     }
     b <- avonet[sp_id, ]
     b$mass <- b$mass / 1000 # g -> kg
-    b$wing_length <- b$wing_length / 1000 # cm -> m
+    b$wing_length <- b$wing_length / 1000 # mm -> m
     b$secondary <- b$secondary / 1000 # cm -> m
   }
 
@@ -86,7 +86,7 @@ bird_create <- function(
     # Assuming that the bird is a passerine, [Hedenström and Rosén (2003)]
     # (https://doi.org/10.1034/j.1600-048X.2003.03145.x) is used with
     body_frontal_area <- 0.0129 * mass^(0.614)
-    # In case of non-passrine, Pennycuick et al. (1988) could be used body_frontal_area =
+    # In case of non-passerine, Pennycuick et al. (1988) could be used body_frontal_area =
     # 0.00813*mass^(0.666)
   }
 

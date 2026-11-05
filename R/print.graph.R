@@ -52,7 +52,7 @@ print.graph <- function(x, ...) {
 
   cli::cli_h3("Graph size")
   cli::cli_bullets(c(
-    "*" = "{.val {length(graph$equipment)}} {.field equipement} node{?s}",
+    "*" = "{.val {length(graph$equipment)}} {.field equipment} node{?s}",
     "*" = "{.val {length(graph$retrieval)}} {.field retrieval} node{?s}",
     "*" = "{prettyNum(length(unique(c(graph$equipment, graph$t))), big.mark=',')} nodes",
     "*" = "{prettyNum(length(graph$s), big.mark=',')} edges"

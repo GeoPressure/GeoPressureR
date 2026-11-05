@@ -1,6 +1,6 @@
 #' Assert the status of a `graph`
 #'
-#' This function check the condition of a `graph` object.
+#' This function checks the condition of a `graph` object.
 #'
 #' @param graph a GeoPressureR `graph` object
 #' @param condition condition to assert `graph` for. One of `"graph"` (default), `"movement"`,
@@ -25,7 +25,7 @@ graph_assert <- function(graph, condition = "graph") {
     return(TRUE)
   } else if (condition == "movement") {
     msg <- c(
-      "x" = "The `graph` object has not movement model.",
+      "x" = "The `graph` object has no movement model.",
       ">" = "Use {.fun graph_set_movement} to define the movement model."
     )
   } else if (condition == "full") {

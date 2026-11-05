@@ -17,10 +17,10 @@
 #' - `stap_s`: stationary period of the origin (source).
 #' - `stap_t`: stationary period of the destination (target).
 #' - `distance`: Distance (in km) of the flight.
-#' - `start`: end of the flight.
-#' - `end`: start of the flight.
+#' - `start`: start of the flight.
+#' - `end`: end of the flight.
 #' - `duration`: duration of the flight.
-#' - `n`: number of flight.
+#' - `n`: number of flights.
 #' - `bearing`: Angle of the flight in degree (0° = North, 90° = East).
 #' - `gs`: groundspeed vector expressed as a complex number. You can compute the groundspeed value
 #' (km/h) with `abs(gs)`, the W-E and S-N component of the flight with `Re(gs)` and `Im(gs)`, and

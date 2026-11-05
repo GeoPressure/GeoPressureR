@@ -39,23 +39,23 @@ mass, wing span, wing aspect ratio, and body frontal area. See \code{bird_create
 probability at \code{low_speed_fix} for any lower speed. This parameter is used to allow short
 flights covering small distances. (unit of km/h)}
 
-\item{zero_speed_ratio}{multiplicative ratio of the probability for speed zero. This ratio apply
+\item{zero_speed_ratio}{multiplicative ratio of the probability for speed zero. This ratio applies
 only when the bird is staying at the same location (fly and come back or stay within pixel size).
 This parameter (when greater than 1) is used to favour a bird to stay at the same location rather
-than perform short fly.}
+than perform short flights.}
 }
 \value{
-Graph list with a new list \code{graph$movement} storing all the parameters needed to compute
+Graph list with a new list \code{graph$param$graph_set_movement} storing all the parameters needed to compute
 the transition probability
 }
 \description{
 Configure the movement model of a \code{graph} by defining the value of the parameters needed to build
 the transition \code{graph_transition()} through \code{speed2prob()}.
 
-Three methods are currently implemented with two parametric function \code{"gamma"} and \code{"logis"}
+Three methods are currently implemented with two parametric functions \code{"gamma"} and \code{"logis"}
 suitable when wind data is not available and are thus defining the probability of a groundspeed.
 
-If wind data is available, it is recommended to use the \code{"power"} method which rely on the power
+If wind data is available, it is recommended to use the \code{"power"} method which relies on the power
 curve equation (energy vs airspeed) to estimate the probability of an airspeed. Read more about
 this approach in \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0009-title}{section 2.2.5. of Nussbaumer et al. (2023b)}
 }

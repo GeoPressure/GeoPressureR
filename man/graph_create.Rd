@@ -20,7 +20,7 @@ graph_create(
 
 \item{thr_likelihood}{threshold of percentile (see details).}
 
-\item{thr_gs}{threshold of groundspeed (km/h)  (see details).}
+\item{thr_gs}{threshold of groundspeed (km/h) (see details).}
 
 \item{likelihood}{Field of the \code{tag} list containing the likelihood map (character). By default,
 uses the product of \code{map_pressure} and \code{map_light} if available, otherwise the first available

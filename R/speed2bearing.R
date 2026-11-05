@@ -1,8 +1,8 @@
 #' Compute the bearing of a speed vector
 #'
 #' @description
-#' This function convert a speed vector represented in complex number into a bearing angle (0°=N ;
-#' 90°=E...). This conversion is needed because trigonometric angle are different than bearing.
+#' This function converts a speed vector represented in complex number into a bearing angle (0°=N ;
+#' 90°=E...). This conversion is needed because trigonometric angles are different than bearing.
 #'
 #' @param speed speed as complex value
 #' @param speed_ref reference vector of the angle. Default is the North in order to return bearing.

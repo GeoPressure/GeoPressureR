@@ -16,7 +16,7 @@ or \code{"full"}.}
 logical indicating whether the \code{graph} object fulfil the condition.
 }
 \description{
-This function check the condition of a \code{graph} object.
+This function checks the condition of a \code{graph} object.
 }
 \examples{
 # Load a tag with pressure and light likelihood maps computed with `geopressuretemplate()`
