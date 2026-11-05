@@ -374,7 +374,8 @@ graph_create <- function(
   graph$stap <- map$stap
   graph$equipment <- which(nds[[1]])
   graph$retrieval <- as.integer(which(nds[[sz[3]]]) + (sz[3] - 1) * nll)
-  # After pruning some retrieval nodes might not be present anymore.
+  # After pruning some equipment and retrieval nodes might not be present anymore.
+  graph$equipment <- graph$equipment[graph$equipment %in% graph$s]
   graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   graph$mask_water <- tag$map_pressure$mask_water
 

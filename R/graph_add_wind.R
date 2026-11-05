@@ -110,7 +110,8 @@ graph_add_wind <- function(
     graph$gs <- tmp$gs
     graph$ws <- tmp$ws
 
-    # After pruning some retrieval nodes might not be present anymore.
+    # After pruning some equipment and retrieval nodes might not be present anymore.
+    graph$equipment <- graph$equipment[graph$equipment %in% graph$s]
     graph$retrieval <- graph$retrieval[graph$retrieval %in% graph$t]
   }
 
