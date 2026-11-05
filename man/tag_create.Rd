@@ -71,7 +71,7 @@ in the bird's forward-right-down frame, as three values among \code{"forward"}, 
 \code{"right"}, \code{"left"}, \code{"down"} and \code{"up"}, with one per axis. The default
 \code{c("right", "forward", "down")} is the standard mounting (raw y forward, raw x to the right).
 Use \code{c("left", "backward", "down")} for a tag mounted reversed, or e.g.
-\code{c("forward", "left", "down")} for a tag rotated by 90°. Stored in \code{tag$param$mag_axis}.}
+\code{c("forward", "left", "down")} for a tag rotated by 90°. Stored in \code{tag$param$tag_create$mag_axis}.}
 }
 \value{
 A GeoPressureR \code{tag} containing \code{param} (see \code{\link[=param_create]{param_create()}}) and the available sensor
@@ -126,7 +126,8 @@ For SOI, use \code{NA} to skip a sensor.
 SOI files are text exports of the SOI \emph{GeoLocator} decoder: six header lines followed by
 \verb{dd.mm.yyyy HH:MM} rows in UTC. Each sensor is sampled every \code{BaseLoggingInterval} ×
 \verb{<sensor>LoggingInterval} minutes, as configured with BirdTagManager and recorded in the
-\verb{*.settings} file (read into \code{tag$param$soi_settings}); a sensor interval of 0 means the sensor
+\verb{*.settings} file (read into \code{tag$param$tag_create$settings}, with the normalised \code{model} and
+\code{firmware}); a sensor interval of 0 means the sensor
 was off. The tag only stores a value when it changes, and the decoder repeats it until the next
 change. Rows that the decoder could not reconstruct are written as \code{-2} in all columns; they are
 set to \code{NA}, except in \code{temperature_external}, where they cannot be told apart from a −2 °C
@@ -153,8 +154,8 @@ backwards). Without \verb{*.settings}, magnetic data are not read.
 
 The decoder does not correct clock drift. \verb{*.settings} records the tag clock
 (\code{StopTimeRTC}) and the computer clock (\code{StopTimeReference}) at download, and their difference
-is stored in \code{tag$param$drift} in minutes: positive when the tag clock is ahead. To correct a
-linear drift, use \code{time_drift} (e.g. \code{-tag$param$drift / 60} divided by the deployment
+is stored in \code{tag$param$tag_create$settings$clock_drift} in minutes: positive when the tag clock
+is ahead. To correct a linear drift, use \code{time_drift} (e.g. \code{-clock_drift / 60} divided by the deployment
 duration in years) with \code{time_reference} set to \code{StarttimeRTC}, when the clock was set.
 }
 

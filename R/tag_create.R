@@ -34,7 +34,8 @@
 #' SOI files are text exports of the SOI *GeoLocator* decoder: six header lines followed by
 #' `dd.mm.yyyy HH:MM` rows in UTC. Each sensor is sampled every `BaseLoggingInterval` ×
 #' `<sensor>LoggingInterval` minutes, as configured with BirdTagManager and recorded in the
-#' `*.settings` file (read into `tag$param$soi_settings`); a sensor interval of 0 means the sensor
+#' `*.settings` file (read into `tag$param$tag_create$settings`, with the normalised `model` and
+#' `firmware`); a sensor interval of 0 means the sensor
 #' was off. The tag only stores a value when it changes, and the decoder repeats it until the next
 #' change. Rows that the decoder could not reconstruct are written as `-2` in all columns; they are
 #' set to `NA`, except in `temperature_external`, where they cannot be told apart from a −2 °C
@@ -60,8 +61,8 @@
 #'
 #' The decoder does not correct clock drift. `*.settings` records the tag clock
 #' (`StopTimeRTC`) and the computer clock (`StopTimeReference`) at download, and their difference
-#' is stored in `tag$param$drift` in minutes: positive when the tag clock is ahead. To correct a
-#' linear drift, use `time_drift` (e.g. `-tag$param$drift / 60` divided by the deployment
+#' is stored in `tag$param$tag_create$settings$clock_drift` in minutes: positive when the tag clock
+#' is ahead. To correct a linear drift, use `time_drift` (e.g. `-clock_drift / 60` divided by the deployment
 #' duration in years) with `time_reference` set to `StarttimeRTC`, when the clock was set.
 #'
 #' @section Tabular input:
@@ -123,7 +124,7 @@
 #'   `"right"`, `"left"`, `"down"` and `"up"`, with one per axis. The default
 #'   `c("right", "forward", "down")` is the standard mounting (raw y forward, raw x to the right).
 #'   Use `c("left", "backward", "down")` for a tag mounted reversed, or e.g.
-#'   `c("forward", "left", "down")` for a tag rotated by 90°. Stored in `tag$param$mag_axis`.
+#'   `c("forward", "left", "down")` for a tag rotated by 90°. Stored in `tag$param$tag_create$mag_axis`.
 #' @param quiet Logical; hide progress messages and sampling-interval warnings.
 #' @param assert_pressure Logical; require pressure data in the returned tag.
 #'

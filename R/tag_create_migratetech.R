@@ -32,7 +32,7 @@ tag_create_migratetech <- function(
       )
     }
     # Retrieve full model number
-    tag$param$migratec_model <- regmatches(
+    tag$param$tag_create$settings$model <- regmatches(
       line2,
       regexpr("Type: \\K[\\d.]+", line2, perl = TRUE)
     )

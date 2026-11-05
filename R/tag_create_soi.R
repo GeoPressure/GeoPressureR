@@ -23,12 +23,24 @@ tag_create_soi <- function(
     {
       setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
       if (!is.null(setting_path)) {
-        tag$param$soi_settings <- jsonlite::fromJSON(setting_path)
+        settings <- jsonlite::fromJSON(setting_path)
+        # Normalised logger model and firmware (older SOI files name them HWVersion and SWVersion)
+        settings$model <- if (is.null(settings[["HW Version"]])) {
+          settings$HWVersion
+        } else {
+          settings[["HW Version"]]
+        }
+        settings$firmware <- if (is.null(settings[["FW Version"]])) {
+          settings$SWVersion
+        } else {
+          settings[["FW Version"]]
+        }
+        tag$param$tag_create$settings <- settings
 
         # Check for drift: tag clock (StopTimeRTC) minus computer clock (StopTimeReference) at
         # download, in minutes. Positive when the tag clock is ahead.
         settings_time <- function(key) {
-          x <- tag$param$soi_settings[[key]]
+          x <- settings[[key]]
           if (!is.character(x) || length(x) != 1) {
             return(as.POSIXct(NA))
           }
@@ -37,18 +49,18 @@ tag_create_soi <- function(
         stop_time_ref <- settings_time("StopTimeReference")
         stop_time_rtc <- settings_time("StopTimeRTC")
         recording_valid <- !identical(
-          tag$param$soi_settings$RecordingStop,
+          settings$RecordingStop,
           "timestamp invalid"
         )
         if (recording_valid && !is.na(stop_time_ref) && !is.na(stop_time_rtc)) {
-          tag$param$drift <- as.numeric(difftime(
+          tag$param$tag_create$settings$clock_drift <- as.numeric(difftime(
             stop_time_rtc,
             stop_time_ref,
             units = "mins"
           ))
-          if (abs(tag$param$drift) > 30) {
+          if (abs(tag$param$tag_create$settings$clock_drift) > 30) {
             cli::cli_warn(c(
-              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$drift))} which seems suspicious.",
+              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$tag_create$settings$clock_drift))} which seems suspicious.",
               ">" = "Check for error (e.g. timezone)"
             ))
           }
@@ -133,15 +145,15 @@ tag_create_soi <- function(
 
   # Read magnetism
   magnetic_path <- tag_create_detect(magnetic_file, directory, quiet, default = "*.magnetic")
-  if (!is.null(magnetic_path) && "soi_settings" %in% names(tag$param)) {
+  if (!is.null(magnetic_path) && !is.null(tag$param$tag_create$settings)) {
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,
-      hw_version = tag$param$soi_settings,
+      hw_version = tag$param$tag_create$settings,
       mag_axis = mag_axis,
       quiet = quiet
     )
     # Add information
-    tag$param$mag_axis <- attr(tag$magnetic, "mag_axis")
+    tag$param$tag_create$mag_axis <- attr(tag$magnetic, "mag_axis")
     attr(tag$magnetic, "mag_axis") <- NULL
   }
 
@@ -183,7 +195,7 @@ tag_create_soi_gap <- function(sensor_data) {
 #' - LSM303D: hardware version v2.3 and lower
 #' - LSM303AGR: hardware version 2.4 and higher
 #'
-#' Version is detected automatically from `tag$param$soi_settings`
+#' Version is detected automatically from `tag$param$tag_create$settings`
 #' @noRd
 tag_create_soi_mag <- function(
   magnetic_path,
