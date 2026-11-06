@@ -12,8 +12,9 @@
 #' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
 #' the download more efficient, [`wf_request_batch()`](
 #' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
-#' is used to download files in parallel. CDS queue limits vary with the current system workload.
-#' If CDS reports that queued requests are temporarily limited, reduce `workers` and try again.
+#' is used to download files in parallel. CDS limits the number of queued requests per account and
+#' dataset (currently about 2-3), counting requests from all your sessions. Requests beyond this
+#' limit are rejected by CDS, so keep `workers` low.
 #'
 #' More information [in the GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html).
@@ -36,8 +37,9 @@
 #' taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
 #' `./data/wind/{tag_id}/{tag_id}_{stap_id}.nc`.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
-#' @param workers maximum number of simultaneous requests submitted to CDS. Defaults to `19`.
-#' CDS queue limits are dynamic; use a lower value if queued requests are temporarily limited.
+#' @param workers maximum number of simultaneous requests submitted to CDS. Defaults to `2`.
+#' CDS limits queued requests per account and dataset; use `1` if other sessions are also
+#' requesting data.
 #' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
 #' [`ecmwfr::wf_set_key()`]
 #' @inheritParams ecmwfr::wf_request_batch
@@ -60,7 +62,7 @@ tag_download_wind <- function(
   variable = c("u_component_of_wind", "v_component_of_wind"),
   file = wind_file,
   overwrite = FALSE,
-  workers = 19,
+  workers = 2,
   cds_token = lifecycle::deprecated(),
   ...
 ) {
