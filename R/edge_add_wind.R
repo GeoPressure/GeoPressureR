@@ -845,17 +845,8 @@ edge_add_wind_values_time <- function(
   } else {
     # Nearest-neighbour spatial interpolation: use precomputed global grid indices, offset them
     # into the current NetCDF slab, then extract values directly.
-    value <- vector("list", length(variable))
-    for (var_i in seq_len(length(variable))) {
-      lon_int_ind_off <- lon_int_ind_i - id_lon[1] + 1
-      lat_int_ind_off <- lat_int_ind_i - id_lat[1] + 1
-
-      ind <- (lat_int_ind_off - 1) *
-        nrow(var_nc[[var_i]]) +
-        lon_int_ind_off
-
-      value[[var_i]] <- var_nc[[var_i]][ind]
-    }
+    ind <- (lat_int_ind_i - id_lat[1]) * length(id_lon) + lon_int_ind_i - id_lon[1] + 1
+    value <- lapply(var_nc, `[`, ind)
   }
   list(value = value, pressure = p_q)
 }

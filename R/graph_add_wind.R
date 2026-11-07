@@ -215,7 +215,6 @@ graph_add_wind_edge <- function(
 
   # Drop graph metadata while retaining compact edge indices for one-period coordinate expansion.
   graph <- list(param = list(id = graph$param$id))
-  gc()
 
   if (!quiet) {
     i_stap <- 0
@@ -293,8 +292,9 @@ graph_add_wind_edge <- function(
         lat_ind_i <- NULL
         lon_ind_i <- NULL
         if (!interp_spatial_linear) {
-          lat_ind_i <- match(round(lat_i * 4) / 4, lat)
-          lon_ind_i <- match(round(lon_i * 4) / 4, lon)
+          # Nearest ERA5 grid index (latitude descending, longitude ascending)
+          lat_ind_i <- round(lat[1] / dlat) - round(lat_i / dlat) + 1
+          lon_ind_i <- round(lon_i / dlon) - round(lon[1] / dlon) + 1
         }
         out <- edge_add_wind_values_time(
           pressure,
@@ -324,34 +324,6 @@ graph_add_wind_edge <- function(
       u_stap <- u_stap + u_fl * duration_weight[i_fl]
       v_stap <- v_stap + v_fl * duration_weight[i_fl]
       ncdf4::nc_close(nc)
-
-      rm(
-        nc,
-        nc_info,
-        time,
-        pres,
-        lat,
-        dlat,
-        lon,
-        dlon,
-        t_q,
-        w,
-        lat_s,
-        lon_s,
-        lat_e,
-        lon_e,
-        dlat_se,
-        dlon_se,
-        time_offset,
-        lat_i,
-        lon_i,
-        lat_ind_i,
-        lon_ind_i,
-        file_path,
-        u_fl,
-        v_fl
-      )
-      gc()
     }
 
     # Store wind as a complex vector in km/h: Re = eastward u, Im = northward v.
@@ -363,21 +335,6 @@ graph_add_wind_edge <- function(
         force = TRUE
       )
     }
-    rm(
-      fl_s,
-      st_id,
-      edge_s0,
-      edge_t0,
-      lat_edge_s,
-      lon_edge_s,
-      lat_edge_t,
-      lon_edge_t,
-      ratio_stap,
-      duration_weight,
-      u_stap,
-      v_stap
-    )
-    gc()
   }
 
   ws
