@@ -207,9 +207,18 @@ graph_add_wind_edge <- function(
   n_grid <- prod(g$dim)
   edge_s <- graph$s
   edge_t <- graph$t
-  edge_layer <- (edge_s - 1L) %/% n_grid + 1L
-  list_st_id <- split(seq_along(edge_s), edge_layer)
-  edge_stap <- names(list_st_id)
+  # Edges are ordered by source layer (graph_create), so each layer is a contiguous range. Process
+  # it in blocks of at most `block_size` edges so memory does not scale with the largest layer.
+  block_size <- 1e6
+  n_edge <- tabulate((edge_s - 1L) %/% n_grid + 1L)
+  layer_end <- cumsum(n_edge)
+  block <- do.call(
+    rbind,
+    lapply(which(n_edge > 0), function(l) {
+      from <- seq.int(layer_end[l] - n_edge[l] + 1, layer_end[l], by = block_size)
+      cbind(layer = l, from = from, to = pmin(from + block_size - 1, layer_end[l]))
+    })
+  )
 
   ws <- complex(length(edge_s))
 
@@ -217,10 +226,10 @@ graph_add_wind_edge <- function(
   graph <- list(param = list(id = graph$param$id))
 
   if (!quiet) {
-    i_stap <- 0
+    stap_layer <- 0
     cli::cli_progress_bar(
       "Compute wind speed for edges of stationary period:",
-      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(edge_stap)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {stap_layer}/{length(n_edge)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
       format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = length(edge_s)
@@ -228,16 +237,13 @@ graph_add_wind_edge <- function(
   }
 
   n_edge_done <- 0L
-  for (i_stap in seq_along(edge_stap)) {
-    # Work on one source stationary period at a time so the output can be written into ws[st_id].
+  for (i_block in seq_len(nrow(block))) {
+    # Work on one block of a source stationary period at a time and write the output into ws[st_id].
     # Graph layers are compressed to included staps; flight names use original stap_id.
-    stap_layer <- as.integer(edge_stap[i_stap])
+    stap_layer <- block[i_block, "layer"]
     stap_id <- stap_include[stap_layer]
     fl_s <- flight[[as.character(stap_id)]]
-    st_id <- list_st_id[[edge_stap[i_stap]]]
-    if (length(st_id) == 0) {
-      next
-    }
+    st_id <- seq.int(block[i_block, "from"], block[i_block, "to"])
     edge_s0 <- edge_s[st_id] - 1L
     edge_t0 <- edge_t[st_id] - 1L
     lat_edge_s <- g$lat[edge_s0 %% g$dim[1] + 1L]
