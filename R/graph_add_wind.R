@@ -79,50 +79,55 @@ graph_add_wind <- function(
   gc()
 
   if (is.finite(thr_as)) {
-    # filter edges based on airspeed
+    # Filter edges based on airspeed, in blocks to avoid full-length complex temporaries.
     # Keep stay-in-place edges, which graph_transition() treats as zero airspeed
-    id <- abs(graph$gs - graph$ws) <= thr_as | graph$gs == 0
+    keep <- logical(length(graph$s))
+    for (from in seq.int(1, length(keep), by = 1e6)) {
+      b <- seq.int(from, min(from + 1e6 - 1, length(keep)))
+      keep[b] <- abs(graph$gs[b] - graph$ws[b]) <= thr_as | graph$gs[b] == 0
+    }
 
     # Check that there are always at least one node left by stap
-    g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
-    edge_s <- arrayInd(graph$s[id], c(g$dim, nrow(graph$stap)))
-    sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[, 3])))
+    n_grid <- prod(graph$sz[1:2])
+    n_layer <- graph$sz[3] - 1L
+    stap_id <- graph$stap$stap_id[graph$stap$include]
+    sta_pass <- which(tabulate((graph$s[keep] - 1L) %/% n_grid + 1L, n_layer) == 0)
     if (length(sta_pass) > 0) {
-      as <- abs(graph$gs - graph$ws)
-      edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
+      as <- abs(graph$gs - graph$ws)[((graph$s - 1L) %/% n_grid + 1L) %in% sta_pass]
       cli::cli_abort(c(
         x = "Using {.arg thr_as} of {thr_as} km/h, there are no nodes left for the stationary
-        period: {.field {graph$stap$stap_id[graph$stap$include][sta_pass]}} with a minimum airspeed of
-        {.val {round(min(as[edge_s_all[, 3] %in% sta_pass]))}} km/h."
+        period: {.field {stap_id[sta_pass]}} with a minimum airspeed of {.val {round(min(as))}} km/h."
       ))
     }
-    rm(g, edge_s)
-    gc()
 
-    # Filter node
-    graph$s <- graph$s[id]
-    graph$t <- graph$t[id]
-    graph$gs <- graph$gs[id]
-    graph$ws <- graph$ws[id]
-
-    # Prune the graph
-    # First, reconstruction the stap list graph for graph_create_prune to work
-    gr <- split(
-      data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
-      arrayInd(graph$s, graph$sz)[, 3]
-    )
-    gr <- graph_create_prune(
-      gr,
-      graph$stap$stap_id[graph$stap$include],
-      quiet = isTRUE(list(...)$quiet)
-    )
-    # Convert it back to a full list
-    tmp <- as.list(do.call("rbind", gr))
-    # Overwrite all edges vectors
-    graph$s <- tmp$s
-    graph$t <- tmp$t
-    graph$gs <- tmp$gs
-    graph$ws <- tmp$ws
+    # Prune edges disconnected from the previous layer (forward) and next layer (backward). Edges
+    # are ordered by source layer, so each layer is a contiguous range.
+    n_edge <- tabulate((graph$s - 1L) %/% n_grid + 1L, n_layer)
+    r <- Map(seq.int, cumsum(n_edge) - n_edge + 1, cumsum(n_edge))
+    for (l in seq_along(r)[-1]) {
+      keep[r[[l]]] <- keep[r[[l]]] & graph$s[r[[l]]] %in% graph$t[r[[l - 1]]][keep[r[[l - 1]]]]
+      if (!any(keep[r[[l]]])) {
+        cli::cli_abort(c(
+          x = "No complete path remains: the graph is disconnected at stationary period
+            {.val {stap_id[l]}} when moving forward from the equipment location.",
+          ">" = "Consider increasing {.arg thr_as}."
+        ))
+      }
+    }
+    for (l in rev(seq_len(length(r) - 1))) {
+      keep[r[[l]]] <- keep[r[[l]]] & graph$t[r[[l]]] %in% graph$s[r[[l + 1]]][keep[r[[l + 1]]]]
+      if (!any(keep[r[[l]]])) {
+        cli::cli_abort(c(
+          x = "No complete path remains: the graph is disconnected at stationary period
+            {.val {stap_id[l + 1]}} when moving backward from the retrieval location.",
+          ">" = "Consider increasing {.arg thr_as}."
+        ))
+      }
+    }
+    graph$s <- graph$s[keep]
+    graph$t <- graph$t[keep]
+    graph$gs <- graph$gs[keep]
+    graph$ws <- graph$ws[keep]
 
     # After pruning some equipment and retrieval nodes might not be present anymore.
     graph$equipment <- graph$equipment[graph$equipment %in% graph$s]
