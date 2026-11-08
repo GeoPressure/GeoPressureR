@@ -11,7 +11,8 @@
 #' `fraction_of_cloud_cover`: `"1"` (CF dimensionless) instead of `"(0 - 1)"`.
 #'
 #' @return A data.frame with `variable` (the name CDS takes), `short_name` (the name the NetCDF
-#'   uses), `long_name`, `units` and `standard_name`.
+#'   uses), `long_name`, `units`, `standard_name` and `gcs` (available in Google ARCO-ERA5, used by
+#'   [tag_download_wind()]).
 #' @noRd
 era5_variable_pressure_level <- function() {
   tbl <- data.frame(
@@ -107,6 +108,7 @@ era5_variable_pressure_level <- function() {
     ),
     stringsAsFactors = FALSE
   )
+  tbl$gcs <- !(tbl$short_name %in% c("d", "r", "crwc", "cswc", "vo"))
   tbl
 }
 

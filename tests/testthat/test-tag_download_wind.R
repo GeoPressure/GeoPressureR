@@ -223,3 +223,96 @@ test_that("tag_download_wind() | CDS files keep the flight hours, packed CF", {
   expect_lte(max(abs(ncdf4::ncvar_get(nc, "u") - value$u[,,, id])), 0.005 + 1e-6)
   expect_lte(max(abs(ncdf4::ncvar_get(nc, "v") - value$v[,,, id])), 0.005 + 1e-6)
 })
+
+test_that("tag_download_wind() | Google ARCO index arithmetic", {
+  skip_if_not_installed("ncdf4")
+  skip_if_not_installed("Rarr")
+  tag <- create_mock_tag()
+  tag$pressure$value <- 960
+  tmp <- withr::local_tempdir()
+  file_func <- function(s, t) file.path(tmp, glue::glue("{t}_{s}.nc"))
+  levels <- c(
+    1,
+    2,
+    3,
+    5,
+    7,
+    10,
+    20,
+    30,
+    50,
+    70,
+    seq(100, 250, 25),
+    seq(300, 750, 50),
+    seq(775, 1000, 25)
+  )
+  t0 <- as.integer(difftime(
+    as.POSIXct("2017-06-21", tz = "UTC"),
+    as.POSIXct("1900-01-01", tz = "UTC"),
+    units = "hours"
+  ))
+  # Fake store: u encodes longitude and hour, v latitude and level, from the zarr indices
+  local_mocked_bindings(
+    req_perform_parallel = function(reqs, ...) lapply(reqs, \(r) httr2::response(body = raw(1))),
+    .package = "httr2"
+  )
+  local_mocked_bindings(
+    read_zarr_array = function(zarr_array_path, index, ...) {
+      lon <- (index[[4]] - 1) / 4
+      lon <- ifelse(lon >= 180, lon - 360, lon)
+      lat <- 90 - (index[[3]] - 1) / 4
+      d <- c(1, length(index[[2]]), length(lat), length(lon))
+      if (grepl("u_component", zarr_array_path)) {
+        array(rep(lon, each = prod(d[1:3])) + 10 * (index[[1]] - 1 - t0), d)
+      } else {
+        array(rep(lat, each = d[2]) + levels[index[[2]]] / 1000, d)
+      }
+    },
+    .package = "Rarr"
+  )
+  # extent crossing the Greenwich meridian, so longitudes span both ends of the store axis
+  tag_download_wind(
+    tag,
+    extent = c(-0.5, 0.5, 45, 46),
+    include_stap_id = 1,
+    file = file_func,
+    source = "gcs"
+  )
+
+  nc <- ncdf4::nc_open(file_func(1, "18LX"))
+  withr::defer(ncdf4::nc_close(nc))
+  lon <- c(ncdf4::ncvar_get(nc, "longitude"))
+  lat <- c(ncdf4::ncvar_get(nc, "latitude"))
+  pres <- c(ncdf4::ncvar_get(nc, "pressure_level"))
+  hour <- (ncdf4::ncvar_get(nc, "valid_time") - as.numeric(as.POSIXct("2017-06-21", tz = "UTC"))) /
+    3600
+  expect_equal(lon, seq(-0.5, 0.5, 0.25))
+  expect_equal(lat, seq(46, 45, -0.25))
+  expect_equal(pres, c(975, 950))
+  expect_equal(c(hour), 0:49)
+  u <- ncdf4::ncvar_get(nc, "u")
+  v <- ncdf4::ncvar_get(nc, "v")
+  expect_lte(
+    max(abs(u - outer(outer(outer(lon, lat, \(x, y) x), pres, \(x, y) x), 10 * hour, `+`))),
+    0.005 + 1e-6
+  )
+  expect_lte(
+    max(abs(v - outer(outer(outer(lon, lat, \(x, y) y), pres / 1000, `+`), hour, \(x, y) x))),
+    0.005 + 1e-6
+  )
+  expect_equal(ncdf4::ncatt_get(nc, "v", "standard_name")$value, "northward_wind")
+})
+
+test_that("tag_download_wind() | Google ARCO refuses variables missing from the store", {
+  tag <- create_mock_tag()
+  expect_error(
+    tag_download_wind(
+      tag,
+      variable = "vorticity",
+      include_stap_id = 1,
+      source = "gcs",
+      file = \(s, t) tempfile()
+    ),
+    "not available from Google"
+  )
+})

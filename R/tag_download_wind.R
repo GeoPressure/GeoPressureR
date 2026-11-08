@@ -1,23 +1,28 @@
 #' Download flight data
 #'
 #' @description
-#' This function downloads data associated to each flight from the ERA5 hourly pressure levels (\doi{10.24381/cds.bd0915c6})
-#' with the [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) and through the [`ecmwfr`
-#' R package](https://bluegreen-labs.github.io/ecmwfr/index.html).
-#'
-#' [Any variable available from the ERA5 pressure level](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
-#' can be downloaded.
-#'
-#' The flights are determined from the stationary periods classified `tag$stap`. It requests a
-#' single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
-#' the download more efficient, [`wf_request_batch()`](
-#' https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests)
-#' is used to download files in parallel. CDS limits the number of queued requests per account and
-#' dataset (currently about 2-3), counting requests from all your sessions. Requests beyond this
-#' limit are rejected by CDS, so keep `workers` low.
+#' Download ERA5 hourly data on pressure levels (\doi{10.24381/cds.bd0915c6}) for each flight of
+#' `tag` and save one NetCDF file per flight, covering the flight hours and the pressure levels
+#' flown. These files are then read by [edge_add_wind()] and [graph_add_wind()].
 #'
 #' More information [in the GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html).
+#'
+#' @section Choosing a source:
+#' Both sources provide the same ERA5 data and write the same files.
+#' - `"cds"` (default) requests one file per flight from the
+#' [Climate Data Store (CDS)](https://cds.climate.copernicus.eu/) with
+#' [`ecmwfr`](https://bluegreen-labs.github.io/ecmwfr/index.html). It needs an ECMWF key (see
+#' below). The CDS queues requests and runs only about 2 at a time per account, so when it is busy
+#' a tag can take hours to days.
+#' - `"gcs"` reads the public [Google ARCO-ERA5](https://github.com/google-research/arco-era5)
+#' copy of ERA5 on Google Cloud Storage. It needs no key and has no queue, so a tag usually takes
+#' minutes. Each hour of each variable is downloaded as one global field (~120 MB), so the time
+#' depends on the flight durations and your bandwidth, not on `extent`. It needs the package `Rarr`
+#' and lacks a few variables (see [`variable`](#arg-variable)).
+#'
+#' Use `"gcs"` when the CDS is slow, unless you need one of these variables or have a slow
+#' connection.
 #'
 #' @section File format:
 #' The downloaded data are processed to take less space. Each file keeps only the flight hours.
@@ -31,30 +36,33 @@
 #' Vector of length 4 `c(xmin, xmax, ymin, ymax)` or `c(W, E, S, N)`.
 #' @param include_stap_id stationary period identifiers of the start of the flight to download.
 #' Default is to download all flights.
-#' @param variable list of variables to download from [the ERA5 pressure level
-#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9):
-#' `"u_component_of_wind"`, `"v_component_of_wind"`,  `"temperature"`,
-#' `"fraction_of_cloud_cover"`, `"relative_humidity"`, `"vertical_velocity"`,
-#' `"specific_cloud_ice_water_content"`, `"specific_cloud_liquid_water_content"`,
-#' `"specific_humidity"`, `"specific_rain_water_content"`, `"specific_snow_water_content"`,
-#' `"divergence"`, `"geopotential"`, `"ozone_mass_mixing_ratio"`, `"potential_vorticity"`,
-#' `"vorticity"`. The same names are used by [edge_add_wind()].
+#' @param variable ERA5 [pressure-level variables
+#' ](https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9)
+#' to download, using the same names as [edge_add_wind()]. Available from both sources:
+#' `"u_component_of_wind"`, `"v_component_of_wind"`, `"temperature"`, `"geopotential"`,
+#' `"specific_humidity"`, `"vertical_velocity"`, `"fraction_of_cloud_cover"`,
+#' `"specific_cloud_liquid_water_content"`, `"specific_cloud_ice_water_content"`,
+#' `"ozone_mass_mixing_ratio"` and `"potential_vorticity"`. Only with `source = "cds"`:
+#' `"relative_humidity"`, `"divergence"`, `"vorticity"`, `"specific_rain_water_content"` and
+#' `"specific_snow_water_content"`.
 #' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
 #' taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
 #' `./data/wind/{tag_id}/{tag_id}_{stap_id}.nc`.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
-#' @param workers maximum number of simultaneous requests submitted to CDS. Defaults to `2`.
-#' CDS limits queued requests per account and dataset; use `1` if other sessions are also
-#' requesting data.
+#' @param workers number of downloads run in parallel. Defaults to `2` for `"cds"`, which rejects
+#' more queued requests per account (use `1` if other sessions also request data), and `6` for
+#' `"gcs"`, where each download needs about 300 MB of memory.
+#' @param source `"cds"` (default) or `"gcs"`. See [Choosing a source](#choosing-a-source).
 #' @param cds_token `r lifecycle::badge("deprecated")` Enter the API token with
 #' [`ecmwfr::wf_set_key()`]
 #' @inheritParams ecmwfr::wf_request_batch
 #' @inheritDotParams ecmwfr::wf_request_batch
 #'
-#' @return The path of the downloaded (requested file) or an R6 object with download/transfer
-#' information
+#' @return For `"cds"`, the output of [ecmwfr::wf_request_batch()]; for `"gcs"`, the paths of the
+#' files written (invisibly).
 #' @examplesIf FALSE
 #'   tag_download_wind(tag)
+#'   tag_download_wind(tag, source = "gcs")
 #' @family movement
 #' @seealso [`wf_request_batch()`
 #' ](https://bluegreen-labs.github.io/ecmwfr/reference/wf_request.html),
@@ -68,16 +76,18 @@ tag_download_wind <- function(
   variable = c("u_component_of_wind", "v_component_of_wind"),
   file = wind_file,
   overwrite = FALSE,
-  workers = 2,
+  workers = if (source == "cds") 2 else 6,
+  source = c("cds", "gcs"),
   cds_token = lifecycle::deprecated(),
   ...
 ) {
-  pkg <- c("ecmwfr", "ncdf4")
+  source <- match.arg(source)
+  pkg <- c(if (source == "cds") "ecmwfr" else "Rarr", "ncdf4")
   pkg <- pkg[!vapply(pkg, requireNamespace, TRUE, quietly = TRUE)]
   if (length(pkg) > 0) {
     cli::cli_abort(c(
-      "x" = "Package{?s} {.pkg {pkg}} {?is/are} required for {.fun tag_download_wind}.",
-      "i" = "Install {?it/them} with {.code install.packages()}."
+      "x" = "Package{?s} {.pkg {pkg}} {?is/are} required for {.code tag_download_wind(source = \"{source}\")}.",
+      "i" = "Install {?it/them} with {.code install.packages()} ({.code BiocManager::install()} for {.pkg Rarr})."
     ))
   }
 
@@ -123,6 +133,14 @@ tag_download_wind <- function(
 
   # CDS only understands the long names; reject short ones with the right spelling.
   variable <- era5_variable_canonical(variable)
+  tbl <- era5_variable_pressure_level()
+  gcs_variable <- tbl$variable[tbl$gcs]
+  if (source == "gcs" && !all(variable %in% gcs_variable)) {
+    cli::cli_abort(c(
+      "x" = "{.val {setdiff(variable, gcs_variable)}} {?is/are} not available from Google ARCO-ERA5.",
+      ">" = "Use {.code source = \"cds\"} instead."
+    ))
+  }
 
   # remove the last include_stap_id if it was added by mistake
   if (utils::tail(tag$stap$stap_id, 1) %in% include_stap_id) {
@@ -213,6 +231,74 @@ tag_download_wind <- function(
       area = c(extent[4], extent[1], extent[3], extent[2]), # N, W, S, E
       target = basename(file(i_s, tag_id))
     )
+  }
+
+  if (source == "gcs") {
+    # Google ARCO-ERA5 stores one chunk per hour and variable with all 37 levels (same order as
+    # possible_pressure) over the globe: fetch `workers` chunks in parallel, crop, keep in memory.
+    host <- "https://storage.googleapis.com"
+    array <- "gcp-public-data-arco-era5/ar/full_37-1h-0p25deg-chunk-1.zarr-v3/{variable}"
+    client <- era5_arco_client(cache = TRUE, host = host, auth = FALSE)
+
+    # ERA5 0.25° grid inside extent, latitude from north to south as in CDS files
+    lon <- seq(ceiling(extent[1] * 4), floor(extent[2] * 4)) / 4
+    lat <- seq(floor(extent[4] * 4), ceiling(extent[3] * 4)) / 4
+    id_lon <- round(lon %% 360 * 4) + 1
+    id_lat <- round((90 - lat) * 4) + 1
+
+    cli::cli_progress_bar(
+      "Download ERA5 from Google ARCO-ERA5",
+      total = sum(vapply(flight[include_stap_id], \(f) length(f$time), 0)) * length(variable)
+    )
+    for (i_s in include_stap_id) {
+      ft <- flight[[i_s]]$time
+      pres_id <- flight[[i_s]]$pres_id
+      # zarr time index: hours since 1900-01-01
+      id_time <- as.integer(difftime(ft, as.POSIXct("1900-01-01", tz = "UTC"), units = "hours"))
+      data <- sapply(era5_variable_short(variable), simplify = FALSE, \(v) {
+        array(NA_real_, c(length(lon), length(lat), length(pres_id), length(ft)))
+      })
+      # One chunk per hour and variable, all variables of the flight in the same parallel batches
+      job <- expand.grid(t = seq_along(ft), v = seq_along(variable))
+      path <- glue::glue("{glue::glue(array, variable = variable[job$v])}/{id_time[job$t]}.0.0.0")
+      for (k in split(seq_along(path), ceiling(seq_along(path) / workers))) {
+        resp <- httr2::req_perform_parallel(
+          lapply(path[k], client$request),
+          max_active = workers,
+          progress = FALSE
+        )
+        for (i in seq_along(k)) {
+          t <- job$t[k[i]]
+          v <- job$v[k[i]]
+          assign(path[k[i]], httr2::resp_body_raw(resp[[i]]), envir = client$cache)
+          x <- Rarr::read_zarr_array(
+            glue::glue("{host}/{glue::glue(array, variable = variable[v])}"),
+            index = list(id_time[t] + 1, pres_id, id_lat, sort(id_lon)),
+            s3_client = client
+          )
+          rm(list = path[k[i]], envir = client$cache)
+          # time x level x lat x lon -> lon x lat x level (descending hPa)
+          data[[v]][,,, t] <- aperm(x, 4:1)[
+            match(id_lon, sort(id_lon)),
+            ,
+            rev(seq_along(pres_id)),
+            1
+          ]
+          cli::cli_progress_update()
+        }
+      }
+      era5_file_write(
+        file(i_s, tag_id),
+        data,
+        lon,
+        lat,
+        rev(possible_pressure[pres_id]),
+        ft,
+        "Google ARCO-ERA5"
+      )
+    }
+    cli::cli_progress_done()
+    return(invisible(file(include_stap_id, tag_id)))
   }
 
   out <- ecmwfr::wf_request_batch(

@@ -11,7 +11,8 @@ tag_download_wind(
   variable = c("u_component_of_wind", "v_component_of_wind"),
   file = wind_file,
   overwrite = FALSE,
-  workers = 2,
+  workers = if (source == "cds") 2 else 6,
+  source = c("cds", "gcs"),
   cds_token = lifecycle::deprecated(),
   ...
 )
@@ -25,13 +26,14 @@ Vector of length 4 \code{c(xmin, xmax, ymin, ymax)} or \code{c(W, E, S, N)}.}
 \item{include_stap_id}{stationary period identifiers of the start of the flight to download.
 Default is to download all flights.}
 
-\item{variable}{list of variables to download from \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{the ERA5 pressure level }:
-\code{"u_component_of_wind"}, \code{"v_component_of_wind"},  \code{"temperature"},
-\code{"fraction_of_cloud_cover"}, \code{"relative_humidity"}, \code{"vertical_velocity"},
-\code{"specific_cloud_ice_water_content"}, \code{"specific_cloud_liquid_water_content"},
-\code{"specific_humidity"}, \code{"specific_rain_water_content"}, \code{"specific_snow_water_content"},
-\code{"divergence"}, \code{"geopotential"}, \code{"ozone_mass_mixing_ratio"}, \code{"potential_vorticity"},
-\code{"vorticity"}. The same names are used by \code{\link[=edge_add_wind]{edge_add_wind()}}.}
+\item{variable}{ERA5 \href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{pressure-level variables }
+to download, using the same names as \code{\link[=edge_add_wind]{edge_add_wind()}}. Available from both sources:
+\code{"u_component_of_wind"}, \code{"v_component_of_wind"}, \code{"temperature"}, \code{"geopotential"},
+\code{"specific_humidity"}, \code{"vertical_velocity"}, \code{"fraction_of_cloud_cover"},
+\code{"specific_cloud_liquid_water_content"}, \code{"specific_cloud_ice_water_content"},
+\code{"ozone_mass_mixing_ratio"} and \code{"potential_vorticity"}. Only with \code{source = "cds"}:
+\code{"relative_humidity"}, \code{"divergence"}, \code{"vorticity"}, \code{"specific_rain_water_content"} and
+\code{"specific_snow_water_content"}.}
 
 \item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
 taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
@@ -39,9 +41,11 @@ taking as arguments (1) the stationary period identifier and (2) the tag_id. Def
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
 
-\item{workers}{maximum number of simultaneous requests submitted to CDS. Defaults to \code{2}.
-CDS limits queued requests per account and dataset; use \code{1} if other sessions are also
-requesting data.}
+\item{workers}{number of downloads run in parallel. Defaults to \code{2} for \code{"cds"}, which rejects
+more queued requests per account (use \code{1} if other sessions also request data), and \code{6} for
+\code{"gcs"}, where each download needs about 300 MB of memory.}
+
+\item{source}{\code{"cds"} (default) or \code{"gcs"}. See \href{#choosing-a-source}{Choosing a source}.}
 
 \item{cds_token}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} Enter the API token with
 \code{\link[ecmwfr:wf_set_key]{ecmwfr::wf_set_key()}}}
@@ -67,25 +71,36 @@ name. It has to be a syntactically valid name.}
   }}
 }
 \value{
-The path of the downloaded (requested file) or an R6 object with download/transfer
-information
+For \code{"cds"}, the output of \code{\link[ecmwfr:wf_request_batch]{ecmwfr::wf_request_batch()}}; for \code{"gcs"}, the paths of the
+files written (invisibly).
 }
 \description{
-This function downloads data associated to each flight from the ERA5 hourly pressure levels (\doi{10.24381/cds.bd0915c6})
-with the \href{https://cds.climate.copernicus.eu/}{Climate Data Store (CDS)} and through the \href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr} R package}.
-
-\href{https://confluence.ecmwf.int/display/CKB/ERA5:+data+documentation#ERA5:datadocumentation-Table9}{Any variable available from the ERA5 pressure level}
-can be downloaded.
-
-The flights are determined from the stationary periods classified \code{tag$stap}. It requests a
-single file for each flight using the exact time (hourly basis) and pressure (altitude). To make
-the download more efficient, \href{https://bluegreen-labs.github.io/ecmwfr/articles/advanced_vignette.html#batch-parallel-requests}{\code{wf_request_batch()}}
-is used to download files in parallel. CDS limits the number of queued requests per account and
-dataset (currently about 2-3), counting requests from all your sessions. Requests beyond this
-limit are rejected by CDS, so keep \code{workers} low.
+Download ERA5 hourly data on pressure levels (\doi{10.24381/cds.bd0915c6}) for each flight of
+\code{tag} and save one NetCDF file per flight, covering the flight hours and the pressure levels
+flown. These files are then read by \code{\link[=edge_add_wind]{edge_add_wind()}} and \code{\link[=graph_add_wind]{graph_add_wind()}}.
 
 More information \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{in the GeoPressureManual}.
 }
+\section{Choosing a source}{
+
+Both sources provide the same ERA5 data and write the same files.
+\itemize{
+\item \code{"cds"} (default) requests one file per flight from the
+\href{https://cds.climate.copernicus.eu/}{Climate Data Store (CDS)} with
+\href{https://bluegreen-labs.github.io/ecmwfr/index.html}{\code{ecmwfr}}. It needs an ECMWF key (see
+below). The CDS queues requests and runs only about 2 at a time per account, so when it is busy
+a tag can take hours to days.
+\item \code{"gcs"} reads the public \href{https://github.com/google-research/arco-era5}{Google ARCO-ERA5}
+copy of ERA5 on Google Cloud Storage. It needs no key and has no queue, so a tag usually takes
+minutes. Each hour of each variable is downloaded as one global field (~120 MB), so the time
+depends on the flight durations and your bandwidth, not on \code{extent}. It needs the package \code{Rarr}
+and lacks a few variables (see \href{#arg-variable}{\code{variable}}).
+}
+
+Use \code{"gcs"} when the CDS is slow, unless you need one of these variables or have a slow
+connection.
+}
+
 \section{File format}{
 
 The downloaded data are processed to take less space. Each file keeps only the flight hours.
@@ -111,6 +126,7 @@ stored token with \code{\link[ecmwfr:wf_get_key]{ecmwfr::wf_get_key()}} for all 
 \examples{
 \dontshow{if (FALSE) withAutoprint(\{ # examplesIf}
   tag_download_wind(tag)
+  tag_download_wind(tag, source = "gcs")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
