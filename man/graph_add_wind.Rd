@@ -4,7 +4,13 @@
 \alias{graph_add_wind}
 \title{Compute windspeed and airspeed on a \code{graph}}
 \usage{
-graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
+graph_add_wind(
+  graph,
+  thr_as = Inf,
+  variable = lifecycle::deprecated(),
+  interp_spatial_linear = lifecycle::deprecated(),
+  ...
+)
 }
 \arguments{
 \item{graph}{a GeoPressureR \code{graph} object.}
@@ -13,6 +19,9 @@ graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
 
 \item{variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.
 \code{graph_add_wind()} always uses \code{c("u", "v")}.}
+
+\item{interp_spatial_linear}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used. The nearest
+ERA5 grid cell is always used.}
 
 \item{...}{
   Arguments passed on to \code{\link{edge_add_wind}}
@@ -23,8 +32,6 @@ POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, ass
 is a GeoPressureR \code{tag} object.}
     \item{\code{rounding_interval}}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
-    \item{\code{interp_spatial_linear}}{logical to interpolate the variable linearly over space, if \code{FALSE}
-takes the nearest neighbour. ERA5 native resolution is 0.25°}
     \item{\code{quiet}}{logical to hide messages about the progress}
     \item{\code{file}}{function returning the path of the wind file of a flight from (1) the stationary
 period identifier and (2) the \code{tag_id}. The default, \code{wind_file_default}, gives

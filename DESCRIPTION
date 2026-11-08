@@ -31,7 +31,6 @@ Imports:
     Matrix,
     methods,
     plotly,
-    pracma,
     progressr,
     RColorBrewer,
     stats,

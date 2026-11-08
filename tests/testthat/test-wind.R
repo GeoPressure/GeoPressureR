@@ -27,19 +27,10 @@ test_that("graph_add_wind() | default", {
   expect_true(all(is.finite(graph_w$ws)))
 })
 
-test_that("graph_add_wind() | rounding_interval and spatial interpolation", {
+test_that("graph_add_wind() | rounding_interval", {
   graph_1 <- graph_add_wind(graph, pressure = tag$pressure, rounding_interval = 1, quiet = TRUE)
   graph_60 <- graph_add_wind(graph, pressure = tag$pressure, rounding_interval = 60, quiet = TRUE)
   expect_lt(stats::median(abs(graph_60$ws - graph_1$ws)), 5)
-
-  graph_nn <- graph_add_wind(
-    graph,
-    pressure = tag$pressure,
-    rounding_interval = 60,
-    interp_spatial_linear = FALSE,
-    quiet = TRUE
-  )
-  expect_lt(stats::median(abs(graph_nn$ws - graph_60$ws)), 5)
 })
 
 test_that("edge_add_wind() | along most likely path", {

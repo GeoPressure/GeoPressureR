@@ -465,18 +465,6 @@
     },
     "18": {
       "@type": "SoftwareApplication",
-      "identifier": "pracma",
-      "name": "pracma",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=pracma"
-    },
-    "19": {
-      "@type": "SoftwareApplication",
       "identifier": "progressr",
       "name": "progressr",
       "provider": {
@@ -487,7 +475,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=progressr"
     },
-    "20": {
+    "19": {
       "@type": "SoftwareApplication",
       "identifier": "RColorBrewer",
       "name": "RColorBrewer",
@@ -499,12 +487,12 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=RColorBrewer"
     },
-    "21": {
+    "20": {
       "@type": "SoftwareApplication",
       "identifier": "stats",
       "name": "stats"
     },
-    "22": {
+    "21": {
       "@type": "SoftwareApplication",
       "identifier": "suntools",
       "name": "suntools",
@@ -516,7 +504,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=suntools"
     },
-    "23": {
+    "22": {
       "@type": "SoftwareApplication",
       "identifier": "terra",
       "name": "terra",
@@ -528,14 +516,14 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=terra"
     },
-    "24": {
+    "23": {
       "@type": "SoftwareApplication",
       "identifier": "utils",
       "name": "utils"
     },
     "SystemRequirements": null
   },
-  "fileSize": "12808.108KB",
+  "fileSize": "12823.695KB",
   "citation": [
     {
       "@type": "SoftwareSourceCode",

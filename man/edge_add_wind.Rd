@@ -11,7 +11,7 @@ edge_add_wind(
   pressure = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
   rounding_interval = 60,
-  interp_spatial_linear = FALSE,
+  interp_spatial_linear = lifecycle::deprecated(),
   return_averaged_variable = lifecycle::deprecated(),
   file = wind_file_default,
   quiet = FALSE
@@ -39,8 +39,8 @@ but is deprecated.}
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
 
-\item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
-takes the nearest neighbour. ERA5 native resolution is 0.25°}
+\item{interp_spatial_linear}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used. The nearest
+ERA5 grid cell is always used.}
 
 \item{return_averaged_variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
@@ -69,9 +69,7 @@ Reads the NetCDF files and extracts the variable requested along each flight def
 edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
-\item Space: nearest neighbour interpolation by default, or bi-linear with \code{pracma::interp2} if
-\code{interp_spatial_linear=TRUE}. Note: spatial interpolation is limited to 0.1° for computational
-reasons.
+\item Space: nearest ERA5 grid cell
 \item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }
 }

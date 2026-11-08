@@ -5,9 +5,7 @@
 #' edges.
 #'
 #' - Time: linear interpolation using the resolution requested with `rounding_interval`
-#' - Space: nearest neighbour interpolation by default, or bi-linear with `pracma::interp2` if
-#'   `interp_spatial_linear=TRUE`. Note: spatial interpolation is limited to 0.1° for computational
-#'   reasons.
+#' - Space: nearest ERA5 grid cell
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
 #' @param graph either a `tag` or a `graph` GeoPressureR object.
@@ -25,8 +23,8 @@
 #' but is deprecated.
 #' @param rounding_interval temporal resolution on which to query the variable (min). Default is to
 #' match ERA5 native resolution (1hr).
-#' @param interp_spatial_linear logical to interpolate the variable linearly over space, if `FALSE`
-#' takes the nearest neighbour. ERA5 native resolution is 0.25°
+#' @param interp_spatial_linear `r lifecycle::badge("deprecated")` No longer used. The nearest
+#' ERA5 grid cell is always used.
 #' @param return_averaged_variable `r lifecycle::badge("deprecated")` No longer used.
 #' @param quiet logical to hide messages about the progress
 #' @inheritParams tag_download_wind
@@ -65,11 +63,18 @@ edge_add_wind <- function(
   pressure = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
   rounding_interval = 60,
-  interp_spatial_linear = FALSE,
+  interp_spatial_linear = lifecycle::deprecated(),
   return_averaged_variable = lifecycle::deprecated(),
   file = wind_file_default,
   quiet = FALSE
 ) {
+  if (lifecycle::is_present(interp_spatial_linear)) {
+    lifecycle::deprecate_warn(
+      "3.9.0",
+      "edge_add_wind(interp_spatial_linear)",
+      details = "The nearest ERA5 grid cell is always used."
+    )
+  }
   if (lifecycle::is_present(return_averaged_variable)) {
     lifecycle::deprecate_warn(
       "3.5.4",
@@ -211,33 +216,19 @@ edge_add_wind <- function(
       lon_int <- interp$lon_int
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
 
-      # For nearest-neighbour spatial interpolation, precompute ERA5 grid indices once for all
-      # query positions of this flight segment.
-      lat_int_ind <- NULL
-      lon_int_ind <- NULL
-      lat_int_int <- NULL
-      lon_int_int <- NULL
-      if (!interp_spatial_linear) {
-        lat_int_int <- as.vector(round(lat_int * 4) / 4)
-        lat_int_ind <- matrix(match(lat_int_int, lat), nrow = nrow(lat_int))
-        lon_int_int <- as.vector(round(lon_int * 4) / 4)
-        lon_int_ind <- matrix(match(lon_int_int, lon), nrow = nrow(lon_int))
-      }
+      # Precompute the nearest ERA5 grid indices once for all query positions of this flight.
+      lat_int_int <- as.vector(round(lat_int * 4) / 4)
+      lat_int_ind <- matrix(match(lat_int_int, lat), nrow = nrow(lat_int))
+      lon_int_int <- as.vector(round(lon_int * 4) / 4)
+      lon_int_ind <- matrix(match(lon_int_int, lon), nrow = nrow(lon_int))
 
       out <- edge_add_wind_fill_flight(
         pressure,
         t_q,
         pres,
         time,
-        lat,
-        lon,
-        dlat,
-        dlon,
-        lat_int,
-        lon_int,
         lat_int_ind,
         lon_int_ind,
-        interp_spatial_linear,
         nc,
         variable,
         i_s,
@@ -259,13 +250,8 @@ edge_add_wind <- function(
         var[[var_i]][[i_stap]][[i_fl]]$var <- variable[var_i]
 
         # Add lat lon
-        if (interp_spatial_linear) {
-          var[[var_i]][[i_stap]][[i_fl]]$lat <- as.vector(lat_int)
-          var[[var_i]][[i_stap]][[i_fl]]$lon <- as.vector(lon_int)
-        } else {
-          var[[var_i]][[i_stap]][[i_fl]]$lat <- lat_int_int
-          var[[var_i]][[i_stap]][[i_fl]]$lon <- lon_int_int
-        }
+        var[[var_i]][[i_stap]][[i_fl]]$lat <- lat_int_int
+        var[[var_i]][[i_stap]][[i_fl]]$lon <- lon_int_int
       }
 
       # Close the netCDF file
@@ -612,15 +598,8 @@ edge_add_wind_fill_flight <- function(
   t_q,
   pres,
   time,
-  lat,
-  lon,
-  dlat,
-  dlon,
-  lat_int,
-  lon_int,
   lat_int_ind,
   lon_int_ind,
-  interp_spatial_linear,
   nc,
   variable,
   i_s,
@@ -630,29 +609,20 @@ edge_add_wind_fill_flight <- function(
   # Detailed output keeps one value per query time and edge, so allocate time-by-edge matrices here.
   var_fl <- vector("list", length(variable))
   for (var_i in seq_len(length(variable))) {
-    var_fl[[var_i]] <- matrix(NA, nrow = length(t_q), ncol = nrow(lat_int))
+    var_fl[[var_i]] <- matrix(NA, nrow = length(t_q), ncol = nrow(lat_int_ind))
   }
   p_q <- numeric(length(t_q))
 
   # Each query time reads the smallest NetCDF slab needed, then applies pressure/time/space
   # interpolation inside edge_add_wind_values_time().
   for (i_time in seq_len(length(t_q))) {
-    lat_int_ind_i <- if (interp_spatial_linear) NULL else lat_int_ind[, i_time]
-    lon_int_ind_i <- if (interp_spatial_linear) NULL else lon_int_ind[, i_time]
     out <- edge_add_wind_values_time(
       pressure,
       t_q[i_time],
       pres,
       time,
-      lat,
-      lon,
-      dlat,
-      dlon,
-      lat_int[, i_time],
-      lon_int[, i_time],
-      lat_int_ind_i,
-      lon_int_ind_i,
-      interp_spatial_linear,
+      lat_int_ind[, i_time],
+      lon_int_ind[, i_time],
       nc,
       variable,
       i_s,
@@ -675,15 +645,8 @@ edge_add_wind_values_time <- function(
   t_q_i,
   pres,
   time,
-  lat,
-  lon,
-  dlat,
-  dlon,
-  lat_int_i,
-  lon_int_i,
   lat_int_ind_i,
   lon_int_ind_i,
-  interp_spatial_linear,
   nc,
   variable,
   i_s,
@@ -734,19 +697,8 @@ edge_add_wind_values_time <- function(
   )
 
   # Read only the spatial bounding box needed for the edge positions at this query time.
-  if (interp_spatial_linear) {
-    id_lon <- which(
-      lon >= (min(lon_int_i) - dlon) &
-        (max(lon_int_i) + dlon) >= lon
-    )
-    id_lat <- which(
-      lat >= (min(lat_int_i) - dlat) &
-        (max(lat_int_i) + dlat) >= lat
-    )
-  } else {
-    id_lon <- seq.int(min(lon_int_ind_i), max(lon_int_ind_i))
-    id_lat <- seq.int(min(lat_int_ind_i), max(lat_int_ind_i))
-  }
+  id_lon <- seq.int(min(lon_int_ind_i), max(lon_int_ind_i))
+  id_lat <- seq.int(min(lat_int_ind_i), max(lat_int_ind_i))
 
   # Extract a small NetCDF slab: lon x lat x pressure x time for each requested variable.
   # `variable` holds canonical CDS names; the NetCDF stores the arrays under GRIB short names.
@@ -810,44 +762,10 @@ edge_add_wind_values_time <- function(
     }
   }
 
-  if (interp_spatial_linear) {
-    # Bilinear spatial interpolation: round positions to 0.1 degree, interpolate only unique
-    # coordinates, then map values back to all edges.
-    ll_int_1d <- (round(lat_int_i, 1) + 90) *
-      10 *
-      10000 +
-      (round(lon_int_i, 1) + 180) * 10 +
-      1
-    ll_int_1d_uniq <- unique(ll_int_1d)
-
-    lat_int_uniq <- ((ll_int_1d_uniq - 1) %/% 10000) / 10 - 90
-    lon_int_uniq <- ((ll_int_1d_uniq - 1) %% 10000) / 10 - 180
-    # Check that the transformation is correct with
-    # cbind((round(lat_int[, i_time], 1)+90)*10, (ll_int_1d - 1) %/% 10000)
-    # cbind((round(lon_int[, i_time],1)+180)*10, (ll_int_1d - 1) %% 10000)
-    # cbind(lat_int_uniq, lon_int_uniq, lat_int[, i_time], lon_int[, i_time])
-
-    id_uniq <- match(ll_int_1d, ll_int_1d_uniq)
-
-    value <- vector("list", length(variable))
-    for (var_i in seq_len(length(variable))) {
-      tmp <- pracma::interp2(
-        rev(lat[id_lat]),
-        lon[id_lon],
-        var_nc[[var_i]][, rev(seq_len(ncol(var_nc[[var_i]])))],
-        lat_int_uniq,
-        lon_int_uniq,
-        method = "linear"
-      )
-      assertthat::assert_that(!anyNA(tmp))
-      value[[var_i]] <- tmp[id_uniq]
-    }
-  } else {
-    # Nearest-neighbour spatial interpolation: use precomputed global grid indices, offset them
-    # into the current NetCDF slab, then extract values directly.
-    ind <- (lat_int_ind_i - id_lat[1]) * length(id_lon) + lon_int_ind_i - id_lon[1] + 1
-    value <- lapply(var_nc, `[`, ind)
-  }
+  # Nearest-neighbour spatial interpolation: use precomputed global grid indices, offset them
+  # into the current NetCDF slab, then extract values directly.
+  ind <- (lat_int_ind_i - id_lat[1]) * length(id_lon) + lon_int_ind_i - id_lon[1] + 1
+  value <- lapply(var_nc, `[`, ind)
   list(value = value, pressure = p_q)
 }
 # nocov end

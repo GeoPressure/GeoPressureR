@@ -21,6 +21,7 @@
 #'   `graph_add_wind()` always uses `c("u", "v")`.
 #' @inheritParams edge_add_wind
 #' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -variable -return_averaged_variable
+#'   -interp_spatial_linear
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
@@ -47,6 +48,7 @@ graph_add_wind <- function(
   graph,
   thr_as = Inf,
   variable = lifecycle::deprecated(),
+  interp_spatial_linear = lifecycle::deprecated(),
   ...
 ) {
   graph_assert(graph, "full")
@@ -59,6 +61,13 @@ graph_add_wind <- function(
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
+  if (lifecycle::is_present(interp_spatial_linear)) {
+    lifecycle::deprecate_warn(
+      "3.9.0",
+      "graph_add_wind(interp_spatial_linear)",
+      details = "The nearest ERA5 grid cell is always used."
+    )
+  }
   if (lifecycle::is_present(variable)) {
     lifecycle::deprecate_warn(
       "3.5.4",
@@ -142,13 +151,6 @@ graph_add_wind <- function(
   } else {
     formals(graph_add_wind_edge)$rounding_interval
   }
-  graph$param$graph_add_wind$interp_spatial_linear <- if (
-    "interp_spatial_linear" %in% names(dots)
-  ) {
-    dots$interp_spatial_linear
-  } else {
-    formals(graph_add_wind_edge)$interp_spatial_linear
-  }
   graph$param$graph_add_wind$pressure_source <- "provided"
 
   # Store the file function (provided or default) without source reference or environment
@@ -169,7 +171,6 @@ graph_add_wind_edge <- function(
   graph,
   pressure = NULL,
   rounding_interval = 60,
-  interp_spatial_linear = FALSE,
   file = wind_file_default,
   quiet = FALSE
 ) {
@@ -300,27 +301,14 @@ graph_add_wind_edge <- function(
         )
         lat_i <- lat_s + dlat_se * time_offset
         lon_i <- lon_s + dlon_se * time_offset
-        lat_ind_i <- NULL
-        lon_ind_i <- NULL
-        if (!interp_spatial_linear) {
-          # Nearest ERA5 grid index (latitude descending, longitude ascending)
-          lat_ind_i <- round(lat[1] / dlat) - round(lat_i / dlat) + 1
-          lon_ind_i <- round(lon_i / dlon) - round(lon[1] / dlon) + 1
-        }
+        # Nearest ERA5 grid index (latitude descending, longitude ascending)
         out <- edge_add_wind_values_time(
           pressure,
           t_q[i_time],
           pres,
           time,
-          lat,
-          lon,
-          dlat,
-          dlon,
-          lat_i,
-          lon_i,
-          lat_ind_i,
-          lon_ind_i,
-          interp_spatial_linear,
+          round(lat[1] / dlat) - round(lat_i / dlat) + 1,
+          round(lon_i / dlon) - round(lon[1] / dlon) + 1,
           nc,
           variable,
           i_s,

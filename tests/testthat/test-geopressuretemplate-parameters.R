@@ -16,8 +16,7 @@ test_that("geopressuretemplate() passes wind parameters without provenance field
       quiet,
       thr_as,
       file,
-      rounding_interval,
-      interp_spatial_linear
+      rounding_interval
     ) {
       graph$param$wind <- list(pressure = pressure, thr_as = thr_as)
       graph
