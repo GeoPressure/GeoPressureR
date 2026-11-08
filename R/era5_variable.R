@@ -5,13 +5,16 @@
 #' [edge_add_wind()] used to speak the other, with the mapping between them living nowhere. This
 #' table is that mapping, so both halves of the wind pipeline take the same names.
 #'
-#' Verified against a CDS download of all sixteen variables (2026-09-16).
+#' Verified against a CDS download of all sixteen variables (2026-09-16). `long_name`, `units` and
+#' `standard_name` are the attributes ECMWF writes in CDS NetCDF and in the Google ARCO-ERA5 store
+#' (`standard_name` is the CF standard name, `NA` where none exists), except the units of
+#' `fraction_of_cloud_cover`: `"1"` (CF dimensionless) instead of `"(0 - 1)"`.
 #'
-#' @return A data.frame with `variable` (the name CDS takes) and `short_name` (the name the
-#'   NetCDF uses).
+#' @return A data.frame with `variable` (the name CDS takes), `short_name` (the name the NetCDF
+#'   uses), `long_name`, `units` and `standard_name`.
 #' @noRd
 era5_variable_pressure_level <- function() {
-  data.frame(
+  tbl <- data.frame(
     variable = c(
       "divergence",
       "fraction_of_cloud_cover",
@@ -48,8 +51,63 @@ era5_variable_pressure_level <- function() {
       "w",
       "vo"
     ),
+    long_name = c(
+      "Divergence",
+      "Fraction of cloud cover",
+      "Geopotential",
+      "Ozone mass mixing ratio",
+      "Potential vorticity",
+      "Relative humidity",
+      "Specific cloud ice water content",
+      "Specific cloud liquid water content",
+      "Specific humidity",
+      "Specific rain water content",
+      "Specific snow water content",
+      "Temperature",
+      "U component of wind",
+      "V component of wind",
+      "Vertical velocity",
+      "Vorticity (relative)"
+    ),
+    units = c(
+      "s**-1",
+      "1",
+      "m**2 s**-2",
+      "kg kg**-1",
+      "K m**2 kg**-1 s**-1",
+      "%",
+      "kg kg**-1",
+      "kg kg**-1",
+      "kg kg**-1",
+      "kg kg**-1",
+      "kg kg**-1",
+      "K",
+      "m s**-1",
+      "m s**-1",
+      "Pa s**-1",
+      "s**-1"
+    ),
+    standard_name = c(
+      "divergence_of_wind",
+      NA,
+      "geopotential",
+      "mass_fraction_of_ozone_in_air",
+      NA,
+      "relative_humidity",
+      NA,
+      NA,
+      "specific_humidity",
+      NA,
+      NA,
+      "air_temperature",
+      "eastward_wind",
+      "northward_wind",
+      "lagrangian_tendency_of_air_pressure",
+      "atmosphere_relative_vorticity"
+    ),
     stringsAsFactors = FALSE
   )
+  tbl
 }
 
 #' Resolve pressure-level variables to their canonical long names
