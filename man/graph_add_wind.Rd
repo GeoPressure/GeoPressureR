@@ -8,6 +8,7 @@ graph_add_wind(
   graph,
   thr_as = Inf,
   variable = lifecycle::deprecated(),
+  constant_speed = c("groundspeed", "airspeed"),
   interp_spatial_linear = lifecycle::deprecated(),
   ...
 )
@@ -19,6 +20,9 @@ graph_add_wind(
 
 \item{variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.
 \code{graph_add_wind()} always uses \code{c("u", "v")}.}
+
+\item{constant_speed}{speed held constant during each flight: \code{"groundspeed"} (straight edge)
+or \code{"airspeed"} (track drifted by the wind).}
 
 \item{interp_spatial_linear}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used. The nearest
 ERA5 grid cell is always used.}
@@ -49,6 +53,15 @@ In addition, the graph can be further pruned based on a threshold of airspeed \c
 
 \code{pressure} (the tag pressure, e.g. \code{tag$pressure}) is required to interpolate the wind at the
 flight altitude.
+
+With \code{constant_speed = "groundspeed"} (default), the wind is averaged at the nearest ERA5 grid
+cell along the straight edge flown at constant groundspeed. With \code{constant_speed = "airspeed"},
+the bird flies a constant air velocity (speed and heading), so its track is curved by the wind
+between the two nodes. This track is approximated by the straight edge plus the drift by the
+wind anomaly along it, and the wind is averaged along that track. This mostly matters for long
+flights (> 8 h) and takes about 1.5–3 times longer. The choice is stored in \code{graph$param} and
+used by default in \code{\link[=edge_add_wind]{edge_add_wind()}}. To keep the graph fast, you can also use the default here
+and compute the wind along a path with \code{edge_add_wind(constant_speed = "airspeed")}.
 
 See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer et al. (2023b)}
 for more technical details and the \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an

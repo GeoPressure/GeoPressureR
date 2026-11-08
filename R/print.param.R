@@ -105,6 +105,7 @@ print.param <- function(x, ...) {
   bullets(param$graph_add_wind, "thr_as")
   bullets(param$graph_add_wind, "file")
   bullets(param$graph_add_wind, "rounding_interval")
+  bullets(param$graph_add_wind, "constant_speed")
   bullets(param$graph_add_wind, "pressure_source")
   bullets(param$graph_set_movement, "type")
   bullets(param$graph_set_movement, "method")

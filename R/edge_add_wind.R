@@ -8,6 +8,10 @@
 #' - Space: nearest ERA5 grid cell
 #' - Pressure/altitude: linear interpolation using the exact `pressure` values
 #'
+#' Positions follow the straight edge flown at constant groundspeed, or with `constant_speed =
+#' "airspeed"` the track drifted by the wind when flying at constant airspeed, as in
+#' [graph_add_wind()].
+#'
 #' @param graph either a `tag` or a `graph` GeoPressureR object.
 #' @param edge_s an index of the source node of the edge. Either a vector with 3D index or a matrix
 #' of 3 columns, one for each dimension.
@@ -27,6 +31,10 @@
 #' ERA5 grid cell is always used.
 #' @param return_averaged_variable `r lifecycle::badge("deprecated")` No longer used.
 #' @param quiet logical to hide messages about the progress
+#' @param constant_speed speed held constant during each flight: `"groundspeed"` (straight edge
+#' flown at constant groundspeed) or `"airspeed"` (track drifted by the wind when flying at
+#' constant airspeed). Defaults to the value used by [graph_add_wind()] for this `graph`, otherwise
+#' `"groundspeed"`.
 #' @inheritParams tag_download_wind
 #'
 #' @return A data.frame with one row per time step, edge, and variable:
@@ -66,7 +74,8 @@ edge_add_wind <- function(
   interp_spatial_linear = lifecycle::deprecated(),
   return_averaged_variable = lifecycle::deprecated(),
   file = wind_file_default,
-  quiet = FALSE
+  quiet = FALSE,
+  constant_speed = NULL
 ) {
   if (lifecycle::is_present(interp_spatial_linear)) {
     lifecycle::deprecate_warn(
@@ -75,6 +84,10 @@ edge_add_wind <- function(
       details = "The nearest ERA5 grid cell is always used."
     )
   }
+  if (is.null(constant_speed)) {
+    constant_speed <- graph$param$graph_add_wind$constant_speed
+  }
+  constant_speed <- match.arg(constant_speed, c("groundspeed", "airspeed"))
   if (lifecycle::is_present(return_averaged_variable)) {
     lifecycle::deprecate_warn(
       "3.5.4",
@@ -100,10 +113,15 @@ edge_add_wind <- function(
 
   tag_id <- graph$param$id
 
+  # The airspeed track also needs the wind components
   edge_add_wind_check(
     graph,
     pressure = pressure,
-    variable = variable,
+    variable = if (constant_speed == "airspeed") {
+      union(variable, c("u_component_of_wind", "v_component_of_wind"))
+    } else {
+      variable
+    },
     file = file
   )
 
@@ -165,12 +183,10 @@ edge_add_wind <- function(
     }
 
     # We are assuming that the bird flight as a straight line between the source and the target node
-    # of each edge. If multiple flights happen during this transition, we assume that the bird flew
-    # with a constant groundspeed during each flight, thus considering its stopover position to be
-    # spread according to the flight duration. This does not account for habitat, so that it would
-    # assume a bird can stop over water. While we could improve this part of the code to assume
-    # constant airspeed rather than groundspeed, we suggest to create the graph considering all
-    # stopovers.
+    # of each edge (drifted by the wind with constant_speed = "airspeed"). If multiple flights happen
+    # during this transition, the stopover positions are spread along the edge according to the
+    # flight duration. This does not account for habitat, so that it would assume a bird can stop
+    # over water. We suggest to create the graph considering all stopovers.
     ratio_stap <- as.matrix(c(0, cumsum(fl_s$duration) / sum(fl_s$duration)))
 
     for (var_i in seq_len(length(variable))) {
@@ -215,6 +231,21 @@ edge_add_wind <- function(
       lat_int <- interp$lat_int
       lon_int <- interp$lon_int
       w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
+
+      # Replace the straight track by the one flown at constant airspeed
+      if (constant_speed == "airspeed") {
+        tr <- edge_add_wind_track(
+          edge_add_wind_flight(nc, pressure, fl_s, i_fl, rounding_interval),
+          lat_s,
+          lon_s,
+          (lat_e - lat_s) / fl_s$duration[i_fl],
+          (lon_e - lon_s) / fl_s$duration[i_fl],
+          airspeed = TRUE,
+          track = TRUE
+        )
+        lat_int <- tr$lat
+        lon_int <- tr$lon
+      }
 
       # Precompute the nearest ERA5 grid indices once for all query positions of this flight.
       lat_int_int <- as.vector(round(lat_int * 4) / 4)
@@ -588,7 +619,8 @@ edge_add_wind_weights <- function(fl_s, i_fl, t_q, rounding_interval) {
   u1 <- pmin(pmax(as.numeric(fl_s$end[i_fl]) - t0, 0), dt) / dt
   b <- (u1^2 - u0^2) / 2
   w <- c(u1 - u0 - b, 0) + c(0, b)
-  w / sum(w)
+  # Keep the left and right weights of each interval (hours) to integrate drift consistently
+  structure(w / sum(w), interval = cbind(u1 - u0 - b, b) * rounding_interval / 60)
 }
 
 
@@ -613,25 +645,32 @@ edge_add_wind_fill_flight <- function(
   }
   p_q <- numeric(length(t_q))
 
-  # Each query time reads the smallest NetCDF slab needed, then applies pressure/time/space
-  # interpolation inside edge_add_wind_values_time().
+  # Each query time reads the smallest NetCDF slab covering the edge positions, interpolated in
+  # time and pressure, and takes the value of the nearest grid cell.
   for (i_time in seq_len(length(t_q))) {
-    out <- edge_add_wind_values_time(
+    id_lon <- seq.int(min(lon_int_ind[, i_time]), max(lon_int_ind[, i_time]))
+    id_lat <- seq.int(min(lat_int_ind[, i_time]), max(lat_int_ind[, i_time]))
+    fld <- edge_add_wind_field(
       pressure,
       t_q[i_time],
       pres,
       time,
-      lat_int_ind[, i_time],
-      lon_int_ind[, i_time],
       nc,
       variable,
+      id_lon,
+      id_lat,
       i_s,
       i_fl,
       fl_s
     )
-    p_q[i_time] <- out$pressure
+    ind <- (lat_int_ind[, i_time] - id_lat[1]) *
+      length(id_lon) +
+      lon_int_ind[, i_time] -
+      id_lon[1] +
+      1
+    p_q[i_time] <- fld$pressure
     for (var_i in seq_len(length(variable))) {
-      var_fl[[var_i]][i_time, ] <- out$value[[var_i]]
+      var_fl[[var_i]][i_time, ] <- fld$field[[var_i]][ind]
     }
   }
 
@@ -639,16 +678,148 @@ edge_add_wind_fill_flight <- function(
 }
 
 
+#' Read the u, v fields of one flight at each query time, interpolated in time and pressure
+#'
+#' Fields cover the box reached by straight edges between the source and target ranges `lat_rng`,
+#' `lon_rng` (2 x 2, columns source and target) on the flight fraction `ratio`, or the full file
+#' extent when `lat_rng` is `NULL`.
 #' @noRd
-edge_add_wind_values_time <- function(
+edge_add_wind_flight <- function(
+  nc,
+  pressure,
+  fl_s,
+  i_fl,
+  rounding_interval,
+  lat_rng = NULL,
+  lon_rng = NULL,
+  ratio = c(0, 1)
+) {
+  f <- edge_add_wind_nc_info(nc, nc$filename)
+  f$t_q <- edge_add_wind_query_times(fl_s, i_fl, rounding_interval)
+  f$w <- edge_add_wind_weights(fl_s, i_fl, f$t_q, rounding_interval)
+  f$time_offset <- pmax(
+    pmin(as.numeric(difftime(f$t_q, fl_s$start[i_fl], units = "hours")), fl_s$duration[i_fl]),
+    0
+  )
+  frac <- ratio[1] + diff(ratio) * f$time_offset / fl_s$duration[i_fl]
+  f$field <- lapply(seq_along(f$t_q), function(j) {
+    id_lat <- seq_along(f$lat)
+    id_lon <- seq_along(f$lon)
+    if (!is.null(lat_rng)) {
+      lat_b <- range((1 - frac[j]) * lat_rng[, 1] + frac[j] * lat_rng[, 2]) + c(-1, 1) * f$dlat
+      lon_b <- range((1 - frac[j]) * lon_rng[, 1] + frac[j] * lon_rng[, 2]) + c(-1, 1) * f$dlon
+      id_lat <- which(f$lat >= lat_b[1] & f$lat <= lat_b[2])
+      id_lon <- which(f$lon >= lon_b[1] & f$lon <= lon_b[2])
+    }
+    list(
+      value = edge_add_wind_field(
+        pressure,
+        f$t_q[j],
+        f$pres,
+        f$time,
+        nc,
+        c("u_component_of_wind", "v_component_of_wind"),
+        id_lon,
+        id_lat,
+        fl_s$stap_s[i_fl],
+        i_fl,
+        fl_s
+      )$field,
+      id_lat = id_lat,
+      id_lon = id_lon
+    )
+  })
+  f
+}
+
+
+#' Mean u, v (m/s) of one flight along each edge track
+#'
+#' Averages the wind of the fields `f` (from `edge_add_wind_flight()`) at the nearest grid cell
+#' along the straight track `lat_s + dlat_se * t` (constant groundspeed). With `airspeed = TRUE`, a
+#' second pass approximates the track flown at constant air velocity by the straight track plus the
+#' drift by the wind anomaly along it (integral of `w - mean(w)`, zero at both ends), and averages
+#' the wind along that track. With `track = TRUE`, also returns its edge-by-time positions.
+#' @noRd
+edge_add_wind_track <- function(
+  f,
+  lat_s,
+  lon_s,
+  dlat_se,
+  dlon_se,
+  airspeed = FALSE,
+  track = FALSE
+) {
+  # Nearest grid cell in the cached field of query time i (latitude descending, longitude ascending)
+  sample <- function(i, lat_i, lon_i) {
+    fl_t <- f$field[[i]]
+    ind <- (round(f$lat[1] / f$dlat) - round(lat_i / f$dlat) + 1 - fl_t$id_lat[1]) *
+      length(fl_t$id_lon) +
+      round(lon_i / f$dlon) -
+      round(f$lon[1] / f$dlon) +
+      2 -
+      fl_t$id_lon[1]
+    list(fl_t$value[[1]][ind], fl_t$value[[2]][ind])
+  }
+  u <- 0
+  v <- 0
+  for (i in seq_along(f$t_q)) {
+    w_i <- sample(i, lat_s + dlat_se * f$time_offset[i], lon_s + dlon_se * f$time_offset[i])
+    u <- u + w_i[[1]] * f$w[i]
+    v <- v + w_i[[2]] * f$w[i]
+  }
+  if (!airspeed) {
+    return(list(u = u, v = v))
+  }
+
+  # Drift (km) integrated with the interval weights of the mean, so that it vanishes at the end.
+  # Drifted positions are clamped to the cached field.
+  wl <- attr(f$w, "interval")[, 1] * 3.6
+  wr <- attr(f$w, "interval")[, 2] * 3.6
+  drift_u <- 0
+  drift_v <- 0
+  u_a <- 0
+  v_a <- 0
+  lat_tr <- lon_tr <- if (track) matrix(0, length(lat_s), length(f$t_q))
+  for (i in seq_along(f$t_q)) {
+    lat_i <- lat_s + dlat_se * f$time_offset[i]
+    lon_i <- lon_s + dlon_se * f$time_offset[i]
+    w_i <- sample(i, lat_i, lon_i)
+    if (i > 1) {
+      drift_u <- drift_u + wl[i - 1] * (w_p[[1]] - u) + wr[i - 1] * (w_i[[1]] - u)
+      drift_v <- drift_v + wl[i - 1] * (w_p[[2]] - v) + wr[i - 1] * (w_i[[2]] - v)
+    }
+    w_p <- w_i
+    lat_b <- range(f$lat[f$field[[i]]$id_lat])
+    lon_b <- range(f$lon[f$field[[i]]$id_lon])
+    lat_i <- pmin(pmax(lat_i + drift_v / 111.32, lat_b[1]), lat_b[2])
+    lon_i <- pmin(pmax(lon_i + drift_u / (111.32 * cos(lat_i * pi / 180)), lon_b[1]), lon_b[2])
+    w_i <- sample(i, lat_i, lon_i)
+    u_a <- u_a + w_i[[1]] * f$w[i]
+    v_a <- v_a + w_i[[2]] * f$w[i]
+    if (track) {
+      lat_tr[, i] <- lat_i
+      lon_tr[, i] <- lon_i
+    }
+  }
+  if (track) {
+    return(list(u = u_a, v = v_a, lat = lat_tr, lon = lon_tr))
+  }
+  list(u = u_a, v = v_a)
+}
+
+
+#' Read one ERA5 query time as lon x lat fields, interpolated at the bird pressure
+#' @noRd
+edge_add_wind_field <- function(
   pressure,
   t_q_i,
   pres,
   time,
-  lat_int_ind_i,
-  lon_int_ind_i,
   nc,
   variable,
+  id_lon,
+  id_lat,
   i_s,
   i_fl,
   fl_s
@@ -695,10 +866,6 @@ edge_add_wind_values_time <- function(
     1,
     2
   )
-
-  # Read only the spatial bounding box needed for the edge positions at this query time.
-  id_lon <- seq.int(min(lon_int_ind_i), max(lon_int_ind_i))
-  id_lat <- seq.int(min(lat_int_ind_i), max(lat_int_ind_i))
 
   # Extract a small NetCDF slab: lon x lat x pressure x time for each requested variable.
   # `variable` holds canonical CDS names; the NetCDF stores the arrays under GRIB short names.
@@ -762,10 +929,6 @@ edge_add_wind_values_time <- function(
     }
   }
 
-  # Nearest-neighbour spatial interpolation: use precomputed global grid indices, offset them
-  # into the current NetCDF slab, then extract values directly.
-  ind <- (lat_int_ind_i - id_lat[1]) * length(id_lon) + lon_int_ind_i - id_lon[1] + 1
-  value <- lapply(var_nc, `[`, ind)
-  list(value = value, pressure = p_q)
+  list(field = var_nc, pressure = p_q)
 }
 # nocov end

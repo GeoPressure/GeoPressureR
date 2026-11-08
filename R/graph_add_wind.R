@@ -9,6 +9,15 @@
 #' `pressure` (the tag pressure, e.g. `tag$pressure`) is required to interpolate the wind at the
 #' flight altitude.
 #'
+#' With `constant_speed = "groundspeed"` (default), the wind is averaged at the nearest ERA5 grid
+#' cell along the straight edge flown at constant groundspeed. With `constant_speed = "airspeed"`,
+#' the bird flies a constant air velocity (speed and heading), so its track is curved by the wind
+#' between the two nodes. This track is approximated by the straight edge plus the drift by the
+#' wind anomaly along it, and the wind is averaged along that track. This mostly matters for long
+#' flights (> 8 h) and takes about 1.5–3 times longer. The choice is stored in `graph$param` and
+#' used by default in [edge_add_wind()]. To keep the graph fast, you can also use the default here
+#' and compute the wind along a path with `edge_add_wind(constant_speed = "airspeed")`.
+#'
 #' See section [2.2.4 in Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 #' for more technical details and the [GeoPressureManual](
@@ -19,9 +28,11 @@
 #' @param thr_as threshold of airspeed (km/h).
 #' @param variable `r lifecycle::badge("deprecated")` No longer used.
 #'   `graph_add_wind()` always uses `c("u", "v")`.
+#' @param constant_speed speed held constant during each flight: `"groundspeed"` (straight edge)
+#'   or `"airspeed"` (track drifted by the wind).
 #' @inheritParams edge_add_wind
 #' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -variable -return_averaged_variable
-#'   -interp_spatial_linear
+#'   -interp_spatial_linear -constant_speed
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
@@ -48,6 +59,7 @@ graph_add_wind <- function(
   graph,
   thr_as = Inf,
   variable = lifecycle::deprecated(),
+  constant_speed = c("groundspeed", "airspeed"),
   interp_spatial_linear = lifecycle::deprecated(),
   ...
 ) {
@@ -61,6 +73,7 @@ graph_add_wind <- function(
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
+  constant_speed <- match.arg(constant_speed)
   if (lifecycle::is_present(interp_spatial_linear)) {
     lifecycle::deprecate_warn(
       "3.9.0",
@@ -81,10 +94,7 @@ graph_add_wind <- function(
   }
 
   # Check that all the files of wind_speed exist and match the data request
-  graph$ws <- graph_add_wind_edge(
-    graph,
-    ...
-  )
+  graph$ws <- graph_add_wind_edge(graph, constant_speed = constant_speed, ...)
   gc()
 
   if (is.finite(thr_as)) {
@@ -146,6 +156,7 @@ graph_add_wind <- function(
   # Update param
   dots <- list(...)
   graph$param$graph_add_wind$thr_as <- thr_as
+  graph$param$graph_add_wind$constant_speed <- constant_speed
   graph$param$graph_add_wind$rounding_interval <- if ("rounding_interval" %in% names(dots)) {
     dots$rounding_interval
   } else {
@@ -172,7 +183,8 @@ graph_add_wind_edge <- function(
   pressure = NULL,
   rounding_interval = 60,
   file = wind_file_default,
-  quiet = FALSE
+  quiet = FALSE,
+  constant_speed = "groundspeed"
 ) {
   if (!requireNamespace("ncdf4", quietly = TRUE)) {
     cli::cli_abort(c(
@@ -250,6 +262,7 @@ graph_add_wind_edge <- function(
     stap_id <- stap_include[stap_layer]
     fl_s <- flight[[as.character(stap_id)]]
     st_id <- seq.int(block[i_block, "from"], block[i_block, "to"])
+
     edge_s0 <- edge_s[st_id] - 1L
     edge_t0 <- edge_t[st_id] - 1L
     lat_edge_s <- g$lat[edge_s0 %% g$dim[1] + 1L]
@@ -259,70 +272,45 @@ graph_add_wind_edge <- function(
 
     # If a graph edge spans several labelled flights, split the straight edge by flight duration
     # and combine flight means with duration weights.
-    ratio_stap <- as.matrix(c(0, cumsum(fl_s$duration) / sum(fl_s$duration)))
+    ratio_stap <- c(0, cumsum(fl_s$duration) / sum(fl_s$duration))
     duration_weight <- fl_s$duration / sum(fl_s$duration)
+
+    # Read the wind fields of each flight once per block, on the box between the source and target
+    # ranges where straight edges lie, padded by 2.5° for drifted tracks (clamped to it).
+    pad <- if (constant_speed == "airspeed") c(-2.5, 2.5) else 0
+    lat_rng <- cbind(range(lat_edge_s), range(lat_edge_t)) + pad
+    lon_rng <- cbind(range(lon_edge_s), range(lon_edge_t)) + pad
     u_stap <- numeric(length(st_id))
     v_stap <- numeric(length(st_id))
-
     for (i_fl in seq_len(nrow(fl_s))) {
-      i_s <- fl_s$stap_s[i_fl]
-      file_path <- file(i_s, tag_id)
-      nc <- ncdf4::nc_open(file_path)
-      nc_info <- edge_add_wind_nc_info(nc, file_path)
-      time <- nc_info$time
-      pres <- nc_info$pres
-      lat <- nc_info$lat
-      dlat <- nc_info$dlat
-      lon <- nc_info$lon
-      dlon <- nc_info$dlon
+      nc <- ncdf4::nc_open(file(fl_s$stap_s[i_fl], tag_id))
+      f <- edge_add_wind_flight(
+        nc,
+        pressure,
+        fl_s,
+        i_fl,
+        rounding_interval,
+        lat_rng,
+        lon_rng,
+        ratio_stap[i_fl + 0:1]
+      )
+      ncdf4::nc_close(nc)
 
-      # Split the edge by flight duration, then interpolate one query-time position vector at a
-      # time to avoid allocating time-by-edge position matrices.
+      # Split the edge by flight duration and average the wind along the flown track
       lat_s <- lat_edge_s + ratio_stap[i_fl] * (lat_edge_t - lat_edge_s)
       lon_s <- lon_edge_s + ratio_stap[i_fl] * (lon_edge_t - lon_edge_s)
-      lat_e <- lat_edge_s + ratio_stap[i_fl + 1] * (lat_edge_t - lat_edge_s)
-      lon_e <- lon_edge_s + ratio_stap[i_fl + 1] * (lon_edge_t - lon_edge_s)
-      t_q <- edge_add_wind_query_times(fl_s, i_fl, rounding_interval)
-      w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
-      dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
-      dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
-
-      u_fl <- numeric(length(st_id))
-      v_fl <- numeric(length(st_id))
-      # Read and interpolate one time slice at a time, accumulating weighted u/v means directly.
-      # This avoids allocating detailed data.frames or time-by-edge matrices for graph_add_wind().
-      for (i_time in seq_len(length(t_q))) {
-        time_offset <- pmax(
-          pmin(
-            as.numeric(difftime(t_q[i_time], fl_s$start[i_fl], units = "hours")),
-            fl_s$duration[i_fl]
-          ),
-          0
-        )
-        lat_i <- lat_s + dlat_se * time_offset
-        lon_i <- lon_s + dlon_se * time_offset
-        # Nearest ERA5 grid index (latitude descending, longitude ascending)
-        out <- edge_add_wind_values_time(
-          pressure,
-          t_q[i_time],
-          pres,
-          time,
-          round(lat[1] / dlat) - round(lat_i / dlat) + 1,
-          round(lon_i / dlon) - round(lon[1] / dlon) + 1,
-          nc,
-          variable,
-          i_s,
-          i_fl,
-          fl_s
-        )$value
-        u_fl <- u_fl + out[[1]] * w[i_time]
-        v_fl <- v_fl + out[[2]] * w[i_time]
-      }
+      out <- edge_add_wind_track(
+        f,
+        lat_s,
+        lon_s,
+        diff(ratio_stap[i_fl + 0:1]) * (lat_edge_t - lat_edge_s) / fl_s$duration[i_fl],
+        diff(ratio_stap[i_fl + 0:1]) * (lon_edge_t - lon_edge_s) / fl_s$duration[i_fl],
+        airspeed = constant_speed == "airspeed"
+      )
 
       # Combine multiple flights inside this stap transition into one mean wind per edge.
-      u_stap <- u_stap + u_fl * duration_weight[i_fl]
-      v_stap <- v_stap + v_fl * duration_weight[i_fl]
-      ncdf4::nc_close(nc)
+      u_stap <- u_stap + out$u * duration_weight[i_fl]
+      v_stap <- v_stap + out$v * duration_weight[i_fl]
     }
 
     # Store wind as a complex vector in km/h: Re = eastward u, Im = northward v.

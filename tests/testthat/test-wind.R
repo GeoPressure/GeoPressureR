@@ -27,10 +27,19 @@ test_that("graph_add_wind() | default", {
   expect_true(all(is.finite(graph_w$ws)))
 })
 
-test_that("graph_add_wind() | rounding_interval", {
+test_that("graph_add_wind() | rounding_interval and constant airspeed", {
   graph_1 <- graph_add_wind(graph, pressure = tag$pressure, rounding_interval = 1, quiet = TRUE)
   graph_60 <- graph_add_wind(graph, pressure = tag$pressure, rounding_interval = 60, quiet = TRUE)
   expect_lt(stats::median(abs(graph_60$ws - graph_1$ws)), 5)
+
+  graph_as <- graph_add_wind(
+    graph,
+    pressure = tag$pressure,
+    constant_speed = "airspeed",
+    quiet = TRUE
+  )
+  expect_equal(graph_as$param$graph_add_wind$constant_speed, "airspeed")
+  expect_lt(stats::median(abs(graph_as$ws - graph_60$ws)), 5)
 })
 
 test_that("edge_add_wind() | along most likely path", {

@@ -130,6 +130,7 @@ param_create <- function(id, default = FALSE, ...) {
         thr_as = formals(graph_add_wind)$thr_as,
         file = wind_file_default,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
+        constant_speed = "groundspeed",
         pressure_source = "not_provided"
       ),
       graph_simulation = list(

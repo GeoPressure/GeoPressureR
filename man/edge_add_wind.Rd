@@ -14,7 +14,8 @@ edge_add_wind(
   interp_spatial_linear = lifecycle::deprecated(),
   return_averaged_variable = lifecycle::deprecated(),
   file = wind_file_default,
-  quiet = FALSE
+  quiet = FALSE,
+  constant_speed = NULL
 )
 }
 \arguments{
@@ -49,6 +50,11 @@ period identifier and (2) the \code{tag_id}. The default, \code{wind_file_defaul
 \verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
 
 \item{quiet}{logical to hide messages about the progress}
+
+\item{constant_speed}{speed held constant during each flight: \code{"groundspeed"} (straight edge
+flown at constant groundspeed) or \code{"airspeed"} (track drifted by the wind when flying at
+constant airspeed). Defaults to the value used by \code{\link[=graph_add_wind]{graph_add_wind()}} for this \code{graph}, otherwise
+\code{"groundspeed"}.}
 }
 \value{
 A data.frame with one row per time step, edge, and variable:
@@ -72,6 +78,9 @@ edges.
 \item Space: nearest ERA5 grid cell
 \item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }
+
+Positions follow the straight edge flown at constant groundspeed, or with \code{constant_speed = "airspeed"} the track drifted by the wind when flying at constant airspeed, as in
+\code{\link[=graph_add_wind]{graph_add_wind()}}.
 }
 \examples{
 \dontrun{
