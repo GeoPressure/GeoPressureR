@@ -1,7 +1,7 @@
 # GeoPressureR (development version)
 
-- Add `source = "gcs"` to `tag_download_wind()` to read ERA5 pressure levels from the public Google ARCO-ERA5 store on Google Cloud Storage, which has no CDS queue ([#189](https://github.com/GeoPressure/GeoPressureR/issues/189)). It writes the same files as `source = "cds"`, and `workers` defaults to 6 for it.
-- Write smaller wind files in `tag_download_wind()`: only the flight hours, values packed as 16-bit integers (wind to 0.01 m/s), with CF attributes (`units`, `long_name`, `standard_name`) taken from one ERA5 variable table. Existing files still work with `edge_add_wind()` and `graph_add_wind()`.
+- [Add `source = "gcs"` to `tag_download_wind()`](https://github.com/GeoPressure/GeoPressureR/commit/f8d6630ca50b58c246445d1aed7acc78efb830b8) to read ERA5 pressure levels from the public Google ARCO-ERA5 store on Google Cloud Storage, which has no CDS queue ([#189](https://github.com/GeoPressure/GeoPressureR/issues/189)). It writes the same files as `source = "cds"`, and `workers` defaults to 6 for it.
+- [Write smaller wind files in `tag_download_wind()`](https://github.com/GeoPressure/GeoPressureR/commit/38cbf143b09a3c715a1cc05de6a5fa5da5d55260): only the flight hours, values packed as 16-bit integers (wind to 0.01 m/s), with CF attributes (`units`, `long_name`, `standard_name`) taken from one ERA5 variable table. Existing files still work with `edge_add_wind()` and `graph_add_wind()`.
 
 # GeoPressureR v3.8.0
 
