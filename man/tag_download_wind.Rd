@@ -86,6 +86,14 @@ limit are rejected by CDS, so keep \code{workers} low.
 
 More information \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{in the GeoPressureManual}.
 }
+\section{File format}{
+
+The downloaded data are processed to take less space. Each file keeps only the flight hours.
+Values are stored as 16-bit integers with \code{scale_factor} and \code{add_offset} (wind to 0.01 m/s),
+which NetCDF readers unpack automatically. Variables use the CDS short names, units and
+attributes, following the CF conventions. Writing the files needs the package \code{ncdf4}.
+}
+
 \section{ECMWF API key}{
 
 ARCO access and CDS downloads use the same ECMWF Personal Access Token. Create an ECMWF account,

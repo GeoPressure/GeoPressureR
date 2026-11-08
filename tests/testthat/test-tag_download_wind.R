@@ -170,3 +170,56 @@ test_that("tag_download_wind() | request generation", {
   expect_true(all(c("year", "month", "day", "time") %in% names(req)))
   expect_gt(length(req$time), 0)
 })
+
+# Small ERA5-like file, as CDS returns it: float values, several days x hours
+write_era5_float <- function(path, lon, lat, pres, time, value) {
+  dims <- list(
+    ncdf4::ncdim_def("longitude", "degrees_east", lon),
+    ncdf4::ncdim_def("latitude", "degrees_north", lat),
+    ncdf4::ncdim_def("pressure_level", "hPa", pres),
+    ncdf4::ncdim_def("valid_time", "seconds since 1970-01-01", as.numeric(time))
+  )
+  def <- lapply(names(value), \(v) ncdf4::ncvar_def(v, "m s**-1", dims, NA, prec = "float"))
+  nc <- ncdf4::nc_create(path, def, force_v4 = TRUE)
+  for (i in seq_along(def)) {
+    ncdf4::ncvar_put(nc, def[[i]], value[[i]])
+  }
+  ncdf4::nc_close(nc)
+}
+
+test_that("tag_download_wind() | CDS files keep the flight hours, packed CF", {
+  skip_if_not_installed("ncdf4")
+  tag <- create_mock_tag()
+  tmp <- withr::local_tempdir()
+  file_func <- function(s, t) file.path(tmp, glue::glue("{t}_{s}.nc"))
+  lon <- seq(-1, 1, 0.25)
+  lat <- seq(46, 45, -0.25)
+  pres <- c(1000, 975, 950, 925)
+  # CDS returns the day x hour product: 4 days for a flight over 3 days
+  time <- seq(as.POSIXct("2017-06-20 00:00", tz = "UTC"), by = 3600, length.out = 96)
+  set.seed(1)
+  value <- replicate(2, array(rnorm(9 * 5 * 4 * 96, 0, 10), c(9, 5, 4, 96)), simplify = FALSE)
+  names(value) <- c("u", "v")
+  local_mocked_bindings(
+    wf_request_batch = function(...) {
+      write_era5_float(file_func(1, "18LX"), lon, lat, pres, time, value)
+    },
+    .package = "ecmwfr"
+  )
+  tag$pressure$value <- 960
+  tag_download_wind(tag, include_stap_id = 1, file = file_func)
+
+  nc <- ncdf4::nc_open(file_func(1, "18LX"))
+  withr::defer(ncdf4::nc_close(nc))
+  flight_time <- seq(as.POSIXct("2017-06-21 00:00", tz = "UTC"), by = 3600, length.out = 50)
+  expect_equal(as.numeric(ncdf4::ncvar_get(nc, "valid_time")), as.numeric(flight_time))
+  expect_equal(c(ncdf4::ncvar_get(nc, "pressure_level")), pres)
+  expect_equal(nc$var$u$prec, "short")
+  expect_equal(ncdf4::ncatt_get(nc, "u", "standard_name")$value, "eastward_wind")
+  expect_equal(ncdf4::ncatt_get(nc, "u", "units")$value, "m s**-1")
+  expect_equal(ncdf4::ncatt_get(nc, 0, "Conventions")$value, "CF-1.7")
+  # 0.01 m/s steps: rounding error at most half a step
+  id <- match(flight_time, time)
+  expect_lte(max(abs(ncdf4::ncvar_get(nc, "u") - value$u[,,, id])), 0.005 + 1e-6)
+  expect_lte(max(abs(ncdf4::ncvar_get(nc, "v") - value$v[,,, id])), 0.005 + 1e-6)
+})

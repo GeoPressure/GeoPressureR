@@ -1,3 +1,7 @@
+# GeoPressureR (development version)
+
+- Write smaller wind files in `tag_download_wind()`: only the flight hours, values packed as 16-bit integers (wind to 0.01 m/s), with CF attributes (`units`, `long_name`, `standard_name`) taken from one ERA5 variable table. Existing files still work with `edge_add_wind()` and `graph_add_wind()`.
+
 # GeoPressureR v3.8.0
 
 ## Main

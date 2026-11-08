@@ -19,6 +19,12 @@
 #' More information [in the GeoPressureManual](
 #' https://geopressure.org/GeoPressureManual/trajectory-with-wind.html).
 #'
+#' @section File format:
+#' The downloaded data are processed to take less space. Each file keeps only the flight hours.
+#' Values are stored as 16-bit integers with `scale_factor` and `add_offset` (wind to 0.01 m/s),
+#' which NetCDF readers unpack automatically. Variables use the CDS short names, units and
+#' attributes, following the CF conventions. Writing the files needs the package `ncdf4`.
+#'
 #' @template ecmwf-key
 #' @param tag a GeoPressureR `tag` object.
 #' @param extent geographical extent of the area for which wind data is downloaded.
@@ -66,10 +72,12 @@ tag_download_wind <- function(
   cds_token = lifecycle::deprecated(),
   ...
 ) {
-  if (!requireNamespace("ecmwfr", quietly = TRUE)) {
+  pkg <- c("ecmwfr", "ncdf4")
+  pkg <- pkg[!vapply(pkg, requireNamespace, TRUE, quietly = TRUE)]
+  if (length(pkg) > 0) {
     cli::cli_abort(c(
-      "x" = "Package {.pkg ecmwfr} is required for {.fun tag_download_wind}.",
-      "i" = "Install it with {.run install.packages('ecmwfr')}."
+      "x" = "Package{?s} {.pkg {pkg}} {?is/are} required for {.fun tag_download_wind}.",
+      "i" = "Install {?it/them} with {.code install.packages()}."
     ))
   }
 
@@ -152,6 +160,7 @@ tag_download_wind <- function(
 
   # create list of request
   request_list <- list()
+  flight <- list()
 
   for (i_s in include_stap_id) {
     # Get the time series of the flight on a 1 hour resolution
@@ -188,6 +197,8 @@ tag_download_wind <- function(
     assertthat::assert_that(length(possible_pressure[flight_pres_id]) > 1)
     assertthat::assert_that(length(flight_time) > 1)
 
+    flight[[i_s]] <- list(time = flight_time, pres_id = flight_pres_id)
+
     # Prepare the query
     request_list[[i_s]] <- list(
       dataset_short_name = "reanalysis-era5-pressure-levels",
@@ -204,13 +215,34 @@ tag_download_wind <- function(
     )
   }
 
-  ecmwfr::wf_request_batch(
+  out <- ecmwfr::wf_request_batch(
     request_list[include_stap_id],
     workers = workers,
     path = directory,
     time_out = 3 * 3600,
     ...
   )
+
+  # CDS returns every day x hour combination of the request: keep the flight hours and pack values
+  for (i_s in include_stap_id[file.exists(file(include_stap_id, tag_id))]) {
+    nc <- ncdf4::nc_open(file(i_s, tag_id))
+    info <- edge_add_wind_nc_info(nc, file(i_s, tag_id))
+    id_time <- match(flight[[i_s]]$time, info$time)
+    data <- sapply(era5_variable_short(variable), simplify = FALSE, \(v) {
+      ncdf4::ncvar_get(nc, v, collapse_degen = FALSE)[,,, id_time, drop = FALSE]
+    })
+    ncdf4::nc_close(nc)
+    era5_file_write(
+      file(i_s, tag_id),
+      data,
+      info$lon,
+      info$lat,
+      info$pres,
+      flight[[i_s]]$time,
+      "CDS"
+    )
+  }
+  out
 }
 
 
@@ -219,4 +251,72 @@ tag_download_wind <- function(
 #' @noRd
 wind_file <- \(stap_id, tag_id) {
   glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
+}
+
+
+#' Write ERA5 pressure-level data as a compact CF NetCDF file
+#'
+#' Same layout as the CDS NetCDF read by [edge_add_wind()] (dimensions `longitude`, `latitude`,
+#' `pressure_level` in descending hPa, `valid_time`; variables under their short names with the
+#' attributes of [era5_variable_pressure_level()]), but values are stored as 16-bit integers with
+#' `scale_factor` and `add_offset` (CF packing), which NetCDF readers unpack transparently. Wind
+#' (`u`, `v`) is stored to 0.01 m/s; other variables use the full 16-bit resolution of their range.
+#'
+#' @param file path of the file to write.
+#' @param data named list (short names) of arrays longitude x latitude x pressure level x time.
+#' @param lon,lat,pres,time coordinates (`time` as POSIXct).
+#' @param source data source written in the global attribute `source`.
+#' @noRd
+era5_file_write <- function(file, data, lon, lat, pres, time, source) {
+  tbl <- era5_variable_pressure_level()
+  tbl <- tbl[match(names(data), tbl$short_name), ]
+  dims <- list(
+    ncdf4::ncdim_def("longitude", "degrees_east", lon, longname = "longitude"),
+    ncdf4::ncdim_def("latitude", "degrees_north", lat, longname = "latitude"),
+    ncdf4::ncdim_def("pressure_level", "hPa", pres, longname = "pressure"),
+    ncdf4::ncdim_def(
+      "valid_time",
+      "seconds since 1970-01-01",
+      as.numeric(time),
+      calendar = "proleptic_gregorian",
+      longname = "time"
+    )
+  )
+  def <- lapply(seq_len(nrow(tbl)), \(i) {
+    ncdf4::ncvar_def(
+      tbl$short_name[i],
+      tbl$units[i],
+      dims,
+      -32768L,
+      longname = tbl$long_name[i],
+      prec = "short",
+      compression = 9,
+      shuffle = TRUE
+    )
+  })
+  # Write to a temporary file so an interrupted write is not mistaken for a complete file
+  tmp <- glue::glue("{file}.part")
+  nc <- ncdf4::nc_create(tmp, def, force_v4 = TRUE)
+  ncdf4::ncatt_put(nc, 0, "Conventions", "CF-1.7")
+  ncdf4::ncatt_put(nc, 0, "source", glue::glue("ERA5 hourly data on pressure levels ({source})"))
+  for (d in c("longitude", "latitude")) {
+    ncdf4::ncatt_put(nc, d, "standard_name", d)
+  }
+  ncdf4::ncatt_put(nc, "pressure_level", "standard_name", "air_pressure")
+  ncdf4::ncatt_put(nc, "pressure_level", "positive", "down")
+  ncdf4::ncatt_put(nc, "valid_time", "standard_name", "time")
+  for (i in seq_along(def)) {
+    if (!is.na(tbl$standard_name[i])) {
+      ncdf4::ncatt_put(nc, def[[i]], "standard_name", tbl$standard_name[i])
+    }
+    r <- range(data[[i]], na.rm = TRUE)
+    # 65534 steps keep packed values within +/-32767, clear of the -32768 fill value; the 1e-12
+    # floor avoids a zero scale (division by zero) for a constant field
+    step <- max(if (tbl$short_name[i] %in% c("u", "v")) 0.01 else 0, diff(r) / 65534, 1e-12)
+    ncdf4::ncatt_put(nc, def[[i]], "scale_factor", step, prec = "double")
+    ncdf4::ncatt_put(nc, def[[i]], "add_offset", mean(r), prec = "double")
+    ncdf4::ncvar_put(nc, def[[i]], round((data[[i]] - mean(r)) / step))
+  }
+  ncdf4::nc_close(nc)
+  file.rename(tmp, file)
 }
