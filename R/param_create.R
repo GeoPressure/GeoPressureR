@@ -128,7 +128,7 @@ param_create <- function(id, default = FALSE, ...) {
       ),
       graph_add_wind = list(
         thr_as = formals(graph_add_wind)$thr_as,
-        file = wind_file,
+        file = wind_file_default,
         rounding_interval = formals(edge_add_wind)$rounding_interval,
         interp_spatial_linear = formals(edge_add_wind)$interp_spatial_linear,
         pressure_source = "not_provided"

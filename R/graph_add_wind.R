@@ -152,7 +152,7 @@ graph_add_wind <- function(
   graph$param$graph_add_wind$pressure_source <- "provided"
 
   # Store the file function (provided or default) without source reference or environment
-  file <- if ("file" %in% names(dots)) dots$file else wind_file
+  file <- if ("file" %in% names(dots)) dots$file else wind_file_default
   attr(file, "srcref") <- NULL
   attr(file, "srcfile") <- NULL
   environment(file) <- baseenv()
@@ -170,7 +170,7 @@ graph_add_wind_edge <- function(
   pressure = NULL,
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
-  file = wind_file,
+  file = wind_file_default,
   quiet = FALSE
 ) {
   if (!requireNamespace("ncdf4", quietly = TRUE)) {

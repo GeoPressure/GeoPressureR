@@ -67,7 +67,7 @@ edge_add_wind <- function(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = lifecycle::deprecated(),
-  file = wind_file,
+  file = wind_file_default,
   quiet = FALSE
 ) {
   if (lifecycle::is_present(return_averaged_variable)) {
@@ -337,7 +337,7 @@ edge_add_wind_check <- function(
   graph,
   pressure = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = wind_file
+  file = wind_file_default
 ) {
   assertthat::assert_that(inherits(graph, "tag") | inherits(graph, "graph"))
 

@@ -26,8 +26,8 @@ match ERA5 native resolution (1hr).}
     \item{\code{interp_spatial_linear}}{logical to interpolate the variable linearly over space, if \code{FALSE}
 takes the nearest neighbour. ERA5 native resolution is 0.25°}
     \item{\code{quiet}}{logical to hide messages about the progress}
-    \item{\code{file}}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+    \item{\code{file}}{function returning the path of the wind file of a flight from (1) the stationary
+period identifier and (2) the \code{tag_id}. The default, \code{wind_file_default}, gives
 \verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
   }}
 }

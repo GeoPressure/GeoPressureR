@@ -45,8 +45,8 @@
 #' `"ozone_mass_mixing_ratio"` and `"potential_vorticity"`. Only with `source = "cds"`:
 #' `"relative_humidity"`, `"divergence"`, `"vorticity"`, `"specific_rain_water_content"` and
 #' `"specific_snow_water_content"`.
-#' @param file absolute or relative path of the ERA5 wind data file to be downloaded. Function
-#' taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+#' @param file function returning the path of the wind file of a flight from (1) the stationary
+#' period identifier and (2) the `tag_id`. The default, `wind_file_default`, gives
 #' `./data/wind/{tag_id}/{tag_id}_{stap_id}.nc`.
 #' @param overwrite logical. If `TRUE`, file is overwritten.
 #' @param workers number of downloads run in parallel. Defaults to `2` for `"cds"`, which rejects
@@ -74,7 +74,7 @@ tag_download_wind <- function(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = wind_file,
+  file = wind_file_default,
   overwrite = FALSE,
   workers = if (source == "cds") 2 else 6,
   source = c("cds", "gcs"),
@@ -335,7 +335,7 @@ tag_download_wind <- function(
 #' Default path of the ERA5 wind file of a stationary period
 #'
 #' @noRd
-wind_file <- \(stap_id, tag_id) {
+wind_file_default <- \(stap_id, tag_id) {
   glue::glue("./data/wind/{tag_id}/{tag_id}_{stap_id}.nc")
 }
 

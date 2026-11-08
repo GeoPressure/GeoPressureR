@@ -13,7 +13,7 @@ edge_add_wind(
   rounding_interval = 60,
   interp_spatial_linear = FALSE,
   return_averaged_variable = lifecycle::deprecated(),
-  file = wind_file,
+  file = wind_file_default,
   quiet = FALSE
 )
 }
@@ -44,8 +44,8 @@ takes the nearest neighbour. ERA5 native resolution is 0.25°}
 
 \item{return_averaged_variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
-\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+\item{file}{function returning the path of the wind file of a flight from (1) the stationary
+period identifier and (2) the \code{tag_id}. The default, \code{wind_file_default}, gives
 \verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
 
 \item{quiet}{logical to hide messages about the progress}

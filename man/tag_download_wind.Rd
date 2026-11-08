@@ -9,7 +9,7 @@ tag_download_wind(
   extent = tag$param$tag_set_map$extent,
   include_stap_id = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
-  file = wind_file,
+  file = wind_file_default,
   overwrite = FALSE,
   workers = if (source == "cds") 2 else 6,
   source = c("cds", "gcs"),
@@ -35,8 +35,8 @@ to download, using the same names as \code{\link[=edge_add_wind]{edge_add_wind()
 \code{"relative_humidity"}, \code{"divergence"}, \code{"vorticity"}, \code{"specific_rain_water_content"} and
 \code{"specific_snow_water_content"}.}
 
-\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+\item{file}{function returning the path of the wind file of a flight from (1) the stationary
+period identifier and (2) the \code{tag_id}. The default, \code{wind_file_default}, gives
 \verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
 
 \item{overwrite}{logical. If \code{TRUE}, file is overwritten.}
