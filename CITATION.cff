@@ -106,7 +106,7 @@ references:
   volume: '14'
   issue: '4'
   doi: 10.1111/2041-210X.14082
-  start: 1108-1129
+  start: 1118-1129
 - type: manual
   title: 'GeoPressureManual: Learn how to use GeoPressureR with examples.'
   authors:
