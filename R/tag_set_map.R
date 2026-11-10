@@ -124,7 +124,7 @@ tag_set_map <- function(
   )
   if (length(unexpected_cols)) {
     cli::cli_warn(
-      "Unexpected columns found in {.var known}: {paste(unexpected_cols, collapse = ', ')}"
+      "Unexpected columns found in {.var known}: {.field {unexpected_cols}}"
     )
   }
   known <- known[, c("stap_id", "known_lat", "known_lon")]

@@ -136,7 +136,7 @@ era5_variable_canonical <- function(variable, allow_short = FALSE, arg = "variab
     }
     lifecycle::deprecate_warn(
       when = "3.7.0",
-      what = I(sprintf("Passing NetCDF short names to `%s`", arg)),
+      what = I(glue::glue("Passing NetCDF short names to `{arg}`")),
       details = c(
         "i" = "Use the same names as `tag_download_wind()`, e.g. \"u_component_of_wind\" \\
                rather than \"u\"."

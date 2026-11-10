@@ -94,7 +94,7 @@ plot_graph_movement <- function(
         "text",
         x = movement$low_speed_fix,
         y = max_prob * 0.5,
-        label = paste0("low_speed_fix: ", movement$low_speed_fix),
+        label = glue::glue("low_speed_fix: {movement$low_speed_fix}"),
         color = "#1B9E77",
         size = 3,
         hjust = -0.1
@@ -113,7 +113,7 @@ plot_graph_movement <- function(
         "text",
         x = 0,
         y = max(d$prob[!d$line]),
-        label = paste0("zero_speed_ratio: ", movement$zero_speed_ratio),
+        label = glue::glue("zero_speed_ratio: {movement$zero_speed_ratio}"),
         color = "#D95F02",
         size = 3,
         hjust = -0.1

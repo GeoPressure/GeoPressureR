@@ -215,7 +215,7 @@ geolight_fit_location <- function(
     if (!quiet && any(at_lower | at_upper)) {
       hit <- names(fit$par)[at_lower | at_upper]
       cli::cli_warn(
-        "Location fit for stap_id {stap_id} hit parameter bounds: {paste(hit, collapse = ', ')}."
+        "Location fit for stap_id {stap_id} hit parameter bounds: {.field {hit}}."
       )
     }
 
