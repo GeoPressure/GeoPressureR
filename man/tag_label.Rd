@@ -16,7 +16,9 @@ tag_label(
 \arguments{
 \item{tag}{a GeoPressureR \code{tag} object.}
 
-\item{file}{Absolute or relative path of the label file.}
+\item{file}{Absolute or relative path of the label file. Trainset Save always writes
+\code{{id}-labeled.csv} in the directory of the file it was opened with, so a custom \code{file} name must
+be created by renaming or downloading the file.}
 
 \item{quiet}{logical to hide messages.}
 
