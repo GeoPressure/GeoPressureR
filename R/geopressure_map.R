@@ -47,7 +47,7 @@
 #' The altitude value of the geolocator pressure time series is computed with the barometric formula
 #' accounting for the temporal variation of pressure (surface-pressure) and temperature
 #' (2m-temperature) based on ERA5 data. The min and max ground elevation of each pixel is computed
-#' from SRTM-90. This map is only returned if `keep_mask` is `TRUE`.
+#' from the Copernicus GLO DEM. This map is only returned if `keep_mask` is `TRUE`.
 #'
 #' For more details, read the [GeoPressure API documentation
 #' ](https://github.com/GeoPressure/GeoPressureAPI).
