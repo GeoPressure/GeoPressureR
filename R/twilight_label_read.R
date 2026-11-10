@@ -1,7 +1,7 @@
 #' Read a twilight label file
 #'
-#' This function reads an exported csv file from TRAINSET <https://trainset.raphaelnussbaumer.com/>
-#' and updates the twilight data `tag$twilight`.
+#' This function reads a twilight label csv file saved from [geolightviz()] (or written with
+#' [twilight_label_write()]) and updates the twilight data `tag$twilight`.
 #'
 #' @param tag a GeoPressureR `tag` object.
 #' @param file csv file of the labels to be read.
