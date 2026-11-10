@@ -23,6 +23,7 @@ tag_label_read <- function(
   file = glue::glue("./data/tag-label/{tag$param$id}-labeled.csv")
 ) {
   tag_assert(tag)
+  assertthat::assert_that(file.exists(file))
 
   if (tag_assert(tag, "setmap", "logical")) {
     cli::cli_abort(c(

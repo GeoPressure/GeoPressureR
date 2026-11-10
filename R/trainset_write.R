@@ -22,10 +22,6 @@ trainset_write <- function(
   label = "label",
   quiet = FALSE
 ) {
-  assertthat::assert_that(is.data.frame(df))
-  assertthat::assert_that(assertthat::has_name(df, c(timestamp, value)))
-  assertthat::assert_that(is.character(file))
-
   # Create empty label if label doesn't exist
   if (!assertthat::has_name(df, label)) {
     df[[label]] <- ""

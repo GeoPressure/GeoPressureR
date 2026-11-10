@@ -27,6 +27,7 @@ twilight_label_read <- function(
   file = glue::glue("./data/twilight-label/{tag$param$id}-labeled.csv")
 ) {
   tag_assert(tag, "twilight")
+  assertthat::assert_that(file.exists(file))
 
   tag$twilight <- trainset_read(
     tag$twilight,
