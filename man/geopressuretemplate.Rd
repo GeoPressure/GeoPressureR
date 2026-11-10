@@ -76,7 +76,9 @@ a graph. Only used by \code{geopressuretemplate_config()}, where the default val
 \code{geopressuretemplate()}, \code{geopressuretemplate_graph()} and \code{geopressuretemplate_pressurepath()}
 return \code{file} invisibly and save the processed outputs (tag, paths, pressure paths, etc.) to the
 specified \code{file}. If the movement model or the outputs fail, \code{geopressuretemplate_graph()}
-returns the \code{graph} computed so far instead, without saving. \code{geopressuretemplate_tag()} returns
+warns with the error and returns the \code{graph} computed so far instead, without saving (and
+\code{geopressuretemplate()} stops before the pressurepath). Use \code{options(warn = 2)} to turn this
+warning into an error, e.g. in batch runs. \code{geopressuretemplate_tag()} returns
 the \code{tag} invisibly and \code{geopressuretemplate_config()} returns the merged configuration list.
 }
 \description{

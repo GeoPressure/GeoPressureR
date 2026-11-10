@@ -80,7 +80,9 @@
 #' `geopressuretemplate()`, `geopressuretemplate_graph()` and `geopressuretemplate_pressurepath()`
 #' return `file` invisibly and save the processed outputs (tag, paths, pressure paths, etc.) to the
 #' specified `file`. If the movement model or the outputs fail, `geopressuretemplate_graph()`
-#' returns the `graph` computed so far instead, without saving. `geopressuretemplate_tag()` returns
+#' warns with the error and returns the `graph` computed so far instead, without saving (and
+#' `geopressuretemplate()` stops before the pressurepath). Use `options(warn = 2)` to turn this
+#' warning into an error, e.g. in batch runs. `geopressuretemplate_tag()` returns
 #' the `tag` invisibly and `geopressuretemplate_config()` returns the merged configuration list.
 #'
 #' @examplesIf FALSE

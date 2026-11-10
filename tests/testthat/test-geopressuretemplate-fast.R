@@ -97,3 +97,32 @@ test_that("pressurepath template aborts on unsupported path types", {
     "geopressureviz"
   )
 })
+
+test_that("graph template warns and returns the graph when the outputs fail", {
+  file <- withr::local_tempfile(fileext = ".RData")
+  tag <- list(param = list(id = "test"), map_pressure = TRUE)
+  param <- tag$param
+  save(tag, param, file = file)
+
+  local_mocked_bindings(
+    tag_assert = function(...) invisible(NULL),
+    geopressuretemplate_config = function(...) {
+      list(
+        geopressuretemplate = list(likelihood = "map_pressure", outputs = "marginal"),
+        graph_create = list(),
+        graph_set_movement = list(type = "gs")
+      )
+    },
+    graph_create = function(tag, ...) structure(list(param = tag$param), class = "graph"),
+    graph_set_movement = function(graph, ...) graph,
+    graph_marginal = function(...) stop("marginal failed"),
+    .package = "GeoPressureR"
+  )
+
+  expect_warning(
+    out <- geopressuretemplate_graph("test", file = file, quiet = TRUE, config = list()),
+    "nothing is saved"
+  )
+  expect_s3_class(out, "graph")
+  expect_setequal(load(file), c("tag", "param"))
+})
