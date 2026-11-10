@@ -223,6 +223,25 @@ tag_create <- function(
     time_reference <- as.POSIXct(time_reference, tz = "UTC")
     assertthat::assert_that(length(time_reference) == 1, !is.na(time_reference))
   }
+  # Character crop dates must parse fully, as as.POSIXct() silently drops trailing characters
+  crop <- Filter(is.character, list(crop_start = crop_start, crop_end = crop_end))
+  crop_invalid <- names(crop)[
+    !vapply(
+      crop,
+      \(x) {
+        length(x) == 1 &&
+          grepl("^\\d{4}-\\d{2}-\\d{2}( \\d{2}:\\d{2}(:\\d{2})?)?$", x) &&
+          !is.na(as.POSIXct(x, tz = "UTC", optional = TRUE))
+      },
+      logical(1)
+    )
+  ]
+  if (length(crop_invalid) > 0) {
+    cli::cli_abort(c(
+      "x" = "{.arg {crop_invalid}} {?is/are} not {?a/} valid date{?s}: {.val {unlist(crop[crop_invalid])}}.",
+      "i" = "Use {.val YYYY-MM-DD}, {.val YYYY-MM-DD HH:MM} or {.val YYYY-MM-DD HH:MM:SS} (UTC)."
+    ))
+  }
   if (!is.null(crop_start) && !is.null(crop_end)) {
     if (as.POSIXct(crop_start, tz = "UTC") >= as.POSIXct(crop_end, tz = "UTC")) {
       cli::cli_abort(c(
