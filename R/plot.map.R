@@ -250,7 +250,7 @@ palette_to_colors <- function(palette, n = 256L, reverse = FALSE) {
       base_cols <- RColorBrewer::brewer.pal(min(n, max_n), pal_name)
       cols <- grDevices::colorRampPalette(base_cols)(n)
     } else {
-      cols <- tryCatch(grDevices::hcl.colors(n, pal_name), error = function(e) NULL)
+      cols <- grDevices::hcl.colors(n, pal_name)
     }
   } else if (is.character(palette) && length(palette) >= 2) {
     cols <- if (length(palette) == n) palette else grDevices::colorRampPalette(palette)(n)
