@@ -106,7 +106,12 @@ tag_set_map <- function(
 
   # Check known
   if (is.list(known) && !is.data.frame(known)) {
-    known <- as.data.frame(known)
+    # A list of records (e.g. YAML `- stap_id: 1` items) is bound by row, a list of columns as is
+    known <- if (all(vapply(known, is.list, logical(1)))) {
+      do.call(rbind, lapply(known, as.data.frame))
+    } else {
+      as.data.frame(known)
+    }
   }
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
