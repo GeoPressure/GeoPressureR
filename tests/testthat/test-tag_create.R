@@ -535,6 +535,10 @@ test_that("tag_create_soi() | drift sign and missing settings keys", {
   )
   tag <- tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE)
   expect_null(tag$param$tag_create$settings$clock_drift)
+
+  # A corrupt settings file is not skipped silently
+  writeLines('{"GDL-ID":', file.path(dir_tmp, "18LX.settings"))
+  expect_error(tag_create(id = "18LX", manufacturer = "soi", directory = dir_tmp, quiet = TRUE))
 })
 
 test_that("param_create() | default", {

@@ -19,61 +19,51 @@ tag_create_soi <- function(
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 
   # Read SOI settings
-  tryCatch(
-    {
-      setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
-      if (!is.null(setting_path)) {
-        settings <- jsonlite::fromJSON(setting_path)
-        # Normalised logger model and firmware (older SOI files name them HWVersion and SWVersion)
-        settings$model <- if (is.null(settings[["HW Version"]])) {
-          settings$HWVersion
-        } else {
-          settings[["HW Version"]]
-        }
-        settings$firmware <- if (is.null(settings[["FW Version"]])) {
-          settings$SWVersion
-        } else {
-          settings[["FW Version"]]
-        }
-        tag$param$tag_create$settings <- settings
-
-        # Check for drift: tag clock (StopTimeRTC) minus computer clock (StopTimeReference) at
-        # download, in minutes. Positive when the tag clock is ahead.
-        settings_time <- function(key) {
-          x <- settings[[key]]
-          if (!is.character(x) || length(x) != 1) {
-            return(as.POSIXct(NA))
-          }
-          as.POSIXct(strptime(x, tz = "UTC", format = "%d.%m.%Y %H:%M:%S"))
-        }
-        stop_time_ref <- settings_time("StopTimeReference")
-        stop_time_rtc <- settings_time("StopTimeRTC")
-        recording_valid <- !identical(
-          settings$RecordingStop,
-          "timestamp invalid"
-        )
-        if (recording_valid && !is.na(stop_time_ref) && !is.na(stop_time_rtc)) {
-          tag$param$tag_create$settings$clock_drift <- as.numeric(difftime(
-            stop_time_rtc,
-            stop_time_ref,
-            units = "mins"
-          ))
-          if (abs(tag$param$tag_create$settings$clock_drift) > 30) {
-            cli::cli_warn(c(
-              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$tag_create$settings$clock_drift))} which seems suspicious.",
-              ">" = "Check for error (e.g. timezone)"
-            ))
-          }
-        }
-      }
-    },
-    error = function(e) {
-      cli::cli_alert_warning(
-        "Failed to load the SOI setting file {.file {setting_path}}."
-      )
-      message(e$message)
+  setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
+  if (!is.null(setting_path)) {
+    settings <- jsonlite::fromJSON(setting_path)
+    # Normalised logger model and firmware (older SOI files name them HWVersion and SWVersion)
+    settings$model <- if (is.null(settings[["HW Version"]])) {
+      settings$HWVersion
+    } else {
+      settings[["HW Version"]]
     }
-  )
+    settings$firmware <- if (is.null(settings[["FW Version"]])) {
+      settings$SWVersion
+    } else {
+      settings[["FW Version"]]
+    }
+    tag$param$tag_create$settings <- settings
+
+    # Check for drift: tag clock (StopTimeRTC) minus computer clock (StopTimeReference) at
+    # download, in minutes. Positive when the tag clock is ahead.
+    settings_time <- function(key) {
+      x <- settings[[key]]
+      if (!is.character(x) || length(x) != 1) {
+        return(as.POSIXct(NA))
+      }
+      as.POSIXct(strptime(x, tz = "UTC", format = "%d.%m.%Y %H:%M:%S"))
+    }
+    stop_time_ref <- settings_time("StopTimeReference")
+    stop_time_rtc <- settings_time("StopTimeRTC")
+    recording_valid <- !identical(
+      settings$RecordingStop,
+      "timestamp invalid"
+    )
+    if (recording_valid && !is.na(stop_time_ref) && !is.na(stop_time_rtc)) {
+      tag$param$tag_create$settings$clock_drift <- as.numeric(difftime(
+        stop_time_rtc,
+        stop_time_ref,
+        units = "mins"
+      ))
+      if (abs(tag$param$tag_create$settings$clock_drift) > 30) {
+        cli::cli_warn(c(
+          "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$tag_create$settings$clock_drift))} which seems suspicious.",
+          ">" = "Check for error (e.g. timezone)"
+        ))
+      }
+    }
+  }
 
   # Read Pressure
   pressure_path <- tag_create_detect(pressure_file, directory, quiet, default = "*.pressure")
