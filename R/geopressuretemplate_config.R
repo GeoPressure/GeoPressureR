@@ -11,6 +11,27 @@ geopressuretemplate_config <- function(
   # 1. Create the config from the default value
   c <- param_create(id, default = TRUE)
 
+  # Warn when config.yml has no entry for id, as config::get() then silently returns `default`
+  config_file <- Sys.getenv("R_CONFIG_FILE", "config.yml")
+  if (
+    file.exists(config_file) &&
+      !any(grepl(glue::glue("^[\"']?{id}[\"']?\\s*:"), readLines(config_file, warn = FALSE)))
+  ) {
+    cli::cli_warn(c(
+      "!" = "{.val {id}} has no entry in {.file {config_file}}: only {.field default} values are used.",
+      ">" = "Add a {.code {id}:} section to {.file {config_file}} or check the spelling of {.arg id}."
+    ))
+  }
+
+  # Warn on function arguments placed directly under the tag id instead of under their function
+  wrong_level <- intersect(names(config), unlist(lapply(c[vapply(c, is.list, logical(1))], names)))
+  if (length(wrong_level) > 0) {
+    cli::cli_warn(c(
+      "!" = "In the config of {.val {id}}, {.field {wrong_level}} {?is/are} ignored because {?it is/they are} not nested under a function name.",
+      ">" = "Move {cli::qty(wrong_level)}{?it/them} under the corresponding function, e.g. {.code tag_create: crop_start: ...}."
+    ))
+  }
+
   # 2. Overwrite with config file provided as input of the function
   if (!is.null(config)) {
     c <- merge_params(c, config)
