@@ -7,9 +7,6 @@ tag_create_lund <- function(
   acceleration_light_file = NULL,
   quiet = FALSE
 ) {
-  assertthat::assert_that(is.character(id))
-  assertthat::assert_that(is.logical(quiet))
-
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 

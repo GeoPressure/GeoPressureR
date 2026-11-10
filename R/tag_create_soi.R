@@ -12,9 +12,6 @@ tag_create_soi <- function(
   mag_axis = c("right", "forward", "down"),
   quiet = FALSE
 ) {
-  assertthat::assert_that(is.character(id))
-  assertthat::assert_that(is.logical(quiet))
-
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 
@@ -193,9 +190,6 @@ tag_create_soi_mag <- function(
   mag_axis = c("right", "forward", "down"),
   quiet = FALSE
 ) {
-  assertthat::assert_that(is.logical(quiet))
-  assertthat::assert_that(file.exists(magnetic_path))
-
   mag <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
   names(mag) <- c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
   mag <- tag_create_soi_gap(mag)
