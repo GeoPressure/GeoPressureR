@@ -49,6 +49,8 @@
 #' @family path
 #' @export
 tag2path <- function(tag, likelihood = NULL, interp = FALSE, use_known = TRUE) {
+  assertthat::assert_that(is.logical(use_known))
+
   # Construct the likelihood map
   map <- tag2map(tag, likelihood = likelihood)
 
