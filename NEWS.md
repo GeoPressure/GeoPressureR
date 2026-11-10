@@ -16,7 +16,7 @@
 - [Always warn when `tag_create()` drops SOI magnetic data](https://github.com/GeoPressure/GeoPressureR/commit/939db7ad9fe91bcada54f339a8f9b3ca50d9dc7c): when the hardware version cannot be read from the `.settings` file, or there is no `.settings` file, the magnetic and acceleration data are not imported. This was silent with `quiet = TRUE` (e.g. in `geopressuretemplate()`) or without a `.settings` file.
 - [Abort `tag_create()` on an unreadable SOI `.settings` file](https://github.com/GeoPressure/GeoPressureR/commit/8c483581c28c59e33ca233e358f0a865aa08e8c0) instead of printing a message and continuing without the clock drift and magnetic data.
 - [Warn when `geopressuretemplate_graph()` fails](https://github.com/GeoPressure/GeoPressureR/commit/c97667b4e26c9d68a46eb2f9ba8d27141efde1fe): the graph is still returned without saving, but with a warning carrying the original error instead of a printed message, so a failure in a batch run is no longer mistaken for a success.
-- [Abort `plot.map()` on an unknown palette name](https://github.com/GeoPressure/GeoPressureR/commit/22aa0938814223f90d285ffca1dfb57bd3794d67) with `plot_leaflet = FALSE` instead of silently using the default palette.
+- [Abort `plot.map()` on an unknown palette name](https://github.com/GeoPressure/GeoPressureR/commit/22aa0938814223f90d285ffca1dfb57bd3794d67) with `plot_leaflet = FALSE` instead of silently using the default palette, and [draw `"magma"` and the other viridis palettes in static plots](https://github.com/GeoPressure/GeoPressureR/commit/af023979f84917446a42c36cc2d6625978ff5431), which used to fall back to a blue ramp.
 
 # GeoPressureR v3.8.0
 
