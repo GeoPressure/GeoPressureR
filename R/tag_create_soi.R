@@ -145,7 +145,7 @@ tag_create_soi <- function(
 
   # Read magnetism
   magnetic_path <- tag_create_detect(magnetic_file, directory, quiet, default = "*.magnetic")
-  if (!is.null(magnetic_path) && !is.null(tag$param$tag_create$settings)) {
+  if (!is.null(magnetic_path)) {
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,
       hw_version = tag$param$tag_create$settings$model,
@@ -218,13 +218,13 @@ tag_create_soi_mag <- function(
     hw_version,
     ignore.case = TRUE
   )))
+  # Always warn (also when quiet) as the magnetic and acceleration data are dropped
   if (length(hw_version) != 1 || is.na(hw_version)) {
-    if (!quiet) {
-      cli::cli_warn(c(
-        "!" = "The hardware version {.val {model}} could not be detected.",
-        ">" = "The magnetic data cannot be calibrated and is not imported."
-      ))
-    }
+    cli::cli_warn(c(
+      "!" = "The SOI hardware version {.val {model}} could not be detected.",
+      "x" = "The magnetic and acceleration data of {.file {magnetic_path}} cannot be calibrated and are not imported.",
+      ">" = "Add the {.file .settings} file with its {.field HWVersion} (e.g. {.val HW_GDL3pam_V2.1}) to the tag directory."
+    ))
     return(NULL)
   }
 

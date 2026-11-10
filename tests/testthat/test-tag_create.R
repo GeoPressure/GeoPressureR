@@ -166,6 +166,27 @@ test_that("tag_create() | SOI magnetic-only 14DM", {
   expect_true(all(c("right", "forward", "down") == tag$param$tag_create$mag_axis))
 })
 
+test_that("tag_create() | SOI magnetic data dropped without hardware version warns", {
+  dir_tmp <- withr::local_tempdir("gpr-soi-")
+  file.copy(list.files("./data/raw-tag/14DM", full.names = TRUE), dir_tmp)
+  file_settings <- list.files(dir_tmp, pattern = "\\.settings$", full.names = TRUE)
+
+  # Unparsable hardware version
+  writeLines('{"HWVersion":"unknown"}', file_settings)
+  expect_warning(
+    tag <- tag_create("14DM", "soi", directory = dir_tmp, assert_pressure = FALSE, quiet = TRUE),
+    "not imported"
+  )
+  expect_null(tag$magnetic)
+
+  # No settings file
+  file.remove(file_settings)
+  expect_warning(
+    tag_create("14DM", "soi", directory = dir_tmp, assert_pressure = FALSE, quiet = TRUE),
+    "not imported"
+  )
+})
+
 test_that("tag_create() | SOI mag_axis for a reversed tag", {
   tag <- tag_create(id = "14DM", manufacturer = "soi", assert_pressure = FALSE, quiet = TRUE)
   tag_rev <- tag_create(
