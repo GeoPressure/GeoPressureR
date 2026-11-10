@@ -16,6 +16,17 @@ geolight_map_calibrate <- function(
   tag_assert(tag, "stap")
   tag_assert(tag, "setmap")
   assertthat::assert_that(is.logical(quiet), length(quiet) == 1)
+  assertthat::assert_that(is.numeric(twl_calib_adjust), length(twl_calib_adjust) == 1L)
+  assertthat::assert_that(
+    is.numeric(refine_fitted_location_scale),
+    length(refine_fitted_location_scale) == 1L,
+    refine_fitted_location_scale > 0
+  )
+  assertthat::assert_that(
+    is.numeric(refine_fitted_location_max_iter),
+    length(refine_fitted_location_max_iter) == 1L,
+    refine_fitted_location_max_iter >= 0
+  )
 
   # Fit locations for stationary periods without known locations
   if (!quiet) {
