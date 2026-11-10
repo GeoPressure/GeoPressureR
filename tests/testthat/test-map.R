@@ -52,6 +52,7 @@ test_that("map_create() | basic", {
 
   expect_no_error(plot(map))
   expect_no_error(plot(map, plot_leaflet = FALSE, palette = "plasma"))
+  expect_no_error(plot(map, plot_leaflet = FALSE, palette = "magma"))
   expect_error(plot(map, plot_leaflet = FALSE, palette = "not_a_palette"))
   expect_no_error(invisible(capture.output(print(map), type = "message")))
 })
