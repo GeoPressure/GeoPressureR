@@ -16,6 +16,7 @@ stationary periods whose map is empty. The new functions return as data what TRA
 
 ## Minor
 
+- [Make `tag_label_auto()` deterministic](https://github.com/GeoPressure/GeoPressureR/commit/0b580c6d91fa535f942d7a51032ce11f8022c9d9): the k-means clustering starts from the lowest and highest activity instead of random centres (without using the random number generator), and the sampling interval is the median interval instead of the first one. Labels of the example tags are unchanged.
 - [Fix `plot_pressurepath()` with a single `sd` on a pressurepath whose `stap_id` is not 1](https://github.com/GeoPressure/GeoPressureR/commit/06366cbba06fc32542db42a5928724c30e7ffa2e) (e.g. a `geopressure_timeseries()` output of one stationary period): the outlier thresholds and the histogram colours were `NA`.
 - [Share the parsing of `elev_n` labels](https://github.com/GeoPressure/GeoPressureR/commit/83a39b38a60b8fb9c33035951b534e67a80300c5) between `geopressure_map_preprocess()`, `geopressure_timeseries()`, `pressurepath_create()` and `plot_pressurepath()`.
 
