@@ -55,7 +55,9 @@ withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
 Other tag_label:
 \code{\link[=tag_label]{tag_label()}},
 \code{\link[=tag_label_auto]{tag_label_auto()}},
+\code{\link[=tag_label_check]{tag_label_check()}},
 \code{\link[=tag_label_read]{tag_label_read()}},
+\code{\link[=tag_label_stapelev]{tag_label_stapelev()}},
 \code{\link[=tag_label_write]{tag_label_write()}}
 }
 \concept{tag_label}
