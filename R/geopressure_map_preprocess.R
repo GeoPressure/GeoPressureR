@@ -122,15 +122,7 @@ geopressure_map_preprocess <- function(
   }
 
   # Create the stapelev of pressure to query: stationary period and elevation
-  pressure$stapelev <- paste(
-    pressure$stap_id,
-    ifelse(
-      startsWith(pressure$label, "elev_"),
-      gsub("^.*?elev_", "", pressure$label),
-      "0"
-    ),
-    sep = "|"
-  )
+  pressure$stapelev <- paste(pressure$stap_id, label2elev(pressure$label), sep = "|")
 
   # Split the data.frame per stapelev
   pressure_stapelev <- split(pressure, pressure$stapelev)
@@ -264,4 +256,10 @@ geopressure_map_preprocess <- function(
 
   rownames(pressure_clean) <- NULL
   return(pressure_clean)
+}
+
+# Elevation level of pressure labels: "elev_2" -> "2", any other label -> "0"
+# @noRd
+label2elev <- function(label) {
+  ifelse(startsWith(label, "elev_"), sub("^.*?elev_", "", label), "0")
 }

@@ -144,7 +144,7 @@ geopressure_timeseries <- function(
   id_norm <- out$stap_id == round(out$stap_id) & out$stap_id != 0 & out$label != "discard"
   # If no ground (ie. only flight) is present, surface_pressure_norm has no meaning
   if (sum(id_norm) > 0) {
-    elev <- ifelse(startsWith(out$label, "elev_"), gsub("^.*?elev_", "", out$label), "0")
+    elev <- label2elev(out$label)
     for (elev_i in unique(elev)) {
       id_elev <- elev == elev_i
       out$surface_pressure_norm[id_elev] <- out$surface_pressure[id_elev] -

@@ -246,11 +246,7 @@ pressurepath_finalize <- function(
   if ("surface_pressure" %in% names(pressurepath) && !all(is.na(pressurepath$surface_pressure))) {
     pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
     pp <- pressurepath
-    pp$stapelev <- paste(
-      pp$stap_id,
-      ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
-      sep = "|"
-    )
+    pp$stapelev <- paste(pp$stap_id, label2elev(pp$label), sep = "|")
     pp$stapelev_label <- pp$stapelev
     pp$stapelev_label[pp$label == "discard"] <- 0
     agg <- merge(
