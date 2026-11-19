@@ -94,6 +94,11 @@ for details.
 If \code{keep_mse = TRUE}, \code{tag} also includes the \code{tag$map_pressure_mse} map and
 \code{tag$stap$nb_sample}, indicating the number of datapoints used to compute the MSE. If
 \code{keep_mask = TRUE}, \code{tag} also includes the \code{tag$map_pressure_mask} map.
+\code{tag$stapelev} holds one row per map requested (stationary period and elevation level) with
+\code{stapelev}, \code{stap_id}, \code{nb_sample}, the number of land pixels \code{n_pixel}, the number of pixels
+passing the mask \code{n_valid} and the smallest MSE \code{mse_min} (hPa²), before the levels of a
+stationary period are combined. A warning names the stationary periods where no pixel passes the
+mask, and the levels responsible.
 \code{geopressure_map_mismatch()} returns \code{tag} with \code{tag$map_pressure_mse} (and
 \code{tag$map_pressure_mask} if \code{keep_mask = TRUE}) but without the likelihood map.
 }

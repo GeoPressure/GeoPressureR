@@ -122,6 +122,11 @@
 #' If `keep_mse = TRUE`, `tag` also includes the `tag$map_pressure_mse` map and
 #' `tag$stap$nb_sample`, indicating the number of datapoints used to compute the MSE. If
 #' `keep_mask = TRUE`, `tag` also includes the `tag$map_pressure_mask` map.
+#' `tag$stapelev` holds one row per map requested (stationary period and elevation level) with
+#' `stapelev`, `stap_id`, `nb_sample`, the number of land pixels `n_pixel`, the number of pixels
+#' passing the mask `n_valid` and the smallest MSE `mse_min` (hPa²), before the levels of a
+#' stationary period are combined. A warning names the stationary periods where no pixel passes the
+#' mask, and the levels responsible.
 #' `geopressure_map_mismatch()` returns `tag` with `tag$map_pressure_mse` (and
 #' `tag$map_pressure_mask` if `keep_mask = TRUE`) but without the likelihood map.
 #'

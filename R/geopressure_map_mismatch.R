@@ -286,6 +286,24 @@ geopressure_map_mismatch <- function(
     }))
   )
 
+  # Diagnostics per stapelev before its levels are merged: land pixels, pixels passing the mask
+  # (-1 masked, -2 water) and smallest MSE (Pa^2 to hPa^2)
+  mse_stapelev <- lapply(map, \(m) terra::values(m[[1]], mat = FALSE))
+  tag$stapelev <- data.frame(
+    stapelev = labels,
+    stap_id = labels_stap,
+    nb_sample = nb_sample,
+    n_pixel = vapply(mse_stapelev, \(v) sum(v > -1.5, na.rm = TRUE), integer(1)),
+    n_valid = vapply(mse_stapelev, \(v) sum(v >= 0, na.rm = TRUE), integer(1)),
+    mse_min = vapply(
+      mse_stapelev,
+      \(v) if (any(v >= 0, na.rm = TRUE)) min(v[v >= 0], na.rm = TRUE) / 1e4 else NA_real_,
+      numeric(1)
+    )
+  )
+  tag$stapelev <- tag$stapelev[order(labels_stap, labels), ]
+  rownames(tag$stapelev) <- NULL
+
   # Initialize the return list from tag$stap to make sure all stap are present
   mse <- vector("list", nrow(tag$stap))
   if (keep_mask) {
@@ -328,6 +346,26 @@ geopressure_map_mismatch <- function(
     if (keep_mask) {
       mask[[i_stap]] <- terra::as.matrix(tmp[[2]], wide = TRUE)
     }
+  }
+
+  # Warn about staps where no pixel passes the mask of all their levels: likelihood zero everywhere
+  stap_empty <- unique(labels_stap)[
+    vapply(unique(labels_stap), \(s) !any(mse[[s]] >= 0, na.rm = TRUE), logical(1))
+  ]
+  if (length(stap_empty) > 0) {
+    masked <- tag$stapelev$n_valid == 0 & tag$stapelev$stap_id %in% stap_empty
+    stap_combined <- setdiff(stap_empty, tag$stapelev$stap_id[masked])
+    cli::cli_warn(c(
+      "!" = "No pixel passes the mask of the pressure map of stap {.val {stap_empty}}.",
+      "*" = if (any(masked)) {
+        "Stapelev masked everywhere on its own: {.val {tag$stapelev$stapelev[masked]}}."
+      },
+      "*" = if (length(stap_combined) > 0) {
+        "Stap {.val {stap_combined}}: each level passes somewhere, but no pixel passes all levels."
+      },
+      ">" = "Check the labels of these stapelevs (flight, take-off or altitude change left \\
+             unlabelled, wrong {.val elev_n}), or the extent of {.fun tag_set_map}."
+    ))
   }
 
   # Explicitly close multisession workers by switching plan
