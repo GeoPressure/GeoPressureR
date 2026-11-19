@@ -18,8 +18,8 @@ twilight_label_read(
 Same \code{tag} object, updated with the labels \code{tag$twilight$label}.
 }
 \description{
-This function reads an exported csv file from TRAINSET \url{https://trainset.raphaelnussbaumer.com/}
-and updates the twilight data \code{tag$twilight}.
+This function reads a twilight label csv file saved from \code{\link[=geolightviz]{geolightviz()}} (or written with
+\code{\link[=twilight_label_write]{twilight_label_write()}}) and updates the twilight data \code{tag$twilight}.
 }
 \examples{
 withr::with_dir(system.file("extdata", package = "GeoPressureR"), {

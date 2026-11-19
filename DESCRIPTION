@@ -1,6 +1,6 @@
 Package: GeoPressureR
 Title: Global Positioning by Atmospheric Pressure
-Version: 3.8.0
+Version: 3.9.0
 Authors@R: c(
     person("Raphaël", "Nussbaumer", , "rafnuss@gmail.com", role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-8185-1020")),
@@ -31,7 +31,6 @@ Imports:
     Matrix,
     methods,
     plotly,
-    pracma,
     progressr,
     RColorBrewer,
     stats,
@@ -62,4 +61,4 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Language: en-GB
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1

@@ -11,10 +11,11 @@ edge_add_wind(
   pressure = NULL,
   variable = c("u_component_of_wind", "v_component_of_wind"),
   rounding_interval = 60,
-  interp_spatial_linear = FALSE,
+  interp_spatial_linear = lifecycle::deprecated(),
   return_averaged_variable = lifecycle::deprecated(),
-  file = wind_file,
-  quiet = FALSE
+  file = wind_file_default,
+  quiet = FALSE,
+  constant_speed = NULL
 )
 }
 \arguments{
@@ -39,16 +40,21 @@ but is deprecated.}
 \item{rounding_interval}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
 
-\item{interp_spatial_linear}{logical to interpolate the variable linearly over space, if \code{FALSE}
-takes the nearest neighbour. ERA5 native resolution is 0.25°}
+\item{interp_spatial_linear}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used. The nearest
+ERA5 grid cell is always used.}
 
 \item{return_averaged_variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.}
 
-\item{file}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+\item{file}{function returning the path of the wind file of a flight from (1) the stationary
+period identifier and (2) the \code{tag_id}. The default, \code{wind_file_default}, gives
 \verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
 
 \item{quiet}{logical to hide messages about the progress}
+
+\item{constant_speed}{speed held constant during each flight: \code{"groundspeed"} (straight edge
+flown at constant groundspeed) or \code{"airspeed"} (track drifted by the wind when flying at
+constant airspeed). Defaults to the value used by \code{\link[=graph_add_wind]{graph_add_wind()}} for this \code{graph}, otherwise
+\code{"groundspeed"}.}
 }
 \value{
 A data.frame with one row per time step, edge, and variable:
@@ -69,11 +75,12 @@ Reads the NetCDF files and extracts the variable requested along each flight def
 edges.
 \itemize{
 \item Time: linear interpolation using the resolution requested with \code{rounding_interval}
-\item Space: nearest neighbour interpolation by default, or bi-linear with \code{pracma::interp2} if
-\code{interp_spatial_linear=TRUE}. Note: spatial interpolation is limited to 0.1° for computational
-reasons.
+\item Space: nearest ERA5 grid cell
 \item Pressure/altitude: linear interpolation using the exact \code{pressure} values
 }
+
+Positions follow the straight edge flown at constant groundspeed, or with \code{constant_speed = "airspeed"} the track drifted by the wind when flying at constant airspeed, as in
+\code{\link[=graph_add_wind]{graph_add_wind()}}.
 }
 \examples{
 \dontrun{

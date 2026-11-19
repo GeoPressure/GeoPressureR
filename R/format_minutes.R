@@ -7,9 +7,9 @@ format_minutes <- function(mins) {
   minutes <- mins %% 60
 
   glue::glue(
-    "{if (years > 0) paste0(years, 'y ') else ''}",
-    "{if (days > 0) paste0(days, 'd ') else ''}",
-    "{if (hours > 0 || days > 0 || years > 0) paste0(hours, 'h ') else ''}",
+    "{if (years > 0) glue::glue('{years}y ') else ''}",
+    "{if (days > 0) glue::glue('{days}d ') else ''}",
+    "{if (hours > 0 || days > 0 || years > 0) glue::glue('{hours}h ') else ''}",
     "{minutes}min"
   )
 }

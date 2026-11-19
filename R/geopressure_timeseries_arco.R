@@ -134,33 +134,60 @@ geopressure_timeseries_arco_impl <- function(
   return(out)
 }
 
-era5_arco_client <- function(cache = FALSE) {
-  cds_token <- ecmwfr::wf_get_key()
-  arco_host <- "https://arco.datastores.ecmwf.int"
+#' S3-like client for reading ARCO zarr stores with `Rarr`
+#'
+#' Serves both ECMWF's ARCO archive (default, CDS token) and the public Google ARCO-ERA5 store
+#' (`host = "https://storage.googleapis.com"`, `auth = FALSE`) used by [tag_download_wind()].
+#'
+#' @param cache logical. Keep objects and metadata lookups in memory for the session.
+#' @param host URL of the store host; `Rarr` passes the bucket and key of the array path.
+#' @param auth logical. Authenticate with the CDS token.
+#' @return A list with `get_object()` and `list_objects_v2()` for `Rarr`, plus `request(path)`
+#'   building the request of `"{bucket}/{key}"` and `cache`, the environment holding the objects
+#'   under that path (to prefetch chunks in parallel).
+#' @noRd
+era5_arco_client <- function(
+  cache = FALSE,
+  host = "https://arco.datastores.ecmwf.int",
+  auth = TRUE
+) {
+  cds_token <- if (auth) ecmwfr::wf_get_key()
   object_cache <- new.env(parent = emptyenv())
+  request <- function(path) {
+    req <- httr2::request(glue::glue("{host}/{path}")) |> httr2::req_retry(max_tries = 5)
+    if (auth) {
+      req <- httr2::req_auth_bearer_token(req, cds_token)
+    }
+    req
+  }
+  cached <- function(key, fetch) {
+    if (exists(key, envir = object_cache, inherits = FALSE)) {
+      return(get(key, envir = object_cache, inherits = FALSE))
+    }
+    value <- fetch()
+    if (cache) {
+      assign(key, value, envir = object_cache)
+    }
+    value
+  }
   list(
     get_object = function(Bucket, Key, ...) {
-      cache_key <- glue::glue("{Bucket}/{Key}")
-      if (cache && exists(cache_key, envir = object_cache, inherits = FALSE)) {
-        body <- get(cache_key, envir = object_cache, inherits = FALSE)
-      } else {
-        body <- httr2::request(glue::glue("{arco_host}/{Bucket}/{Key}")) |>
-          httr2::req_auth_bearer_token(cds_token) |>
-          httr2::req_perform() |>
-          httr2::resp_body_raw()
-        if (cache) {
-          assign(cache_key, body, envir = object_cache)
-        }
-      }
-      list(Body = body)
+      path <- glue::glue("{Bucket}/{Key}")
+      list(Body = cached(path, \() request(path) |> httr2::req_perform() |> httr2::resp_body_raw()))
     },
     list_objects_v2 = function(Bucket, Prefix, ...) {
-      response <- httr2::request(glue::glue("{arco_host}/{Bucket}/{Prefix}")) |>
-        httr2::req_method("HEAD") |>
-        httr2::req_auth_bearer_token(cds_token) |>
-        httr2::req_error(is_error = function(response) FALSE) |>
-        httr2::req_perform()
-      list(KeyCount = as.integer(httr2::resp_status(response) == 200L))
-    }
+      path <- glue::glue("{Bucket}/{Prefix}")
+      found <- cached(glue::glue("HEAD {path}"), \() {
+        request(path) |>
+          httr2::req_method("HEAD") |>
+          httr2::req_error(is_error = function(response) FALSE) |>
+          httr2::req_perform() |>
+          httr2::resp_status() ==
+          200L
+      })
+      list(KeyCount = as.integer(found))
+    },
+    request = request,
+    cache = object_cache
   )
 }

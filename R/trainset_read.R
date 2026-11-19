@@ -18,12 +18,6 @@ trainset_read <- function(
   timestamp = "date",
   label = "label"
 ) {
-  assertthat::assert_that(is.data.frame(df))
-  assertthat::assert_that(nrow(df) > 0)
-  assertthat::assert_that(is.character(timestamp))
-  assertthat::assert_that(is.character(label))
-  assertthat::assert_that(assertthat::has_name(df, timestamp))
-
   csv <- trainset_read_raw(file)
 
   # Extract only data from the corresponding series
@@ -93,9 +87,6 @@ trainset_read <- function(
 #' @return Data.frame with parsed timestamp as date column
 #' @noRd
 trainset_read_raw <- function(file) {
-  assertthat::assert_that(is.character(file))
-  assertthat::assert_that(file.exists(file))
-
   # Read trainset file
   csv <- utils::read.csv(file)
 

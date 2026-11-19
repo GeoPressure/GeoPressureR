@@ -4,7 +4,14 @@
 \alias{graph_add_wind}
 \title{Compute windspeed and airspeed on a \code{graph}}
 \usage{
-graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
+graph_add_wind(
+  graph,
+  thr_as = Inf,
+  variable = lifecycle::deprecated(),
+  constant_speed = c("groundspeed", "airspeed"),
+  interp_spatial_linear = lifecycle::deprecated(),
+  ...
+)
 }
 \arguments{
 \item{graph}{a GeoPressureR \code{graph} object.}
@@ -13,6 +20,12 @@ graph_add_wind(graph, thr_as = Inf, variable = lifecycle::deprecated(), ...)
 
 \item{variable}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used.
 \code{graph_add_wind()} always uses \code{c("u", "v")}.}
+
+\item{constant_speed}{speed held constant during each flight: \code{"groundspeed"} (straight edge)
+or \code{"airspeed"} (track drifted by the wind).}
+
+\item{interp_spatial_linear}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}} No longer used. The nearest
+ERA5 grid cell is always used.}
 
 \item{...}{
   Arguments passed on to \code{\link{edge_add_wind}}
@@ -23,11 +36,9 @@ POSIXt and \code{value} in hPa. If not provided, uses \code{graph$pressure}, ass
 is a GeoPressureR \code{tag} object.}
     \item{\code{rounding_interval}}{temporal resolution on which to query the variable (min). Default is to
 match ERA5 native resolution (1hr).}
-    \item{\code{interp_spatial_linear}}{logical to interpolate the variable linearly over space, if \code{FALSE}
-takes the nearest neighbour. ERA5 native resolution is 0.25°}
     \item{\code{quiet}}{logical to hide messages about the progress}
-    \item{\code{file}}{absolute or relative path of the ERA5 wind data file to be downloaded. Function
-taking as arguments (1) the stationary period identifier and (2) the tag_id. Defaults to
+    \item{\code{file}}{function returning the path of the wind file of a flight from (1) the stationary
+period identifier and (2) the \code{tag_id}. The default, \code{wind_file_default}, gives
 \verb{./data/wind/\{tag_id\}/\{tag_id\}_\{stap_id\}.nc}.}
   }}
 }
@@ -42,6 +53,15 @@ In addition, the graph can be further pruned based on a threshold of airspeed \c
 
 \code{pressure} (the tag pressure, e.g. \code{tag$pressure}) is required to interpolate the wind at the
 flight altitude.
+
+With \code{constant_speed = "groundspeed"} (default), the wind is averaged at the nearest ERA5 grid
+cell along the straight edge flown at constant groundspeed. With \code{constant_speed = "airspeed"},
+the bird flies a constant air velocity (speed and heading), so its track is curved by the wind
+between the two nodes. This track is approximated by the straight edge plus the drift by the
+wind anomaly along it, and the wind is averaged along that track. This mostly matters for long
+flights (> 8 h) and takes about 1.5–3 times longer. The choice is stored in \code{graph$param} and
+used by default in \code{\link[=edge_add_wind]{edge_add_wind()}}. To keep the graph fast, you can also use the default here
+and compute the wind along a path with \code{edge_add_wind(constant_speed = "airspeed")}.
 
 See section \href{https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title}{2.2.4 in Nussbaumer et al. (2023b)}
 for more technical details and the \href{https://geopressure.org/GeoPressureManual/trajectory-with-wind.html}{GeoPressureManual} for an

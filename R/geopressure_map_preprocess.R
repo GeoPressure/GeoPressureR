@@ -106,9 +106,9 @@ geopressure_map_preprocess <- function(
   }
   pressure <- pressure[id, ]
 
-  if (max(pressure$date) > Sys.time() - 3 * 30 * 24 * 60 * 60) {
+  if (max(pressure$date) > Sys.time() - 14 * 24 * 60 * 60) {
     cli::cli_warn(
-      "There are potentially not yet pressure data on the Google Earth Engine server for the latest stationary period. Please allow for around 3 months before the data becomes available."
+      "ERA5 data on Google Earth Engine may not yet cover the latest stationary period. ERA5 is usually available up to about a week before present, but this delay varies."
     )
   }
 

@@ -21,11 +21,6 @@
 #' @family path
 #' @noRd
 ind2path <- function(ind, tag_graph, use_known = TRUE) {
-  assertthat::assert_that(
-    inherits(tag_graph, "tag") | inherits(tag_graph, "graph")
-  )
-  assertthat::assert_that(is.logical(use_known))
-
   stap <- tag_graph$stap
 
   # Compute the grid information
@@ -34,13 +29,9 @@ ind2path <- function(ind, tag_graph, use_known = TRUE) {
     tag_graph$param$tag_set_map$scale
   )
 
-  # Check path
-  assertthat::assert_that(is.numeric(ind))
-  assertthat::assert_that(all(prod(g$dim) >= ind[!is.na(ind)]))
   if (is.vector(ind)) {
     ind <- matrix(ind, nrow = 1)
   }
-  assertthat::assert_that(dim(ind)[2] == nrow(stap))
 
   # Convert the index in 2D grid into 1D lat and lon coordinate
   ind_lon <- ceiling(ind / g$dim[1]) # (ind - ind_lat) / g$dim[1] + 1

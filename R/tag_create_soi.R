@@ -12,68 +12,55 @@ tag_create_soi <- function(
   mag_axis = c("right", "forward", "down"),
   quiet = FALSE
 ) {
-  assertthat::assert_that(is.character(id))
-  assertthat::assert_that(is.logical(quiet))
-
   # Create tag
   tag <- structure(list(param = param_create(id = id)), class = "tag")
 
   # Read SOI settings
-  tryCatch(
-    {
-      setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
-      if (!is.null(setting_path)) {
-        settings <- jsonlite::fromJSON(setting_path)
-        # Normalised logger model and firmware (older SOI files name them HWVersion and SWVersion)
-        settings$model <- if (is.null(settings[["HW Version"]])) {
-          settings$HWVersion
-        } else {
-          settings[["HW Version"]]
-        }
-        settings$firmware <- if (is.null(settings[["FW Version"]])) {
-          settings$SWVersion
-        } else {
-          settings[["FW Version"]]
-        }
-        tag$param$tag_create$settings <- settings
-
-        # Check for drift: tag clock (StopTimeRTC) minus computer clock (StopTimeReference) at
-        # download, in minutes. Positive when the tag clock is ahead.
-        settings_time <- function(key) {
-          x <- settings[[key]]
-          if (!is.character(x) || length(x) != 1) {
-            return(as.POSIXct(NA))
-          }
-          as.POSIXct(strptime(x, tz = "UTC", format = "%d.%m.%Y %H:%M:%S"))
-        }
-        stop_time_ref <- settings_time("StopTimeReference")
-        stop_time_rtc <- settings_time("StopTimeRTC")
-        recording_valid <- !identical(
-          settings$RecordingStop,
-          "timestamp invalid"
-        )
-        if (recording_valid && !is.na(stop_time_ref) && !is.na(stop_time_rtc)) {
-          tag$param$tag_create$settings$clock_drift <- as.numeric(difftime(
-            stop_time_rtc,
-            stop_time_ref,
-            units = "mins"
-          ))
-          if (abs(tag$param$tag_create$settings$clock_drift) > 30) {
-            cli::cli_warn(c(
-              "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$tag_create$settings$clock_drift))} which seems suspicious.",
-              ">" = "Check for error (e.g. timezone)"
-            ))
-          }
-        }
-      }
-    },
-    error = function(e) {
-      cli::cli_alert_warning(
-        "Failed to load the SOI setting file {.file {setting_path}}."
-      )
-      message(e$message)
+  setting_path <- tag_create_detect("*.settings", directory, quiet = TRUE)
+  if (!is.null(setting_path)) {
+    settings <- jsonlite::fromJSON(setting_path)
+    # Normalised logger model and firmware (older SOI files name them HWVersion and SWVersion)
+    settings$model <- if (is.null(settings[["HW Version"]])) {
+      settings$HWVersion
+    } else {
+      settings[["HW Version"]]
     }
-  )
+    settings$firmware <- if (is.null(settings[["FW Version"]])) {
+      settings$SWVersion
+    } else {
+      settings[["FW Version"]]
+    }
+    tag$param$tag_create$settings <- settings
+
+    # Check for drift: tag clock (StopTimeRTC) minus computer clock (StopTimeReference) at
+    # download, in minutes. Positive when the tag clock is ahead.
+    settings_time <- function(key) {
+      x <- settings[[key]]
+      if (!is.character(x) || length(x) != 1) {
+        return(as.POSIXct(NA))
+      }
+      as.POSIXct(strptime(x, tz = "UTC", format = "%d.%m.%Y %H:%M:%S"))
+    }
+    stop_time_ref <- settings_time("StopTimeReference")
+    stop_time_rtc <- settings_time("StopTimeRTC")
+    recording_valid <- !identical(
+      settings$RecordingStop,
+      "timestamp invalid"
+    )
+    if (recording_valid && !is.na(stop_time_ref) && !is.na(stop_time_rtc)) {
+      tag$param$tag_create$settings$clock_drift <- as.numeric(difftime(
+        stop_time_rtc,
+        stop_time_ref,
+        units = "mins"
+      ))
+      if (abs(tag$param$tag_create$settings$clock_drift) > 30) {
+        cli::cli_warn(c(
+          "!" = "The SOI setting file {.file {setting_path}} is recording a drift of {format_minutes(abs(tag$param$tag_create$settings$clock_drift))} which seems suspicious.",
+          ">" = "Check for error (e.g. timezone)"
+        ))
+      }
+    }
+  }
 
   # Read Pressure
   pressure_path <- tag_create_detect(pressure_file, directory, quiet, default = "*.pressure")
@@ -145,7 +132,7 @@ tag_create_soi <- function(
 
   # Read magnetism
   magnetic_path <- tag_create_detect(magnetic_file, directory, quiet, default = "*.magnetic")
-  if (!is.null(magnetic_path) && !is.null(tag$param$tag_create$settings)) {
+  if (!is.null(magnetic_path)) {
     tag$magnetic <- tag_create_soi_mag(
       magnetic_path,
       hw_version = tag$param$tag_create$settings$model,
@@ -203,9 +190,6 @@ tag_create_soi_mag <- function(
   mag_axis = c("right", "forward", "down"),
   quiet = FALSE
 ) {
-  assertthat::assert_that(is.logical(quiet))
-  assertthat::assert_that(file.exists(magnetic_path))
-
   mag <- tag_create_dto(magnetic_path, col = seq(4, 9), quiet = quiet)
   names(mag) <- c("date", "mX", "mY", "mZ", "gX", "gY", "gZ")
   mag <- tag_create_soi_gap(mag)
@@ -218,13 +202,13 @@ tag_create_soi_mag <- function(
     hw_version,
     ignore.case = TRUE
   )))
+  # Always warn (also when quiet) as the magnetic and acceleration data are dropped
   if (length(hw_version) != 1 || is.na(hw_version)) {
-    if (!quiet) {
-      cli::cli_warn(c(
-        "!" = "The hardware version {.val {model}} could not be detected.",
-        ">" = "The magnetic data cannot be calibrated and is not imported."
-      ))
-    }
+    cli::cli_warn(c(
+      "!" = "The SOI hardware version {.val {model}} could not be detected.",
+      "x" = "The magnetic and acceleration data of {.file {magnetic_path}} cannot be calibrated and are not imported.",
+      ">" = "Add the {.file .settings} file with its {.field HWVersion} (e.g. {.val HW_GDL3pam_V2.1}) to the tag directory."
+    ))
     return(NULL)
   }
 

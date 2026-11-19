@@ -12,7 +12,9 @@
 #' `tag_label_write()` and using `tag_label_auto()` if acceleration data exist.
 #'
 #' @param tag a GeoPressureR `tag` object.
-#' @param file Absolute or relative path of the label file.
+#' @param file Absolute or relative path of the label file. Trainset Save always writes
+#' `{id}-labeled.csv` in the directory of the file it was opened with, so a custom `file` name must
+#' be created by renaming or downloading the file.
 #' @param quiet logical to hide messages.
 #' @param warning_flight_duration `r lifecycle::badge("deprecated")` No longer used.
 #' @param warning_stap_duration `r lifecycle::badge("deprecated")` No longer used.
@@ -86,7 +88,7 @@ tag_label <- function(
     if (file.exists(file_input)) {
       cli::cli_abort(c(
         "!" = "The label file {.file {file}} does not exist but {.file {file_input}} exists.",
-        i = "Run {.code trainset(\"{file_input}\")} to label the data, then click Save to create {.file {file}}."
+        i = "Run {.code trainset(\"{file_input}\")} to label the data, then click Save, which always writes {.file {dirname(file)}/{tag$param$id}-labeled.csv}."
       ))
     }
 

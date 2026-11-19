@@ -95,11 +95,13 @@ geopressuretemplate_graph <- function(
       FALSE
     },
     error = function(e) {
-      cli::cli_bullets(c(
-        "x" = "{e$message}",
-        "i" = "Error while defining the movement model. {.var graph} is returned.",
-        ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
-      ))
+      cli::cli_warn(
+        c(
+          "!" = "Error while defining the movement model of {.field {id}}: nothing is saved and {.var graph} is returned.",
+          ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
+        ),
+        parent = e
+      )
       TRUE
     }
   )
@@ -152,11 +154,13 @@ geopressuretemplate_graph <- function(
       FALSE
     },
     error = function(e) {
-      cli::cli_bullets(c(
-        "x" = "{e$message}",
-        "x" = "Error while computing the outputs. {.var graph} is returned.",
-        ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
-      ))
+      cli::cli_warn(
+        c(
+          "!" = "Error while computing the outputs of {.field {id}}: nothing is saved and {.var graph} is returned.",
+          ">" = "Debug line by line by opening {.code edit(geopressuretemplate_graph)}"
+        ),
+        parent = e
+      )
       TRUE
     }
   )

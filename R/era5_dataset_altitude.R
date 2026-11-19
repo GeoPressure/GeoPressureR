@@ -21,10 +21,7 @@ era5_dataset_deprecate_altitude <- function(era5_dataset, altitude) {
   }
   lifecycle::deprecate_warn(
     when = "3.7.0",
-    what = I(sprintf(
-      'Computing `"altitude"` with `era5_dataset = "%s"`',
-      era5_dataset
-    )),
+    what = I(glue::glue('Computing `"altitude"` with `era5_dataset = "{era5_dataset}"`')),
     with = I('`era5_dataset = "single-levels"`'),
     details = c(
       "*" = "ERA5-Land surface pressure is not hydrostatically consistent with ERA5-Land \\
@@ -33,7 +30,7 @@ era5_dataset_deprecate_altitude <- function(era5_dataset, altitude) {
              'single-levels', reaching several hundred metres in steep terrain.",
       "i" = "'land' and 'both' remain supported for variables other than 'altitude'."
     ),
-    id = paste0("era5_dataset_altitude_", era5_dataset)
+    id = glue::glue("era5_dataset_altitude_{era5_dataset}")
   )
   invisible(TRUE)
 }

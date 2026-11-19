@@ -19,15 +19,6 @@ geolight_refine_location <- function(
   scale = 20,
   max_iter = 2
 ) {
-  tag_assert(tag, "twilight")
-  tag_assert(tag, "stap")
-  tag_assert(tag, "setmap")
-  assertthat::assert_that(is.data.frame(path))
-  assertthat::assert_that(assertthat::has_name(path, c("stap_id", "lon", "lat")))
-  assertthat::assert_that(is.numeric(twl_calib_adjust), length(twl_calib_adjust) == 1L)
-  assertthat::assert_that(is.numeric(scale), length(scale) == 1L, scale > 0)
-  assertthat::assert_that(is.numeric(max_iter), length(max_iter) == 1L, max_iter >= 1)
-
   extent <- tag$param$tag_set_map$extent
 
   twl <- twilight_include(tag$twilight)

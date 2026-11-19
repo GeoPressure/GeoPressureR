@@ -9,6 +9,15 @@
 #' `pressure` (the tag pressure, e.g. `tag$pressure`) is required to interpolate the wind at the
 #' flight altitude.
 #'
+#' With `constant_speed = "groundspeed"` (default), the wind is averaged at the nearest ERA5 grid
+#' cell along the straight edge flown at constant groundspeed. With `constant_speed = "airspeed"`,
+#' the bird flies a constant air velocity (speed and heading), so its track is curved by the wind
+#' between the two nodes. This track is approximated by the straight edge plus the drift by the
+#' wind anomaly along it, and the wind is averaged along that track. This mostly matters for long
+#' flights (> 8 h) and takes about 1.5–3 times longer. The choice is stored in `graph$param` and
+#' used by default in [edge_add_wind()]. To keep the graph fast, you can also use the default here
+#' and compute the wind along a path with `edge_add_wind(constant_speed = "airspeed")`.
+#'
 #' See section [2.2.4 in Nussbaumer et al. (2023b)](
 #' https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.14082#mee314082-sec-0008-title)
 #' for more technical details and the [GeoPressureManual](
@@ -19,8 +28,11 @@
 #' @param thr_as threshold of airspeed (km/h).
 #' @param variable `r lifecycle::badge("deprecated")` No longer used.
 #'   `graph_add_wind()` always uses `c("u", "v")`.
+#' @param constant_speed speed held constant during each flight: `"groundspeed"` (straight edge)
+#'   or `"airspeed"` (track drifted by the wind).
 #' @inheritParams edge_add_wind
 #' @inheritDotParams edge_add_wind -graph -edge_s -edge_t -variable -return_averaged_variable
+#'   -interp_spatial_linear -constant_speed
 #'
 #' @return A `graph` object with windspeed and airspeed as `ws` and `as` respectively.
 #'
@@ -47,6 +59,8 @@ graph_add_wind <- function(
   graph,
   thr_as = Inf,
   variable = lifecycle::deprecated(),
+  constant_speed = c("groundspeed", "airspeed"),
+  interp_spatial_linear = lifecycle::deprecated(),
   ...
 ) {
   graph_assert(graph, "full")
@@ -59,6 +73,14 @@ graph_add_wind <- function(
   assertthat::assert_that(is.numeric(thr_as))
   assertthat::assert_that(length(thr_as) == 1)
   assertthat::assert_that(thr_as >= 0)
+  constant_speed <- match.arg(constant_speed)
+  if (lifecycle::is_present(interp_spatial_linear)) {
+    lifecycle::deprecate_warn(
+      "3.9.0",
+      "graph_add_wind(interp_spatial_linear)",
+      details = "The nearest ERA5 grid cell is always used."
+    )
+  }
   if (lifecycle::is_present(variable)) {
     lifecycle::deprecate_warn(
       "3.5.4",
@@ -72,57 +94,59 @@ graph_add_wind <- function(
   }
 
   # Check that all the files of wind_speed exist and match the data request
-  graph$ws <- graph_add_wind_edge(
-    graph,
-    ...
-  )
+  graph$ws <- graph_add_wind_edge(graph, constant_speed = constant_speed, ...)
   gc()
 
   if (is.finite(thr_as)) {
-    # filter edges based on airspeed
+    # Filter edges based on airspeed, in blocks to avoid full-length complex temporaries.
     # Keep stay-in-place edges, which graph_transition() treats as zero airspeed
-    id <- abs(graph$gs - graph$ws) <= thr_as | graph$gs == 0
+    keep <- logical(length(graph$s))
+    for (from in seq.int(1, length(keep), by = 1e6)) {
+      b <- seq.int(from, min(from + 1e6 - 1, length(keep)))
+      keep[b] <- abs(graph$gs[b] - graph$ws[b]) <= thr_as | graph$gs[b] == 0
+    }
 
     # Check that there are always at least one node left by stap
-    g <- map_expand(graph$param$tag_set_map$extent, graph$param$tag_set_map$scale)
-    edge_s <- arrayInd(graph$s[id], c(g$dim, nrow(graph$stap)))
-    sta_pass <- which(!(seq_len(graph$sz[3] - 1) %in% unique(edge_s[, 3])))
+    n_grid <- prod(graph$sz[1:2])
+    n_layer <- graph$sz[3] - 1L
+    stap_id <- graph$stap$stap_id[graph$stap$include]
+    sta_pass <- which(tabulate((graph$s[keep] - 1L) %/% n_grid + 1L, n_layer) == 0)
     if (length(sta_pass) > 0) {
-      as <- abs(graph$gs - graph$ws)
-      edge_s_all <- arrayInd(graph$s, c(g$dim, nrow(graph$stap)))
+      as <- abs(graph$gs - graph$ws)[((graph$s - 1L) %/% n_grid + 1L) %in% sta_pass]
       cli::cli_abort(c(
         x = "Using {.arg thr_as} of {thr_as} km/h, there are no nodes left for the stationary
-        period: {.field {graph$stap$stap_id[graph$stap$include][sta_pass]}} with a minimum airspeed of
-        {.val {round(min(as[edge_s_all[, 3] %in% sta_pass]))}} km/h."
+        period: {.field {stap_id[sta_pass]}} with a minimum airspeed of {.val {round(min(as))}} km/h."
       ))
     }
-    rm(g, edge_s)
-    gc()
 
-    # Filter node
-    graph$s <- graph$s[id]
-    graph$t <- graph$t[id]
-    graph$gs <- graph$gs[id]
-    graph$ws <- graph$ws[id]
-
-    # Prune the graph
-    # First, reconstruction the stap list graph for graph_create_prune to work
-    gr <- split(
-      data.frame(s = graph$s, t = graph$t, gs = graph$gs, ws = graph$ws),
-      arrayInd(graph$s, graph$sz)[, 3]
-    )
-    gr <- graph_create_prune(
-      gr,
-      graph$stap$stap_id[graph$stap$include],
-      quiet = isTRUE(list(...)$quiet)
-    )
-    # Convert it back to a full list
-    tmp <- as.list(do.call("rbind", gr))
-    # Overwrite all edges vectors
-    graph$s <- tmp$s
-    graph$t <- tmp$t
-    graph$gs <- tmp$gs
-    graph$ws <- tmp$ws
+    # Prune edges disconnected from the previous layer (forward) and next layer (backward). Edges
+    # are ordered by source layer, so each layer is a contiguous range.
+    n_edge <- tabulate((graph$s - 1L) %/% n_grid + 1L, n_layer)
+    r <- Map(seq.int, cumsum(n_edge) - n_edge + 1, cumsum(n_edge))
+    for (l in seq_along(r)[-1]) {
+      keep[r[[l]]] <- keep[r[[l]]] & graph$s[r[[l]]] %in% graph$t[r[[l - 1]]][keep[r[[l - 1]]]]
+      if (!any(keep[r[[l]]])) {
+        cli::cli_abort(c(
+          x = "No complete path remains: the graph is disconnected at stationary period
+            {.val {stap_id[l]}} when moving forward from the equipment location.",
+          ">" = "Consider increasing {.arg thr_as}."
+        ))
+      }
+    }
+    for (l in rev(seq_len(length(r) - 1))) {
+      keep[r[[l]]] <- keep[r[[l]]] & graph$t[r[[l]]] %in% graph$s[r[[l + 1]]][keep[r[[l + 1]]]]
+      if (!any(keep[r[[l]]])) {
+        cli::cli_abort(c(
+          x = "No complete path remains: the graph is disconnected at stationary period
+            {.val {stap_id[l + 1]}} when moving backward from the retrieval location.",
+          ">" = "Consider increasing {.arg thr_as}."
+        ))
+      }
+    }
+    graph$s <- graph$s[keep]
+    graph$t <- graph$t[keep]
+    graph$gs <- graph$gs[keep]
+    graph$ws <- graph$ws[keep]
 
     # After pruning some equipment and retrieval nodes might not be present anymore.
     graph$equipment <- graph$equipment[graph$equipment %in% graph$s]
@@ -132,22 +156,16 @@ graph_add_wind <- function(
   # Update param
   dots <- list(...)
   graph$param$graph_add_wind$thr_as <- thr_as
+  graph$param$graph_add_wind$constant_speed <- constant_speed
   graph$param$graph_add_wind$rounding_interval <- if ("rounding_interval" %in% names(dots)) {
     dots$rounding_interval
   } else {
     formals(graph_add_wind_edge)$rounding_interval
   }
-  graph$param$graph_add_wind$interp_spatial_linear <- if (
-    "interp_spatial_linear" %in% names(dots)
-  ) {
-    dots$interp_spatial_linear
-  } else {
-    formals(graph_add_wind_edge)$interp_spatial_linear
-  }
   graph$param$graph_add_wind$pressure_source <- "provided"
 
   # Store the file function (provided or default) without source reference or environment
-  file <- if ("file" %in% names(dots)) dots$file else wind_file
+  file <- if ("file" %in% names(dots)) dots$file else wind_file_default
   attr(file, "srcref") <- NULL
   attr(file, "srcfile") <- NULL
   environment(file) <- baseenv()
@@ -164,9 +182,9 @@ graph_add_wind_edge <- function(
   graph,
   pressure = NULL,
   rounding_interval = 60,
-  interp_spatial_linear = FALSE,
-  file = wind_file,
-  quiet = FALSE
+  file = wind_file_default,
+  quiet = FALSE,
+  constant_speed = "groundspeed"
 ) {
   if (!requireNamespace("ncdf4", quietly = TRUE)) {
     cli::cli_abort(c(
@@ -207,21 +225,29 @@ graph_add_wind_edge <- function(
   n_grid <- prod(g$dim)
   edge_s <- graph$s
   edge_t <- graph$t
-  edge_layer <- (edge_s - 1L) %/% n_grid + 1L
-  list_st_id <- split(seq_along(edge_s), edge_layer)
-  edge_stap <- names(list_st_id)
+  # Edges are ordered by source layer (graph_create), so each layer is a contiguous range. Process
+  # it in blocks of at most `block_size` edges so memory does not scale with the largest layer.
+  block_size <- 1e6
+  n_edge <- tabulate((edge_s - 1L) %/% n_grid + 1L)
+  layer_end <- cumsum(n_edge)
+  block <- do.call(
+    rbind,
+    lapply(which(n_edge > 0), function(l) {
+      from <- seq.int(layer_end[l] - n_edge[l] + 1, layer_end[l], by = block_size)
+      cbind(layer = l, from = from, to = pmin(from + block_size - 1, layer_end[l]))
+    })
+  )
 
   ws <- complex(length(edge_s))
 
   # Drop graph metadata while retaining compact edge indices for one-period coordinate expansion.
   graph <- list(param = list(id = graph$param$id))
-  gc()
 
   if (!quiet) {
-    i_stap <- 0
+    stap_layer <- 0
     cli::cli_progress_bar(
       "Compute wind speed for edges of stationary period:",
-      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {i_stap}/{length(edge_stap)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
+      format = "{cli::col_blue(cli::symbol$info)} {cli::pb_name} {stap_layer}/{length(n_edge)} {cli::pb_bar} {cli::pb_percent} | {cli::pb_eta_str} [{cli::pb_elapsed}]",
       format_done = "{cli::col_green(cli::symbol$tick)} Compute wind speed for edges of stationary periods {cli::col_white('[', cli::pb_elapsed, ']')}",
       clear = FALSE,
       total = length(edge_s)
@@ -229,16 +255,14 @@ graph_add_wind_edge <- function(
   }
 
   n_edge_done <- 0L
-  for (i_stap in seq_along(edge_stap)) {
-    # Work on one source stationary period at a time so the output can be written into ws[st_id].
+  for (i_block in seq_len(nrow(block))) {
+    # Work on one block of a source stationary period at a time and write the output into ws[st_id].
     # Graph layers are compressed to included staps; flight names use original stap_id.
-    stap_layer <- as.integer(edge_stap[i_stap])
+    stap_layer <- block[i_block, "layer"]
     stap_id <- stap_include[stap_layer]
     fl_s <- flight[[as.character(stap_id)]]
-    st_id <- list_st_id[[edge_stap[i_stap]]]
-    if (length(st_id) == 0) {
-      next
-    }
+    st_id <- seq.int(block[i_block, "from"], block[i_block, "to"])
+
     edge_s0 <- edge_s[st_id] - 1L
     edge_t0 <- edge_t[st_id] - 1L
     lat_edge_s <- g$lat[edge_s0 %% g$dim[1] + 1L]
@@ -248,110 +272,45 @@ graph_add_wind_edge <- function(
 
     # If a graph edge spans several labelled flights, split the straight edge by flight duration
     # and combine flight means with duration weights.
-    ratio_stap <- as.matrix(c(0, cumsum(fl_s$duration) / sum(fl_s$duration)))
+    ratio_stap <- c(0, cumsum(fl_s$duration) / sum(fl_s$duration))
     duration_weight <- fl_s$duration / sum(fl_s$duration)
+
+    # Read the wind fields of each flight once per block, on the box between the source and target
+    # ranges where straight edges lie, padded by 2.5° for drifted tracks (clamped to it).
+    pad <- if (constant_speed == "airspeed") c(-2.5, 2.5) else 0
+    lat_rng <- cbind(range(lat_edge_s), range(lat_edge_t)) + pad
+    lon_rng <- cbind(range(lon_edge_s), range(lon_edge_t)) + pad
     u_stap <- numeric(length(st_id))
     v_stap <- numeric(length(st_id))
-
     for (i_fl in seq_len(nrow(fl_s))) {
-      i_s <- fl_s$stap_s[i_fl]
-      file_path <- file(i_s, tag_id)
-      nc <- ncdf4::nc_open(file_path)
-      nc_info <- edge_add_wind_nc_info(nc, file_path)
-      time <- nc_info$time
-      pres <- nc_info$pres
-      lat <- nc_info$lat
-      dlat <- nc_info$dlat
-      lon <- nc_info$lon
-      dlon <- nc_info$dlon
-
-      # Split the edge by flight duration, then interpolate one query-time position vector at a
-      # time to avoid allocating time-by-edge position matrices.
-      lat_s <- lat_edge_s + ratio_stap[i_fl] * (lat_edge_t - lat_edge_s)
-      lon_s <- lon_edge_s + ratio_stap[i_fl] * (lon_edge_t - lon_edge_s)
-      lat_e <- lat_edge_s + ratio_stap[i_fl + 1] * (lat_edge_t - lat_edge_s)
-      lon_e <- lon_edge_s + ratio_stap[i_fl + 1] * (lon_edge_t - lon_edge_s)
-      t_q <- edge_add_wind_query_times(fl_s, i_fl, rounding_interval)
-      w <- edge_add_wind_weights(fl_s, i_fl, t_q, rounding_interval)
-      dlat_se <- (lat_e - lat_s) / fl_s$duration[i_fl]
-      dlon_se <- (lon_e - lon_s) / fl_s$duration[i_fl]
-
-      u_fl <- numeric(length(st_id))
-      v_fl <- numeric(length(st_id))
-      # Read and interpolate one time slice at a time, accumulating weighted u/v means directly.
-      # This avoids allocating detailed data.frames or time-by-edge matrices for graph_add_wind().
-      for (i_time in seq_len(length(t_q))) {
-        time_offset <- pmax(
-          pmin(
-            as.numeric(difftime(t_q[i_time], fl_s$start[i_fl], units = "hours")),
-            fl_s$duration[i_fl]
-          ),
-          0
-        )
-        lat_i <- lat_s + dlat_se * time_offset
-        lon_i <- lon_s + dlon_se * time_offset
-        lat_ind_i <- NULL
-        lon_ind_i <- NULL
-        if (!interp_spatial_linear) {
-          lat_ind_i <- match(round(lat_i * 4) / 4, lat)
-          lon_ind_i <- match(round(lon_i * 4) / 4, lon)
-        }
-        out <- edge_add_wind_values_time(
-          pressure,
-          t_q[i_time],
-          pres,
-          time,
-          lat,
-          lon,
-          dlat,
-          dlon,
-          lat_i,
-          lon_i,
-          lat_ind_i,
-          lon_ind_i,
-          interp_spatial_linear,
-          nc,
-          variable,
-          i_s,
-          i_fl,
-          fl_s
-        )$value
-        u_fl <- u_fl + out[[1]] * w[i_time]
-        v_fl <- v_fl + out[[2]] * w[i_time]
-      }
-
-      # Combine multiple flights inside this stap transition into one mean wind per edge.
-      u_stap <- u_stap + u_fl * duration_weight[i_fl]
-      v_stap <- v_stap + v_fl * duration_weight[i_fl]
+      nc <- ncdf4::nc_open(file(fl_s$stap_s[i_fl], tag_id))
+      f <- edge_add_wind_flight(
+        nc,
+        pressure,
+        fl_s,
+        i_fl,
+        rounding_interval,
+        lat_rng,
+        lon_rng,
+        ratio_stap[i_fl + 0:1]
+      )
       ncdf4::nc_close(nc)
 
-      rm(
-        nc,
-        nc_info,
-        time,
-        pres,
-        lat,
-        dlat,
-        lon,
-        dlon,
-        t_q,
-        w,
+      # Split the edge by flight duration and average the wind along the flown track
+      lat_s <- lat_edge_s + ratio_stap[i_fl] * (lat_edge_t - lat_edge_s)
+      lon_s <- lon_edge_s + ratio_stap[i_fl] * (lon_edge_t - lon_edge_s)
+      out <- edge_add_wind_track(
+        f,
         lat_s,
         lon_s,
-        lat_e,
-        lon_e,
-        dlat_se,
-        dlon_se,
-        time_offset,
-        lat_i,
-        lon_i,
-        lat_ind_i,
-        lon_ind_i,
-        file_path,
-        u_fl,
-        v_fl
+        diff(ratio_stap[i_fl + 0:1]) * (lat_edge_t - lat_edge_s) / fl_s$duration[i_fl],
+        diff(ratio_stap[i_fl + 0:1]) * (lon_edge_t - lon_edge_s) / fl_s$duration[i_fl],
+        airspeed = constant_speed == "airspeed"
       )
-      gc()
+
+      # Combine multiple flights inside this stap transition into one mean wind per edge.
+      u_stap <- u_stap + out$u * duration_weight[i_fl]
+      v_stap <- v_stap + out$v * duration_weight[i_fl]
     }
 
     # Store wind as a complex vector in km/h: Re = eastward u, Im = northward v.
@@ -363,21 +322,6 @@ graph_add_wind_edge <- function(
         force = TRUE
       )
     }
-    rm(
-      fl_s,
-      st_id,
-      edge_s0,
-      edge_t0,
-      lat_edge_s,
-      lon_edge_s,
-      lat_edge_t,
-      lon_edge_t,
-      ratio_stap,
-      duration_weight,
-      u_stap,
-      v_stap
-    )
-    gc()
   }
 
   ws

@@ -249,8 +249,11 @@ palette_to_colors <- function(palette, n = 256L, reverse = FALSE) {
       max_n <- RColorBrewer::brewer.pal.info[pal_name, "maxcolors"]
       base_cols <- RColorBrewer::brewer.pal(min(n, max_n), pal_name)
       cols <- grDevices::colorRampPalette(base_cols)(n)
+    } else if (tolower(pal_name) %in% c("viridis", "magma", "inferno", "plasma")) {
+      # Viridis family as in the leaflet maps (hcl.colors() has no magma)
+      cols <- leaflet::colorNumeric(tolower(pal_name), c(0, 1))(seq(0, 1, length.out = n))
     } else {
-      cols <- tryCatch(grDevices::hcl.colors(n, pal_name), error = function(e) NULL)
+      cols <- grDevices::hcl.colors(n, pal_name)
     }
   } else if (is.character(palette) && length(palette) >= 2) {
     cols <- if (length(palette) == n) palette else grDevices::colorRampPalette(palette)(n)

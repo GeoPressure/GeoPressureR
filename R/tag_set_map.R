@@ -106,7 +106,12 @@ tag_set_map <- function(
 
   # Check known
   if (is.list(known) && !is.data.frame(known)) {
-    known <- as.data.frame(known)
+    # A list of records (e.g. YAML `- stap_id: 1` items) is bound by row, a list of columns as is
+    known <- if (all(vapply(known, is.list, logical(1)))) {
+      do.call(rbind, lapply(known, as.data.frame))
+    } else {
+      as.data.frame(known)
+    }
   }
   assertthat::assert_that(is.data.frame(known))
   assertthat::assert_that(assertthat::has_name(known, "stap_id"))
@@ -119,7 +124,7 @@ tag_set_map <- function(
   )
   if (length(unexpected_cols)) {
     cli::cli_warn(
-      "Unexpected columns found in {.var known}: {paste(unexpected_cols, collapse = ', ')}"
+      "Unexpected columns found in {.var known}: {.field {unexpected_cols}}"
     )
   }
   known <- known[, c("stap_id", "known_lat", "known_lon")]

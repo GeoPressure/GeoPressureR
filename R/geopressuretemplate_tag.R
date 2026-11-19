@@ -65,6 +65,12 @@ geopressuretemplate_tag <- function(
     if (!quiet) {
       cli::cli_h2("Build light likelihood map")
     }
+    if (!assertthat::has_name(tag, "light")) {
+      cli::cli_abort(c(
+        x = "{.field map_light} is in {.var geopressuretemplate$likelihood} but tag {.val {id}} has no light data.",
+        ">" = "Remove {.field map_light} from {.var geopressuretemplate$likelihood} for {.val {id}} in {.file config.yml}, or provide a light file in {.var tag_create}."
+      ))
+    }
     # Compute the twilight (light-based) map
     tag <- do.call(
       twilight_create,
