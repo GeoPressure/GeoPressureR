@@ -150,19 +150,19 @@ plot_pressurepath <- function(
   } else if (type == "histogram") {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
-    summary <- pressurepath_summary(pressurepath, sd, warning_std_thr)
+    check <- pressurepath_check(pressurepath, sd, warning_std_thr)
 
     # Remove error for flight
-    pp <- pp[pp$stapelev %in% summary$stapelev, ]
+    pp <- pp[pp$stapelev %in% check$stapelev, ]
 
-    pp$sd_exceeded <- summary$sd_exceeded[match(pp$stapelev, summary$stapelev)]
-    pp$stapelev <- factor(pp$stapelev, levels = summary$stapelev)
+    pp$sd_exceeded <- check$sd_exceeded[match(pp$stapelev, check$stapelev)]
+    pp$stapelev <- factor(pp$stapelev, levels = check$stapelev)
     pp$warning_p <- pp$sd * warning_std_thr
     pp$warning_m <- -pp$sd * warning_std_thr
 
     lab <- ggplot2::as_labeller(stats::setNames(
-      glue::glue("{summary$stapelev} - SD: {summary$error_sd}"),
-      summary$stapelev
+      glue::glue("{check$stapelev} - SD: {check$error_sd}"),
+      check$stapelev
     ))
 
     p <- ggplot2::ggplot(
@@ -257,7 +257,7 @@ plot_pressurepath <- function(
   }
 }
 
-#' Summarise the pressure error of a `pressurepath` per elevation level
+#' Check the pressure error of a `pressurepath` per elevation level
 #'
 #' @description
 #' Return one row per stationary period and elevation level (stapelev) with the numbers behind
@@ -292,12 +292,12 @@ plot_pressurepath <- function(
 #'   pressurepath <- load_interim("18LX", var = "pressurepath_most_likely")
 #' })
 #'
-#' pressurepath_summary(pressurepath)
+#' pressurepath_check(pressurepath)
 #'
 #' @family pressurepath
 #' @keywords internal
 #' @export
-pressurepath_summary <- function(
+pressurepath_check <- function(
   pressurepath,
   sd = attr(pressurepath, "sd"),
   warning_std_thr = 3
