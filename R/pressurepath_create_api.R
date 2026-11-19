@@ -42,9 +42,10 @@ pressurepath_create_api_impl <- function(
 ) {
   # Check workers
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
-  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
+  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below. The
+  # cost per point grows with the chunk size, so the API gets chunks of about 500 points.
   if (workers == "auto") {
-    workers <- max(1, min(90, round(nrow(pressurepath) / 1500)))
+    workers <- max(1, min(90, ceiling(nrow(pressurepath) / 500)))
   }
   assertthat::assert_that(workers > 0 & workers < 100)
 
