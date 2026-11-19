@@ -1,5 +1,24 @@
 # GeoPressureR (development version)
 
+Planned as the patch release 3.9.1. It adds exported functions, which would normally make it a minor
+release; the maintainer chose a patch because existing calls give the same results (except the bug
+fix in `plot_pressurepath()`). `geopressure_map()` also adds `tag$stapelev` and can warn about
+stationary periods whose map is empty. The new functions return as data what TRAINSET, `plot_pressurepath()` and
+`plot_twl_calib()` show, so labels can be checked from a script with the same code as the apps.
+
+## Main
+
+- [Add `tag_label_check()`](https://github.com/GeoPressure/GeoPressureR/commit/82068c52f51e40e764b7262358ee6df97624cd88): short stationary periods, short flights and large hourly pressure changes as data.frames. The TRAINSET Check panel and `plot_tag_pressure()` now use it.
+- [Add `pressurepath_summary()`](https://github.com/GeoPressure/GeoPressureR/commit/06366cbba06fc32542db42a5928724c30e7ffa2e): the error of each stationary period and elevation level (empirical sd vs the `sd` used, offset, outliers), as in `plot_pressurepath(type = "histogram")`, which now uses it. It also works on a `geopressure_timeseries()` output.
+- [Add `tag_label_stapelev()`](https://github.com/GeoPressure/GeoPressureR/commit/351f1042cefcc931f5271a59ff14fbd1ad7dc6fd): TRAINSET's automatic stapelev for one stationary period at a position, from a script. It returns the `tag` with the labels of that stationary period replaced, as TRAINSET's Apply does. The algorithm moved from `inst/trainset/` into the package, and TRAINSET uses the same functions.
+- [Add `tag$stapelev` and a warning in `geopressure_map_mismatch()`](https://github.com/GeoPressure/GeoPressureR/commit/4d81df7f516aa74e7e13002f233c29727a07be1f): one row per map requested with its number of samples, land pixels, pixels passing the mask and smallest MSE, before the elevation levels of a stationary period are combined. When no pixel of a stationary period passes the mask, a warning names it and the levels responsible. `trainset()` drops `tag$stapelev` with the maps.
+- [Add `twilight_check()`](https://github.com/GeoPressure/GeoPressureR/commit/9628f1241bc876ab915424be891ff50a9bde194c): the solar zenith angle of each twilight at the position of its stationary period and whether it falls outside the calibrated range, as `plot_twl_calib(tag, path)` flags per stationary period. The plot now uses it.
+
+## Minor
+
+- [Fix `plot_pressurepath()` with a single `sd` on a pressurepath whose `stap_id` is not 1](https://github.com/GeoPressure/GeoPressureR/commit/06366cbba06fc32542db42a5928724c30e7ffa2e) (e.g. a `geopressure_timeseries()` output of one stationary period): the outlier thresholds and the histogram colours were `NA`.
+- [Share the parsing of `elev_n` labels](https://github.com/GeoPressure/GeoPressureR/commit/83a39b38a60b8fb9c33035951b534e67a80300c5) between `geopressure_map_preprocess()`, `geopressure_timeseries()`, `pressurepath_create()` and `plot_pressurepath()`.
+
 # GeoPressureR v3.9.0
 
 ## Main
