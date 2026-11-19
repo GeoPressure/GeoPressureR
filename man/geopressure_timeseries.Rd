@@ -224,6 +224,7 @@ geopressure_timeseries(
 Other pressurepath:
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
 \code{\link[=pressurepath_create]{pressurepath_create()}},
+\code{\link[=pressurepath_summary]{pressurepath_summary()}},
 \code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}}
 }
 \concept{pressurepath}

@@ -78,48 +78,8 @@ plot_pressurepath <- function(
     )
   ))
 
-  if (is.null(sd)) {
-    sd <- rep(1, times = length(unique(pressurepath$stap_id)))
-  }
-  if (length(sd) == 1) {
-    sd <- rep(sd, times = length(unique(pressurepath$stap_id)))
-  }
-
-  # Shorter name for the rest of the code
-  pp <- pressurepath
-
-  # Group by stapelev rather than stap in order to assess the use of elev
-  pp$stapelev <- paste(
-    ifelse(round(pp$stap_id) == pp$stap_id, pp$stap_id, 0),
-    ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
-    sep = "|"
-  )
-
-  # Compute the error
-  pp$error <- pp$pressure_tag - pp$surface_pressure_norm
-
-  # Remove error for discard
-  pp$error[pp$label == "discard"] <- NA
-
-  # Compute the error std and offset
-  tag_era5 <- merge(
-    stats::aggregate(
-      list(error_sd = pp$error),
-      list(stapelev = pp$stapelev),
-      \(x) round(stats::sd(x, na.rm = TRUE), 2)
-    ),
-    stats::aggregate(
-      list(error_offset = pp$surface_pressure - pp$surface_pressure_norm),
-      list(stapelev = pp$stapelev),
-      \(x) round(mean(x), 2)
-    )
-  )
-  tag_era5 <- tag_era5[
-    order(as.numeric(gsub("|", ".", tag_era5$stapelev, fixed = TRUE))),
-  ]
-
-  # Add sd and offset to pp
-  pp <- merge(pp, tag_era5)
+  # Per-point error, with the sd of its stap
+  pp <- pressurepath_error(pressurepath, sd)
   pp <- pp[order(pp$date), ]
 
   if (type %in% c("timeseries", "altitude")) {
@@ -157,9 +117,7 @@ plot_pressurepath <- function(
   }
 
   if (type == "timeseries") {
-    pp$warning <- (abs(pp$error) /
-      sd[ifelse(pp$stap_id == round(pp$stap_id), pp$stap_id, 1)]) >=
-      warning_std_thr
+    pp$warning <- abs(pp$error) / pp$sd >= warning_std_thr
 
     # convert stapelev to factor for color
     pp$stap_id <- factor(pp$stap_id)
@@ -192,18 +150,19 @@ plot_pressurepath <- function(
   } else if (type == "histogram") {
     # Check if the empirical sd is greater than the sd used in the computation of the map
 
-    # Remove error for flight
-    pp <- pp[pp$stapelev != "0|0", ]
+    summary <- pressurepath_summary(pressurepath, sd, warning_std_thr)
 
-    pp$sd_param <- sd[pp$stap_id]
-    pp$sd_ok <- pp$error_sd > pp$sd_param
-    pp$stapelev <- factor(pp$stapelev, levels = tag_era5$stapelev)
-    pp$warning_p <- pp$sd_param * warning_std_thr
-    pp$warning_m <- -pp$sd_param * warning_std_thr
+    # Remove error for flight
+    pp <- pp[pp$stapelev %in% summary$stapelev, ]
+
+    pp$sd_exceeded <- summary$sd_exceeded[match(pp$stapelev, summary$stapelev)]
+    pp$stapelev <- factor(pp$stapelev, levels = summary$stapelev)
+    pp$warning_p <- pp$sd * warning_std_thr
+    pp$warning_m <- -pp$sd * warning_std_thr
 
     lab <- ggplot2::as_labeller(stats::setNames(
-      glue::glue("{tag_era5$stapelev} - SD: {tag_era5$error_sd}"),
-      tag_era5$stapelev
+      glue::glue("{summary$stapelev} - SD: {summary$error_sd}"),
+      summary$stapelev
     ))
 
     p <- ggplot2::ggplot(
@@ -211,7 +170,7 @@ plot_pressurepath <- function(
       ggplot2::aes(x = .data$error)
     ) +
       ggplot2::geom_histogram(
-        ggplot2::aes(fill = .data$sd_ok),
+        ggplot2::aes(fill = .data$sd_exceeded),
         binwidth = 0.4
       ) +
       ggplot2::geom_vline(
@@ -296,4 +255,117 @@ plot_pressurepath <- function(
   } else {
     return(p)
   }
+}
+
+#' Summarise the pressure error of a `pressurepath` per elevation level
+#'
+#' @description
+#' Return one row per stationary period and elevation level (stapelev) with the numbers behind
+#' `plot_pressurepath(type = "histogram")`: the error between tag pressure and the normalised ERA5
+#' surface pressure (`pressure_tag - surface_pressure_norm`), its empirical standard deviation
+#' compared with the `sd` used for the pressure map, its offset and its outliers.
+#'
+#' It also works on the output of [`geopressure_timeseries()`] for one stationary period, which gives
+#' the fit of the pressure at a single position.
+#'
+#' Discarded points are excluded from the error; flights are not summarised.
+#'
+#' @param pressurepath a GeoPressureR `pressurepath` data.frame (see [`pressurepath_create()`]) or
+#' the output of [`geopressure_timeseries()`] with `pressure`.
+#' @param sd standard deviation of the pressure error (hPa), one value or one per stationary period.
+#' Default is the `sd` used by [`geopressure_map()`], or 1 if not available.
+#' @inheritParams plot_pressurepath
+#'
+#' @return A data.frame with one row per stapelev:
+#' - `stapelev`: `"{stap_id}|{elevation level}"`.
+#' - `stap_id`.
+#' - `n`: number of points used, `n_discard`: number of discarded points.
+#' - `error_sd`: empirical standard deviation of the error (hPa).
+#' - `error_offset`: mean ERA5 surface pressure minus mean tag pressure (hPa).
+#' - `sd`: standard deviation used for the pressure map (hPa).
+#' - `sd_exceeded`: `error_sd > sd`.
+#' - `n_outlier`: number of points with `|error| >= warning_std_thr * sd`.
+#' - `error_max`: largest absolute error (hPa).
+#'
+#' @examples
+#' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
+#'   pressurepath <- load_interim("18LX", var = "pressurepath_most_likely")
+#' })
+#'
+#' pressurepath_summary(pressurepath)
+#'
+#' @family pressurepath
+#' @keywords internal
+#' @export
+pressurepath_summary <- function(
+  pressurepath,
+  sd = attr(pressurepath, "sd"),
+  warning_std_thr = 3
+) {
+  assertthat::assert_that(is.data.frame(pressurepath))
+  assertthat::assert_that(assertthat::has_name(
+    pressurepath,
+    c("date", "stap_id", "pressure_tag", "label", "surface_pressure", "surface_pressure_norm")
+  ))
+  assertthat::assert_that(is.null(sd) || is.numeric(sd))
+  assertthat::assert_that(assertthat::is.number(warning_std_thr))
+
+  # Error of ground points, grouped by stapelev in stap and elevation order
+  pp <- pressurepath_error(pressurepath, sd)
+  pp <- pp[pp$stap_id == round(pp$stap_id) & pp$stap_id != 0, ]
+  elev <- as.numeric(sub(".*\\|", "", pp$stapelev))
+  pp$stapelev <- factor(pp$stapelev, unique(pp$stapelev[order(pp$stap_id, elev)]))
+
+  # Summary per stapelev, rounded as displayed in the histogram
+  out <- do.call(
+    rbind,
+    lapply(split(pp, pp$stapelev), \(g) {
+      e <- g$error[!is.na(g$error)]
+      data.frame(
+        stapelev = as.character(g$stapelev[1]),
+        stap_id = g$stap_id[1],
+        n = length(e),
+        n_discard = sum(g$label == "discard"),
+        error_sd = round(stats::sd(e), 2),
+        error_offset = round(mean(g$surface_pressure - g$surface_pressure_norm), 2),
+        sd = g$sd[1],
+        n_outlier = sum(abs(e) >= warning_std_thr * g$sd[1]),
+        error_max = if (length(e)) max(abs(e)) else NA_real_
+      )
+    })
+  )
+  out$sd_exceeded <- out$error_sd > out$sd
+  rownames(out) <- NULL
+  out[c(
+    "stapelev",
+    "stap_id",
+    "n",
+    "n_discard",
+    "error_sd",
+    "error_offset",
+    "sd",
+    "sd_exceeded",
+    "n_outlier",
+    "error_max"
+  )]
+}
+
+#' Per-point pressure error with its stapelev and the sd of its stap
+#'
+#' Flights are grouped as stap 0 and use the sd of stap 1. A single `sd` applies to every stap.
+#' @noRd
+pressurepath_error <- function(pressurepath, sd) {
+  if (is.null(sd)) {
+    sd <- 1
+  }
+  ground <- pressurepath$stap_id == round(pressurepath$stap_id)
+  pressurepath$stapelev <- paste(
+    ifelse(ground, pressurepath$stap_id, 0),
+    label2elev(pressurepath$label),
+    sep = "|"
+  )
+  pressurepath$error <- pressurepath$pressure_tag - pressurepath$surface_pressure_norm
+  pressurepath$error[pressurepath$label == "discard"] <- NA
+  pressurepath$sd <- if (length(sd) == 1) sd else sd[ifelse(ground, pressurepath$stap_id, 1)]
+  pressurepath
 }
