@@ -315,7 +315,7 @@ tag_download_wind <- function(
     info <- edge_add_wind_nc_info(nc, file(i_s, tag_id))
     id_time <- match(flight[[i_s]]$time, info$time)
     data <- sapply(era5_variable_short(variable), simplify = FALSE, \(v) {
-      ncdf4::ncvar_get(nc, v, collapse_degen = FALSE)[,,, id_time, drop = FALSE]
+      era5_nc_get(nc, v)[,,, id_time, drop = FALSE]
     })
     ncdf4::nc_close(nc)
     era5_file_write(
