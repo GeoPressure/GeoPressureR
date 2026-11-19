@@ -30,7 +30,8 @@ Same \code{tag} as input, but with the column \code{label} filled with
 \description{
 This function uses acceleration data to classify migratory flights. The function uses a
 k-means clustering with \code{k = 2} (\code{\link[=kmeans]{kmeans()}}) to identify high activity periods. Periods of high activity
-lasting more than \code{min_duration} are then considered to be migratory flight.
+lasting more than \code{min_duration} are then considered to be migratory flight. The clustering
+starts from the lowest and highest activity, so the result does not depend on the random seed.
 
 Additionally, we perform a post-processing step to improve the classification of low-activity
 period happening during a migration flight (e.g. gliding phase):

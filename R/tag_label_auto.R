@@ -3,7 +3,8 @@
 #' @description
 #' This function uses acceleration data to classify migratory flights. The function uses a
 #' k-means clustering with `k = 2` ([`kmeans()`]) to identify high activity periods. Periods of high activity
-#'  lasting more than `min_duration` are then considered to be migratory flight.
+#'  lasting more than `min_duration` are then considered to be migratory flight. The clustering
+#'  starts from the lowest and highest activity, so the result does not depend on the random seed.
 #'
 #' Additionally, we perform a post-processing step to improve the classification of low-activity
 #' period happening during a migration flight (e.g. gliding phase):
@@ -71,11 +72,10 @@ tag_label_auto <- function(
       return(tag)
     }
 
-    # Run a 2 class k mean clustering
-    km <- stats::kmeans(
-      tag$acceleration$value[is.finite(tag$acceleration$value) & tag$acceleration$value > 0],
-      centers = 2
-    )
+    # Run a 2 class k mean clustering. Starting from the lowest and highest activity makes it
+    # deterministic without touching the random number generator.
+    act <- tag$acceleration$value[is.finite(tag$acceleration$value) & tag$acceleration$value > 0]
+    km <- stats::kmeans(act, centers = range(act))
 
     # classify all datapoints belonging to the high value cluster
     act_mig <- is.finite(tag$acceleration$value) & tag$acceleration$value > mean(km$centers)
@@ -83,11 +83,8 @@ tag_label_auto <- function(
     # group continuous activities (low or high) with an ID
     act_id <- c(1, cumsum(diff(as.numeric(act_mig)) != 0) + 1)
 
-    # compute the time resolution of the dataset
-    dt <- as.double(
-      tag$acceleration$date[2] - tag$acceleration$date[1],
-      units = "mins"
-    )
+    # compute the time resolution of the dataset (robust to gaps and irregular first samples)
+    dt <- stats::median(as.double(diff(tag$acceleration$date), units = "mins"))
 
     # Search all activity with high activity and with a duration above
     # min_duration
