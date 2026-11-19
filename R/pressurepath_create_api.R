@@ -75,7 +75,8 @@ pressurepath_create_api_impl <- function(
   req <- httr2::request(
     "https://glp.mgravey.com/GeoPressure/v2/pressurePath/"
   ) |>
-    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE, na = "null")
+    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE, na = "null") |>
+    httr2::req_error(body = provenance_api_error)
 
   if (debug) {
     req <- httr2::req_verbose(
@@ -130,6 +131,8 @@ pressurepath_create_api_impl <- function(
     solar_dep,
     variable = variable,
     era5_dataset = era5_dataset,
-    source = "api"
+    source = "api",
+    altitude_formula = altitude_formula,
+    api = if (!is.null(resp_body$provenance)) list(resp_body$provenance)
   )
 }

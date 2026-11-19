@@ -378,7 +378,9 @@ edge_add_wind_check <- function(
   # Check file
   assertthat::assert_that(is.function(file))
 
-  # Check that all the files of wind_speed exist and match the data request
+  # Check that all the files of wind_speed exist and match the data request, and collect their
+  # ERA5 source from the `source` attribute written by tag_download_wind()
+  wind_source <- character()
   for (i_flight in seq_len(length(flight))) {
     fl_s <- flight[[i_flight]]
     for (i_fl in seq_len(length(fl_s$stap_s))) {
@@ -464,9 +466,22 @@ edge_add_wind_check <- function(
         ))
       }
 
+      src <- ncdf4::ncatt_get(nc, 0, "source")$value
+      wind_source <- c(
+        wind_source,
+        if (grepl("(CDS)", src, fixed = TRUE)) {
+          "cds"
+        } else if (grepl("ARCO", src, fixed = TRUE)) {
+          "gcs"
+        } else {
+          "unknown"
+        }
+      )
+
       ncdf4::nc_close(nc)
     }
   }
+  invisible(unique(wind_source))
 }
 
 

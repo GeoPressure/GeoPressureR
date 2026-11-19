@@ -56,7 +56,9 @@
 #' @return A data.frame containing `date`, `surface_pressure`, `lat`, and `lon`. With `pressure`,
 #'   it also retains the input columns, renames `value` to `pressure_tag`, and adds
 #'   `surface_pressure_norm` and `altitude`, as well as `stap_id` (`1`) and `label` (`""`) when
-#'   absent from `pressure`.
+#'   absent from `pressure`. The attribute `provenance` records the source (`"arco"` or `"api"`), the
+#'   ERA5 dataset, the altitude formula, the GeoPressureR version and, for the API, the version of
+#'   GeoPressureAPI.
 #'
 #' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' geopressure_timeseries(
@@ -138,7 +140,10 @@ geopressure_timeseries <- function(
   if (!("label" %in% names(pressure))) {
     pressure$label <- ""
   }
+  # merge() drops attributes: keep the provenance of the ERA5 query
+  provenance <- attr(out, "provenance")
   out <- merge(pressure, out, all.x = TRUE)
+  attr(out, "provenance") <- provenance
   names(out)[names(out) == "value"] <- "pressure_tag"
   # Normalize only non-flight observations that are not marked as discarded.
   id_norm <- out$stap_id == round(out$stap_id) & out$stap_id != 0 & out$label != "discard"

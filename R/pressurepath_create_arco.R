@@ -140,7 +140,8 @@ pressurepath_create_arco_impl <- function(
     solar_dep,
     variable = variable,
     era5_dataset = era5_dataset,
-    source = "arco"
+    source = "arco",
+    altitude_formula = altitude_formula
   )
 }
 

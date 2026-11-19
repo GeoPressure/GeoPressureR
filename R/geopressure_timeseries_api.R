@@ -68,7 +68,8 @@ geopressure_timeseries_api_impl <- function(
         "x" = "Error with your request on \
         {.url https://glp.mgravey.com/GeoPressure/v2/timeseries/}",
         ">" = httr2::resp_body_json(resp)$errorMessage,
-        "i" = "Please try again with `debug=TRUE`"
+        "i" = "Please try again with `debug=TRUE`",
+        provenance_api_error(resp)
       )
     })
 
@@ -83,7 +84,8 @@ geopressure_timeseries_api_impl <- function(
 
   # Perform the request and convert the response to json
   resp <- httr2::req_perform(req)
-  resp_data <- httr2::resp_body_json(resp)$data
+  resp_json <- httr2::resp_body_json(resp)
+  resp_data <- resp_json$data
 
   # Check for change in position
   if (!quiet && resp_data$distInter > 0) {
@@ -144,6 +146,12 @@ geopressure_timeseries_api_impl <- function(
     }
     out$date <- geopressure_api_restore_date(pressure$date, as.numeric(out$date))
   }
+  attr(out, "provenance") <- provenance_create(
+    "api",
+    era5_dataset = era5_dataset,
+    altitude_formula = altitude_formula,
+    api = if (!is.null(resp_json$provenance)) list(resp_json$provenance)
+  )
   return(out)
 }
 
