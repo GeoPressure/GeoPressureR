@@ -11,6 +11,7 @@ geopressure_map_mismatch <- function(
   era5_dataset = "single-levels",
   compute_known = FALSE,
   keep_mask = TRUE,
+  keep_mask_split = FALSE,
   debug = FALSE,
   quiet = FALSE
 ) {
@@ -23,6 +24,7 @@ geopressure_map_mismatch <- function(
   assertthat::assert_that(is.numeric(margin))
   assertthat::assert_that(0 < margin)
   assertthat::assert_that(is.logical(keep_mask))
+  assertthat::assert_that(is.logical(keep_mask_split))
   assertthat::assert_that(is.numeric(thr_mask))
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.numeric(timeout))
@@ -63,6 +65,9 @@ geopressure_map_mismatch <- function(
     maskThreshold = thr_mask,
     dataset = era5_dataset
   )
+  if (keep_mask_split) {
+    body$includeMaskSplit <- TRUE
+  }
 
   if (debug) {
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
@@ -94,7 +99,8 @@ geopressure_map_mismatch <- function(
           glue::glue("Body request file: {temp_file}\nHTTP trace file: {trace_file}")
         } else {
           "Please try again with `debug=TRUE`"
-        }
+        },
+        provenance_api_error(resp)
       )
     })
 
@@ -130,6 +136,18 @@ geopressure_map_mismatch <- function(
   labels <- unlist(resp_json$data$labels)
   # Reason reported by the API for each failed url. NULL on older API versions.
   errors <- resp_json$data$errors
+  # Band names of the GeoTIFFs, only returned with the mask split. Older API versions return
+  # neither, so read the bands by position.
+  bands <- unlist(resp_json$data$bands)
+  if (keep_mask_split && is.null(bands)) {
+    cli::cli_warn(c(
+      "!" = "GeoPressureAPI did not return the above/below split of the mask.",
+      "i" = "Continuing without {.field frac_above} and {.field frac_below}."
+    ))
+  }
+  if (is.null(bands)) {
+    bands <- c("mse", if (keep_mask) "probAlt")
+  }
 
   # Check that the urls exist
   if (anyNA(urls)) {
@@ -264,10 +282,7 @@ geopressure_map_mismatch <- function(
   }
   map <- lapply(idx, function(i_u) {
     map_i <- terra::rast(files[[i_u]])
-    names(map_i[[1]]) <- "map_pressure_mse"
-    if (keep_mask) {
-      names(map_i[[2]]) <- "map_pressure_mask"
-    }
+    names(map_i) <- bands
     map_i
   })
 
@@ -287,22 +302,35 @@ geopressure_map_mismatch <- function(
   )
 
   # Diagnostics per stapelev before its levels are merged: land pixels, pixels passing the mask
-  # (-1 masked, -2 water) and smallest MSE (Pa^2 to hPa^2)
-  mse_stapelev <- lapply(map, \(m) terra::values(m[[1]], mat = FALSE))
-  tag$stapelev <- data.frame(
-    stapelev = labels,
-    stap_id = labels_stap,
-    nb_sample = nb_sample,
-    n_pixel = vapply(mse_stapelev, \(v) sum(v > -1.5, na.rm = TRUE), integer(1)),
-    n_valid = vapply(mse_stapelev, \(v) sum(v >= 0, na.rm = TRUE), integer(1)),
-    mse_min = vapply(
-      mse_stapelev,
-      \(v) if (any(v >= 0, na.rm = TRUE)) min(v[v >= 0], na.rm = TRUE) / 1e4 else NA_real_,
-      numeric(1)
-    )
+  # (-1 masked, -2 water), smallest MSE (Pa^2 to hPa^2) and, with the mask split, the mean share
+  # of samples above and below the ground over the land pixels rejected by the mask
+  stapelev <- do.call(
+    rbind,
+    lapply(map, \(m) {
+      v <- terra::values(m, mat = TRUE)
+      # Water from a mask band when available: a few pixels have mse = -1 but probAlt = -2
+      land <- which(v[, intersect(c("probAlt", "probAbove", "mse"), colnames(v))[1]] > -1.5)
+      mse <- v[land, "mse"]
+      valid <- which(mse >= 0)
+      masked <- land[which(mse == -1)]
+      frac <- \(b) if (b %in% colnames(v) && length(masked)) mean(v[masked, b]) else NA_real_
+      data.frame(
+        n_pixel = length(land),
+        n_valid = length(valid),
+        mse_min = if (length(valid)) min(mse[valid]) / 1e4 else NA_real_,
+        frac_above = frac("probAbove"),
+        frac_below = frac("probBelow")
+      )
+    })
   )
-  tag$stapelev <- tag$stapelev[order(labels_stap, labels), ]
-  rownames(tag$stapelev) <- NULL
+  stapelev <- cbind(
+    data.frame(stapelev = labels, stap_id = labels_stap, nb_sample = nb_sample),
+    stapelev
+  )[order(labels_stap, labels), ]
+  rownames(stapelev) <- NULL
+
+  # Keep the bands combined per stap: mse and, with keep_mask, the mask
+  map <- lapply(map, \(m) m[[intersect(c("mse", "probAlt"), names(m))]])
 
   # Initialize the return list from tag$stap to make sure all stap are present
   mse <- vector("list", nrow(tag$stap))
@@ -353,12 +381,22 @@ geopressure_map_mismatch <- function(
     vapply(unique(labels_stap), \(s) !any(mse[[s]] >= 0, na.rm = TRUE), logical(1))
   ]
   if (length(stap_empty) > 0) {
-    masked <- tag$stapelev$n_valid == 0 & tag$stapelev$stap_id %in% stap_empty
-    stap_combined <- setdiff(stap_empty, tag$stapelev$stap_id[masked])
+    masked <- stapelev$n_valid == 0 & stapelev$stap_id %in% stap_empty
+    stap_combined <- setdiff(stap_empty, stapelev$stap_id[masked])
+    # With the mask split, say whether the masked levels sit mostly above or below the ground
+    direction <- with(
+      stapelev[masked, ],
+      ifelse(
+        is.na(frac_above),
+        "",
+        ifelse(frac_above >= frac_below, " (mostly above the ground)", " (mostly below the ground)")
+      )
+    )
+    masked_txt <- glue::glue_collapse(glue::glue("{stapelev$stapelev[masked]}{direction}"), ", ")
     cli::cli_warn(c(
       "!" = "No pixel passes the mask of the pressure map of stap {.val {stap_empty}}.",
       "*" = if (any(masked)) {
-        "Stapelev masked everywhere on its own: {.val {tag$stapelev$stapelev[masked]}}."
+        "Stapelev masked everywhere on its own: {masked_txt}."
       },
       "*" = if (length(stap_combined) > 0) {
         "Stap {.val {stap_combined}}: each level passes somewhere, but no pixel passes all levels."
@@ -383,6 +421,7 @@ geopressure_map_mismatch <- function(
     id = tag$param$id,
     type = "pressure_mse"
   )
+  tag$map_pressure_mse$stapelev <- stapelev
 
   if (keep_mask) {
     tag$map_pressure_mask <- map_create(
@@ -400,11 +439,17 @@ geopressure_map_mismatch <- function(
     max_sample = max_sample,
     margin = margin,
     keep_mask = keep_mask,
+    keep_mask_split = keep_mask_split,
     thr_mask = thr_mask,
     timeout = timeout,
     workers = workers,
     era5_dataset = era5_dataset,
     compute_known = compute_known
+  )
+  tag$param$provenance$geopressure_map <- provenance_create(
+    "GeoPressureAPI",
+    era5_dataset = era5_dataset,
+    api = if (!is.null(resp_json$provenance)) list(resp_json$provenance)
   )
 
   # return the pressure_mismatch in the same order as requested

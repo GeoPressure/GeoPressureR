@@ -19,6 +19,7 @@ geopressure_map(
   era5_dataset = "single-levels",
   keep_mask = FALSE,
   keep_mse = FALSE,
+  keep_mask_split = FALSE,
   compute_known = FALSE,
   debug = FALSE,
   quiet = FALSE
@@ -41,6 +42,7 @@ geopressure_map_mismatch(
   era5_dataset = "single-levels",
   compute_known = FALSE,
   keep_mask = TRUE,
+  keep_mask_split = FALSE,
   debug = FALSE,
   quiet = FALSE
 )
@@ -80,6 +82,12 @@ global ERA5 elsewhere. \code{"land"} is only worth it for maps finer than \code{
 
 \item{keep_mse}{logical defining if the MSE map is returned in \code{tag}.}
 
+\item{keep_mask_split}{logical defining if GeoPressureAPI also returns, for each pixel, the share
+of samples whose altitude is above or below the ground, summarised as \code{frac_above} and
+\code{frac_below} in the \code{stapelev} table of the maps. It tells whether a level is rejected because
+the bird is above the ground (e.g., flight or perch left in the stationary period) or below it
+(e.g., sensor offset). The GeoTIFFs are larger.}
+
 \item{compute_known}{logical defining if the map(s) for known stationary period should be
 estimated based on pressure or hard defined by the known location \verb{stap$known_l**}.}
 
@@ -94,11 +102,15 @@ for details.
 If \code{keep_mse = TRUE}, \code{tag} also includes the \code{tag$map_pressure_mse} map and
 \code{tag$stap$nb_sample}, indicating the number of datapoints used to compute the MSE. If
 \code{keep_mask = TRUE}, \code{tag} also includes the \code{tag$map_pressure_mask} map.
-\code{tag$stapelev} holds one row per map requested (stationary period and elevation level) with
-\code{stapelev}, \code{stap_id}, \code{nb_sample}, the number of land pixels \code{n_pixel}, the number of pixels
-passing the mask \code{n_valid} and the smallest MSE \code{mse_min} (hPa²), before the levels of a
-stationary period are combined. A warning names the stationary periods where no pixel passes the
-mask, and the levels responsible.
+The pressure maps also hold a diagnostic table \code{stapelev} (e.g. \code{tag$map_pressure$stapelev}) with
+one row per map requested (stationary period and elevation level), before the levels of a
+stationary period are combined: \code{stapelev}, \code{stap_id}, \code{nb_sample}, the number of land pixels
+\code{n_pixel}, the number of pixels passing the mask \code{n_valid}, the smallest MSE \code{mse_min} (hPa²)
+and, with \code{keep_mask_split = TRUE}, \code{frac_above} and \code{frac_below}: the mean share of samples
+above and below the ground over the land pixels rejected by the mask. A warning names the
+stationary periods where no pixel passes the mask, and the levels responsible.
+\code{tag$param$provenance$geopressure_map} records the GeoPressureR version, the date, the ERA5
+dataset and the version of GeoPressureAPI that computed the maps.
 \code{geopressure_map_mismatch()} returns \code{tag} with \code{tag$map_pressure_mse} (and
 \code{tag$map_pressure_mask} if \code{keep_mask = TRUE}) but without the likelihood map.
 }

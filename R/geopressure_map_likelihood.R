@@ -70,6 +70,9 @@ geopressure_map_likelihood <- function(
     map_pressure[[stap_id]][known_lat_id, known_lon_id] <- 1
   }
 
+  # Diagnostic table of the stapelevs, carried over to the likelihood map
+  stapelev <- tag$map_pressure_mse$stapelev
+
   # remove mse maps computed by geopressure_map_mismatch()
   if (!keep_mse) {
     tag[names(tag) == "map_pressure_mse"] <- NULL
@@ -85,6 +88,7 @@ geopressure_map_likelihood <- function(
     id = tag$param$id,
     type = "pressure"
   )
+  tag$map_pressure$stapelev <- stapelev
 
   tag$param$geopressure_map$sd <- sd0
   attr(log_linear_pooling_weight, "srcref") <- NULL

@@ -110,7 +110,6 @@ trainset <- function(
     tag$param$tag_set_map <- NULL
     tag[grepl("^map_", names(tag))] <- NULL
     tag$mask_water <- NULL
-    tag$stapelev <- NULL
   }
 
   label_dir <- normalizePath(label_dir, mustWork = FALSE)
