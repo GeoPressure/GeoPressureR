@@ -35,11 +35,11 @@ provenance_api_label <- function(api) {
   if (is.null(label)) "unknown" else as.character(label)
 }
 
-# GeoPressureAPI version of a failed request, from its `X-GeoPressure-Version` header, as a bullet
+# GeoPressureAPI version of a failed request, from its `X-GeoPressure-Provenance` header, as a bullet
 # for the error message. NULL when the header is missing or not JSON (older API versions).
 # @noRd
 provenance_api_error <- function(resp) {
-  header <- httr2::resp_header(resp, "X-GeoPressure-Version")
+  header <- httr2::resp_header(resp, "X-GeoPressure-Provenance")
   if (is.null(header) || !jsonlite::validate(header)) {
     return(NULL)
   }
