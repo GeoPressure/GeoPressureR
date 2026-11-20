@@ -173,32 +173,27 @@ geopressure_map_mismatch <- function(
     urls <- urls[-i_na]
   }
 
-  # Perform the call in parallel
-  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
+  # Download the GeoTIFFs, computed by GEE when requested. GEE allows up to 100 requests at the
+  # same time, so we keep the number of simultaneous requests a little bit below.
   if (workers == "auto") {
     workers <- min(parallel::detectCores(), length(urls))
   }
   assertthat::assert_that(workers > 0 & workers < 100)
-  workers <- if (workers > 1 && length(urls) > 1) min(workers, length(urls)) else 1
-  old_plan <- future::plan()
-  on.exit(future::plan(old_plan), add = TRUE)
-  if (workers > 1) {
-    # Use multisession to avoid forked HTTP requests being interrupted.
-    future::plan(future::multisession, workers = workers)
-  } else {
-    future::plan(future::sequential)
-  }
-
-  download_geotiff <- function(i, urls, labels, timeout, debug, tmpdir, progress = NULL) {
-    url_i <- urls[[i]]
-    label_i <- labels[[i]]
-    stap_i <- as.numeric(sub("\\|.*", "", label_i))
-    trace_file_i <- tempfile(
-      glue::glue("log_geopressure_map_http_{gsub('[^[:alnum:]_]+', '_', label_i)}_"),
-      tmpdir = tmpdir,
-      fileext = ".log"
-    )
-    req_i <- httr2::request(url_i) |>
+  workers <- min(workers, length(urls))
+  labels_stap <- as.numeric(sub("\\|.*", "", labels))
+  files <- vapply(seq_along(urls), \(i) tempfile(fileext = ".geotiff"), character(1))
+  trace_files <- vapply(
+    labels,
+    \(l) {
+      tempfile(
+        glue::glue("log_geopressure_map_http_{gsub('[^[:alnum:]_]+', '_', l)}_"),
+        fileext = ".log"
+      )
+    },
+    character(1)
+  )
+  reqs <- lapply(seq_along(urls), function(i) {
+    req_i <- httr2::request(urls[[i]]) |>
       httr2::req_timeout(timeout) |>
       httr2::req_error(body = function(resp) {
         error_body <- trimws(httr2::resp_body_string(resp))
@@ -207,7 +202,8 @@ geopressure_map_mismatch <- function(
         }
         c(
           "x" = glue::glue(
-            "Error while computing/downloading the GeoTIFF for stapelev {label_i} (stap {stap_i})."
+            "Error while computing/downloading the GeoTIFF for stapelev {labels[[i]]} \\
+            (stap {labels_stap[[i]]})."
           ),
           ">" = if (nzchar(error_body)) {
             error_body
@@ -215,63 +211,44 @@ geopressure_map_mismatch <- function(
             glue::glue("HTTP {httr2::resp_status(resp)}.")
           },
           "i" = if (debug) {
-            glue::glue("Failing URL: {url_i}\nHTTP trace file: {trace_file_i}")
+            glue::glue("Failing URL: {urls[[i]]}\nHTTP trace file: {trace_files[[i]]}")
           } else {
-            glue::glue("Failing URL: {url_i}")
+            glue::glue("Failing URL: {urls[[i]]}")
           }
         )
       })
-
     if (debug) {
-      req_i <- httr2::req_verbose(
-        req_i,
-        body_req = TRUE,
-        body_resp = TRUE,
-        info = TRUE
-      )
+      req_i <- httr2::req_verbose(req_i, body_req = TRUE, body_resp = TRUE, info = TRUE)
     }
+    req_i
+  })
 
-    file <- tempfile(tmpdir = tmpdir, fileext = ".geotiff")
-    if (debug) {
-      capture_debug_output(httr2::req_perform(req_i, path = file), trace_file_i)
-    } else {
-      httr2::req_perform(req_i, path = file)
-    }
-    if (!is.null(progress)) {
-      progress()
-    }
-    file
-  }
-
-  future_args <- list(
-    X = seq_along(urls),
-    FUN = download_geotiff,
-    urls = urls,
-    labels = labels,
-    timeout = timeout,
-    debug = debug,
-    tmpdir = tempdir()
-  )
-  if (quiet) {
-    files <- do.call(future.apply::future_lapply, future_args)
-  } else {
+  if (!quiet) {
     cli::cli_progress_step(
       msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev (on {.val {workers}} workers)",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
-    old_handlers <- progressr::handlers()
-    on.exit(progressr::handlers(old_handlers), add = TRUE)
-    progressr::handlers(
-      progressr::handler_cli(
-        format = "{cli::pb_name} {cli::pb_bar} {cli::pb_percent} ({cli::pb_current}/{cli::pb_total}) | {cli::pb_eta_str}",
-        format_done = "{cli::col_green(cli::symbol$tick)} {cli::pb_name} [{cli::pb_elapsed}]"
-      )
+  }
+  if (debug) {
+    # One request at a time, so that each HTTP trace goes to its own file
+    for (i in seq_along(reqs)) {
+      capture_debug_output(httr2::req_perform(reqs[[i]], path = files[[i]]), trace_files[[i]])
+    }
+  } else {
+    httr2::req_perform_parallel(
+      reqs,
+      paths = files,
+      max_active = workers,
+      progress = if (!quiet) {
+        list(
+          format = "{cli::pb_bar} {cli::pb_percent} ({cli::pb_current}/{cli::pb_total}) | {cli::pb_eta_str}",
+          format_done = "{cli::col_green(cli::symbol$tick)} [{cli::pb_elapsed}]",
+          clear = TRUE
+        )
+      } else {
+        FALSE
+      }
     )
-
-    files <- progressr::with_progress({
-      future_args$progress <- progressr::progressor(steps = length(urls))
-      do.call(future.apply::future_lapply, future_args)
-    })
   }
 
   # Get maps
@@ -289,9 +266,6 @@ geopressure_map_mismatch <- function(
   if (!quiet) {
     cli::cli_progress_step("Post-process maps")
   }
-
-  # Find the stap of each urls from labels (same order)
-  labels_stap <- as.numeric(sub("\\|.*", "", labels))
 
   # Find the number of sample (datapoint) for each map
   nb_sample <- pmin(
@@ -405,9 +379,6 @@ geopressure_map_mismatch <- function(
              unlabelled, wrong {.val elev_n}), or the extent of {.fun tag_set_map}."
     ))
   }
-
-  # Explicitly close multisession workers by switching plan
-  future::plan(future::sequential)
 
   # Add attribute
   # Delete the downloaded GeoTIFFs and trace files now that the maps are in memory
