@@ -81,6 +81,9 @@ test_that("ARCO time series defaults to virtual and preserves its output structu
   )
   expect_equal(standard$altitude, rep(1379.358946332310, 2), tolerance = 1e-10)
   expect_false("dewpoint_temperature_2m" %in% reads)
+  # Same structure; only the provenance records the formula (and its date)
+  expect_identical(attr(standard, "provenance")$altitude_formula, "standard")
+  attr(virtual, "provenance") <- attr(standard, "provenance") <- NULL
   expect_identical(attributes(virtual), attributes(standard))
 })
 
@@ -128,6 +131,9 @@ test_that("ARCO pressure paths use virtual at the original coordinates and dates
   )
   expect_equal(standard$altitude, rep(1379.358946332310, 2), tolerance = 1e-10)
   expect_false("dewpoint_temperature_2m" %in% reads)
+  # Same structure; only the provenance records the formula (and its date)
+  expect_identical(attr(standard, "provenance")$altitude_formula, "standard")
+  attr(virtual, "provenance") <- attr(standard, "provenance") <- NULL
   expect_identical(attributes(virtual), attributes(standard))
   reads <- character()
   pressurepath_create_arco_impl(
