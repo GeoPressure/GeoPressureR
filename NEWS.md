@@ -1,10 +1,4 @@
-# GeoPressureR (development version)
-
-Planned as the patch release 3.9.1. It adds exported functions, which would normally make it a minor
-release; the maintainer chose a patch because existing calls give the same results (except the bug
-fix in `plot_pressurepath()` and the wind level order). `geopressure_map()` also adds a diagnostic
-table to the pressure maps and can warn about stationary periods whose map is empty. The new functions return as data what TRAINSET, `plot_pressurepath()` and
-`plot_twl_calib()` show, so labels can be checked from a script with the same code as the apps.
+# GeoPressureR v3.9.1
 
 ## Main
 
@@ -24,6 +18,14 @@ table to the pressure maps and can warn about stationary periods whose map is em
 - [Make `tag_label_auto()` deterministic](https://github.com/GeoPressure/GeoPressureR/commit/0b580c6d91fa535f942d7a51032ce11f8022c9d9): the k-means clustering starts from the lowest and highest activity instead of random centres (without using the random number generator), and the sampling interval is the median interval instead of the first one. Labels of the example tags are unchanged.
 - [Fix `plot_pressurepath()` with a single `sd` on a pressurepath whose `stap_id` is not 1](https://github.com/GeoPressure/GeoPressureR/commit/06366cbba06fc32542db42a5928724c30e7ffa2e) (e.g. a `geopressure_timeseries()` output of one stationary period): the outlier thresholds and the histogram colours were `NA`.
 - [Share the parsing of `elev_n` labels](https://github.com/GeoPressure/GeoPressureR/commit/83a39b38a60b8fb9c33035951b534e67a80300c5) between `geopressure_map_preprocess()`, `geopressure_timeseries()`, `pressurepath_create()` and `plot_pressurepath()`.
+
+**Behaviour that users relied on has changed:**
+
+- Pressure maps at `scale = 4` computed through GeoPressureAPI shift slightly, because the API now samples ERA5 at the centre of each cell, as GeoPressureR does ([GeoPressureAPI#37](https://github.com/GeoPressure/GeoPressureAPI/pull/37)). This is a server-side change: it applies to every GeoPressureR version calling the API.
+- Wind computed in 3.6.0–3.7.x from wind files with ascending pressure levels (old CDS files) used the wrong pressure level and should be recomputed. These files now give the same wind as descending files.
+- `future`, `future.apply` and `progressr` are no longer imported, so they are no longer installed with GeoPressureR. `httr2` (>= 1.1.1) is required.
+
+**Full Changelog**: <https://github.com/GeoPressure/GeoPressureR/compare/v3.9.0...v3.9.1>
 
 # GeoPressureR v3.9.0
 
