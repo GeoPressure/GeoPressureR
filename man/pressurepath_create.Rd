@@ -81,7 +81,9 @@ and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
 }
 \value{
 A \code{pressurepath} data.frame containing tag pressure, coordinates, requested ERA5
-variables, normalised surface pressure, and optional sunrise and sunset times.
+variables, normalised surface pressure, and optional sunrise and sunset times. The attribute
+\code{provenance} records the source (\code{"arco"} or \code{"api"}), the ERA5 dataset, the altitude formula,
+the GeoPressureR version and, for the API, the unique versions of GeoPressureAPI used.
 }
 \description{
 \code{pressurepath_create()} combines a tag pressure series with a path and retrieves matching ERA5
@@ -228,6 +230,7 @@ plot_pressurepath(pressurepath)
 Other pressurepath:
 \code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
+\code{\link[=pressurepath_check]{pressurepath_check()}},
 \code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}}
 }
 \concept{pressurepath}

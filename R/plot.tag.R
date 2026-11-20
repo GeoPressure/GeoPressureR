@@ -197,7 +197,7 @@ plot_tag_pressure <- function(
       ) +
       ggplot2::geom_point(
         data = pres_diff,
-        ggplot2::aes(x = .data$date, y = .data$value_avg),
+        ggplot2::aes(x = .data$date, y = .data$pressure),
         fill = "orange",
         shape = 24,
         size = 2
@@ -207,40 +207,34 @@ plot_tag_pressure <- function(
   plot_tag_finalize(p, plot_plotly)
 }
 
-#' Compute warning pressure differences at 1h intervals
+#' Hourly pressure jumps within a stapelev
 #'
 #' @param pres hourly pressure computed by `geopressure_map_preprocess()`.
-#' @param warning_pressure_diff Threshold of pressure hourly difference marking as warning (hPa).
+#' @param warning_pressure_diff Threshold of the hourly pressure difference (hPa).
+#' @return data.frame of the jumps `>= warning_pressure_diff`, largest first: `date` (midpoint),
+#' `stap_id`, `stapelev`, `pressure_diff` (absolute difference, hPa) and `pressure` (mean of the two
+#' hourly values, hPa).
 #' @noRd
 pressure_diff_warning_data <- function(pres, warning_pressure_diff = 3) {
-  assertthat::assert_that(is.numeric(warning_pressure_diff))
-  assertthat::assert_that(length(warning_pressure_diff) == 1)
-  assertthat::assert_that(!is.na(warning_pressure_diff))
-
-  # Group by stationary period and elevation level.
-  pres$stapelev <- factor(pres$stapelev)
-
-  # Compute consecutive pressure differences.
-  pres_diff <- data.frame(
-    value = abs(diff(pres$value)),
-    value_avg = utils::head(pres$value, -1) + diff(pres$value) / 2,
+  # Consecutive differences of the hourly series
+  d <- data.frame(
     date = utils::head(pres$date, -1) + diff(pres$date) / 2,
-    date_diff = as.numeric(diff(pres$date), units = "hours"),
-    same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1),
-    stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2
+    stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2,
+    stapelev = utils::head(pres$stapelev, -1),
+    pressure_diff = abs(diff(pres$value)),
+    pressure = utils::head(pres$value, -1) + diff(pres$value) / 2
   )
 
-  # Keep only valid 1-hour differences within a stationary period.
-  pres_diff <- pres_diff[pres_diff$date_diff == 1, ]
-  pres_diff <- pres_diff[pres_diff$same_stapelev, ]
-  pres_diff <- pres_diff[(pres_diff$stap_id %% 1) == 0 & pres_diff$stap_id != 0, ]
-
-  # Keep only differences above warning threshold and sort for display.
-  pres_diff <- pres_diff[pres_diff$value >= warning_pressure_diff, ]
-  pres_diff <- pres_diff[order(pres_diff$value, decreasing = TRUE), ]
-  rownames(pres_diff) <- NULL
-
-  pres_diff
+  # Keep 1 h differences within the same stapelev of a stationary period, above the threshold
+  keep <- as.numeric(diff(pres$date), units = "hours") == 1 &
+    d$stapelev == utils::tail(pres$stapelev, -1) &
+    d$stap_id %% 1 == 0 &
+    d$stap_id != 0 &
+    d$pressure_diff >= warning_pressure_diff
+  d <- d[keep, ]
+  d <- d[order(d$pressure_diff, decreasing = TRUE), ]
+  rownames(d) <- NULL
+  d
 }
 
 #' Plot acceleration data of a `tag`

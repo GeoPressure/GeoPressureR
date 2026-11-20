@@ -103,6 +103,11 @@
 #' ](https://geopressure.org/GeoPressureManual/probability-aggregation.html) for more details.
 #' @param keep_mask logical defining if the mask map is returned in `tag`.
 #' @param keep_mse logical defining if the MSE map is returned in `tag`.
+#' @param keep_mask_split logical defining if GeoPressureAPI also returns, for each pixel, the share
+#' of samples whose altitude is above or below the ground, summarised as `frac_above` and
+#' `frac_below` in the `stapelev` table of the maps. It tells whether a level is rejected because
+#' the bird is above the ground (e.g., flight or perch left in the stationary period) or below it
+#' (e.g., sensor offset). The GeoTIFFs are larger.
 #' @param timeout duration before the code is interrupted both for the request on
 #' GeoPressureAPI and on GEE (in seconds, see `httr2::req_timeout()`).
 #' @param workers number of parallel requests on GEE. Integer between 1 and 99. `"auto"` adjusts the
@@ -122,6 +127,15 @@
 #' If `keep_mse = TRUE`, `tag` also includes the `tag$map_pressure_mse` map and
 #' `tag$stap$nb_sample`, indicating the number of datapoints used to compute the MSE. If
 #' `keep_mask = TRUE`, `tag` also includes the `tag$map_pressure_mask` map.
+#' The pressure maps also hold a diagnostic table `stapelev` (e.g. `tag$map_pressure$stapelev`) with
+#' one row per map requested (stationary period and elevation level), before the levels of a
+#' stationary period are combined: `stapelev`, `stap_id`, `nb_sample`, the number of land pixels
+#' `n_pixel`, the number of pixels passing the mask `n_valid`, the smallest MSE `mse_min` (hPa²)
+#' and, with `keep_mask_split = TRUE`, `frac_above` and `frac_below`: the mean share of samples
+#' above and below the ground over the land pixels rejected by the mask. A warning names the
+#' stationary periods where no pixel passes the mask, and the levels responsible.
+#' `tag$param$provenance$geopressure_map` records the GeoPressureR version, the date, the ERA5
+#' dataset and the version of GeoPressureAPI that computed the maps.
 #' `geopressure_map_mismatch()` returns `tag` with `tag$map_pressure_mse` (and
 #' `tag$map_pressure_mask` if `keep_mask = TRUE`) but without the likelihood map.
 #'
@@ -172,6 +186,7 @@ geopressure_map <- function(
   era5_dataset = "single-levels",
   keep_mask = FALSE,
   keep_mse = FALSE,
+  keep_mask_split = FALSE,
   compute_known = FALSE,
   debug = FALSE,
   quiet = FALSE
@@ -183,6 +198,7 @@ geopressure_map <- function(
     margin = margin,
     thr_mask = thr_mask,
     keep_mask = keep_mask,
+    keep_mask_split = keep_mask_split,
     timeout = timeout,
     workers = workers,
     era5_dataset = era5_dataset,

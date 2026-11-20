@@ -184,44 +184,12 @@ plot_twl_calib_path <- function(
   hist_df$stap_id <- factor(hist_df$stap_id, levels = as.character(stap_levels))
   hist_df$count_norm <- hist_df$count / stats::ave(hist_df$count, hist_df$stap_id, FUN = sum)
 
-  # Compute symmetric CI bounds from calibrated density
-  alpha <- (1 - warning_ci) / 2
-  cdf <- stats::approxfun(
-    twl_calib$x,
-    cumsum(twl_calib$y) / sum(twl_calib$y),
-    yleft = 0,
-    yright = 1
-  )
-  z_grid <- twl_calib$x
-  cdf_grid <- cdf(z_grid)
-  z_q <- stats::approx(cdf_grid, z_grid, xout = c(alpha, 1 - alpha))$y
-
-  # Flag staps with any twilight outside CI
-  twl <- twilight_include(tag$twilight)
-  twl <- twl[twl$include, ]
-  z_calib <- lapply(
-    seq_len(nrow(calib_stap)),
-    function(i) {
-      id <- twl$twilight >= calib_stap$start[i] &
-        twl$twilight <= calib_stap$end[i]
-      geolight_solar(
-        date = twl$twilight[id],
-        lat = calib_stap$known_lat[i],
-        lon = calib_stap$known_lon[i]
-      )
-    }
-  )
-  names(z_calib) <- as.character(calib_stap$stap_id)
+  # Flag staps with any included twilight outside the calibrated interval
+  twl <- twilight_check(tag, path, warning_ci)
+  z_q <- attr(twl, "zenith_ci")
   ci_flag <- vapply(
-    z_calib,
-    function(z) {
-      z <- as.numeric(z)
-      z <- z[is.finite(z)]
-      if (length(z) == 0) {
-        return(FALSE)
-      }
-      any(z < z_q[1] | z > z_q[2])
-    },
+    as.character(calib_stap$stap_id),
+    \(s) any(twl$outside_ci[twl$include & twl$stap_id == s], na.rm = TRUE),
     logical(1)
   )
   hist_df$ci_flag <- ci_flag[as.character(hist_df$stap_id)]

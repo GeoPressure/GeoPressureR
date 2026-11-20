@@ -51,6 +51,11 @@ geopressuretemplate_pressurepath <- function(
         c(list(tag = tag, path = path, quiet = quiet), config$pressurepath_create)
       )
     }
+    # Record the provenance in `param`, which data packages keep (pressurepath attributes are lost)
+    interim$param$provenance$pressurepath_create <- provenance_merge(lapply(
+      glue::glue("pressurepath_{path_types}"),
+      \(x) attr(interim[[x]], "provenance")
+    ))
 
     save(list = ls(interim), envir = interim, file = file)
   }

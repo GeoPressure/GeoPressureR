@@ -378,7 +378,9 @@ edge_add_wind_check <- function(
   # Check file
   assertthat::assert_that(is.function(file))
 
-  # Check that all the files of wind_speed exist and match the data request
+  # Check that all the files of wind_speed exist and match the data request, and collect their
+  # ERA5 source from the `source` attribute written by tag_download_wind()
+  wind_source <- character()
   for (i_flight in seq_len(length(flight))) {
     fl_s <- flight[[i_flight]]
     for (i_fl in seq_len(length(fl_s$stap_s))) {
@@ -464,9 +466,22 @@ edge_add_wind_check <- function(
         ))
       }
 
+      src <- ncdf4::ncatt_get(nc, 0, "source")$value
+      wind_source <- c(
+        wind_source,
+        if (grepl("(CDS)", src, fixed = TRUE)) {
+          "cds"
+        } else if (grepl("ARCO", src, fixed = TRUE)) {
+          "gcs"
+        } else {
+          "unknown"
+        }
+      )
+
       ncdf4::nc_close(nc)
     }
   }
+  invisible(unique(wind_source))
 }
 
 
@@ -529,15 +544,15 @@ edge_add_wind_nc_info <- function(nc, file_path) {
       "i" = "Available variable{?s} {?is/are} {.var {names(nc$dim)}}."
     ))
   }
-  pres_var <- names(nc$dim)[grepl("level", names(nc$dim))]
-  pres <- ncdf4::ncvar_get(nc, pres_var)
-  # Pressure-level lookups assume levels ordered from the surface upward (descending hPa)
-  if (is.unsorted(rev(pres), strictly = TRUE)) {
+  # Levels are read from the surface upward (descending hPa); ascending files are reversed on read
+  level <- era5_nc_level(nc)
+  if (!level$sorted) {
     cli::cli_abort(c(
-      x = "Pressure levels in {.file {file_path}} are not in descending order.",
-      "i" = "Levels found: {.val {pres}} hPa."
+      x = "Pressure levels in {.file {file_path}} are neither ascending nor descending.",
+      "i" = "Levels found: {.val {level$file}} hPa."
     ))
   }
+  pres <- level$pres
 
   # Keep only coordinate vectors and grid spacing; variable arrays are read later in small chunks.
   lat <- ncdf4::ncvar_get(nc, "latitude")
@@ -872,12 +887,11 @@ edge_add_wind_field <- function(
   short_name <- era5_variable_short(variable)
   var_nc <- vector("list", length(variable))
   for (var_i in seq_len(length(variable))) {
-    var_nc[[var_i]] <- ncdf4::ncvar_get(
+    var_nc[[var_i]] <- era5_nc_get(
       nc,
       short_name[var_i],
       start = c(id_lon[1], id_lat[1], id_pres, id_time),
-      count = c(length(id_lon), length(id_lat), n_pres, n_time),
-      collapse_degen = FALSE
+      count = c(length(id_lon), length(id_lat), n_pres, n_time)
     )
   }
 
@@ -932,3 +946,33 @@ edge_add_wind_field <- function(
   list(field = var_nc, pressure = p_q)
 }
 # nocov end
+
+#' Pressure levels of an ERA5 wind file
+#'
+#' Levels are returned in descending order (surface first). `rev` is `TRUE` when the file stores
+#' them ascending (e.g. older CDS files), detected from the level values only. `sorted` is `FALSE`
+#' when they are neither strictly ascending nor strictly descending.
+#' @noRd
+era5_nc_level <- function(nc) {
+  file <- nc$dim[[grep("level", names(nc$dim), value = TRUE)[1]]]$vals
+  desc <- !is.unsorted(rev(file), strictly = TRUE)
+  asc <- length(file) > 1 && !is.unsorted(file, strictly = TRUE)
+  list(file = file, pres = if (asc) rev(file) else file, rev = asc, sorted = desc || asc)
+}
+
+#' Read an ERA5 wind variable as lon x lat x level x time, levels in descending order
+#'
+#' `start` and `count` index the descending levels, whatever the order in the file, so every reader
+#' of the level dimension sees the same order.
+#' @noRd
+era5_nc_get <- function(nc, name, start = NA, count = NA) {
+  level <- era5_nc_level(nc)
+  if (level$rev && !anyNA(start)) {
+    start[3] <- length(level$pres) - start[3] - count[3] + 2
+  }
+  x <- ncdf4::ncvar_get(nc, name, start = start, count = count, collapse_degen = FALSE)
+  if (level$rev) {
+    x <- x[,, rev(seq_len(dim(x)[3])), , drop = FALSE]
+  }
+  x
+}

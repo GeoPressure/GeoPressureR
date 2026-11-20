@@ -73,7 +73,9 @@ and the GPT3 lapse rate (Landskron & Böhm 2018), based on the
 A data.frame containing \code{date}, \code{surface_pressure}, \code{lat}, and \code{lon}. With \code{pressure},
 it also retains the input columns, renames \code{value} to \code{pressure_tag}, and adds
 \code{surface_pressure_norm} and \code{altitude}, as well as \code{stap_id} (\code{1}) and \code{label} (\code{""}) when
-absent from \code{pressure}.
+absent from \code{pressure}. The attribute \code{provenance} records the source (\code{"arco"} or \code{"api"}), the
+ERA5 dataset, the altitude formula, the GeoPressureR version and, for the API, the version of
+GeoPressureAPI.
 }
 \description{
 \code{geopressure_timeseries()} retrieves an hourly ERA5 surface-pressure time series at one
@@ -223,6 +225,7 @@ geopressure_timeseries(
 \seealso{
 Other pressurepath:
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
+\code{\link[=pressurepath_check]{pressurepath_check()}},
 \code{\link[=pressurepath_create]{pressurepath_create()}},
 \code{\link[=pressurepath_variable_available]{pressurepath_variable_available()}}
 }

@@ -131,6 +131,11 @@ geopressure_timeseries_arco_impl <- function(
     out <- out[c("date", "surface_pressure", "altitude", "lat", "lon")]
   }
 
+  attr(out, "provenance") <- provenance_create(
+    "arco",
+    era5_dataset = era5_dataset,
+    altitude_formula = altitude_formula
+  )
   return(out)
 }
 

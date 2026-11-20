@@ -114,17 +114,12 @@ compute_stapelev_proposal <- function(query_id) {
   pressure <- state$tag$pressure[idx, , drop = FALSE]
   labels <- reactive_label_pres()[idx]
   era5_idx <- match(as.numeric(pressure$date), as.numeric(bundle$date))
-  surface_pressure <- bundle$surface_pressure[era5_idx]
 
-  state$stapelev_proposal <- data.frame(
-    date = pressure$date,
-    pressure_tag = pressure$value,
-    surface_pressure = surface_pressure,
-    residual = pressure$value - surface_pressure,
-    offset = NA_real_,
-    error = NA_real_,
-    label = ifelse(labels == "flight", "flight", "discard"),
-    stringsAsFactors = FALSE
+  state$stapelev_proposal <- stapelev_proposal(
+    pressure$date,
+    pressure$value,
+    bundle$surface_pressure[era5_idx],
+    labels
   )
   state$stapelev_solar_elevation <- suntools::solarpos(
     matrix(c(bundle$returned_lon, bundle$returned_lat), ncol = 2),

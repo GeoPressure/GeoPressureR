@@ -139,8 +139,9 @@ dim.map <- function(x) {
   assertthat::assert_that(assertthat::are_equal(x$id, y$id))
   assertthat::assert_that(assertthat::are_equal(dim(x), dim(y)))
 
-  # Return a map similar to x
+  # Return a map similar to x, without the pressure diagnostics of x
   z <- x
+  z$stapelev <- NULL
 
   # Compute value
   z$data <- mapply(

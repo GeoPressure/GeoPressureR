@@ -95,6 +95,8 @@ graph_add_wind <- function(
 
   # Check that all the files of wind_speed exist and match the data request
   graph$ws <- graph_add_wind_edge(graph, constant_speed = constant_speed, ...)
+  wind_source <- attr(graph$ws, "wind_source")
+  attr(graph$ws, "wind_source") <- NULL
   gc()
 
   if (is.finite(thr_as)) {
@@ -170,6 +172,10 @@ graph_add_wind <- function(
   attr(file, "srcfile") <- NULL
   environment(file) <- baseenv()
   graph$param$graph_add_wind$file <- file
+  graph$param$provenance$graph_add_wind <- provenance_create(
+    wind_source,
+    era5_dataset = "pressure-levels"
+  )
 
   return(graph)
 }
@@ -201,7 +207,7 @@ graph_add_wind_edge <- function(
   if (!quiet) {
     cli::cli_alert_info("Check wind files and coverage")
   }
-  edge_add_wind_check(
+  wind_source <- edge_add_wind_check(
     graph,
     pressure = pressure,
     variable = variable,
@@ -324,5 +330,6 @@ graph_add_wind_edge <- function(
     }
   }
 
+  attr(ws, "wind_source") <- wind_source
   ws
 }

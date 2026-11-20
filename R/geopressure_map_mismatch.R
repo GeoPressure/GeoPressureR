@@ -11,6 +11,7 @@ geopressure_map_mismatch <- function(
   era5_dataset = "single-levels",
   compute_known = FALSE,
   keep_mask = TRUE,
+  keep_mask_split = FALSE,
   debug = FALSE,
   quiet = FALSE
 ) {
@@ -23,6 +24,7 @@ geopressure_map_mismatch <- function(
   assertthat::assert_that(is.numeric(margin))
   assertthat::assert_that(0 < margin)
   assertthat::assert_that(is.logical(keep_mask))
+  assertthat::assert_that(is.logical(keep_mask_split))
   assertthat::assert_that(is.numeric(thr_mask))
   assertthat::assert_that(thr_mask >= 0 & thr_mask <= 1)
   assertthat::assert_that(is.numeric(timeout))
@@ -63,6 +65,9 @@ geopressure_map_mismatch <- function(
     maskThreshold = thr_mask,
     dataset = era5_dataset
   )
+  if (keep_mask_split) {
+    body$includeMaskSplit <- TRUE
+  }
 
   if (debug) {
     temp_file <- tempfile("log_geopressure_map_", fileext = ".json")
@@ -94,7 +99,8 @@ geopressure_map_mismatch <- function(
           glue::glue("Body request file: {temp_file}\nHTTP trace file: {trace_file}")
         } else {
           "Please try again with `debug=TRUE`"
-        }
+        },
+        provenance_api_error(resp)
       )
     })
 
@@ -130,6 +136,18 @@ geopressure_map_mismatch <- function(
   labels <- unlist(resp_json$data$labels)
   # Reason reported by the API for each failed url. NULL on older API versions.
   errors <- resp_json$data$errors
+  # Band names of the GeoTIFFs, only returned with the mask split. Older API versions return
+  # neither, so read the bands by position.
+  bands <- unlist(resp_json$data$bands)
+  if (keep_mask_split && is.null(bands)) {
+    cli::cli_warn(c(
+      "!" = "GeoPressureAPI did not return the above/below split of the mask.",
+      "i" = "Continuing without {.field frac_above} and {.field frac_below}."
+    ))
+  }
+  if (is.null(bands)) {
+    bands <- c("mse", if (keep_mask) "probAlt")
+  }
 
   # Check that the urls exist
   if (anyNA(urls)) {
@@ -155,32 +173,27 @@ geopressure_map_mismatch <- function(
     urls <- urls[-i_na]
   }
 
-  # Perform the call in parallel
-  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
+  # Download the GeoTIFFs, computed by GEE when requested. GEE allows up to 100 requests at the
+  # same time, so we keep the number of simultaneous requests a little bit below.
   if (workers == "auto") {
     workers <- min(parallel::detectCores(), length(urls))
   }
   assertthat::assert_that(workers > 0 & workers < 100)
-  workers <- if (workers > 1 && length(urls) > 1) min(workers, length(urls)) else 1
-  old_plan <- future::plan()
-  on.exit(future::plan(old_plan), add = TRUE)
-  if (workers > 1) {
-    # Use multisession to avoid forked HTTP requests being interrupted.
-    future::plan(future::multisession, workers = workers)
-  } else {
-    future::plan(future::sequential)
-  }
-
-  download_geotiff <- function(i, urls, labels, timeout, debug, tmpdir, progress = NULL) {
-    url_i <- urls[[i]]
-    label_i <- labels[[i]]
-    stap_i <- as.numeric(sub("\\|.*", "", label_i))
-    trace_file_i <- tempfile(
-      glue::glue("log_geopressure_map_http_{gsub('[^[:alnum:]_]+', '_', label_i)}_"),
-      tmpdir = tmpdir,
-      fileext = ".log"
-    )
-    req_i <- httr2::request(url_i) |>
+  workers <- min(workers, length(urls))
+  labels_stap <- as.numeric(sub("\\|.*", "", labels))
+  files <- vapply(seq_along(urls), \(i) tempfile(fileext = ".geotiff"), character(1))
+  trace_files <- vapply(
+    labels,
+    \(l) {
+      tempfile(
+        glue::glue("log_geopressure_map_http_{gsub('[^[:alnum:]_]+', '_', l)}_"),
+        fileext = ".log"
+      )
+    },
+    character(1)
+  )
+  reqs <- lapply(seq_along(urls), function(i) {
+    req_i <- httr2::request(urls[[i]]) |>
       httr2::req_timeout(timeout) |>
       httr2::req_error(body = function(resp) {
         error_body <- trimws(httr2::resp_body_string(resp))
@@ -189,7 +202,8 @@ geopressure_map_mismatch <- function(
         }
         c(
           "x" = glue::glue(
-            "Error while computing/downloading the GeoTIFF for stapelev {label_i} (stap {stap_i})."
+            "Error while computing/downloading the GeoTIFF for stapelev {labels[[i]]} \\
+            (stap {labels_stap[[i]]})."
           ),
           ">" = if (nzchar(error_body)) {
             error_body
@@ -197,63 +211,44 @@ geopressure_map_mismatch <- function(
             glue::glue("HTTP {httr2::resp_status(resp)}.")
           },
           "i" = if (debug) {
-            glue::glue("Failing URL: {url_i}\nHTTP trace file: {trace_file_i}")
+            glue::glue("Failing URL: {urls[[i]]}\nHTTP trace file: {trace_files[[i]]}")
           } else {
-            glue::glue("Failing URL: {url_i}")
+            glue::glue("Failing URL: {urls[[i]]}")
           }
         )
       })
-
     if (debug) {
-      req_i <- httr2::req_verbose(
-        req_i,
-        body_req = TRUE,
-        body_resp = TRUE,
-        info = TRUE
-      )
+      req_i <- httr2::req_verbose(req_i, body_req = TRUE, body_resp = TRUE, info = TRUE)
     }
+    req_i
+  })
 
-    file <- tempfile(tmpdir = tmpdir, fileext = ".geotiff")
-    if (debug) {
-      capture_debug_output(httr2::req_perform(req_i, path = file), trace_file_i)
-    } else {
-      httr2::req_perform(req_i, path = file)
-    }
-    if (!is.null(progress)) {
-      progress()
-    }
-    file
-  }
-
-  future_args <- list(
-    X = seq_along(urls),
-    FUN = download_geotiff,
-    urls = urls,
-    labels = labels,
-    timeout = timeout,
-    debug = debug,
-    tmpdir = tempdir()
-  )
-  if (quiet) {
-    files <- do.call(future.apply::future_lapply, future_args)
-  } else {
+  if (!quiet) {
     cli::cli_progress_step(
       msg = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev (on {.val {workers}} workers)",
       msg_done = "Compute (on GEE server) and download .geotiff for {.val {length(urls)}} stapelev"
     )
-    old_handlers <- progressr::handlers()
-    on.exit(progressr::handlers(old_handlers), add = TRUE)
-    progressr::handlers(
-      progressr::handler_cli(
-        format = "{cli::pb_name} {cli::pb_bar} {cli::pb_percent} ({cli::pb_current}/{cli::pb_total}) | {cli::pb_eta_str}",
-        format_done = "{cli::col_green(cli::symbol$tick)} {cli::pb_name} [{cli::pb_elapsed}]"
-      )
+  }
+  if (debug) {
+    # One request at a time, so that each HTTP trace goes to its own file
+    for (i in seq_along(reqs)) {
+      capture_debug_output(httr2::req_perform(reqs[[i]], path = files[[i]]), trace_files[[i]])
+    }
+  } else {
+    httr2::req_perform_parallel(
+      reqs,
+      paths = files,
+      max_active = workers,
+      progress = if (!quiet) {
+        list(
+          format = "{cli::pb_bar} {cli::pb_percent} ({cli::pb_current}/{cli::pb_total}) | {cli::pb_eta_str}",
+          format_done = "{cli::col_green(cli::symbol$tick)} [{cli::pb_elapsed}]",
+          clear = TRUE
+        )
+      } else {
+        FALSE
+      }
     )
-
-    files <- progressr::with_progress({
-      future_args$progress <- progressr::progressor(steps = length(urls))
-      do.call(future.apply::future_lapply, future_args)
-    })
   }
 
   # Get maps
@@ -264,19 +259,13 @@ geopressure_map_mismatch <- function(
   }
   map <- lapply(idx, function(i_u) {
     map_i <- terra::rast(files[[i_u]])
-    names(map_i[[1]]) <- "map_pressure_mse"
-    if (keep_mask) {
-      names(map_i[[2]]) <- "map_pressure_mask"
-    }
+    names(map_i) <- bands
     map_i
   })
 
   if (!quiet) {
     cli::cli_progress_step("Post-process maps")
   }
-
-  # Find the stap of each urls from labels (same order)
-  labels_stap <- as.numeric(sub("\\|.*", "", labels))
 
   # Find the number of sample (datapoint) for each map
   nb_sample <- pmin(
@@ -285,6 +274,37 @@ geopressure_map_mismatch <- function(
       sum(pres$stapelev == l)
     }))
   )
+
+  # Diagnostics per stapelev before its levels are merged: land pixels, pixels passing the mask
+  # (-1 masked, -2 water), smallest MSE (Pa^2 to hPa^2) and, with the mask split, the mean share
+  # of samples above and below the ground over the land pixels rejected by the mask
+  stapelev <- do.call(
+    rbind,
+    lapply(map, \(m) {
+      v <- terra::values(m, mat = TRUE)
+      # Water from a mask band when available: a few pixels have mse = -1 but probAlt = -2
+      land <- which(v[, intersect(c("probAlt", "probAbove", "mse"), colnames(v))[1]] > -1.5)
+      mse <- v[land, "mse"]
+      valid <- which(mse >= 0)
+      masked <- land[which(mse == -1)]
+      frac <- \(b) if (b %in% colnames(v) && length(masked)) mean(v[masked, b]) else NA_real_
+      data.frame(
+        n_pixel = length(land),
+        n_valid = length(valid),
+        mse_min = if (length(valid)) min(mse[valid]) / 1e4 else NA_real_,
+        frac_above = frac("probAbove"),
+        frac_below = frac("probBelow")
+      )
+    })
+  )
+  stapelev <- cbind(
+    data.frame(stapelev = labels, stap_id = labels_stap, nb_sample = nb_sample),
+    stapelev
+  )[order(labels_stap, labels), ]
+  rownames(stapelev) <- NULL
+
+  # Keep the bands combined per stap: mse and, with keep_mask, the mask
+  map <- lapply(map, \(m) m[[intersect(c("mse", "probAlt"), names(m))]])
 
   # Initialize the return list from tag$stap to make sure all stap are present
   mse <- vector("list", nrow(tag$stap))
@@ -330,8 +350,35 @@ geopressure_map_mismatch <- function(
     }
   }
 
-  # Explicitly close multisession workers by switching plan
-  future::plan(future::sequential)
+  # Warn about staps where no pixel passes the mask of all their levels: likelihood zero everywhere
+  stap_empty <- unique(labels_stap)[
+    vapply(unique(labels_stap), \(s) !any(mse[[s]] >= 0, na.rm = TRUE), logical(1))
+  ]
+  if (length(stap_empty) > 0) {
+    masked <- stapelev$n_valid == 0 & stapelev$stap_id %in% stap_empty
+    stap_combined <- setdiff(stap_empty, stapelev$stap_id[masked])
+    # With the mask split, say whether the masked levels sit mostly above or below the ground
+    direction <- with(
+      stapelev[masked, ],
+      ifelse(
+        is.na(frac_above),
+        "",
+        ifelse(frac_above >= frac_below, " (mostly above the ground)", " (mostly below the ground)")
+      )
+    )
+    masked_txt <- glue::glue_collapse(glue::glue("{stapelev$stapelev[masked]}{direction}"), ", ")
+    cli::cli_warn(c(
+      "!" = "No pixel passes the mask of the pressure map of stap {.val {stap_empty}}.",
+      "*" = if (any(masked)) {
+        "Stapelev masked everywhere on its own: {masked_txt}."
+      },
+      "*" = if (length(stap_combined) > 0) {
+        "Stap {.val {stap_combined}}: each level passes somewhere, but no pixel passes all levels."
+      },
+      ">" = "Check the labels of these stapelevs (flight, take-off or altitude change left \\
+             unlabelled, wrong {.val elev_n}), or the extent of {.fun tag_set_map}."
+    ))
+  }
 
   # Add attribute
   # Delete the downloaded GeoTIFFs and trace files now that the maps are in memory
@@ -345,6 +392,7 @@ geopressure_map_mismatch <- function(
     id = tag$param$id,
     type = "pressure_mse"
   )
+  tag$map_pressure_mse$stapelev <- stapelev
 
   if (keep_mask) {
     tag$map_pressure_mask <- map_create(
@@ -362,11 +410,17 @@ geopressure_map_mismatch <- function(
     max_sample = max_sample,
     margin = margin,
     keep_mask = keep_mask,
+    keep_mask_split = keep_mask_split,
     thr_mask = thr_mask,
     timeout = timeout,
     workers = workers,
     era5_dataset = era5_dataset,
     compute_known = compute_known
+  )
+  tag$param$provenance$geopressure_map <- provenance_create(
+    "GeoPressureAPI",
+    era5_dataset = era5_dataset,
+    api = if (!is.null(resp_json$provenance)) list(resp_json$provenance)
   )
 
   # return the pressure_mismatch in the same order as requested

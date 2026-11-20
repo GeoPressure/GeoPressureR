@@ -69,6 +69,7 @@ print.param <- function(x, ...) {
   bullets(param$geopressure_map, "compute_known")
   bullets(param$geopressure_map, "keep_mask")
   bullets(param$geopressure_map, "keep_mse")
+  bullets(param$geopressure_map, "keep_mask_split")
 
   cli::cli_h3("Twilight & Geolight {.fun twilight_create} {.fun geolight_map}")
 
@@ -134,6 +135,27 @@ print.param <- function(x, ...) {
     bullets(param$geopressuretemplate, "likelihood")
     bullets(param$geopressuretemplate, "outputs")
     bullets(param$geopressuretemplate, "pressurepath")
+  }
+
+  # Provenance: one line per step, with the GeoPressureAPI commit when used
+  if (length(param$provenance) > 0) {
+    cli::cli_h3("Provenance")
+    for (step in names(param$provenance)) {
+      p <- param$provenance[[step]]
+      api <- vapply(p$api, provenance_api_label, character(1))
+      txt <- glue::glue_collapse(
+        c(
+          glue::glue_collapse(p$source, ", "),
+          p$era5_dataset,
+          p$altitude_formula,
+          glue::glue("GeoPressureR {p$GeoPressureR}"),
+          if (length(api)) glue::glue("GeoPressureAPI {glue::glue_collapse(api, ', ')}"),
+          p$date
+        ),
+        ", "
+      )
+      cli::cli_bullets(c("*" = "{.field {step}}: {txt}"))
+    }
   }
 
   invisible(param)

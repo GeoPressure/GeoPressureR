@@ -41,120 +41,56 @@ empty_pressure_warning <- function() {
   data.frame(
     date = as.POSIXct(character(0), tz = time_tz),
     stap_id = numeric(0),
-    value = numeric(0)
+    pressure_diff = numeric(0)
   )
 }
 
-compute_pressure_warning <- function(tag, warning_pressure_diff) {
-  if (is.null(tag$pressure) || nrow(tag$pressure) == 0 || !("label" %in% names(tag$pressure))) {
-    return(list(pressure_warning = empty_pressure_warning(), pressure_error = NULL))
-  }
-
-  tryCatch(
-    {
-      pres <- geopressure_map_preprocess(tag)
-      pres$stapelev <- factor(pres$stapelev)
-
-      pressure_warning <- data.frame(
-        date = utils::head(pres$date, -1) + diff(pres$date) / 2,
-        stap_id = (utils::tail(pres$stap_id, -1) + utils::head(pres$stap_id, -1)) / 2,
-        value = abs(diff(pres$value)),
-        date_diff = as.numeric(diff(pres$date), units = "hours"),
-        same_stapelev = utils::head(pres$stapelev, -1) == utils::tail(pres$stapelev, -1)
-      )
-      pressure_warning <- pressure_warning[
-        pressure_warning$date_diff == 1 &
-          pressure_warning$same_stapelev &
-          (pressure_warning$stap_id %% 1) == 0 &
-          pressure_warning$stap_id != 0 &
-          pressure_warning$value >= warning_pressure_diff,
-        c("date", "stap_id", "value"),
-        drop = FALSE
-      ]
-      pressure_warning <- pressure_warning[
-        order(pressure_warning$value, decreasing = TRUE),
-        ,
-        drop = FALSE
-      ]
-      rownames(pressure_warning) <- NULL
-
-      list(
-        pressure_warning = pressure_warning,
-        pressure_error = NULL
-      )
-    },
-    error = function(e) {
-      list(pressure_warning = empty_pressure_warning(), pressure_error = e$message)
-    }
-  )
-}
-
+# Same checks as `tag_label_check()`, formatted for the modal.
 compute_check_rows <- function(
   tag,
-  stap,
   warning_stap_duration,
   warning_flight_duration,
   warning_pressure_diff
 ) {
-  pcheck <- compute_pressure_warning(tag, warning_pressure_diff)
-
-  if (nrow(stap) == 0) {
+  if (is.null(tag$stap) || nrow(tag$stap) == 0) {
     return(list(
       single_stap = FALSE,
-      stap_warning = stap[0, c("stap_id", "start", "end"), drop = FALSE],
+      stap_warning = data.frame(
+        stap_id = numeric(0),
+        start = tag$pressure$date[0],
+        end = tag$pressure$date[0]
+      ),
       flight_warning = empty_flight_warning(),
-      pressure_warning = pcheck$pressure_warning,
-      pressure_error = pcheck$pressure_error,
+      pressure_warning = empty_pressure_warning(),
+      pressure_error = "No stationary period.",
       n_stap = 0,
       n_flight = 0
     ))
   }
 
-  # Filter short stationary periods.
-  duration_hours <- stap2duration(stap, units = "hours")
-  duration_time <- stap2duration(stap, return_numeric = FALSE)
-  stap_warning <- stap[
-    duration_hours <= warning_stap_duration,
-    c("stap_id", "start", "end"),
-    drop = FALSE
-  ]
-  stap_warning$duration <- duration_time[duration_hours <= warning_stap_duration]
-  stap_warning$duration_text <- vapply(
-    stap_warning$duration,
-    pretty_duration,
-    character(1)
+  checks <- tag_label_check(
+    tag,
+    warning_stap_duration = warning_stap_duration,
+    warning_flight_duration = warning_flight_duration,
+    warning_pressure_diff = warning_pressure_diff
   )
-  flight_warning <- empty_flight_warning()
-  n_flight <- 0
-  if (nrow(stap) > 1) {
-    # Filter short flights.
-    flight <- stap2flight(stap, units = "hours", return_numeric = FALSE)
-    n_flight <- nrow(flight)
-    flight_hours <- as.numeric(flight$duration, units = "hours")
-    flight_warning <- flight[
-      flight_hours <= warning_flight_duration,
-      c("stap_s", "stap_t", "start", "end", "duration"),
-      drop = FALSE
-    ]
-    if (nrow(flight_warning) > 0) {
-      flight_warning$duration_text <- vapply(
-        flight_warning$duration,
-        pretty_duration,
-        character(1)
-      )
-    } else {
-      flight_warning$duration_text <- character(0)
-    }
+  hours_text <- function(x) {
+    vapply(x, \(h) pretty_duration(as.difftime(h, units = "hours")), character(1))
   }
 
+  stap_warning <- checks$stap
+  stap_warning$duration_text <- hours_text(stap_warning$duration)
+  flight_warning <- if (is.null(checks$flight)) empty_flight_warning() else checks$flight
+  flight_warning$duration_text <- hours_text(flight_warning$duration)
+
   list(
-    single_stap = nrow(stap) == 1,
+    single_stap = nrow(tag$stap) == 1,
     stap_warning = stap_warning,
     flight_warning = flight_warning,
-    pressure_warning = pcheck$pressure_warning,
-    pressure_error = pcheck$pressure_error,
-    n_stap = nrow(stap),
-    n_flight = n_flight
+    pressure_warning = if (is.null(checks$pressure)) empty_pressure_warning() else checks$pressure,
+    pressure_error = checks$error,
+    n_stap = nrow(tag$stap),
+    n_flight = nrow(tag$stap) - 1
   )
 }
 
@@ -262,7 +198,7 @@ check_table_pressure <- function(pressure_warning) {
         shiny::tags$tr(
           shiny::tags$td(glue::glue("Stap {p$stap_id}")),
           shiny::tags$td(format(p$date, format = "%Y-%m-%d %H:%M")),
-          shiny::tags$td(round(p$value, 2)),
+          shiny::tags$td(round(p$pressure_diff, 2)),
           shiny::tags$td(check_pressure_button(p$date))
         )
       })
@@ -466,7 +402,6 @@ show_check_modal <- function() {
 check_sections <- shiny::reactive({
   checks <- compute_check_rows(
     state$tag,
-    state$stap_data,
     state$warning_stap_duration,
     state$warning_flight_duration,
     state$warning_pressure_diff

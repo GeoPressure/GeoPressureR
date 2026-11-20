@@ -53,6 +53,7 @@ reference:
       - tag_label_write
       - tag_label_read
       - tag_label_stap
+      - tag_label_check
   - subtitle: Tag utilities
     desc: Various utility functions related to a `tag` object.
     contents:

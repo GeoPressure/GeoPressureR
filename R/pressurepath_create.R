@@ -57,7 +57,9 @@
 #' @param debug Logical to display request details.
 #'
 #' @return A `pressurepath` data.frame containing tag pressure, coordinates, requested ERA5
-#'   variables, normalised surface pressure, and optional sunrise and sunset times.
+#'   variables, normalised surface pressure, and optional sunrise and sunset times. The attribute
+#'   `provenance` records the source (`"arco"` or `"api"`), the ERA5 dataset, the altitude formula,
+#'   the GeoPressureR version and, for the API, the unique versions of GeoPressureAPI used.
 #'
 #' @examplesIf interactive() || identical(Sys.getenv("IN_PKGDOWN"), "true")
 #' withr::with_dir(system.file("extdata", package = "GeoPressureR"), {
@@ -119,6 +121,8 @@ pressurepath_create <- function(
     for (a in setdiff(names(attributes(out[[1]])), c("names", "row.names", "class"))) {
       attr(pressurepath, a) <- attr(out[[1]], a)
     }
+    # One request per trajectory: keep the unique GeoPressureAPI versions of all of them
+    attr(pressurepath, "provenance") <- provenance_merge(lapply(out, attr, "provenance"))
     attr(pressurepath, "type") <- attr(path, "type")
     return(pressurepath)
   }
@@ -232,6 +236,8 @@ pressurepath_prepare <- function(tag, path, preprocess, quiet) {
 #' @param variable Variables the caller requested, in that order.
 #' @param era5_dataset,source Resolved ERA5 product and backend, recorded as attributes because
 #'   they change the result materially and cannot otherwise be recovered from a saved path.
+#' @param altitude_formula,api Altitude formula and GeoPressureAPI provenance objects, recorded with
+#'   `era5_dataset` and `source` in the attribute `provenance`.
 #' @noRd
 pressurepath_finalize <- function(
   pressurepath,
@@ -241,16 +247,14 @@ pressurepath_finalize <- function(
   solar_dep,
   variable = character(),
   era5_dataset = NA_character_,
-  source = NA_character_
+  source = NA_character_,
+  altitude_formula = NULL,
+  api = NULL
 ) {
   if ("surface_pressure" %in% names(pressurepath) && !all(is.na(pressurepath$surface_pressure))) {
     pressurepath$surface_pressure <- pressurepath$surface_pressure / 100
     pp <- pressurepath
-    pp$stapelev <- paste(
-      pp$stap_id,
-      ifelse(startsWith(pp$label, "elev_"), gsub("^.*?elev_", "", pp$label), "0"),
-      sep = "|"
-    )
+    pp$stapelev <- paste(pp$stap_id, label2elev(pp$label), sep = "|")
     pp$stapelev_label <- pp$stapelev
     pp$stapelev_label[pp$label == "discard"] <- 0
     agg <- merge(
@@ -299,5 +303,11 @@ pressurepath_finalize <- function(
   attr(pressurepath, "variable") <- variable
   attr(pressurepath, "era5_dataset") <- era5_dataset
   attr(pressurepath, "source") <- source
+  attr(pressurepath, "provenance") <- provenance_create(
+    source,
+    era5_dataset = era5_dataset,
+    altitude_formula = altitude_formula,
+    api = api
+  )
   pressurepath
 }

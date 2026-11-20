@@ -70,7 +70,8 @@ param_create <- function(id, default = FALSE, ...) {
         )$log_linear_pooling_weight,
         compute_known = formals(geopressure_map)$compute_known,
         keep_mask = formals(geopressure_map)$keep_mask,
-        keep_mse = formals(geopressure_map)$keep_mse
+        keep_mse = formals(geopressure_map)$keep_mse,
+        keep_mask_split = formals(geopressure_map)$keep_mask_split
       ),
       twilight_create = list(
         twl_thr = formals(twilight_create)$twl_thr,

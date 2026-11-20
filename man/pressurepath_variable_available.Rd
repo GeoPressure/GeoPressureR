@@ -42,6 +42,7 @@ pressurepath_variable_available("arco", "land")
 Other pressurepath:
 \code{\link[=geopressure_timeseries]{geopressure_timeseries()}},
 \code{\link[=plot_pressurepath]{plot_pressurepath()}},
+\code{\link[=pressurepath_check]{pressurepath_check()}},
 \code{\link[=pressurepath_create]{pressurepath_create()}}
 }
 \concept{pressurepath}

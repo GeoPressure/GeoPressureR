@@ -42,9 +42,10 @@ pressurepath_create_api_impl <- function(
 ) {
   # Check workers
   assertthat::assert_that(is.numeric(workers) | workers == "auto")
-  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below
+  # GEE allows up to 100 requests at the same time, so we set the workers a little bit below. The
+  # cost per point grows with the chunk size, so the API gets chunks of about 500 points.
   if (workers == "auto") {
-    workers <- max(1, min(90, round(nrow(pressurepath) / 1500)))
+    workers <- max(1, min(90, ceiling(nrow(pressurepath) / 500)))
   }
   assertthat::assert_that(workers > 0 & workers < 100)
 
@@ -75,7 +76,8 @@ pressurepath_create_api_impl <- function(
   req <- httr2::request(
     "https://glp.mgravey.com/GeoPressure/v2/pressurePath/"
   ) |>
-    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE, na = "null")
+    httr2::req_body_json(body, digit = 5, auto_unbox = FALSE, na = "null") |>
+    httr2::req_error(body = provenance_api_error)
 
   if (debug) {
     req <- httr2::req_verbose(
@@ -130,6 +132,8 @@ pressurepath_create_api_impl <- function(
     solar_dep,
     variable = variable,
     era5_dataset = era5_dataset,
-    source = "api"
+    source = "api",
+    altitude_formula = altitude_formula,
+    api = if (!is.null(resp_body$provenance)) list(resp_body$provenance)
   )
 }
